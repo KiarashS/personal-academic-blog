@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Sets the Pages build type to "workflow" if it is not already, which is
+      # also what reconciles the github-pages environment's deployment branch
+      # policy after the default branch changes.
+      - id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,9 +34,9 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          # Project pages are served from /<repo>/; drop this for a user site
-          # or a custom domain.
-          BASE_PATH: /${{ github.event.repository.name }}/
+          # base_path is "/<repo>" for a project site and empty for a user site
+          # or a custom domain, so the trailing slash covers both.
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -98,8 +98,10 @@ per page, and the giscus settings.
 the entry page so deep links work on hosts that have no rewrite rules.
 
 The included workflow (`.github/workflows/deploy.yml`) publishes to GitHub
-Pages on every push to `main`. For a project site the app has to know its
-subdirectory, which is what `BASE_PATH` does:
+Pages on every push to `main`. For a project site the app has to know which
+subdirectory it is served from, which is what `BASE_PATH` does; in the workflow
+it comes from `actions/configure-pages`, so project sites, user sites and
+custom domains all work without editing anything. Building by hand:
 
 ```bash
 BASE_PATH=/personal-academic-blog/ npm run build
