@@ -12,15 +12,6 @@ interface SearchRecord {
   body: string;
 }
 
-const records: SearchRecord[] = posts.map((post) => ({
-  post,
-  title: post.title,
-  summary: post.summary,
-  tags: post.tags.join(' '),
-  authors: post.authors.map((a) => a.name).join(' '),
-  body: post.plainText,
-}));
-
 const options: IFuseOptions<SearchRecord> = {
   includeScore: true,
   includeMatches: true,
@@ -52,11 +43,22 @@ export function toPattern(query: string): string {
     .join(' ');
 }
 
-let fuse: Fuse<SearchRecord> | null = null;
+let indexPromise: Promise<Fuse<SearchRecord>> | null = null;
 
-function index(): Fuse<SearchRecord> {
-  if (!fuse) fuse = new Fuse(records, options);
-  return fuse;
+/** The post text is a separate chunk, fetched the first time someone searches. */
+function index(): Promise<Fuse<SearchRecord>> {
+  indexPromise ??= import('./search-index').then(({ plainTextBySlug }) => {
+    const records: SearchRecord[] = posts.map((post) => ({
+      post,
+      title: post.title,
+      summary: post.summary,
+      tags: post.tags.join(' '),
+      authors: post.authors.map((a) => a.name).join(' '),
+      body: plainTextBySlug[post.slug] ?? '',
+    }));
+    return new Fuse(records, options);
+  });
+  return indexPromise;
 }
 
 export interface SearchHit {
@@ -65,22 +67,21 @@ export interface SearchHit {
   snippet?: string;
 }
 
-export function search(query: string, limit = 25): SearchHit[] {
+export async function search(query: string, limit = 25): Promise<SearchHit[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
 
   const pattern = toPattern(trimmed);
   if (!pattern) return [];
 
-  return index()
-    .search(pattern, { limit })
-    .map(({ item, matches }) => {
-      const bodyMatch = matches?.find((m) => m.key === 'body' && m.indices.length > 0);
-      return {
-        post: item.post,
-        snippet: bodyMatch ? snippetAround(item.body, bodyMatch.indices[0][0]) : undefined,
-      };
-    });
+  const fuse = await index();
+  return fuse.search(pattern, { limit }).map(({ item, matches }) => {
+    const bodyMatch = matches?.find((m) => m.key === 'body' && m.indices.length > 0);
+    return {
+      post: item.post,
+      snippet: bodyMatch ? snippetAround(item.body, bodyMatch.indices[0][0]) : undefined,
+    };
+  });
 }
 
 function snippetAround(text: string, at: number, radius = 110): string {

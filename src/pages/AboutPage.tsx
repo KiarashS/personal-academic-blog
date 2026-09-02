@@ -1,21 +1,23 @@
+import { Suspense, use } from 'react';
 import { AuthorCard } from '../components/AuthorCard';
-import { Markdown } from '../components/Markdown';
-import { PageMeta } from '../components/PageMeta';
 import { authors } from '../content/authors';
-import { parseFrontmatter } from '../lib/frontmatter';
-import aboutRaw from '../content/about.md?raw';
-import '../styles/prose.css';
 
-const { data, content } = parseFrontmatter<{ title: string }>(aboutRaw);
+const load = () => import('../content/about.md') as Promise<{ html: string }>;
+let promise: Promise<{ html: string }> | null = null;
+
+function AboutBody() {
+  promise ??= load();
+  const { html } = use(promise);
+  return <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />;
+}
 
 export function AboutPage() {
   return (
     <>
-      <PageMeta title={data.title ?? 'About'} />
-      <h1>{data.title ?? 'About'}</h1>
-      <div className="prose">
-        <Markdown>{content}</Markdown>
-      </div>
+      <h1>About</h1>
+      <Suspense fallback={<p className="empty">Loading…</p>}>
+        <AboutBody />
+      </Suspense>
       <h2 className="section-heading" style={{ marginTop: '3rem' }}>
         People
       </h2>

@@ -1,4 +1,3 @@
-import { PageMeta } from '../components/PageMeta';
 import { TagList } from '../components/TagList';
 import { tagCounts } from '../lib/posts';
 import { tagSlug } from '../lib/format';
@@ -9,7 +8,6 @@ export function TagsPage() {
 
   return (
     <>
-      <PageMeta title="Tags" description="Every tag used across the posts." />
       <h1>Tags</h1>
       <p className="lede">
         {counts.length} tag{counts.length === 1 ? '' : 's'} across the archive.

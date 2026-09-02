@@ -31,6 +31,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Diagrams are rendered to SVG at build time, which needs a browser.
+      - run: npx playwright install --with-deps chromium
       - run: npm test
       - run: npm run build
         env:

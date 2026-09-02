@@ -1,7 +1,6 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
-import { getAuthors } from '../content/authors';
-import type { Post, PostFrontmatter } from './types';
+import type { Heading, PostFrontmatter, PostMeta } from './types';
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
 
@@ -22,33 +21,59 @@ export interface RawPost {
   raw: string;
 }
 
-export function buildPost({ path, raw }: RawPost): Post & { draft: boolean } {
+export interface BuiltPost {
+  meta: Omit<PostMeta, 'headings'>;
+  /** Markdown body, for the renderer. */
+  body: string;
+  /** Prose only, for search and reading time. */
+  plainText: string;
+}
+
+/** Everything derivable from a post file without running the render pipeline. */
+export function buildPost({ path, raw }: RawPost): BuiltPost {
   const { data, content } = parseFrontmatter<PostFrontmatter>(raw);
   const plainText = toPlainText(content);
 
   return {
-    slug: data.slug ?? slugFromPath(path),
-    title: data.title ?? slugFromPath(path),
-    date: data.date ?? dateFromPath(path),
-    updated: data.updated,
-    tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
-    authors: getAuthors(data.authors),
-    summary: data.summary ?? excerpt(plainText),
+    meta: {
+      slug: data.slug ?? slugFromPath(path),
+      title: data.title ?? slugFromPath(path),
+      date: data.date ?? dateFromPath(path),
+      updated: data.updated,
+      tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+      authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
+      summary: data.summary ?? excerpt(plainText),
+      readingMinutes: readingMinutes(plainText),
+      doi: data.doi,
+      draft: data.draft === true,
+    },
     body: content,
     plainText,
-    readingMinutes: readingMinutes(plainText),
-    doi: data.doi,
-    draft: data.draft === true,
   };
 }
 
-export function buildPosts(files: RawPost[], includeDrafts: boolean): Post[] {
+export interface SelectOptions {
+  /** Drafts and future-dated posts are visible in dev, never in a build. */
+  includeUnpublished: boolean;
+  /** Today, as `YYYY-MM-DD`. Injected so the test suite is not time-dependent. */
+  today: string;
+}
+
+function publishable(post: PostMeta, { includeUnpublished, today }: SelectOptions): boolean {
+  if (includeUnpublished) return true;
+  if (post.draft) return false;
+  // A post dated ahead of today waits for its date instead of appearing early.
+  return !post.date || post.date <= today;
+}
+
+export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptions): T[] {
   const seen = new Set<string>();
 
-  return files
-    .map(buildPost)
-    .filter((post) => includeDrafts || !post.draft)
-    .sort((a, b) => (a.date === b.date ? a.title.localeCompare(b.title) : b.date.localeCompare(a.date)))
+  return posts
+    .filter((post) => publishable(post, options))
+    .sort((a, b) =>
+      a.date === b.date ? a.title.localeCompare(b.title) : b.date.localeCompare(a.date),
+    )
     // Sorting first means a duplicated slug resolves to the newer post.
     .filter((post) => {
       if (seen.has(post.slug)) {
@@ -57,6 +82,14 @@ export function buildPosts(files: RawPost[], includeDrafts: boolean): Post[] {
       }
       seen.add(post.slug);
       return true;
-    })
-    .map(({ draft: _draft, ...post }) => post);
+    });
+}
+
+export function todayUtc(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Collects the `h2`/`h3` headings a post page turns into its contents list. */
+export function tableOfContents(headings: Heading[], minimum = 3): Heading[] {
+  return headings.length >= minimum ? headings : [];
 }

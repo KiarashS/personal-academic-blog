@@ -10,24 +10,33 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue>({ theme: 'light', toggle: () => {} });
 
-function initialTheme(): Theme {
-  if (typeof document === 'undefined') return 'light';
+function currentTheme(): Theme {
   const attr = document.documentElement.dataset.theme;
   if (attr === 'light' || attr === 'dark') return attr;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(initialTheme);
+  // Deliberately deterministic: pages are prerendered, so the first client
+  // render has to match the server's. The real theme is adopted on mount, and
+  // the inline script in index.html has already painted the right colours.
+  const [theme, setTheme] = useState<Theme>('light');
+  const [adopted, setAdopted] = useState(false);
 
   useEffect(() => {
+    setTheme(currentTheme());
+    setAdopted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!adopted) return;
     document.documentElement.dataset.theme = theme;
     try {
       localStorage.setItem('theme', theme);
     } catch {
       // Private browsing modes throw here; the theme still applies for the session.
     }
-  }, [theme]);
+  }, [theme, adopted]);
 
   // Follow the OS until the reader makes an explicit choice.
   useEffect(() => {

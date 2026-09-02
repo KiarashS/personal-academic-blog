@@ -30,17 +30,31 @@ export interface PostFrontmatter {
   doi?: string;
 }
 
-export interface Post {
+export interface Heading {
+  id: string;
+  text: string;
+  depth: 2 | 3;
+}
+
+/**
+ * What the Markdown plugin emits for each post's `?meta` module: everything the
+ * list pages need, without the rendered body.
+ */
+export interface PostMeta {
   slug: string;
   title: string;
   date: string;
   updated?: string;
   tags: string[];
-  authors: Author[];
+  authorIds: string[];
   summary: string;
-  body: string;
-  /** Markdown stripped down to words, used for search and reading time. */
-  plainText: string;
   readingMinutes: number;
   doi?: string;
+  draft: boolean;
+  headings: Heading[];
+}
+
+/** A post with its authors resolved, as the components consume it. */
+export interface Post extends Omit<PostMeta, 'authorIds' | 'draft'> {
+  authors: Author[];
 }

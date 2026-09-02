@@ -551,3 +551,96 @@ mark {
   white-space: nowrap;
   width: 1px;
 }
+
+/* Contents, citation block, post tags ------------------------------------- */
+
+.toc {
+  border-left: 2px solid var(--rule);
+  margin: 0 0 2rem;
+  padding-left: 1rem;
+}
+
+.toc .section-heading {
+  margin-bottom: 0.5rem;
+}
+
+.toc ol {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc li {
+  margin-bottom: 0.25rem;
+}
+
+.toc__sub {
+  padding-left: 1rem;
+}
+
+.toc a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.toc a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.post-tags {
+  margin-top: 2.5rem;
+}
+
+.cite {
+  border-top: 1px solid var(--rule);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.cite summary {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+}
+
+.cite summary:hover {
+  color: var(--text);
+}
+
+.cite .code-block {
+  margin-top: 0.9rem;
+}
+
+.cite pre {
+  white-space: pre-wrap;
+}
+
+.code-block__copy--static {
+  opacity: 1;
+}
+
+.theme-toggle__dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .theme-toggle__light {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .theme-toggle__dark {
+    display: inline;
+  }
+}
+
+:root[data-theme='dark'] .theme-toggle__light {
+  display: none;
+}
+
+:root[data-theme='dark'] .theme-toggle__dark {
+  display: inline;
+}

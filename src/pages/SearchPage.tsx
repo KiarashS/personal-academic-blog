@@ -1,9 +1,9 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PageMeta } from '../components/PageMeta';
 import { PostMeta } from '../components/PostMeta';
 import { TagList } from '../components/TagList';
 import { search } from '../lib/search';
+import type { SearchHit } from '../lib/search';
 import { posts } from '../lib/posts';
 
 export function SearchPage() {
@@ -25,12 +25,26 @@ export function SearchPage() {
     return () => window.clearTimeout(timer);
   }, [query, setParams]);
 
-  const hits = useMemo(() => search(deferred), [deferred]);
+  const [hits, setHits] = useState<SearchHit[]>([]);
   const typed = deferred.trim().length >= 2;
+
+  // The index is a separate chunk; the first search pulls it in.
+  useEffect(() => {
+    let current = true;
+    if (!typed) {
+      setHits([]);
+      return;
+    }
+    search(deferred).then((results) => {
+      if (current) setHits(results);
+    });
+    return () => {
+      current = false;
+    };
+  }, [deferred, typed]);
 
   return (
     <>
-      <PageMeta title="Search" description="Search the archive by title, tag, author or text." />
       <h1>Search</h1>
       <form role="search" onSubmit={(event) => event.preventDefault()}>
         <label className="visually-hidden" htmlFor="search-input">

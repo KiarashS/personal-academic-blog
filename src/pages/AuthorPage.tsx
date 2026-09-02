@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
-import { PageMeta } from '../components/PageMeta';
 import { PostList } from '../components/PostList';
 import { authors } from '../content/authors';
 import { postsByAuthor } from '../lib/posts';
@@ -15,7 +14,6 @@ export function AuthorPage() {
 
   return (
     <>
-      <PageMeta title={author.name} description={author.bio} />
       <h1>{author.name}</h1>
       <AuthorCard author={author} headingLevel="h3" linkName={false} />
       <h2 className="section-heading" style={{ marginTop: '2.5rem' }}>

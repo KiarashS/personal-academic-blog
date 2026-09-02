@@ -1,18 +1,25 @@
-import { buildPosts } from './post-builder';
+import { selectPosts, todayUtc } from './post-builder';
+import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
-import type { Post } from './types';
+import type { Post, PostMeta } from './types';
 
-const modules = import.meta.glob('../content/posts/*.md', {
-  query: '?raw',
+// Only metadata is eager. Post bodies and the search text live in their own
+// modules so the list pages do not carry the whole archive.
+const metaModules = import.meta.glob('../content/posts/*.md', {
+  query: '?meta',
   import: 'default',
   eager: true,
-}) as Record<string, string>;
+}) as Record<string, PostMeta>;
 
-/** Drafts are visible while running `npm run dev`, never in a build. */
-export const posts: Post[] = buildPosts(
-  Object.entries(modules).map(([path, raw]) => ({ path, raw })),
-  import.meta.env.DEV,
-);
+const selected = selectPosts(Object.values(metaModules), {
+  includeUnpublished: import.meta.env.DEV,
+  today: todayUtc(),
+});
+
+export const posts: Post[] = selected.map(({ authorIds, draft: _draft, ...meta }) => ({
+  ...meta,
+  authors: getAuthors(authorIds),
+}));
 
 export const postsBySlug = new Map(posts.map((post) => [post.slug, post]));
 

@@ -1,6 +1,7 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
+import { PageMeta } from './PageMeta';
 import { ThemeToggle } from './ThemeToggle';
 
 function ScrollToTop() {
@@ -16,6 +17,7 @@ export function Layout() {
 
   return (
     <div className="page">
+      <PageMeta />
       <ScrollToTop />
       <a className="skip-link" href="#main">
         Skip to content

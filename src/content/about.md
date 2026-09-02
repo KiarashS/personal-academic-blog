@@ -1,14 +1,10 @@
 ---
-title: About this notebook
+title: About
 ---
 
-This is a working notebook, not a journal. Posts here are drafts of arguments,
-notes on methods I had to reconstruct from a paper's appendix, and the
-occasional negative result that never made it into a submission.
+Placeholder text. Replace this file (`src/content/about.md`) with a description
+of who you are and what you post here.
 
-Everything is written in Markdown with frontmatter. Math is KaTeX, diagrams are
-Mermaid, and comments are GitHub Discussions through giscus, so the discussion
-lives in the same place as the source.
-
-Corrections are welcome. If a derivation is wrong, leave a comment on the post
-or open an issue; I would rather fix it than leave it standing.
+The page is plain Markdown with frontmatter, the same as any post, so
+everything the posts can do works here too: math, diagrams, code, footnotes.
+The author cards below are generated from `src/content/authors.ts`.

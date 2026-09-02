@@ -1,13 +1,15 @@
+import { Suspense } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
+import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
-import { Markdown } from '../components/Markdown';
-import { PageMeta } from '../components/PageMeta';
+import { PostBody } from '../components/PostBody';
+import { TableOfContents } from '../components/TableOfContents';
 import { TagList } from '../components/TagList';
 import { formatDate, isoDate } from '../lib/format';
 import { getPost, neighbours } from '../lib/posts';
+import { tableOfContents } from '../lib/post-builder';
 import { NotFoundPage } from './NotFoundPage';
-import '../styles/prose.css';
 
 export function PostPage() {
   const { slug } = useParams();
@@ -15,10 +17,10 @@ export function PostPage() {
   if (!post) return <NotFoundPage what="post" />;
 
   const { previous, next } = neighbours(post.slug);
+  const contents = tableOfContents(post.headings);
 
   return (
     <article>
-      <PageMeta title={post.title} description={post.summary} />
 
       <header className="post-header">
         <h1>{post.title}</h1>
@@ -56,15 +58,19 @@ export function PostPage() {
         ) : null}
       </header>
 
-      <div className="prose">
-        <Markdown>{post.body}</Markdown>
-      </div>
+      <TableOfContents headings={contents} />
+
+      <Suspense fallback={<p className="empty">Loading…</p>}>
+        <PostBody slug={post.slug} />
+      </Suspense>
 
       {post.tags.length > 0 ? (
-        <div style={{ marginTop: '2.5rem' }}>
+        <div className="post-tags">
           <TagList tags={post.tags} />
         </div>
       ) : null}
+
+      <CiteBlock post={post} />
 
       {post.authors.map((author) => (
         <AuthorCard key={author.id} author={author} />

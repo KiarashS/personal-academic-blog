@@ -284,3 +284,47 @@
   overflow-x: auto;
   white-space: pre-wrap;
 }
+
+/* Diagrams are inlined twice, once per theme, and swapped with CSS so that
+   changing theme costs no request and works before any script runs. */
+.mermaid-figure__dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .mermaid-figure__light {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .mermaid-figure__dark {
+    display: block;
+  }
+}
+
+:root[data-theme='dark'] .mermaid-figure__light {
+  display: none;
+}
+
+:root[data-theme='dark'] .mermaid-figure__dark {
+  display: block;
+}
+
+/* Citations ---------------------------------------------------------------- */
+
+.prose .references,
+.prose .csl-bib-body {
+  border-top: 1px solid var(--rule);
+  font-size: 0.9rem;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+}
+
+.prose .csl-entry {
+  margin-bottom: 0.6rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+}
+
+.prose .citation a {
+  text-decoration: none;
+}

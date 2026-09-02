@@ -1,5 +1,4 @@
 import { Navigate, useParams } from 'react-router-dom';
-import { PageMeta } from '../components/PageMeta';
 import { Pagination } from '../components/Pagination';
 import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
@@ -23,7 +22,6 @@ export function HomePage() {
 
   return (
     <>
-      <PageMeta title={page > 1 ? `Posts, page ${page}` : undefined} />
       <PostList posts={items} />
       <Pagination page={page} totalPages={totalPages} hrefFor={(n) => (n === 1 ? '/' : `/page/${n}`)} />
     </>

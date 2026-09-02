@@ -28,7 +28,9 @@ export const siteConfig: SiteConfig = {
   tagline: 'Working notes on statistics, computation and the papers in between.',
   description:
     'A personal research notebook: preprints in progress, method notes, and reading summaries.',
-  url: 'https://example.org',
+  // Origin only; the deployment's base path is added by `canonicalUrl`.
+  // Canonical links, Open Graph tags, the feed and BibTeX are all built from it.
+  url: 'https://kiarashs.github.io',
   postsPerPage: 4,
   nav: [
     { label: 'Posts', to: '/' },
