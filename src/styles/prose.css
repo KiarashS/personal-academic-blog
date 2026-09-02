@@ -1,0 +1,286 @@
+.prose {
+  max-width: var(--measure);
+}
+
+.prose > * {
+  max-width: 100%;
+}
+
+.prose h2 {
+  margin-top: 2.4rem;
+}
+
+.prose h3 {
+  margin-top: 1.8rem;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 1.1rem;
+  padding-left: 1.4rem;
+}
+
+.prose li {
+  margin-bottom: 0.35rem;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--rule-strong);
+  color: var(--text-muted);
+  margin: 1.5rem 0;
+  padding: 0.1rem 0 0.1rem 1rem;
+}
+
+.prose figure {
+  margin: 1.75rem 0;
+}
+
+.prose figcaption {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.prose sup a,
+.prose .footnote-ref {
+  text-decoration: none;
+}
+
+.prose .footnotes {
+  border-top: 1px solid var(--rule);
+  font-size: 0.9rem;
+  margin-top: 3rem;
+  padding-top: 1rem;
+}
+
+/* Anchored headings */
+.prose :is(h2, h3, h4)[id] {
+  scroll-margin-top: 1.5rem;
+}
+
+/* Tables ------------------------------------------------------------------ */
+
+.prose .table-wrap {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.prose table {
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  min-width: 100%;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.45rem 0.8rem 0.45rem 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose thead th {
+  border-bottom: 1px solid var(--rule-strong);
+  font-weight: 600;
+}
+
+/* Code -------------------------------------------------------------------- */
+
+.prose code {
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.85em;
+  padding: 0.12em 0.32em;
+}
+
+.code-block {
+  margin: 1.6rem 0;
+  position: relative;
+}
+
+.code-block pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0.9rem 1rem;
+}
+
+.code-block pre code {
+  background: none;
+  display: block;
+  font-size: inherit;
+  padding: 0;
+}
+
+.code-block__lang {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  position: absolute;
+  right: 3.4rem;
+  text-transform: uppercase;
+  top: 0.55rem;
+}
+
+.code-block__copy {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  opacity: 0;
+  padding: 0.1rem 0.4rem;
+  position: absolute;
+  right: 0.5rem;
+  top: 0.45rem;
+  transition: opacity 120ms ease-in-out;
+}
+
+.code-block:hover .code-block__copy,
+.code-block__copy:focus-visible {
+  opacity: 1;
+}
+
+/* highlight.js tokens, expressed against the theme variables so light and
+   dark stay in step without shipping two vendor themes. */
+.hljs-comment,
+.hljs-quote {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-name,
+.hljs-section,
+.hljs-meta .hljs-keyword {
+  color: var(--accent);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  color: #3f7a4c;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #7a5c1a;
+}
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.function_,
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-selector-id {
+  color: #2f5d8a;
+}
+
+.hljs-attr,
+.hljs-property,
+.hljs-params {
+  color: var(--text);
+}
+
+.hljs-meta,
+.hljs-deletion {
+  color: var(--text-muted);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
+
+:root[data-theme='dark'] .hljs-string,
+:root[data-theme='dark'] .hljs-regexp,
+:root[data-theme='dark'] .hljs-addition,
+:root[data-theme='dark'] .hljs-attribute {
+  color: #8fbf98;
+}
+
+:root[data-theme='dark'] .hljs-number,
+:root[data-theme='dark'] .hljs-symbol,
+:root[data-theme='dark'] .hljs-bullet,
+:root[data-theme='dark'] .hljs-link,
+:root[data-theme='dark'] .hljs-variable,
+:root[data-theme='dark'] .hljs-template-variable,
+:root[data-theme='dark'] .hljs-type {
+  color: #d6bd7e;
+}
+
+:root[data-theme='dark'] .hljs-title,
+:root[data-theme='dark'] .hljs-title.class_,
+:root[data-theme='dark'] .hljs-title.function_,
+:root[data-theme='dark'] .hljs-built_in,
+:root[data-theme='dark'] .hljs-selector-id {
+  color: #8fb4d9;
+}
+
+/* Math -------------------------------------------------------------------- */
+
+.prose .katex {
+  font-size: 1.03em;
+}
+
+.prose .katex-display {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2rem 0;
+}
+
+/* Mermaid ----------------------------------------------------------------- */
+
+.mermaid-figure {
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.mermaid-figure svg {
+  height: auto;
+  max-width: 100%;
+}
+
+.mermaid-error {
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.mermaid-error pre {
+  font-size: 0.75rem;
+  margin: 0.5rem 0 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
