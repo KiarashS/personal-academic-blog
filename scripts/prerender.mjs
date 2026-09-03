@@ -53,17 +53,28 @@ async function write(relative, contents) {
   await writeFile(target, contents, 'utf8');
 }
 
-const basename = withBase('/') || '/';
+// React Router matches the location against the basename, so a prerendered
+// path has to carry the base prefix; without it nothing matches and the body
+// comes out empty.
+const rawBase = withBase('/') || '/';
+const basename = rawBase === '/' ? '/' : rawBase.replace(/\/$/, '');
+const locationOf = (route) => (basename === '/' ? route : `${basename}${route}`);
 
 for (const route of allRoutes()) {
-  const html = await render(route, basename);
+  const html = await render(locationOf(route), basename);
+  // An empty body means the router matched nothing — a basename or route
+  // mismatch. It is invisible in the browser, because the client renders the
+  // page anyway, so fail the build instead of shipping hollow HTML.
+  if (html.trim() === '') {
+    throw new Error(`Prerendering ${route} produced an empty document (basename ${basename}).`);
+  }
   const relative = route === '/' ? 'index.html' : `${route.replace(/^\//, '')}/index.html`;
   await write(relative, document(html, pageFor(route)));
 }
 
 // Unknown paths: static hosts serve 404.html, which boots the router and
 // renders whatever the path turns out to be.
-const missing = await render('/__not_found__', basename);
+const missing = await render(locationOf('/__not_found__'), basename);
 await write(
   '404.html',
   document(missing, { ...metaFor('/__not_found__'), url: canonicalUrl('/404'), type: 'website' }),
