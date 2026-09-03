@@ -9,7 +9,7 @@ export interface GiscusConfig {
 }
 
 /** Optional parts of the site that can be switched off wholesale. */
-export type FeatureName = 'publications';
+export type FeatureName = 'publications' | 'archive';
 
 export interface NavItem {
   label: string;
@@ -50,11 +50,12 @@ export const siteConfig: SiteConfig = {
   postsPerPage: 4,
   features: {
     publications: false,
+    archive: true,
   },
   nav: [
     { label: 'Posts', to: '/' },
     { label: 'Publications', to: '/publications', feature: 'publications' },
-    { label: 'Archive', to: '/archive' },
+    { label: 'Archive', to: '/archive', feature: 'archive' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },

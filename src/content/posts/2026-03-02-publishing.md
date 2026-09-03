@@ -61,7 +61,8 @@ runs.
 
 ```ts
 features: {
-  publications: false,
+  publications: false,   // /publications, from publications.bib
+  archive: true,         // /archive, every post grouped by year
 },
 ```
 

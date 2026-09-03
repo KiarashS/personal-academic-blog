@@ -142,19 +142,8 @@ white-background plots from glaring out of a dark page.
 year, each entry linking to its DOI or arXiv page with its BibTeX behind a
 disclosure. It ships with two well-known papers as samples — replace them.
 
-Switch the page off in `src/site.config.ts` if you do not want it:
-
-```ts
-features: {
-  publications: false,
-},
-```
-
-That removes the nav entry, the route and the prerendered page, and drops it
-from the sitemap — the page is absent from the built site rather than hidden.
-The page component still ends up in the bundle as an unreferenced chunk that no
-reader fetches; the flag is read at runtime, so the bundler cannot prove the
-import is dead.
+Switch the page off in `src/site.config.ts` if you do not want it. See
+[Optional pages](#optional-pages) below.
 
 ## What the build produces
 
@@ -208,6 +197,61 @@ time someone searches, so it is not part of what every other reader downloads.
 Tokens shorter than six characters must match literally; longer ones are
 matched fuzzily. So `notaton` still finds "Notation" while `seed` does not match
 every post containing the word "see". The query is mirrored into `?q=`.
+
+## Optional pages
+
+`features` in `src/site.config.ts` turns whole sections on and off:
+
+```ts
+features: {
+  publications: false,   // /publications, generated from publications.bib
+  archive: true,         // /archive, every post grouped by year
+},
+```
+
+A feature that is off has no nav entry, no route and no prerendered page, and
+does not appear in the sitemap. The page is absent from the built site rather
+than hidden with CSS. Nav visibility, routing and the prerendered route list
+all read the same flag, so they cannot fall out of step.
+
+One wrinkle: the page component still ends up in the bundle as an unreferenced
+chunk that no reader ever fetches. The flag is read at runtime, so the bundler
+cannot prove the import is dead.
+
+## Working without the assets
+
+`public/` holds every figure, diagram variant and attachment, so it grows with
+the archive while the code stays small. To work on the code or the prose
+without downloading it, take a blobless, sparse clone:
+
+```bash
+git clone --filter=blob:none --no-checkout https://github.com/KiarashS/personal-academic-blog.git
+cd personal-academic-blog
+git sparse-checkout init --no-cone
+git sparse-checkout set '/*' '!/public/'
+git checkout main
+```
+
+`--filter=blob:none` is what saves the bandwidth: file contents are fetched on
+demand rather than up front. The sparse pattern then keeps `public/` out of the
+working tree. Cone mode cannot express an exclusion, hence `--no-cone`.
+
+On a clone you already have, the last two lines are enough:
+
+```bash
+git sparse-checkout set --no-cone '/*' '!/public/'
+```
+
+To bring it back:
+
+```bash
+git sparse-checkout disable
+```
+
+What you give up: `npm run build` still completes, but the figure pipeline
+cannot measure images it cannot open, and `npm run links` then fails on the
+missing files — three broken links with the sample content. A checkout without
+`public/` is for editing code and prose, not for producing a deployable build.
 
 ## Checks
 

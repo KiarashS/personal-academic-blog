@@ -46,14 +46,16 @@ export function App() {
             }
           />
         ) : null}
-        <Route
-          path="archive"
-          element={
-            <Suspense fallback={<p className="empty">Loading…</p>}>
-              <ArchivePage />
-            </Suspense>
-          }
-        />
+        {isEnabled('archive') ? (
+          <Route
+            path="archive"
+            element={
+              <Suspense fallback={<p className="empty">Loading…</p>}>
+                <ArchivePage />
+              </Suspense>
+            }
+          />
+        ) : null}
         <Route path="tags" element={<TagsPage />} />
         <Route path="tags/:tag" element={<TagPage />} />
         <Route path="tags/:tag/page/:page" element={<TagPage />} />

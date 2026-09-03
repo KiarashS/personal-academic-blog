@@ -73,7 +73,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (path === '/archive') {
+  if (path === '/archive' && isEnabled('archive')) {
     return {
       title: withSuffix('Archive'),
       description: `Every post, grouped by year — ${posts.length} in total.`,
@@ -87,8 +87,9 @@ export function metaFor(pathname: string): RouteMeta {
 
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
-  const routes = new Set<string>(['/', '/tags', '/search', '/about', '/archive']);
+  const routes = new Set<string>(['/', '/tags', '/search', '/about']);
   if (isEnabled('publications')) routes.add('/publications');
+  if (isEnabled('archive')) routes.add('/archive');
 
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(`/page/${page}`);
