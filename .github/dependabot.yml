@@ -4,15 +4,27 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # typescript-eslint peers on typescript >=4.8.4 <6.1.0, so a TypeScript
+      # major lands as an unresolvable install rather than a failing test.
+      # Drop this once the lint toolchain supports the next major.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
-      # One pull request per family keeps the review load sane.
+      # One pull request per family keeps the review load sane — and keeps
+      # packages that peer-depend on each other moving together.
       react:
         patterns: ['react', 'react-dom', '@types/react', '@types/react-dom', 'react-router-dom']
       unified:
         patterns: ['remark*', 'rehype*', 'unified', 'hast-util-*']
+      eslint:
+        patterns: ['eslint', 'eslint-*', '@eslint/*', 'typescript-eslint', 'globals']
       tooling:
-        patterns: ['vite', '@vitejs/*', 'vitest', 'typescript', 'eslint*', 'prettier', 'stylelint*']
+        patterns: ['vite', '@vitejs/*', 'vitest', 'typescript', 'prettier', 'stylelint*']
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns: ['*']

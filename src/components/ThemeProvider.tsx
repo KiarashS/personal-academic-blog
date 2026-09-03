@@ -90,9 +90,14 @@ function getSystem(): Theme {
   return window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light';
 }
 
+// The server snapshots are what the prerendered markup was built from, so they
+// are what the client must hydrate against. Typed rather than asserted.
+const serverChoice = (): ThemeChoice => 'system';
+const serverSystem = (): Theme => 'light';
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const choice = useSyncExternalStore(subscribeChoice, getChoice, () => 'system' as ThemeChoice);
-  const systemPreference = useSyncExternalStore(subscribeSystem, getSystem, () => 'light' as Theme);
+  const choice = useSyncExternalStore(subscribeChoice, getChoice, serverChoice);
+  const systemPreference = useSyncExternalStore(subscribeSystem, getSystem, serverSystem);
 
   useEffect(() => {
     // `system` leaves the attribute off entirely, which is what lets the
