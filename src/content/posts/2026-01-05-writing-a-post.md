@@ -51,5 +51,7 @@ survives, as a key in the module map, so name the file with that in mind.
 ## Structure
 
 Headings from `h2` down get ids automatically, so you can link to a section.
-Posts with three or more `h2`/`h3` headings get a contents list above the text;
-shorter posts do not, because a two-item table of contents is just noise.
+Posts with three or more `h2`/`h3` headings get a contents list above the text,
+collapsed until the reader opens it so that a long list does not push the
+opening paragraph off the screen. Shorter posts get none at all, because a
+two-item table of contents is just noise.

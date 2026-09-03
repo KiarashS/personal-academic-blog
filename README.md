@@ -100,6 +100,14 @@ that happens to contain the right page.
 Alongside them: `feed.xml` (Atom, full text, linked from every page's head),
 `sitemap.xml`, and `robots.txt`.
 
+## Themes
+
+Light, dark, or follow the system, cycled from the header. The choice is stored
+per reader and applied by an inline script before first paint. `system` leaves
+`data-theme` off the root element so the stylesheet's `prefers-color-scheme`
+rules apply; the other two set it. Diagrams, syntax highlighting and the
+comment iframe all follow.
+
 ## Authors
 
 `src/content/authors.ts` holds the author records: name, role, affiliation,

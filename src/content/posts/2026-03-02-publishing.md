@@ -46,6 +46,15 @@ Short queries are matched literally and longer ones fuzzily. Fuzzy-matching a
 four-letter word against a whole post body matches every post, while a typo in
 a longer word should still find what you meant.
 
+## Themes
+
+The toggle in the header has three positions: follow the system, force light,
+force dark. "Follow the system" is the default and stores nothing beyond the
+choice itself; the other two are remembered. Which state the button shows is
+decided in CSS from a `data-theme` attribute set before first paint, so the
+page never flashes the wrong colours and the button is right before any script
+runs.
+
 ## The three things to fill in
 
 `src/site.config.ts` holds the title, tagline, description and the site's URL —

@@ -174,7 +174,7 @@
 .hljs-addition,
 .hljs-attribute,
 .hljs-meta .hljs-string {
-  color: #3f7a4c;
+  color: var(--hl-string);
 }
 
 .hljs-number,
@@ -186,7 +186,7 @@
 .hljs-type,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-  color: #7a5c1a;
+  color: var(--hl-number);
 }
 
 .hljs-title,
@@ -195,7 +195,7 @@
 .hljs-built_in,
 .hljs-class .hljs-title,
 .hljs-selector-id {
-  color: #2f5d8a;
+  color: var(--hl-title);
 }
 
 .hljs-attr,
@@ -215,31 +215,6 @@
 
 .hljs-strong {
   font-weight: 600;
-}
-
-:root[data-theme='dark'] .hljs-string,
-:root[data-theme='dark'] .hljs-regexp,
-:root[data-theme='dark'] .hljs-addition,
-:root[data-theme='dark'] .hljs-attribute {
-  color: #8fbf98;
-}
-
-:root[data-theme='dark'] .hljs-number,
-:root[data-theme='dark'] .hljs-symbol,
-:root[data-theme='dark'] .hljs-bullet,
-:root[data-theme='dark'] .hljs-link,
-:root[data-theme='dark'] .hljs-variable,
-:root[data-theme='dark'] .hljs-template-variable,
-:root[data-theme='dark'] .hljs-type {
-  color: #d6bd7e;
-}
-
-:root[data-theme='dark'] .hljs-title,
-:root[data-theme='dark'] .hljs-title.class_,
-:root[data-theme='dark'] .hljs-title.function_,
-:root[data-theme='dark'] .hljs-built_in,
-:root[data-theme='dark'] .hljs-selector-id {
-  color: #8fb4d9;
 }
 
 /* Math -------------------------------------------------------------------- */

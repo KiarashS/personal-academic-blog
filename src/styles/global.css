@@ -3,34 +3,93 @@
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
-  --bg: #fdfdfc;
-  --bg-subtle: #f4f4f1;
-  --text: #1b1b18;
-  --text-muted: #6a6a62;
-  --rule: #e2e2dc;
-  --rule-strong: #c9c9c0;
-  --link: #1b1b18;
-  --accent: #7a3b2e;
-  --code-bg: #f6f6f3;
-  --mark: #f3e8c8;
+  /* Both palettes are defined once here; the rules below only choose between
+     them, so a colour is never edited in two places. */
+  --light-bg: #fdfdfc;
+  --light-bg-subtle: #f4f4f1;
+  --light-text: #1b1b18;
+  --light-text-muted: #6a6a62;
+  --light-rule: #e2e2dc;
+  --light-rule-strong: #c9c9c0;
+  --light-accent: #7a3b2e;
+  --light-code-bg: #f6f6f3;
+  --light-mark: #f3e8c8;
+  --light-hl-string: #3f7a4c;
+  --light-hl-number: #7a5c1a;
+  --light-hl-title: #2f5d8a;
+
+  --dark-bg: #14140f;
+  --dark-bg-subtle: #1c1c16;
+  --dark-text: #e6e4dc;
+  --dark-text-muted: #9b988c;
+  --dark-rule: #2e2e26;
+  --dark-rule-strong: #45453a;
+  --dark-accent: #d99a80;
+  --dark-code-bg: #1b1b15;
+  --dark-mark: #4a3f1e;
+  --dark-hl-string: #8fbf98;
+  --dark-hl-number: #d6bd7e;
+  --dark-hl-title: #8fb4d9;
 
   --measure: 38rem;
   --wide: 46rem;
 
+  --bg: var(--light-bg);
+  --bg-subtle: var(--light-bg-subtle);
+  --text: var(--light-text);
+  --text-muted: var(--light-text-muted);
+  --rule: var(--light-rule);
+  --rule-strong: var(--light-rule-strong);
+  --link: var(--light-text);
+  --accent: var(--light-accent);
+  --code-bg: var(--light-code-bg);
+  --mark: var(--light-mark);
+  --hl-string: var(--light-hl-string);
+  --hl-number: var(--light-hl-number);
+  --hl-title: var(--light-hl-title);
+
+  color-scheme: light dark;
+}
+
+/* No `data-theme` means the reader follows their system. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: var(--dark-bg);
+    --bg-subtle: var(--dark-bg-subtle);
+    --text: var(--dark-text);
+    --text-muted: var(--dark-text-muted);
+    --rule: var(--dark-rule);
+    --rule-strong: var(--dark-rule-strong);
+    --link: var(--dark-text);
+    --accent: var(--dark-accent);
+    --code-bg: var(--dark-code-bg);
+    --mark: var(--dark-mark);
+    --hl-string: var(--dark-hl-string);
+    --hl-number: var(--dark-hl-number);
+    --hl-title: var(--dark-hl-title);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='light'] {
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #14140f;
-  --bg-subtle: #1c1c16;
-  --text: #e6e4dc;
-  --text-muted: #9b988c;
-  --rule: #2e2e26;
-  --rule-strong: #45453a;
-  --link: #e6e4dc;
-  --accent: #d99a80;
-  --code-bg: #1b1b15;
-  --mark: #4a3f1e;
+  --bg: var(--dark-bg);
+  --bg-subtle: var(--dark-bg-subtle);
+  --text: var(--dark-text);
+  --text-muted: var(--dark-text-muted);
+  --rule: var(--dark-rule);
+  --rule-strong: var(--dark-rule-strong);
+  --link: var(--dark-text);
+  --accent: var(--dark-accent);
+  --code-bg: var(--dark-code-bg);
+  --mark: var(--dark-mark);
+  --hl-string: var(--dark-hl-string);
+  --hl-number: var(--dark-hl-number);
+  --hl-title: var(--dark-hl-title);
 
   color-scheme: dark;
 }
@@ -560,8 +619,27 @@ mark {
   padding-left: 1rem;
 }
 
-.toc .section-heading {
-  margin-bottom: 0.5rem;
+.toc > summary {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.toc > summary:hover {
+  color: var(--text);
+}
+
+.toc__count {
+  letter-spacing: 0;
+  margin-left: 0.6rem;
+  text-transform: none;
+}
+
+.toc[open] > summary {
+  margin-bottom: 0.6rem;
 }
 
 .toc ol {
@@ -623,22 +701,24 @@ mark {
   opacity: 1;
 }
 
+/* Three states, chosen from the attribute rather than in React: no attribute
+   means "follow the system", which is also how the page itself is themed. */
+.theme-toggle__light,
 .theme-toggle__dark {
   display: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .theme-toggle__light {
-    display: none;
-  }
-
-  :root:not([data-theme='light']) .theme-toggle__dark {
-    display: inline;
-  }
+.theme-toggle__auto {
+  display: inline;
 }
 
-:root[data-theme='dark'] .theme-toggle__light {
+:root[data-theme='light'] .theme-toggle__auto,
+:root[data-theme='dark'] .theme-toggle__auto {
   display: none;
+}
+
+:root[data-theme='light'] .theme-toggle__light {
+  display: inline;
 }
 
 :root[data-theme='dark'] .theme-toggle__dark {
