@@ -30,6 +30,34 @@ Leave `summary` out and the opening prose is used instead. Leave `date` out and
 the filename supplies it. An author id with no record in `authors.ts` still
 renders a byline using the id itself, so a typo degrades instead of vanishing.
 
+## Files that belong to one post
+
+Anything a post needs — figures, a preprint, slides, a data appendix — goes in
+`public/posts/<slug>/`, a folder named after the post's URL. Reference it from
+the root:
+
+```markdown
+![A figure stored beside its post](/posts/writing-a-post/diagram.svg "Caption here.")
+[the example attachment](/posts/writing-a-post/example.pdf)
+```
+
+Which renders as:
+
+![A figure stored beside its post](/posts/writing-a-post/diagram.svg "Stored in public/posts/writing-a-post/ and served from the matching URL.")
+
+and a link to [the example attachment](/posts/writing-a-post/example.pdf).
+
+The folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
+served at `/posts/writing-a-post/diagram.svg` and lands next to the post's own
+`index.html` in the build. Deleting a post means deleting one folder, and two
+posts can both have a `plot.png` without colliding.
+
+Write the path from the root, starting with `/`. That is what lets the build
+read the file to set the image's width and height, pick up a `.dark` sibling,
+and add the deployment's base path — a relative `./diagram.svg` gets none of
+that. Site-absolute links in prose get the base path too, so a PDF link works
+on a project site served from a subdirectory.
+
 ## Dates
 
 Dates are parsed as UTC, not local time. Without that, `date: 2026-01-05`

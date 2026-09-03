@@ -55,6 +55,7 @@ function targetFor(url, file) {
 
 const files = await htmlFiles(dist);
 const internal = new Map();
+const missingBase = new Map();
 const external = new Set();
 const fragments = [];
 
@@ -75,6 +76,13 @@ for (const file of files) {
       continue;
     }
 
+    // A site-absolute link that skips the base resolves here but 404s in a
+    // browser, so it is reported rather than silently stripped.
+    if (base && url.startsWith('/') && url !== base && !url.startsWith(`${base}/`)) {
+      missingBase.set(`${url} (from ${file.replace(`${dist}/`, '')})`, true);
+      continue;
+    }
+
     if (!targetFor(url, file)) {
       internal.set(`${url} (from ${file.replace(`${dist}/`, '')})`, true);
     }
@@ -82,7 +90,9 @@ for (const file of files) {
 }
 
 const broken = [...internal.keys()];
+const unprefixed = [...missingBase.keys()];
 for (const problem of broken) console.error(`broken internal link: ${problem}`);
+for (const problem of unprefixed) console.error(`link missing the base prefix: ${problem}`);
 for (const problem of fragments) console.error(`broken fragment: ${problem}`);
 
 let externalFailures = 0;
@@ -105,10 +115,10 @@ if (checkExternal) {
 
 console.log(
   `links: ${files.length} pages${base ? ` under ${base}` : ''}, ${broken.length} broken internal, ` +
-    `${fragments.length} broken fragments, ` +
+    `${unprefixed.length} missing the base prefix, ${fragments.length} broken fragments, ` +
     `${external.size} external${checkExternal ? ` (${externalFailures} failing)` : ' (not checked)'}`,
 );
 
 // External links rot for reasons outside this repository, so they are reported
 // but do not fail the build; anything internal is ours and should never break.
-if (broken.length > 0 || fragments.length > 0) process.exit(1);
+if (broken.length > 0 || unprefixed.length > 0 || fragments.length > 0) process.exit(1);

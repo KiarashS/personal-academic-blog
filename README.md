@@ -108,7 +108,30 @@ the path becomes its caption:
 ```
 
 Put images under `public/` and reference them from the root; the deployment's
-base path is added at build time. The build reads each file to set `width` and
+base path is added at build time. Files belonging to one post go in
+`public/posts/<slug>/`, a folder named after the post's URL:
+
+```
+public/
+  posts/
+    writing-a-post/
+      diagram.svg
+      diagram.dark.svg
+      example.pdf
+  figures/            # shared across posts
+```
+
+That folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
+served at `/posts/writing-a-post/diagram.svg` and lands beside the post's own
+`index.html` in the build. Deleting a post is deleting one folder, and two
+posts can each have a `plot.png` without colliding. The cost is that renaming a
+post's slug means renaming its folder; put anything shared between posts in
+`public/figures/` instead.
+
+Always write the path from the root, starting with `/`. Only then can the build
+measure the image, find a `.dark` sibling and add the base path — and links in
+prose, such as a PDF, get the base path the same way. `npm run links` fails the
+build on a site-absolute link that is missing it. The build reads each file to set `width` and
 `height`, so pages do not reflow as figures load, and adds `loading="lazy"`. If
 a `plot.dark.svg` sibling exists it is used on the dark theme, which saves
 white-background plots from glaring out of a dark page.

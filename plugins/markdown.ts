@@ -93,7 +93,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)
-      .use(rehypeContentTweaks)
+      .use(rehypeContentTweaks, { base })
       .use(rehypeHeadingAnchors)
       .use(rehypeFigures, {
         publicDir: resolve(root, 'public'),
