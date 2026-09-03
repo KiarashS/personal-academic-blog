@@ -39,10 +39,9 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  title: 'Notes',
-  tagline: 'Working notes on statistics, computation and the papers in between.',
-  description:
-    'A personal research notebook: preprints in progress, method notes, and reading summaries.',
+  title: 'Kiarash Soleimanzadeh',
+  tagline: 'Working notes, drafts, and summaries of what I have been reading.',
+  description: 'A personal research notebook: working notes, drafts and reading summaries.',
   // Origin only; the deployment's base path is added by `canonicalUrl`.
   // Canonical links, Open Graph tags, the feed and BibTeX are all built from it.
   url: 'https://kiarashs.github.io',

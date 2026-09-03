@@ -21,7 +21,11 @@ const {
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
-const TITLE_TAG = '<title>Notes</title>';
+const TITLE_TAG = /<title>[\s\S]*?<\/title>/;
+
+if (!TITLE_TAG.test(template)) {
+  throw new Error('dist/index.html has no <title> to replace; the head would not be injected.');
+}
 
 const escapeXml = (value) =>
   String(value).replace(

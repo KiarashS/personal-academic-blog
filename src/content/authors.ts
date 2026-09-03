@@ -10,7 +10,7 @@ import type { Author } from '../lib/types';
 export const authors: Record<string, Author> = {
   you: {
     id: 'you',
-    name: 'Your Name',
+    name: 'Kiarash Soleimanzadeh',
     role: 'Your role',
     affiliation: 'Your department, your institution',
     bio: 'One or two sentences about what you work on. This appears under every post you write and on your author page.',
