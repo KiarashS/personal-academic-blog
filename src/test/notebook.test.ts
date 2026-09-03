@@ -98,15 +98,15 @@ describe('rehypeNotebook', () => {
     expect(html).not.toContain('[6]');
   });
 
-  it('takes a caption like any other figure', () => {
+  it('takes a caption, counted in its own sequence', () => {
     const captioned = render('```notebook\n/demo.ipynb\n```\n\nCaption: The sampler.');
-    expect(captioned).toContain('Figure 1.</span> The sampler.');
+    expect(captioned).toContain('Notebook 1.</span> The sampler.');
   });
 
   it('puts that caption above the notebook, which is read from the top down', () => {
     const captioned = render('```notebook\n/demo.ipynb\n```\n\nCaption: The sampler.');
     expect(captioned).toContain('captioned--above');
-    expect(captioned.indexOf('Figure 1.')).toBeLessThan(captioned.indexOf('class="notebook"'));
+    expect(captioned.indexOf('Notebook 1.')).toBeLessThan(captioned.indexOf('class="notebook"'));
   });
 
   it('warns instead of failing when the file is missing', () => {

@@ -13,18 +13,18 @@ function classesOf(node: Element): string[] {
   return list.filter(Boolean);
 }
 
-type Kind = 'figure' | 'table' | 'code';
+type Kind = 'figure' | 'table' | 'code' | 'notebook';
 
 /** What a block should be called in its caption, and how it is counted. */
 function kindOf(node: Element): Kind | undefined {
   const classes = classesOf(node);
   if (classes.includes('table-wrap')) return 'table';
   if (classes.includes('code-block')) return 'code';
+  if (classes.includes('notebook')) return 'notebook';
   if (
     classes.includes('figure') ||
     classes.includes('mermaid-figure') ||
-    classes.includes('mermaid-pending') ||
-    classes.includes('notebook')
+    classes.includes('mermaid-pending')
   ) {
     return 'figure';
   }
@@ -32,18 +32,18 @@ function kindOf(node: Element): Kind | undefined {
   return undefined;
 }
 
-const LABELS: Record<Kind, string> = { figure: 'Figure', table: 'Table', code: 'Listing' };
+const LABELS: Record<Kind, string> = {
+  figure: 'Figure',
+  table: 'Table',
+  code: 'Listing',
+  notebook: 'Notebook',
+};
 
 /**
  * A caption goes below a block the reader takes in at a glance and above one
- * they read from the top down. That is a figure below; a table, a listing and
- * a notebook — which is a page of code and output, however it is numbered —
- * above.
+ * they read from the top down: a figure below, everything else above.
  */
-function isAbove(node: Element, kind: Kind): boolean {
-  if (kind !== 'figure') return true;
-  return classesOf(node).includes('notebook');
-}
+const isAbove = (kind: Kind): boolean => kind !== 'figure';
 
 /**
  * The index of the next real sibling. remark-rehype leaves newline text nodes
@@ -93,8 +93,8 @@ function figcaption(label: string, body: ElementContent[]): Element {
 
 /**
  * Captions for every kind of block, numbered per post the way a paper numbers
- * them: figures in one sequence, tables in another, code listings in a third.
- * A caption is a paragraph beginning `Caption:` directly after the block;
+ * them: figures in one sequence, tables in another, listings and notebooks in
+ * their own. A caption is a paragraph beginning `Caption:` after the block;
  * images may also use the Markdown title, which `rehypeFigures` has already
  * turned into a figcaption.
  *
@@ -103,7 +103,7 @@ function figcaption(label: string, body: ElementContent[]): Element {
  */
 export function rehypeCaptions() {
   return (tree: Root) => {
-    const counts: Record<Kind, number> = { figure: 0, table: 0, code: 0 };
+    const counts: Record<Kind, number> = { figure: 0, table: 0, code: 0, notebook: 0 };
 
     const walk = (parent: Root | Element) => {
       const children = 'children' in parent ? parent.children : [];
@@ -131,7 +131,7 @@ export function rehypeCaptions() {
         }
 
         const label = `${LABELS[kind]} ${(counts[kind] += 1)}.`;
-        const above = isAbove(node, kind);
+        const above = isAbove(kind);
         const body = following ? stripMarker(following) : [...(existing?.children ?? [])];
         const caption = figcaption(label, body);
 

@@ -156,9 +156,9 @@ Caption: The stages of `npm run build`.
 
 That works after a table, a code fence, a `mermaid` fence, a notebook, a
 `<video>` or an image; an image can use its Markdown title instead, which comes
-to the same thing. Figures, tables and code listings are numbered in three
-separate sequences per post — Figure 1, Figure 2, Table 1, Listing 1 — at build
-time, so the numbers are right with scripting off. A caption can hold markup,
+to the same thing. Each kind is numbered in its own sequence per post — Figure
+1, Figure 2, Table 1, Listing 1, Notebook 1 — at build time, so the numbers are
+right with scripting off. A caption can hold markup,
 links and math. A caption goes below a block the reader takes in at a glance,
 so an image or a diagram, and above one they read from the top down: a table, a
 listing or a notebook.
@@ -197,7 +197,8 @@ build time or in the browser.
 
 Because the `.ipynb` stays a real file under `public/`, it is also served, so a
 link to the same path gives readers the notebook to download. A caption after
-the fence numbers it as a figure. A missing file or malformed JSON warns and
+the fence numbers it as Notebook 1, 2, 3 and sits above it, since a notebook is
+read from the top down. A missing file or malformed JSON warns and
 leaves the fence as it was rather than failing the build.
 
 ### Publications
