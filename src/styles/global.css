@@ -902,3 +902,11 @@ mark {
 .related__list .meta {
   margin: 0.15rem 0 0;
 }
+
+.route-error {
+  max-width: var(--measure);
+}
+
+.route-error p {
+  color: var(--text-muted);
+}

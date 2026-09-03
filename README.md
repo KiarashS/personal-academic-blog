@@ -239,6 +239,36 @@ They are declared in `index.html`, which the prerenderer leaves alone apart
 from the title, so every page carries them. Vite adds the deployment's base
 path.
 
+## Install to home screen
+
+The build emits a `site.webmanifest` and a service worker, which together let a
+browser offer to install the site. On Android and desktop Chrome that means an
+install button; on iOS, Share → Add to Home Screen. The manifest is generated
+from `src/site.config.ts` (`title`, `shortName`, `description`) with relative
+`start_url` and `scope`, so a subdirectory deployment needs no edit.
+
+Icons live in `public/favicons/`: 192 and 512 for launchers, a 512 maskable
+version on a black ground for Android's adaptive shapes, and a 180 apple-touch
+icon. The largest artwork available upstream was 150px, so the big sizes are
+resampled from it — a vector or a larger original would be crisper.
+
+`scripts/prerender.mjs` writes the worker, naming its cache after a hash of the
+built asset filenames, so a deploy that changes anything invalidates the old
+cache and one that changes nothing does not. Navigations go to the network
+first: a reader who is online never sees a stale page. Everything else is
+cache-first, which is safe because the build gives assets hashed names.
+
+Offline, a page the reader has already visited loads completely, styles and
+text included. One they have not cannot — its route code and text were never
+fetched — and they get a short explanation rather than a blank screen. The
+worker is registered only in a build; in development it would serve yesterday's
+bundle back to you.
+
+To drop the feature: delete the manifest and worker blocks from
+`scripts/prerender.mjs` and the registration from `src/main.tsx`. Readers with
+the old worker installed keep it until it fails to update, so leave a build
+that unregisters it if you ever need them off it quickly.
+
 ## Optional pages
 
 `features` in `src/site.config.ts` turns whole sections on and off:

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { visibleNav } from '../lib/features';
 import { PageMeta } from './PageMeta';
+import { RouteBoundary } from './RouteBoundary';
 import { ThemeToggle } from './ThemeToggle';
 
 function ScrollToTop() {
@@ -45,7 +46,9 @@ export function Layout() {
 
       <main className="site-main" id="main">
         <div className="shell">
-          <Outlet />
+          <RouteBoundary>
+            <Outlet />
+          </RouteBoundary>
         </div>
       </main>
 

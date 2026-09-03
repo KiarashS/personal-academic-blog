@@ -20,6 +20,8 @@ export interface NavItem {
 
 export interface SiteConfig {
   title: string;
+  /** Under a home-screen icon, where a full name will not fit. */
+  shortName: string;
   tagline: string;
   description: string;
   url: string;
@@ -40,6 +42,7 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   title: 'Kiarash Soleimanzadeh',
+  shortName: 'Kiarash S.',
   tagline: 'Working notes, drafts, and summaries of what I have been reading.',
   description: 'A personal research notebook: working notes, drafts and reading summaries.',
   // Origin only; the deployment's base path is added by `canonicalUrl`.
