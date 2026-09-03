@@ -8,13 +8,28 @@ export interface GiscusConfig {
   lang: string;
 }
 
+/** Optional parts of the site that can be switched off wholesale. */
+export type FeatureName = 'publications';
+
+export interface NavItem {
+  label: string;
+  to: string;
+  /** When set, the entry and its route only exist if that feature is on. */
+  feature?: FeatureName;
+}
+
 export interface SiteConfig {
   title: string;
   tagline: string;
   description: string;
   url: string;
   postsPerPage: number;
-  nav: { label: string; to: string }[];
+  /**
+   * Switching a feature off removes its nav entry, its route and its
+   * prerendered page — it is absent from the built site, not merely hidden.
+   */
+  features: Record<FeatureName, boolean>;
+  nav: NavItem[];
   /**
    * Comments are rendered with giscus (GitHub Discussions). Fill these in from
    * https://giscus.app after enabling Discussions on the repository. Leave
@@ -34,9 +49,12 @@ export const siteConfig: SiteConfig = {
   // Low on purpose while the archive is small, so the pagination is visible
   // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
+  features: {
+    publications: true,
+  },
   nav: [
     { label: 'Posts', to: '/' },
-    { label: 'Publications', to: '/publications' },
+    { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Archive', to: '/archive' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },

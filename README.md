@@ -115,6 +115,20 @@ white-background plots from glaring out of a dark page.
 year, each entry linking to its DOI or arXiv page with its BibTeX behind a
 disclosure. It ships with two well-known papers as samples — replace them.
 
+Switch the page off in `src/site.config.ts` if you do not want it:
+
+```ts
+features: {
+  publications: false,
+},
+```
+
+That removes the nav entry, the route and the prerendered page, and drops it
+from the sitemap — the page is absent from the built site rather than hidden.
+The page component still ends up in the bundle as an unreferenced chunk that no
+reader fetches; the flag is read at runtime, so the bundler cannot prove the
+import is dead.
+
 ## What the build produces
 
 Every route is a directory with an `index.html`: the post list and its

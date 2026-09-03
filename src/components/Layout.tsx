@@ -1,6 +1,7 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
+import { visibleNav } from '../lib/features';
 import { PageMeta } from './PageMeta';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -30,7 +31,7 @@ export function Layout() {
               {siteConfig.title}
             </Link>
             <nav className="site-nav" aria-label="Main">
-              {siteConfig.nav.map((item) => (
+              {visibleNav().map((item) => (
                 <NavLink key={item.to} to={item.to} end={item.to === '/'}>
                   {item.label}
                 </NavLink>

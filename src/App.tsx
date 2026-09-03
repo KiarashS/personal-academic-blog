@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { isEnabled } from './lib/features';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { TagPage } from './pages/TagPage';
@@ -35,14 +36,16 @@ export function App() {
             </Suspense>
           }
         />
-        <Route
-          path="publications"
-          element={
-            <Suspense fallback={<p className="empty">Loading…</p>}>
-              <PublicationsPage />
-            </Suspense>
-          }
-        />
+        {isEnabled('publications') ? (
+          <Route
+            path="publications"
+            element={
+              <Suspense fallback={<p className="empty">Loading…</p>}>
+                <PublicationsPage />
+              </Suspense>
+            }
+          />
+        ) : null}
         <Route
           path="archive"
           element={

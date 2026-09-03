@@ -2,6 +2,7 @@ import { siteConfig } from '../site.config';
 import { authors } from '../content/authors';
 import { displayTag, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
+import { isEnabled } from './features';
 
 export interface RouteMeta {
   title: string;
@@ -65,7 +66,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (path === '/publications') {
+  if (path === '/publications' && isEnabled('publications')) {
     return {
       title: withSuffix('Publications'),
       description: 'Papers, preprints and other published work.',
@@ -86,7 +87,8 @@ export function metaFor(pathname: string): RouteMeta {
 
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
-  const routes = new Set<string>(['/', '/tags', '/search', '/about', '/publications', '/archive']);
+  const routes = new Set<string>(['/', '/tags', '/search', '/about', '/archive']);
+  if (isEnabled('publications')) routes.add('/publications');
 
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(`/page/${page}`);

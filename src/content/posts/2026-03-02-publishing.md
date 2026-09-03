@@ -55,6 +55,19 @@ decided in CSS from a `data-theme` attribute set before first paint, so the
 page never flashes the wrong colours and the button is right before any script
 runs.
 
+## Switching parts off
+
+`features` in `src/site.config.ts` turns optional sections off wholesale:
+
+```ts
+features: {
+  publications: false,
+},
+```
+
+A feature that is off has no nav entry, no route and no prerendered page, and
+does not appear in the sitemap. Nothing is merely hidden with CSS.
+
 ## The three things to fill in
 
 `src/site.config.ts` holds the title, tagline, description and the site's URL —
