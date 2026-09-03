@@ -6,6 +6,11 @@ import { chromium } from 'playwright';
 const dist = resolve('dist');
 const axeSource = resolve('node_modules/axe-core/axe.min.js');
 
+// A subdirectory deployment prefixes every asset URL; serve those from the
+// root of dist so the audited pages are styled and scripted as published.
+const html = await readFile(join(dist, 'index.html'), 'utf8');
+const basePath = /(?:src|href)="([^"]*)\/assets\//.exec(html)?.[1] ?? '';
+
 const TYPES = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -19,7 +24,9 @@ const TYPES = {
 };
 
 async function resolveFile(pathname) {
-  const target = join(dist, decodeURIComponent(pathname).replace(/^\/+/, ''));
+  let path = decodeURIComponent(pathname);
+  if (basePath && path.startsWith(`${basePath}/`)) path = path.slice(basePath.length);
+  const target = join(dist, path.replace(/^\/+/, ''));
   try {
     const info = await stat(target);
     if (info.isDirectory()) return join(target, 'index.html');
