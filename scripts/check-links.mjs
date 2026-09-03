@@ -5,6 +5,19 @@ import { join, resolve, dirname, normalize } from 'node:path';
 const dist = resolve('dist');
 const checkExternal = process.argv.includes('--external');
 
+/**
+ * A deployment under a subdirectory writes links as `/<base>/posts/x`, which
+ * still resolve to `dist/posts/x`. The base is read back off the built entry
+ * page rather than passed in, so the check needs no knowledge of the build.
+ */
+async function basePrefix() {
+  const html = await readFile(join(dist, 'index.html'), 'utf8');
+  const match = /(?:src|href)="([^"]*)\/assets\//.exec(html);
+  return match ? match[1] : '';
+}
+
+const base = await basePrefix();
+
 async function htmlFiles(dir) {
   const found = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -19,8 +32,10 @@ const ATTR = /(?:href|src)\s*=\s*"([^"]+)"/g;
 
 /** Where a site-absolute or relative URL lands in dist. */
 function targetFor(url, file) {
-  const path = url.split(/[?#]/)[0];
+  let path = url.split(/[?#]/)[0];
   if (!path) return null;
+  if (base === path) path = '/';
+  else if (base && path.startsWith(`${base}/`)) path = path.slice(base.length);
 
   const absolute = path.startsWith('/')
     ? join(dist, path.replace(/^\/+/, ''))
@@ -89,7 +104,8 @@ if (checkExternal) {
 }
 
 console.log(
-  `links: ${files.length} pages, ${broken.length} broken internal, ${fragments.length} broken fragments, ` +
+  `links: ${files.length} pages${base ? ` under ${base}` : ''}, ${broken.length} broken internal, ` +
+    `${fragments.length} broken fragments, ` +
     `${external.size} external${checkExternal ? ` (${externalFailures} failing)` : ' (not checked)'}`,
 );
 
