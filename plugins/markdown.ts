@@ -21,6 +21,8 @@ import { rehypeCodeBlocks } from './code-blocks';
 import { rehypeContentTweaks } from './content-tweaks';
 import { rehypeHeadingAnchors } from './heading-anchors';
 import { rehypeFigures } from './figures';
+import { rehypeCaptions } from './captions';
+import { rehypeNotebook } from './notebook';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -67,6 +69,17 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
 
+  const cellProcessor = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeKatex, { strict: false, throwOnError: false })
+    .use(rehypeStringify, { allowDangerousHtml: true });
+
+  const renderCell = (markdown: string): string => String(cellProcessor.processSync(markdown));
+
   async function compile(raw: string, body: string, file: string): Promise<Compiled> {
     const key = `${base}:${file}:${raw.length}:${body.length}:${body}`;
     const hit = compiled.get(key);
@@ -84,6 +97,11 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(rehypeSlug)
       .use(collectHeadings)
       .use(rehypeCitation, { bibliography, linkCitations: true, path: root })
+      .use(rehypeNotebook, {
+        publicDir: resolve(root, 'public'),
+        renderMarkdown: renderCell,
+        onWarn: (message: string) => missingImages.add(message),
+      })
       .use(rehypeMermaid, {
         cache,
         onMissing: (source) => missingDiagrams.add(source),
@@ -100,6 +118,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         base,
         onWarn: (message: string) => missingImages.add(message),
       })
+      .use(rehypeCaptions)
       .use(rehypeStringify, { allowDangerousHtml: true });
 
     const result = await processor.process(body);

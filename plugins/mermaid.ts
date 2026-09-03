@@ -54,12 +54,17 @@ export function rehypeMermaid(options: {
       const rendered = options.cache[diagramHash(source)];
 
       if (rendered) {
-        parent.children[index] = raw(
-          `<figure class="mermaid-figure" data-rendered="true">` +
-            `<div class="mermaid-figure__light">${rendered.light}</div>` +
-            `<div class="mermaid-figure__dark">${rendered.dark}</div>` +
-            `</figure>`,
-        );
+        // A real element, not a raw blob: later steps need to see the class in
+        // order to caption and number it.
+        parent.children[index] = {
+          type: 'element',
+          tagName: 'figure',
+          properties: { className: ['mermaid-figure'], 'data-rendered': 'true' },
+          children: [
+            raw(`<div class="mermaid-figure__light">${rendered.light}</div>`),
+            raw(`<div class="mermaid-figure__dark">${rendered.dark}</div>`),
+          ],
+        };
         return;
       }
 

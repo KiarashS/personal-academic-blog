@@ -62,7 +62,8 @@
 /* Tables ------------------------------------------------------------------ */
 
 .prose .table-wrap {
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -70,10 +71,10 @@
   border-collapse: collapse;
   font-family: var(--sans);
   font-size: 0.88rem;
+  margin-inline: auto;
 
   /* Figures in a table are data: they line up and sit on the baseline. */
   font-variant-numeric: lining-nums tabular-nums;
-  min-width: 100%;
 }
 
 /*
@@ -365,14 +366,6 @@
   max-width: 100%;
 }
 
-.prose .figure figcaption {
-  color: var(--text-muted);
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
-  text-align: left;
-}
-
 /* A dark-theme sibling, swapped the same way diagrams are. */
 .figure-image--dark {
   display: none;
@@ -394,4 +387,121 @@
 
 :root[data-theme='dark'] .figure-image--dark {
   display: inline;
+}
+
+/* Captions and centred blocks ---------------------------------------------- */
+
+/*
+ * Every captioned block is a `figure`, centred in the measure, with its caption
+ * centred under it — above it for tables, which is where a journal puts them.
+ * The number is generated at build time, so it is right with scripting off.
+ */
+.prose .captioned {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.75rem auto;
+  max-width: 100%;
+}
+
+.prose .caption {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 0.6rem;
+  max-width: 90%;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.prose .captioned--table .caption {
+  margin: 0 0 0.6rem;
+}
+
+.prose .caption__label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Centre the blocks themselves, captioned or not. */
+.prose video {
+  display: block;
+  height: auto;
+  margin-inline: auto;
+  max-width: 100%;
+}
+
+.prose .mermaid-figure,
+.prose .mermaid-pending {
+  margin-inline: auto;
+}
+
+/* Notebooks ---------------------------------------------------------------- */
+
+.prose .notebook {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  margin-inline: auto;
+  max-width: 100%;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.prose .nb-markdown > :first-child {
+  margin-top: 0;
+}
+
+.prose .nb-cell {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.prose .nb-cell pre {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+}
+
+.prose .nb-prompt {
+  color: var(--text-muted);
+  flex: 0 0 2.6rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding-top: 0.9rem;
+  text-align: right;
+}
+
+.prose .nb-outputs {
+  margin-left: 3.1rem;
+}
+
+.prose .nb-output {
+  background: none;
+  border-left: 2px solid var(--rule);
+  border-radius: 0;
+  font-size: 0.78rem;
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  padding: 0.3rem 0 0.3rem 0.7rem;
+  white-space: pre-wrap;
+}
+
+.prose .nb-output--stderr,
+.prose .nb-output--error {
+  border-left-color: var(--accent);
+  color: var(--text-muted);
+}
+
+.prose .nb-image {
+  display: block;
+  height: auto;
+  margin: 0.75rem auto;
+  max-width: 100%;
+}
+
+.prose .nb-output--html table {
+  font-size: 0.8rem;
 }

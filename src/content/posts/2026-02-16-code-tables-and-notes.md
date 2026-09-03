@@ -43,16 +43,51 @@ added at build time. If a `name.dark.ext` sibling exists — as it does here —
 it is used when the reader is on the dark theme, which saves white-background
 plots from glaring out of a dark page.
 
+## Captions
+
+Any block can be captioned by following it with a paragraph that starts with
+`Caption:`. Figures and tables are numbered separately, the way a paper numbers
+them, and the numbering is done at build time so it survives with JavaScript
+off. Images can use the Markdown title instead, which comes to the same thing.
+
 ## Tables
 
 Wide tables scroll inside their own box instead of pushing the page sideways.
+A table's caption goes above it, as in a journal.
 
 | Stage | What it does | Runs |
 | --- | --- | --- |
 | `render-diagrams` | Mermaid to SVG, light and dark | build only |
 | `vite build` | Client bundle | build |
 | `vite build --ssr` | Server bundle | build |
-| `prerender` | One HTML file per route, plus feed and sitemap | build |
+| `prerender` | One HTML file per route, plus feeds and sitemap | build |
+
+Caption: The five stages of `npm run build`, in the order they run.
+
+## Notebooks
+
+A fence tagged `notebook` whose body is a path under `public/` embeds the
+notebook: markdown cells become prose, code cells keep their execution counts,
+and outputs come through — text, tables, images and errors alike.
+
+````markdown
+```notebook
+/posts/code-tables-and-notes/sampling.ipynb
+```
+````
+
+Which gives:
+
+```notebook
+/posts/code-tables-and-notes/sampling.ipynb
+```
+
+Caption: A notebook rendered into the post. The `.ipynb` stays in `public/`, so
+readers can download the original.
+
+The notebook is read at build time, so nothing about Jupyter reaches the
+browser: no widgets, no kernel, no JavaScript beyond what the rest of the page
+already loads.
 
 ## Footnotes and lists
 
@@ -64,9 +99,11 @@ referenced.[^pipeline] Task lists render as checkboxes:
 - [ ] Whatever you add next
 
 [^pipeline]: The pipeline is remark-parse, remark-gfm, remark-math,
-    remark-rehype, then rehype-raw, rehype-slug, rehype-citation,
-    rehype-highlight and rehype-katex, in that order. Order matters: raw HTML is
-    parsed first and KaTeX runs last, on a finished tree.
+    remark-rehype, then rehype-raw, rehype-slug, rehype-citation, the notebook
+    and diagram steps, rehype-highlight, rehype-katex and finally the figure and
+    caption steps. Order matters: raw HTML is parsed first, notebooks and
+    diagrams are expanded before the highlighter sees them, and captions are
+    numbered last, once every block that can take one exists.
 
 ## Several authors
 

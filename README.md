@@ -136,6 +136,63 @@ build on a site-absolute link that is missing it. The build reads each file to s
 a `plot.dark.svg` sibling exists it is used on the dark theme, which saves
 white-background plots from glaring out of a dark page.
 
+### Captions
+
+Any block can carry a numbered caption: a paragraph beginning `Caption:`
+directly after it.
+
+```markdown
+| Stage | What it does          |
+| ----- | --------------------- |
+| build | compiles the markdown |
+
+Caption: The stages of `npm run build`.
+```
+
+That works after a table, a `mermaid` fence, a notebook, a `<video>` or an
+image; an image can use its Markdown title instead, which comes to the same
+thing. Figures and tables are numbered in two separate sequences per post —
+Figure 1, Figure 2, Table 1 — at build time, so the numbers are right with
+scripting off. A caption can hold markup, links and math. Table captions go
+above the table and figure captions below, which is where a journal puts them.
+
+The block and its caption are centred in the measure; the caption is set in the
+sans face at a smaller size, with its label in the text colour.
+
+Video is plain HTML, on its own line:
+
+```markdown
+<video src="/posts/my-post/clip.mp4" controls></video>
+
+Caption: The sampler running.
+```
+
+The `src` picks up the deployment's base path the way image and link paths do.
+
+### Notebooks
+
+A fence tagged `notebook`, whose body is the path to an `.ipynb` under
+`public/`, is rendered into the post at build time:
+
+````markdown
+```notebook
+/posts/my-post/sampling.ipynb
+```
+````
+
+Markdown cells go through the same pipeline as the rest of the post, so GFM and
+math work inside them. Code cells keep their execution counts and are
+highlighted like any other code block. Outputs come through as they are in the
+file: stdout and stderr streams, tracebacks with the terminal colour codes
+stripped, `text/html` tables, and PNG, JPEG or SVG images inlined from the
+notebook itself. Cells with no source are skipped, and nothing executes — at
+build time or in the browser.
+
+Because the `.ipynb` stays a real file under `public/`, it is also served, so a
+link to the same path gives readers the notebook to download. A caption after
+the fence numbers it as a figure. A missing file or malformed JSON warns and
+leaves the fence as it was rather than failing the build.
+
 ### Publications
 
 `/publications` is generated from `src/content/publications.bib`, grouped by
@@ -291,8 +348,8 @@ cannot prove the import is dead.
 
 ## Working without the assets
 
-`public/` holds every figure, diagram variant and attachment, so it grows with
-the archive while the code stays small. To work on the code or the prose
+`public/` holds every figure, diagram variant, notebook and attachment, so it
+grows with the archive while the code stays small. To work on the code or the prose
 without downloading it, take a blobless, sparse clone:
 
 ```bash
@@ -320,8 +377,8 @@ git sparse-checkout disable
 ```
 
 What you give up: `npm run build` still completes, but the figure pipeline
-cannot measure images it cannot open, and `npm run links` then fails on the
-missing files — three broken links with the sample content. A checkout without
+cannot measure images it cannot open, notebooks warn and stay as fences, and
+`npm run links` then fails on the missing files — three broken links with the sample content. A checkout without
 `public/` is for editing code and prose, not for producing a deployable build.
 
 ## Checks
