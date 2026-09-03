@@ -13,7 +13,11 @@ runs; the client bundle then takes over for instant navigation.
 
 ```bash
 npm install
-npx playwright install chromium   # once, for rendering diagrams at build time
+npx playwright install chromium   # once, for rendering diagrams and cards
+
+# Or point the build at a Chromium you already have, which is what sandboxes
+# and CI images with a browser baked in need:
+#   export CHROMIUM_EXECUTABLE=/path/to/chrome
 
 npm run dev        # http://localhost:5173, drafts and future posts included
 npm test           # unit tests for the content pipeline

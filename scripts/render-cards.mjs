@@ -67,9 +67,16 @@ const targets = [
   })),
 ];
 
+// An already-provisioned Chromium can be used instead of Playwright's own
+// download, which is what sandboxes and CI images with a browser baked in
+// need: set CHROMIUM_EXECUTABLE to its path.
+const launchOptions = process.env.CHROMIUM_EXECUTABLE
+  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
+  : {};
+
 await mkdir(join(dist, 'og'), { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(launchOptions);
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 
 for (const { slug, html } of targets) {

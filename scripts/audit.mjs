@@ -47,6 +47,13 @@ const server = createServer(async (request, response) => {
   }
 });
 
+// An already-provisioned Chromium can be used instead of Playwright's own
+// download, which is what sandboxes and CI images with a browser baked in
+// need: set CHROMIUM_EXECUTABLE to its path.
+const launchOptions = process.env.CHROMIUM_EXECUTABLE
+  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
+  : {};
+
 await new Promise((done) => server.listen(0, done));
 const base = `http://localhost:${server.address().port}`;
 
@@ -65,7 +72,7 @@ const routes = [
   '/404.html',
 ];
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(launchOptions);
 const page = await browser.newPage();
 const axe = await readFile(axeSource, 'utf8');
 let total = 0;
