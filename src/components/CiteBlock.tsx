@@ -11,7 +11,9 @@ export function CiteBlock({ post }: { post: Post }) {
     <details className="cite">
       <summary>Cite this post</summary>
       <div className="code-block">
-        <CopyButton text={bibtex} label="BibTeX to clipboard" />
+        <div className="code-block__bar">
+          <CopyButton text={bibtex} label="BibTeX to clipboard" />
+        </div>
         <pre tabIndex={0}>
           <code>{bibtex}</code>
         </pre>

@@ -29,7 +29,7 @@ export function PostBody({ slug }: { slug: string }) {
     const onClick = (event: MouseEvent) => {
       const button = (event.target as HTMLElement).closest('.code-block__copy');
       if (!button) return;
-      const code = button.parentElement?.querySelector('pre')?.textContent ?? '';
+      const code = button.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
       navigator.clipboard?.writeText(code).then(
         () => {
           button.firstChild!.textContent = 'copied';

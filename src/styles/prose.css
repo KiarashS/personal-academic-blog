@@ -127,7 +127,16 @@
 
 .code-block {
   margin: 1.6rem 0;
-  position: relative;
+}
+
+/* The language and the copy button have their own row: over the code they sat
+   on the first line, which is exactly where the eye starts reading. */
+.code-block__bar {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+  min-height: 1.2rem;
 }
 
 .code-block pre {
@@ -143,9 +152,33 @@
 
 .code-block pre code {
   background: none;
+  counter-reset: line;
   display: block;
   font-size: inherit;
   padding: 0;
+}
+
+/*
+ * Line numbers come from a counter rather than markup, so they are not part of
+ * the text the copy button reads or a selection picks up. The number sticks to
+ * the left edge while a long line scrolls under it.
+ */
+.code-block pre.numbered {
+  padding-left: 0;
+}
+
+.code-line::before {
+  background: var(--code-bg);
+  color: var(--text-muted);
+  content: counter(line);
+  counter-increment: line;
+  display: inline-block;
+  left: 0;
+  min-width: 2ch;
+  padding: 0 1ch 0 1rem;
+  position: sticky;
+  text-align: right;
+  user-select: none;
 }
 
 .code-block__lang {
@@ -153,10 +186,7 @@
   font-family: var(--sans);
   font-size: 0.68rem;
   letter-spacing: 0.06em;
-  position: absolute;
-  right: 3.4rem;
   text-transform: uppercase;
-  top: 0.55rem;
 }
 
 .code-block__copy {
@@ -167,11 +197,9 @@
   cursor: pointer;
   font-family: var(--sans);
   font-size: 0.68rem;
+  margin-left: auto;
   opacity: 0;
   padding: 0.1rem 0.4rem;
-  position: absolute;
-  right: 0.5rem;
-  top: 0.45rem;
   transition: opacity 120ms ease-in-out;
 }
 
@@ -395,13 +423,20 @@
  * Every captioned block is a `figure`, centred in the measure, with its caption
  * centred under it — above it for tables, which is where a journal puts them.
  * The number is generated at build time, so it is right with scripting off.
+ *
+ * Block layout, not flex: a flex column centring its items shrink-wraps them,
+ * and a diagram whose SVG is sized in percent then collapses to the 300px a
+ * replaced element falls back to.
  */
 .prose .captioned {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: block;
   margin: 1.75rem auto;
   max-width: 100%;
+  text-align: center;
+}
+
+.prose .captioned > * {
+  margin-inline: auto;
 }
 
 .prose .caption {
@@ -459,10 +494,26 @@
   margin: 1rem 0 0;
 }
 
+/* A cell is a code block without the chrome: same box, no language or copy. */
 .prose .nb-cell pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
   flex: 1;
+  font-size: 0.8rem;
+  line-height: 1.55;
   margin: 0;
   min-width: 0;
+  overflow-x: auto;
+  padding: 0.6rem 0.8rem;
+}
+
+.prose .nb-cell pre code,
+.prose .nb-output code {
+  background: none;
+  display: block;
+  font-size: inherit;
+  padding: 0;
 }
 
 .prose .nb-prompt {
@@ -470,7 +521,7 @@
   flex: 0 0 2.6rem;
   font-family: var(--mono);
   font-size: 0.72rem;
-  padding-top: 0.9rem;
+  padding-top: 0.55rem;
   text-align: right;
 }
 

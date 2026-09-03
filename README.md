@@ -95,8 +95,13 @@ render at build time.
 
 highlight.js at build time, with token colours defined against the site's CSS
 variables so light and dark stay consistent. Unknown languages are left
-unhighlighted rather than guessed at. Each block gets a language label and a
-copy button.
+unhighlighted rather than guessed at. The language and the copy button sit in a
+bar above the block, not over the first line.
+
+Blocks of more than one line are numbered. Each line is wrapped in a span at
+build time and the number itself comes from a CSS counter, so it is not part of
+the text that is copied or selected, and the gutter stays put while a long line
+scrolls under it.
 
 ### Figures
 
