@@ -450,7 +450,7 @@
 
 .prose .captioned--table > .caption,
 .prose .captioned--code > .caption {
-  margin: 0 0 0.55rem;
+  margin: 0 auto 0.55rem;
 }
 
 .prose .caption {
