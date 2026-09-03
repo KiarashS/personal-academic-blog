@@ -230,6 +230,15 @@ forced light whatever the reader chose, external links print their target after
 the text, and figures, tables and code blocks are not allowed to break across a
 page.
 
+## Favicon
+
+`public/favicons/` holds the icon set, taken byte-for-byte from
+<https://kiarashs.ir> so both sites present the same mark: a 16x16 and a 32x32
+PNG, a 76x76 apple-touch-icon, and a multi-resolution `.ico` (16, 32 and 48).
+They are declared in `index.html`, which the prerenderer leaves alone apart
+from the title, so every page carries them. Vite adds the deployment's base
+path.
+
 ## Optional pages
 
 `features` in `src/site.config.ts` turns whole sections on and off:
