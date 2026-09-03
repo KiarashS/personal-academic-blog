@@ -49,7 +49,7 @@ export const siteConfig: SiteConfig = {
   // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
   features: {
-    publications: true,
+    publications: false,
   },
   nav: [
     { label: 'Posts', to: '/' },
