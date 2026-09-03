@@ -159,8 +159,9 @@ That works after a table, a code fence, a `mermaid` fence, a notebook, a
 to the same thing. Figures, tables and code listings are numbered in three
 separate sequences per post — Figure 1, Figure 2, Table 1, Listing 1 — at build
 time, so the numbers are right with scripting off. A caption can hold markup,
-links and math. Figure captions go below the block; table and listing captions
-go above it, which is where a journal puts each.
+links and math. A caption goes below a block the reader takes in at a glance,
+so an image or a diagram, and above one they read from the top down: a table, a
+listing or a notebook.
 
 The block and its caption are centred in the measure; the caption is set in the
 sans face at a smaller size, with its label in the text colour.

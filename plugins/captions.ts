@@ -34,8 +34,16 @@ function kindOf(node: Element): Kind | undefined {
 
 const LABELS: Record<Kind, string> = { figure: 'Figure', table: 'Table', code: 'Listing' };
 
-/** Only a figure's caption goes below it; a table's and a listing's go above. */
-const ABOVE = new Set<Kind>(['table', 'code']);
+/**
+ * A caption goes below a block the reader takes in at a glance and above one
+ * they read from the top down. That is a figure below; a table, a listing and
+ * a notebook — which is a page of code and output, however it is numbered —
+ * above.
+ */
+function isAbove(node: Element, kind: Kind): boolean {
+  if (kind !== 'figure') return true;
+  return classesOf(node).includes('notebook');
+}
 
 /**
  * The index of the next real sibling. remark-rehype leaves newline text nodes
@@ -90,8 +98,8 @@ function figcaption(label: string, body: ElementContent[]): Element {
  * images may also use the Markdown title, which `rehypeFigures` has already
  * turned into a figcaption.
  *
- * Figure captions are placed below the block, table and listing captions above
- * it, which is the journal convention for each.
+ * Where the caption sits is a separate question from what it is called, and
+ * `isAbove` answers it.
  */
 export function rehypeCaptions() {
   return (tree: Root) => {
@@ -123,25 +131,25 @@ export function rehypeCaptions() {
         }
 
         const label = `${LABELS[kind]} ${(counts[kind] += 1)}.`;
+        const above = isAbove(node, kind);
         const body = following ? stripMarker(following) : [...(existing?.children ?? [])];
         const caption = figcaption(label, body);
 
         if (following) children.splice(followingIndex, 1);
         if (existing) node.children = node.children.filter((child) => child !== existing);
 
+        const classes = ['captioned', `captioned--${kind}`, ...(above ? ['captioned--above'] : [])];
+
         if (node.tagName === 'figure') {
-          if (ABOVE.has(kind)) node.children.unshift(caption);
+          if (above) node.children.unshift(caption);
           else node.children.push(caption);
-          node.properties = {
-            ...node.properties,
-            className: [...classesOf(node), 'captioned', `captioned--${kind}`],
-          };
+          node.properties = { ...node.properties, className: [...classesOf(node), ...classes] };
         } else {
           children[index] = {
             type: 'element',
             tagName: 'figure',
-            properties: { className: ['captioned', `captioned--${kind}`] },
-            children: ABOVE.has(kind) ? [caption, node] : [node, caption],
+            properties: { className: classes },
+            children: above ? [caption, node] : [node, caption],
           };
         }
       }

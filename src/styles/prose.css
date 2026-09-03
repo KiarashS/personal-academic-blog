@@ -448,8 +448,7 @@
   margin-top: 0.55rem;
 }
 
-.prose .captioned--table > .caption,
-.prose .captioned--code > .caption {
+.prose .captioned--above > .caption {
   margin: 0 auto 0.55rem;
 }
 

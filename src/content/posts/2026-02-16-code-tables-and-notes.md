@@ -54,7 +54,8 @@ Any block can be captioned by following it with a paragraph that starts with
 `Caption:`. Figures, tables and code listings are numbered in three separate
 sequences, the way a paper numbers them, and the numbering is done at build
 time so it survives with JavaScript off. Images can use the Markdown title
-instead, which comes to the same thing.
+instead, which comes to the same thing. A caption sits below a figure and above
+anything read from the top down: a table, a listing, a notebook.
 
 ## Tables
 

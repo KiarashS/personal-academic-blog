@@ -103,6 +103,12 @@ describe('rehypeNotebook', () => {
     expect(captioned).toContain('Figure 1.</span> The sampler.');
   });
 
+  it('puts that caption above the notebook, which is read from the top down', () => {
+    const captioned = render('```notebook\n/demo.ipynb\n```\n\nCaption: The sampler.');
+    expect(captioned).toContain('captioned--above');
+    expect(captioned.indexOf('Figure 1.')).toBeLessThan(captioned.indexOf('class="notebook"'));
+  });
+
   it('warns instead of failing when the file is missing', () => {
     const missing = render('```notebook\n/nope.ipynb\n```');
     expect(missing).toContain('/nope.ipynb');
