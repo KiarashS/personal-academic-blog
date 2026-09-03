@@ -15,6 +15,6 @@ describe('toPattern', () => {
   });
 
   it('strips fuse operators typed by the reader', () => {
-    expect(toPattern("!^=priors")).toBe('priors');
+    expect(toPattern('!^=priors')).toBe('priors');
   });
 });

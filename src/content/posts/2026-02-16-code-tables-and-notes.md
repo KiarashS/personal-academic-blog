@@ -29,6 +29,20 @@ Each block gets a language label in the corner and a copy button on hover. An
 unknown language is left unhighlighted rather than guessed at, because a wrong
 guess colours the wrong tokens and reads worse than plain text.
 
+## Figures
+
+An image on its own line becomes a figure. The quoted title after the path is
+the caption:
+
+![The four build stages](/figures/pipeline.svg "Markdown goes in, a directory of HTML comes out.")
+
+The build reads the file to set `width` and `height`, so the page does not
+reflow as figures load, and adds `loading="lazy"`. Put images in `public/`
+and reference them from the root, as above; the deployment's base path is
+added at build time. If a `name.dark.ext` sibling exists — as it does here —
+it is used when the reader is on the dark theme, which saves white-background
+plots from glaring out of a dark page.
+
 ## Tables
 
 Wide tables scroll inside their own box instead of pushing the page sideways.

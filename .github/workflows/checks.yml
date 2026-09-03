@@ -1,0 +1,37 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      # Internal links and accessibility are checked against what the build
+      # actually produced, not against the source.
+      - run: npm run links
+      - run: npm run audit:a11y
+      - name: Check external links
+        run: node scripts/check-links.mjs --external
+        continue-on-error: true

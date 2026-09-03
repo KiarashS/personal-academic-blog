@@ -17,7 +17,12 @@ const post = (overrides: Partial<Post> = {}): Post => ({
 describe('toBibtex', () => {
   it('puts names in BibTeX order and joins them with "and"', () => {
     const entry = toBibtex(
-      post({ authors: [{ id: 'a', name: 'Ada Lovelace' }, { id: 'b', name: 'Alan Turing' }] }),
+      post({
+        authors: [
+          { id: 'a', name: 'Ada Lovelace' },
+          { id: 'b', name: 'Alan Turing' },
+        ],
+      }),
       'https://example.org/posts/a-post',
     );
     expect(entry).toContain('author  = {Lovelace, Ada and Turing, Alan}');
@@ -35,7 +40,10 @@ describe('toBibtex', () => {
   });
 
   it('leaves a single-word name alone rather than inventing a surname', () => {
-    const entry = toBibtex(post({ authors: [{ id: 'a', name: 'Prince' }] }), 'https://example.org/x');
+    const entry = toBibtex(
+      post({ authors: [{ id: 'a', name: 'Prince' }] }),
+      'https://example.org/x',
+    );
     expect(entry).toContain('author  = {Prince}');
   });
 });

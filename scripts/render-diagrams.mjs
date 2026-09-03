@@ -17,7 +17,9 @@ const hash = (source) => createHash('sha256').update(source.trim()).digest('hex'
 
 async function sources() {
   const files = [
-    ...(existsSync(POSTS) ? (await readdir(POSTS)).filter((f) => f.endsWith('.md')).map((f) => join(POSTS, f)) : []),
+    ...(existsSync(POSTS)
+      ? (await readdir(POSTS)).filter((f) => f.endsWith('.md')).map((f) => join(POSTS, f))
+      : []),
     ...EXTRA.filter((f) => existsSync(f)),
   ];
 

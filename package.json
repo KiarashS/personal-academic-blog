@@ -6,11 +6,17 @@
   "scripts": {
     "dev": "vite",
     "diagrams": "node scripts/render-diagrams.mjs",
-    "build": "npm run diagrams && tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs",
-    "build:no-diagrams": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs",
+    "build": "npm run diagrams && tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/prerender.mjs",
+    "build:no-diagrams": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/prerender.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "cards": "node scripts/render-cards.mjs",
+    "links": "node scripts/check-links.mjs",
+    "audit:a11y": "node scripts/audit.mjs",
+    "verify": "npm run links && npm run audit:a11y",
+    "lint": "eslint . && stylelint \"src/**/*.css\" && prettier --check .",
+    "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" --fix && prettier --write ."
   },
   "dependencies": {
     "fuse.js": "7.1.0",
@@ -22,14 +28,21 @@
     "react-router-dom": "7.18.3"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.1",
     "@types/js-yaml": "4.0.9",
     "@types/node": "22.18.0",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.2",
+    "axe-core": "4.11.1",
+    "eslint": "9.39.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-react-hooks": "7.1.0",
+    "globals": "16.5.0",
     "hast-util-to-string": "3.0.1",
     "highlight.js": "11.11.1",
     "playwright": "1.56.1",
+    "prettier": "3.6.2",
     "react-markdown": "10.1.0",
     "rehype-citation": "2.3.2",
     "rehype-highlight": "7.0.2",
@@ -41,7 +54,10 @@
     "remark-math": "6.0.0",
     "remark-parse": "11.0.0",
     "remark-rehype": "11.1.2",
+    "stylelint": "17.0.0",
+    "stylelint-config-standard": "40.0.0",
     "typescript": "5.9.2",
+    "typescript-eslint": "8.46.4",
     "unified": "11.0.5",
     "vite": "7.3.6",
     "vitest": "3.2.7"

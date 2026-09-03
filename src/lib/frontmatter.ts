@@ -15,7 +15,7 @@ export interface ParsedFile<T> {
  * timezone, which is how off-by-one-day post dates happen.
  */
 export function parseFrontmatter<T>(raw: string): ParsedFile<T> {
-  const text = raw.replace(/^﻿/, '');
+  const text = raw.replace(/^\uFEFF/, '');
   const match = FRONTMATTER.exec(text);
   if (!match) return { data: {}, content: text.trim() };
 

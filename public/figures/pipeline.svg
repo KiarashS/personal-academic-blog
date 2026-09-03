@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="240" viewBox="0 0 640 240" role="img" aria-label="Build stages">
+  <rect width="640" height="240" fill="#fdfdfc"/>
+  <g font-family="Georgia, serif" font-size="14" fill="#1b1b18">
+    <rect x="24" y="90" width="120" height="60" fill="none" stroke="#c9c9c0"/>
+    <text x="84" y="125" text-anchor="middle">Markdown</text>
+    <rect x="192" y="90" width="120" height="60" fill="none" stroke="#c9c9c0"/>
+    <text x="252" y="125" text-anchor="middle">unified</text>
+    <rect x="360" y="90" width="120" height="60" fill="none" stroke="#c9c9c0"/>
+    <text x="420" y="125" text-anchor="middle">HTML</text>
+    <rect x="504" y="90" width="112" height="60" fill="none" stroke="#7a3b2e"/>
+    <text x="560" y="125" text-anchor="middle" fill="#7a3b2e">dist/</text>
+  </g>
+  <g stroke="#c9c9c0" stroke-width="1.5" fill="none">
+    <path d="M144 120 H186"/><path d="M312 120 H354"/><path d="M480 120 H498"/>
+  </g>
+</svg>

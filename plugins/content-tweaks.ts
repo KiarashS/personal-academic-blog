@@ -1,4 +1,5 @@
 import type { Element, Root } from 'hast';
+import { toString } from 'hast-util-to-string';
 
 function isExternal(href: unknown): boolean {
   return typeof href === 'string' && /^https?:\/\//.test(href);
@@ -24,6 +25,19 @@ export function rehypeContentTweaks() {
             children: [child],
           };
           return;
+        }
+
+        // GFM renders task lists as bare checkboxes, which have no label.
+        if (child.tagName === 'li') {
+          const box = child.children.find(
+            (grandchild): grandchild is Element =>
+              grandchild.type === 'element' &&
+              grandchild.tagName === 'input' &&
+              grandchild.properties?.type === 'checkbox',
+          );
+          if (box) {
+            box.properties = { ...box.properties, 'aria-label': toString(child).trim() || 'Item' };
+          }
         }
 
         if (child.tagName === 'a' && isExternal(child.properties?.href)) {

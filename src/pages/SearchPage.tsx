@@ -30,18 +30,19 @@ export function SearchPage() {
 
   // The index is a separate chunk; the first search pulls it in.
   useEffect(() => {
+    if (!typed) return;
+
     let current = true;
-    if (!typed) {
-      setHits([]);
-      return;
-    }
-    search(deferred).then((results) => {
+    void search(deferred).then((results) => {
       if (current) setHits(results);
     });
     return () => {
       current = false;
     };
   }, [deferred, typed]);
+
+  // Derived rather than stored, so clearing the box needs no state update.
+  const shown = typed ? hits : [];
 
   return (
     <>
@@ -64,13 +65,13 @@ export function SearchPage() {
 
       <p className="lede" aria-live="polite">
         {typed
-          ? `${hits.length} result${hits.length === 1 ? '' : 's'} for “${deferred.trim()}”`
+          ? `${shown.length} result${shown.length === 1 ? '' : 's'} for “${deferred.trim()}”`
           : 'Type at least two characters.'}
       </p>
 
-      {typed && hits.length > 0 ? (
+      {shown.length > 0 ? (
         <ul className="post-list">
-          {hits.map(({ post, snippet }) => (
+          {shown.map(({ post, snippet }) => (
             <li key={post.slug}>
               <article>
                 <h2 className="post-card__title">

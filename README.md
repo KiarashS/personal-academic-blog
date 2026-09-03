@@ -17,14 +17,20 @@ npx playwright install chromium   # once, for rendering diagrams at build time
 
 npm run dev        # http://localhost:5173, drafts and future posts included
 npm test           # unit tests for the content pipeline
-npm run build      # diagrams, type-check, bundle, prerender → dist/
+npm run lint       # eslint, stylelint and prettier
+npm run lint:fix   # the same, applying what can be fixed
+npm run build      # diagrams, type-check, bundle, cards, prerender → dist/
 npm run preview    # serve the build locally
+npm run links      # every internal link in dist resolves (--external checks the rest)
+npm run audit:a11y # axe-core over one page of each kind
 npm run diagrams   # re-render diagrams only
+npm run cards      # re-render social images only
 ```
 
-`npm run build` runs four stages: `render-diagrams` (Mermaid to SVG), `vite
-build` (client bundle), `vite build --ssr` (server bundle), and `prerender`
-(one HTML file per route, plus the feed, sitemap and robots.txt).
+`npm run build` runs five stages: `render-diagrams` (Mermaid to SVG), `vite
+build` (client bundle), `vite build --ssr` (server bundle), `render-cards`
+(social images), and `prerender` (one HTML file per route, plus feeds, sitemap
+and robots.txt).
 
 ## Writing a post
 
@@ -35,14 +41,14 @@ a leading date stripped: `2026-01-05-writing-a-post.md` is served at
 ```markdown
 ---
 title: Writing a post
-date: 2026-01-05          # optional; falls back to the filename prefix
-updated: 2026-01-12       # optional
-authors: [you]            # ids from src/content/authors.ts
+date: 2026-01-05 # optional; falls back to the filename prefix
+updated: 2026-01-12 # optional
+authors: [you] # ids from src/content/authors.ts
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
-draft: false              # drafts appear in dev, never in a build
-slug: custom-url          # optional override
-doi: 10.5281/zenodo.123   # optional, linked from the post header
+draft: false # drafts appear in dev, never in a build
+slug: custom-url # optional override
+doi: 10.5281/zenodo.123 # optional, linked from the post header
 ---
 
 Body text.
@@ -88,6 +94,27 @@ variables so light and dark stay consistent. Unknown languages are left
 unhighlighted rather than guessed at. Each block gets a language label and a
 copy button.
 
+### Figures
+
+An image alone in a paragraph becomes a `figure`, and the quoted title after
+the path becomes its caption:
+
+```markdown
+![Alt text](/figures/plot.svg 'What the plot shows.')
+```
+
+Put images under `public/` and reference them from the root; the deployment's
+base path is added at build time. The build reads each file to set `width` and
+`height`, so pages do not reflow as figures load, and adds `loading="lazy"`. If
+a `plot.dark.svg` sibling exists it is used on the dark theme, which saves
+white-background plots from glaring out of a dark page.
+
+### Publications
+
+`/publications` is generated from `src/content/publications.bib`, grouped by
+year, each entry linking to its DOI or arXiv page with its BibTeX behind a
+disclosure. It ships with two well-known papers as samples — replace them.
+
 ## What the build produces
 
 Every route is a directory with an `index.html`: the post list and its
@@ -97,8 +124,10 @@ canonical link and Open Graph and Twitter tags, so links unfurl correctly in
 clients that do not run JavaScript, and deep links return 200 rather than a 404
 that happens to contain the right page.
 
-Alongside them: `feed.xml` (Atom, full text, linked from every page's head),
-`sitemap.xml`, and `robots.txt`.
+Alongside them: `feed.xml` (Atom, full text, linked from every page's head), a
+per-tag feed at `/tags/<tag>/feed.xml` advertised on that tag's page,
+`sitemap.xml`, `robots.txt`, and a 1200x630 social card per post under `/og/`
+referenced by `og:image`.
 
 ## Themes
 
@@ -139,6 +168,21 @@ Tokens shorter than six characters must match literally; longer ones are
 matched fuzzily. So `notaton` still finds "Notation" while `seed` does not match
 every post containing the word "see". The query is mirrored into `?q=`.
 
+## Checks
+
+`npm run lint` covers ESLint (with type-aware rules and the React hooks
+plugin), stylelint and Prettier. Beyond that, two checks run against the built
+output rather than the source, because that is what readers get:
+
+- `npm run links` resolves every internal link and `#fragment` in `dist` and
+  fails on a miss. External links are reported with `--external` but never fail
+  a build; they rot for reasons outside this repository.
+- `npm run audit:a11y` runs axe-core over one page of each kind at WCAG 2.1 AA.
+
+Both run in CI. `.github/workflows/checks.yml` runs the whole set on pull
+requests and on any branch that is not `main`; the deploy workflow runs them
+again before publishing.
+
 ## Configuration
 
 `src/site.config.ts` holds the title, tagline, description, navigation, posts
@@ -161,14 +205,15 @@ Drop `BASE_PATH` for a user site, a custom domain, Netlify, or Vercel.
 ## Layout
 
 ```
-plugins/          the build-time Markdown pipeline (a Vite plugin)
-scripts/          diagram rendering, prerendering, feed and sitemap
+plugins/          the build-time Markdown and BibTeX pipeline (Vite plugins)
+scripts/          diagrams, social cards, prerendering, link check, a11y audit
 src/
   components/     layout, post body, comments, theme, citations
   content/
     authors.ts    author records referenced by post frontmatter
     posts/*.md    one file per post
-    references.bib
+    references.bib      cited from posts with [@key]
+    publications.bib    rendered at /publications
     about.md
   lib/            frontmatter, post index, search, pagination, routes
   pages/          one component per route

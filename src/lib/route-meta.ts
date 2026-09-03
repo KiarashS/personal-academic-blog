@@ -65,6 +65,20 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
+  if (path === '/publications') {
+    return {
+      title: withSuffix('Publications'),
+      description: 'Papers, preprints and other published work.',
+    };
+  }
+
+  if (path === '/archive') {
+    return {
+      title: withSuffix('Archive'),
+      description: `Every post, grouped by year — ${posts.length} in total.`,
+    };
+  }
+
   if (path === '/about') return { title: withSuffix('About'), description: siteConfig.description };
 
   return { title: withSuffix('Not found'), description: siteConfig.description };
@@ -72,7 +86,7 @@ export function metaFor(pathname: string): RouteMeta {
 
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
-  const routes = new Set<string>(['/', '/tags', '/search', '/about']);
+  const routes = new Set<string>(['/', '/tags', '/search', '/about', '/publications', '/archive']);
 
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(`/page/${page}`);

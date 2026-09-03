@@ -1,7 +1,9 @@
 :root {
-  --serif: 'Iowan Old Style', 'Charter', 'Source Serif 4', Georgia, Cambria, 'Times New Roman', serif;
-  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --serif:
+    'Iowan Old Style', 'Charter', 'Source Serif 4', georgia, cambria, 'Times New Roman', serif;
+  --sans:
+    -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
+  --mono: ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono', monospace;
 
   /* Both palettes are defined once here; the rules below only choose between
      them, so a colour is never edited in two places. */
@@ -101,7 +103,7 @@
 }
 
 html {
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -112,7 +114,7 @@ body {
   font-size: 1.0625rem;
   line-height: 1.65;
   font-kerning: normal;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
 }
 
 a {
@@ -579,7 +581,7 @@ mark {
   margin: 0 0 1rem;
 }
 
-@media (max-width: 34rem) {
+@media (width <= 34rem) {
   body {
     font-size: 1rem;
   }
@@ -602,7 +604,8 @@ mark {
 
 .visually-hidden {
   border: 0;
-  clip: rect(0 0 0 0);
+
+  /* `clip` is deprecated; `clip-path` is supported everywhere current. */
   clip-path: inset(50%);
   height: 1px;
   overflow: hidden;
@@ -723,4 +726,105 @@ mark {
 
 :root[data-theme='dark'] .theme-toggle__dark {
   display: inline;
+}
+
+/* Publications, archive, related posts ------------------------------------ */
+
+.publication-year,
+.archive-year {
+  margin-bottom: 2.5rem;
+}
+
+.publication-list,
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.publication {
+  border-top: 1px solid var(--rule);
+  padding: 1rem 0;
+}
+
+.publication__title {
+  font-size: 1.05rem;
+  margin: 0 0 0.2rem;
+}
+
+.publication__title a {
+  text-decoration: none;
+}
+
+.publication__title a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.publication__authors {
+  font-size: 0.95rem;
+  margin: 0 0 0.2rem;
+}
+
+.publication .meta {
+  margin: 0;
+}
+
+.cite--compact {
+  border-top: 0;
+  margin-top: 0.5rem;
+  padding-top: 0;
+}
+
+.archive-list li {
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.archive-list time {
+  color: var(--text-muted);
+  flex: 0 0 7.5rem;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  padding-top: 0.15rem;
+}
+
+.archive-list a {
+  text-decoration: none;
+}
+
+.archive-list a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.related {
+  border-top: 1px solid var(--rule);
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+}
+
+.related__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.related__list li + li {
+  margin-top: 0.9rem;
+}
+
+.related__list a {
+  text-decoration: none;
+}
+
+.related__list a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.related__list .meta {
+  margin: 0.15rem 0 0;
 }

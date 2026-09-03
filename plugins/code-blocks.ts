@@ -35,6 +35,9 @@ export function rehypeCodeBlocks() {
         if (code && classesOf(code).some((name) => NOT_CODE.has(name))) return;
         const language = code ? languageOf(code) : undefined;
 
+        // A block that scrolls sideways has to be reachable by keyboard.
+        child.properties = { ...child.properties, tabIndex: 0 };
+
         const chrome: Element[] = [];
         if (language) {
           chrome.push({

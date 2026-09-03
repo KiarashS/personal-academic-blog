@@ -19,6 +19,8 @@ import type { Heading } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
 import { rehypeContentTweaks } from './content-tweaks';
+import { rehypeHeadingAnchors } from './heading-anchors';
+import { rehypeFigures } from './figures';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -36,7 +38,7 @@ function collectHeadings() {
         if (child.type !== 'element') continue;
         const depth = child.tagName === 'h2' ? 2 : child.tagName === 'h3' ? 3 : 0;
         const id = typeof child.properties?.id === 'string' ? child.properties.id : '';
-        if (depth && id) headings.push({ id, text: toString(child), depth: depth as 2 | 3 });
+        if (depth && id) headings.push({ id, text: toString(child), depth: depth });
         walk(child);
       }
     };
@@ -59,12 +61,14 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const bibliography = options.bibliography ?? 'src/content/references.bib';
 
   let building = false;
+  let base = '/';
   let cache: DiagramCache = {};
   const compiled = new Map<string, Compiled>();
   const missingDiagrams = new Set<string>();
+  const missingImages = new Set<string>();
 
   async function compile(raw: string, body: string, file: string): Promise<Compiled> {
-    const key = `${file}:${raw.length}:${body.length}:${body}`;
+    const key = `${base}:${file}:${raw.length}:${body.length}:${body}`;
     const hit = compiled.get(key);
     if (hit) return hit;
 
@@ -90,6 +94,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)
       .use(rehypeContentTweaks)
+      .use(rehypeHeadingAnchors)
+      .use(rehypeFigures, {
+        publicDir: resolve(root, 'public'),
+        base,
+        onWarn: (message: string) => missingImages.add(message),
+      })
       .use(rehypeStringify, { allowDangerousHtml: true });
 
     const result = await processor.process(body);
@@ -107,12 +117,14 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
     configResolved(config) {
       building = config.command === 'build';
+      base = config.base;
     },
 
     buildStart() {
       cache = loadDiagramCache(cachePath);
       compiled.clear();
       missingDiagrams.clear();
+      missingImages.clear();
     },
 
     async transform(_code, id) {
@@ -146,7 +158,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
           return { code: `export default ${JSON.stringify(stub)};`, map: null };
         }
         if (query === 'text') {
-          return { code: `export default ${JSON.stringify({ slug: built.meta.slug, plainText: '' })};`, map: null };
+          return {
+            code: `export default ${JSON.stringify({ slug: built.meta.slug, plainText: '' })};`,
+            map: null,
+          };
         }
         return { code: 'export const html = "";', map: null };
       }
@@ -161,13 +176,18 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       const { html, headings } = await compile(raw, built.body, path);
 
       if (query === 'meta') {
-        return { code: `export default ${JSON.stringify({ ...built.meta, headings })};`, map: null };
+        return {
+          code: `export default ${JSON.stringify({ ...built.meta, headings })};`,
+          map: null,
+        };
       }
 
       return { code: `export const html = ${JSON.stringify(html)};`, map: null };
     },
 
     buildEnd() {
+      for (const message of missingImages) this.warn(message);
+
       if (missingDiagrams.size > 0) {
         this.warn(
           `${missingDiagrams.size} Mermaid diagram(s) had no prerendered SVG and will render in the browser. ` +

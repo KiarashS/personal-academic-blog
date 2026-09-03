@@ -33,7 +33,9 @@ describe('slugFromPath', () => {
 
 describe('buildPost', () => {
   it('falls back to the filename for date and slug', () => {
-    const { meta: built } = buildPost(post('posts/2026-05-04-a-title.md', '---\ntitle: A title\n---\nbody'));
+    const { meta: built } = buildPost(
+      post('posts/2026-05-04-a-title.md', '---\ntitle: A title\n---\nbody'),
+    );
     expect(built.slug).toBe('a-title');
     expect(built.date).toBe('2026-05-04');
   });
@@ -66,9 +68,9 @@ describe('selectPosts', () => {
   });
 
   it('keeps drafts and future posts in development', () => {
-    expect(selectPosts(posts, { ...options, includeUnpublished: true }).map((p) => p.title)).toEqual(
-      ['Later', 'New', 'Hidden', 'Old'],
-    );
+    expect(
+      selectPosts(posts, { ...options, includeUnpublished: true }).map((p) => p.title),
+    ).toEqual(['Later', 'New', 'Hidden', 'Old']);
   });
 
   it('publishes a post on its own date, not the day after', () => {
@@ -100,7 +102,9 @@ describe('tableOfContents', () => {
 
 describe('toPlainText', () => {
   it('removes code, math and link targets', () => {
-    const text = toPlainText('See `x` and $a^2$ and\n\n```js\nconst y = 1;\n```\n\n[docs](http://e.org).');
+    const text = toPlainText(
+      'See `x` and $a^2$ and\n\n```js\nconst y = 1;\n```\n\n[docs](http://e.org).',
+    );
     expect(text).toBe('See and and docs.');
   });
 

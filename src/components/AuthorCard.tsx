@@ -27,9 +27,7 @@ export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: Aut
         {linkName ? <Link to={`/authors/${author.id}`}>{author.name}</Link> : author.name}
       </Heading>
       {author.role || author.affiliation ? (
-        <p className="meta">
-          {[author.role, author.affiliation].filter(Boolean).join(', ')}
-        </p>
+        <p className="meta">{[author.role, author.affiliation].filter(Boolean).join(', ')}</p>
       ) : null}
       {author.bio ? <p className="author-card__bio">{author.bio}</p> : null}
       {links.length > 0 || author.email ? (

@@ -23,7 +23,11 @@ export function HomePage() {
   return (
     <>
       <PostList posts={items} />
-      <Pagination page={page} totalPages={totalPages} hrefFor={(n) => (n === 1 ? '/' : `/page/${n}`)} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hrefFor={(n) => (n === 1 ? '/' : `/page/${n}`)}
+      />
     </>
   );
 }

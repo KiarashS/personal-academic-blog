@@ -1,0 +1,6 @@
+dist
+dist-server
+.cache
+package-lock.json
+src/content/posts
+public/figures

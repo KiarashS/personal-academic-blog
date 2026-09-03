@@ -5,9 +5,10 @@ import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
 import { TableOfContents } from '../components/TableOfContents';
+import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
 import { formatDate, isoDate } from '../lib/format';
-import { getPost, neighbours } from '../lib/posts';
+import { getPost, neighbours, relatedPosts } from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -21,7 +22,6 @@ export function PostPage() {
 
   return (
     <article>
-
       <header className="post-header">
         <h1>{post.title}</h1>
         <p className="meta">
@@ -96,6 +96,8 @@ export function PostPage() {
           </div>
         </nav>
       ) : null}
+
+      <RelatedPosts posts={relatedPosts(post.slug)} />
 
       <Comments term={`/posts/${post.slug}`} />
     </article>

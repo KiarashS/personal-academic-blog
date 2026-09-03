@@ -225,8 +225,7 @@
 
 .prose .katex-display {
   margin: 1.5rem 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   padding: 0.2rem 0;
 }
 
@@ -302,4 +301,64 @@
 
 .prose .citation a {
   text-decoration: none;
+}
+
+/* Heading permalinks ------------------------------------------------------- */
+
+.prose :is(h2, h3, h4) .heading-anchor {
+  color: var(--rule-strong);
+  font-size: 0.8em;
+  margin-left: 0.4rem;
+  opacity: 0;
+  text-decoration: none;
+  transition: opacity 120ms ease-in-out;
+}
+
+.prose :is(h2, h3, h4):hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+/* Figures ------------------------------------------------------------------ */
+
+.prose .figure {
+  margin: 1.75rem 0;
+  text-align: center;
+}
+
+.prose .figure-image {
+  border-radius: 3px;
+  height: auto;
+  max-width: 100%;
+}
+
+.prose .figure figcaption {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+/* A dark-theme sibling, swapped the same way diagrams are. */
+.figure-image--dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .figure-image--light {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .figure-image--dark {
+    display: inline;
+  }
+}
+
+:root[data-theme='dark'] .figure-image--light {
+  display: none;
+}
+
+:root[data-theme='dark'] .figure-image--dark {
+  display: inline;
 }

@@ -11,7 +11,17 @@ function citationKey(post: Post): string {
   return `${surname.replace(/[^a-z0-9]/g, '')}${year}${word ?? 'post'}`;
 }
 
-const STOPWORDS = new Set(['this', 'that', 'with', 'from', 'what', 'when', 'your', 'their', 'about']);
+const STOPWORDS = new Set([
+  'this',
+  'that',
+  'with',
+  'from',
+  'what',
+  'when',
+  'your',
+  'their',
+  'about',
+]);
 
 /** "Family, Given" is what BibTeX wants; a single-word name is left alone. */
 function bibName(name: string): string {

@@ -54,7 +54,7 @@ export function PostBody({ slug }: { slug: string }) {
     if (blocks.length === 0) return;
 
     let cancelled = false;
-    (async () => {
+    void (async () => {
       const { default: mermaid } = await import('mermaid');
       mermaid.initialize({
         startOnLoad: false,

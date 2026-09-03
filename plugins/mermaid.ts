@@ -32,7 +32,10 @@ function raw(value: string): Element {
  * or — when the cache has no entry, as in dev — with a placeholder the browser
  * renders instead.
  */
-export function rehypeMermaid(options: { cache: DiagramCache; onMissing?: (source: string) => void }) {
+export function rehypeMermaid(options: {
+  cache: DiagramCache;
+  onMissing?: (source: string) => void;
+}) {
   return (tree: Root) => {
     visit(tree, (node, index, parent) => {
       if (!parent || index === null) return;
@@ -65,7 +68,14 @@ export function rehypeMermaid(options: { cache: DiagramCache; onMissing?: (sourc
         type: 'element',
         tagName: 'div',
         properties: { className: ['mermaid-pending'] },
-        children: [{ type: 'element', tagName: 'script', properties: { type: 'text/x-mermaid' }, children: [{ type: 'text', value: source }] }],
+        children: [
+          {
+            type: 'element',
+            tagName: 'script',
+            properties: { type: 'text/x-mermaid' },
+            children: [{ type: 'text', value: source }],
+          },
+        ],
       };
     });
   };

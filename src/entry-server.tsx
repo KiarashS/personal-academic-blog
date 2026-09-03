@@ -5,7 +5,8 @@ import { App } from './App';
 import { ThemeProvider } from './components/ThemeProvider';
 
 export { allRoutes, metaFor } from './lib/route-meta';
-export { posts } from './lib/posts';
+export { posts, postsByTag, tagCounts } from './lib/posts';
+export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
 export { canonicalUrl, withBase } from './lib/urls';
 export { loadPostHtml } from './lib/post-content';

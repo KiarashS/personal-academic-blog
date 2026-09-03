@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # Sets the Pages build type to "workflow" if it is not already, which is
       # also what reconciles the github-pages environment's deployment branch
       # policy after the default branch changes.
@@ -26,19 +26,22 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       # Diagrams are rendered to SVG at build time, which needs a browser.
       - run: npx playwright install --with-deps chromium
+      - run: npm run lint
       - run: npm test
       - run: npm run build
         env:
           # base_path is "/<repo>" for a project site and empty for a user site
           # or a custom domain, so the trailing slash covers both.
           BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+      - run: npm run links
+      - run: npm run audit:a11y
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

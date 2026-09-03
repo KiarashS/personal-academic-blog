@@ -69,20 +69,22 @@ function publishable(post: PostMeta, { includeUnpublished, today }: SelectOption
 export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptions): T[] {
   const seen = new Set<string>();
 
-  return posts
-    .filter((post) => publishable(post, options))
-    .sort((a, b) =>
-      a.date === b.date ? a.title.localeCompare(b.title) : b.date.localeCompare(a.date),
-    )
-    // Sorting first means a duplicated slug resolves to the newer post.
-    .filter((post) => {
-      if (seen.has(post.slug)) {
-        console.warn(`Duplicate post slug "${post.slug}" — keeping the newer post.`);
-        return false;
-      }
-      seen.add(post.slug);
-      return true;
-    });
+  return (
+    posts
+      .filter((post) => publishable(post, options))
+      .sort((a, b) =>
+        a.date === b.date ? a.title.localeCompare(b.title) : b.date.localeCompare(a.date),
+      )
+      // Sorting first means a duplicated slug resolves to the newer post.
+      .filter((post) => {
+        if (seen.has(post.slug)) {
+          console.warn(`Duplicate post slug "${post.slug}" — keeping the newer post.`);
+          return false;
+        }
+        seen.add(post.slug);
+        return true;
+      })
+  );
 }
 
 export function todayUtc(): string {

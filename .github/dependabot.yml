@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      # One pull request per family keeps the review load sane.
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom', 'react-router-dom']
+      unified:
+        patterns: ['remark*', 'rehype*', 'unified', 'hast-util-*']
+      tooling:
+        patterns: ['vite', '@vitejs/*', 'vitest', 'typescript', 'eslint*', 'prettier', 'stylelint*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -5,11 +5,13 @@ import type { Post, PostMeta } from './types';
 
 // Only metadata is eager. Post bodies and the search text live in their own
 // modules so the list pages do not carry the whole archive.
-const metaModules = import.meta.glob('../content/posts/*.md', {
+// Annotated rather than asserted: the glob's own type is not specific enough,
+// and an annotation still gets checked.
+const metaModules: Record<string, PostMeta> = import.meta.glob('../content/posts/*.md', {
   query: '?meta',
   import: 'default',
   eager: true,
-}) as Record<string, PostMeta>;
+});
 
 const selected = selectPosts(Object.values(metaModules), {
   includeUnpublished: import.meta.env.DEV,
@@ -71,4 +73,27 @@ export function neighbours(slug: string): { previous?: Post; next?: Post } {
   const index = posts.findIndex((post) => post.slug === slug);
   if (index === -1) return {};
   return { previous: posts[index + 1], next: posts[index - 1] };
+}
+
+/**
+ * Posts sharing the most tags with this one, newest first among ties. Tags are
+ * the only signal available without a similarity index, and for a research
+ * notebook they are usually the right one.
+ */
+export function relatedPosts(slug: string, limit = 3): Post[] {
+  const post = postsBySlug.get(slug);
+  if (!post || post.tags.length === 0) return [];
+
+  const wanted = new Set(post.tags.map((tag) => tagSlug(tag)));
+
+  return posts
+    .filter((candidate) => candidate.slug !== slug)
+    .map((candidate) => ({
+      post: candidate,
+      shared: candidate.tags.filter((tag) => wanted.has(tagSlug(tag))).length,
+    }))
+    .filter((entry) => entry.shared > 0)
+    .sort((a, b) => b.shared - a.shared || b.post.date.localeCompare(a.post.date))
+    .slice(0, limit)
+    .map((entry) => entry.post);
 }

@@ -31,9 +31,13 @@ export const siteConfig: SiteConfig = {
   // Origin only; the deployment's base path is added by `canonicalUrl`.
   // Canonical links, Open Graph tags, the feed and BibTeX are all built from it.
   url: 'https://kiarashs.github.io',
+  // Low on purpose while the archive is small, so the pagination is visible
+  // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
   nav: [
     { label: 'Posts', to: '/' },
+    { label: 'Publications', to: '/publications' },
+    { label: 'Archive', to: '/archive' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },

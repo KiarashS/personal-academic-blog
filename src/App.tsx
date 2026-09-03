@@ -11,7 +11,15 @@ import { AuthorPage } from './pages/AuthorPage';
 // use them, so they load on navigation instead of on first paint.
 const PostPage = lazy(() => import('./pages/PostPage').then((m) => ({ default: m.PostPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
-const SearchPage = lazy(() => import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })));
+const SearchPage = lazy(() =>
+  import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })),
+);
+const PublicationsPage = lazy(() =>
+  import('./pages/PublicationsPage').then((m) => ({ default: m.PublicationsPage })),
+);
+const ArchivePage = lazy(() =>
+  import('./pages/ArchivePage').then((m) => ({ default: m.ArchivePage })),
+);
 
 export function App() {
   return (
@@ -24,6 +32,22 @@ export function App() {
           element={
             <Suspense fallback={<p className="empty">Loading…</p>}>
               <PostPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="publications"
+          element={
+            <Suspense fallback={<p className="empty">Loading…</p>}>
+              <PublicationsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="archive"
+          element={
+            <Suspense fallback={<p className="empty">Loading…</p>}>
+              <ArchivePage />
             </Suspense>
           }
         />
