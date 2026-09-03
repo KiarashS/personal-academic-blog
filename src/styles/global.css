@@ -1,6 +1,7 @@
 :root {
   --serif:
-    'Iowan Old Style', 'Charter', 'Source Serif 4', georgia, cambria, 'Times New Roman', serif;
+    'Source Serif 4 Variable', 'Iowan Old Style', 'Charter', georgia, cambria, 'Times New Roman',
+    serif;
   --sans:
     -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
   --mono: ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono', monospace;
@@ -33,7 +34,9 @@
   --dark-hl-number: #d6bd7e;
   --dark-hl-title: #8fb4d9;
 
-  --measure: 38rem;
+  /* Characters, not pixels: the comfortable line is about 68 of them, and
+     this tracks the face rather than the root size. */
+  --measure: 68ch;
   --wide: 46rem;
 
   --bg: var(--light-bg);
@@ -108,6 +111,11 @@ html {
 
 body {
   margin: 0;
+
+  /* A 68-character measure collapses to about 340px on a phone, where
+     unhyphenated technical vocabulary leaves large holes. */
+  hyphens: auto;
+  text-wrap: pretty;
   background: var(--bg);
   color: var(--text);
   font-family: var(--serif);
@@ -329,6 +337,10 @@ video {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem 0.55rem;
+
+  /* Georgia and its kin default to old-style figures, which belong in prose
+     and not in a row of dates. */
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .meta a {
@@ -593,12 +605,73 @@ mark {
 }
 
 @media print {
+  /*
+   * Papers get printed. The chrome goes, the palette is forced light whatever
+   * the reader chose, links keep their targets on paper, and figures, tables
+   * and code are not allowed to break across a page.
+   */
+  @page {
+    margin: 20mm 18mm;
+  }
+
+  :root,
+  :root[data-theme='dark'] {
+    --bg: #fff;
+    --bg-subtle: #fff;
+    --text: #000;
+    --text-muted: #444;
+    --rule: #bbb;
+    --rule-strong: #666;
+    --link: #000;
+    --accent: #000;
+    --code-bg: #fff;
+    --mark: #eee;
+
+    color-scheme: light;
+  }
+
   .site-nav,
   .site-footer,
   .comments,
   .post-nav,
-  .pagination {
+  .pagination,
+  .related,
+  .code-block__copy,
+  .heading-anchor,
+  .skip-link {
     display: none;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+
+  .shell,
+  .prose {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* A citation is not much use on paper without its target. */
+  .prose a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  figure,
+  table,
+  pre,
+  .code-block,
+  .mermaid-figure,
+  .toc {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
   }
 }
 
@@ -788,6 +861,7 @@ mark {
   flex: 0 0 7.5rem;
   font-family: var(--sans);
   font-size: 0.8rem;
+  font-variant-numeric: lining-nums tabular-nums;
   padding-top: 0.15rem;
 }
 

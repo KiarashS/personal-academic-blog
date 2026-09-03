@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { ThemeProvider } from './components/ThemeProvider';
 import 'katex/dist/katex.min.css';
+import './styles/fonts.css';
 import './styles/global.css';
 import './styles/prose.css';
 

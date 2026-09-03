@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -21,6 +21,22 @@ const {
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
+
+/**
+ * The body face is only discovered once the stylesheet has been parsed, which
+ * costs a round trip on first view. Preloading the roman weight starts it with
+ * the CSS. The filename is hashed by the build, so it is looked up rather than
+ * hard-coded; italic is left to load on demand.
+ */
+async function fontPreload() {
+  const assets = await readdir(join(dist, 'assets')).catch(() => []);
+  const roman = assets.find((name) => /wght-normal.*\.woff2$/.test(name));
+  if (!roman) return '';
+  return (
+    `\n    <link rel="preload" as="font" type="font/woff2" crossorigin ` +
+    `href="${escapeXml(withBase(`/assets/${roman}`))}" />`
+  );
+}
 const TITLE_TAG = /<title>[\s\S]*?<\/title>/;
 
 if (!TITLE_TAG.test(template)) {
@@ -33,34 +49,38 @@ const escapeXml = (value) =>
     (char) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[char],
   );
 
+const preload = await fontPreload();
+
 function head({ title, description, url, type, image, feed }) {
-  return [
-    `<title>${escapeXml(title)}</title>`,
-    `<meta name="description" content="${escapeXml(description)}" />`,
-    `<link rel="canonical" href="${escapeXml(url)}" />`,
-    `<link rel="alternate" type="application/atom+xml" title="${escapeXml(siteConfig.title)}" href="${escapeXml(canonicalUrl('/feed.xml'))}" />`,
-    ...(feed
-      ? [
-          `<link rel="alternate" type="application/atom+xml" title="${escapeXml(feed.title)}" href="${escapeXml(feed.href)}" />`,
-        ]
-      : []),
-    `<meta property="og:type" content="${type}" />`,
-    `<meta property="og:site_name" content="${escapeXml(siteConfig.title)}" />`,
-    `<meta property="og:title" content="${escapeXml(title)}" />`,
-    `<meta property="og:description" content="${escapeXml(description)}" />`,
-    `<meta property="og:url" content="${escapeXml(url)}" />`,
-    ...(image
-      ? [
-          `<meta property="og:image" content="${escapeXml(image)}" />`,
-          '<meta property="og:image:width" content="1200" />',
-          '<meta property="og:image:height" content="630" />',
-          `<meta name="twitter:image" content="${escapeXml(image)}" />`,
-        ]
-      : []),
-    `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />`,
-    `<meta name="twitter:title" content="${escapeXml(title)}" />`,
-    `<meta name="twitter:description" content="${escapeXml(description)}" />`,
-  ].join('\n    ');
+  return (
+    [
+      `<title>${escapeXml(title)}</title>`,
+      `<meta name="description" content="${escapeXml(description)}" />`,
+      `<link rel="canonical" href="${escapeXml(url)}" />`,
+      `<link rel="alternate" type="application/atom+xml" title="${escapeXml(siteConfig.title)}" href="${escapeXml(canonicalUrl('/feed.xml'))}" />`,
+      ...(feed
+        ? [
+            `<link rel="alternate" type="application/atom+xml" title="${escapeXml(feed.title)}" href="${escapeXml(feed.href)}" />`,
+          ]
+        : []),
+      `<meta property="og:type" content="${type}" />`,
+      `<meta property="og:site_name" content="${escapeXml(siteConfig.title)}" />`,
+      `<meta property="og:title" content="${escapeXml(title)}" />`,
+      `<meta property="og:description" content="${escapeXml(description)}" />`,
+      `<meta property="og:url" content="${escapeXml(url)}" />`,
+      ...(image
+        ? [
+            `<meta property="og:image" content="${escapeXml(image)}" />`,
+            '<meta property="og:image:width" content="1200" />',
+            '<meta property="og:image:height" content="630" />',
+            `<meta name="twitter:image" content="${escapeXml(image)}" />`,
+          ]
+        : []),
+      `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />`,
+      `<meta name="twitter:title" content="${escapeXml(title)}" />`,
+      `<meta name="twitter:description" content="${escapeXml(description)}" />`,
+    ].join('\n    ') + preload
+  );
 }
 
 function cardFor(slug) {

@@ -198,6 +198,38 @@ Tokens shorter than six characters must match literally; longer ones are
 matched fuzzily. So `notaton` still finds "Notation" while `seed` does not match
 every post containing the word "see". The query is mirrored into `?q=`.
 
+## Typography
+
+The body face is Source Serif 4, vendored under `src/styles/fonts/` rather than
+loaded from a CDN, so no reader is announced to a third party. Two variable
+files, roman and italic, cover every weight the site uses — about 100 kB
+together, against the ~300 kB of KaTeX faces the math already needs. They load
+with `font-display: swap`, and the prerenderer preloads the roman one. The old
+system stack stays as the fallback, so a reader sees Iowan or Georgia until the
+file lands.
+
+The measure is 68 characters (`--measure: 68ch`), which tracks the face rather
+than the root size. Prose is hyphenated, since a 68-character measure collapses
+to about 340px on a phone where unhyphenated technical vocabulary leaves large
+holes.
+
+Numbers that are data rather than prose — dates, tables, the archive column —
+are set with `lining-nums tabular-nums`, because Georgia and its kin default to
+old-style figures that do not align in a column.
+
+Tables follow booktabs, the convention journals use: a heavy rule above the
+header, a light one below it, a heavy one at the foot, and nothing between rows
+or columns. Add `class="numeric"` to a cell to right-align a column of figures.
+
+Inline math is set slightly larger than the surrounding text, because KaTeX
+only ships Computer Modern and its x-height runs small against a text serif.
+The shapes still differ; that is true of most printed papers too.
+
+Printing is styled rather than left to chance: the chrome goes, the palette is
+forced light whatever the reader chose, external links print their target after
+the text, and figures, tables and code blocks are not allowed to break across a
+page.
+
 ## Optional pages
 
 `features` in `src/site.config.ts` turns whole sections on and off:

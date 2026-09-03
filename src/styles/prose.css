@@ -70,20 +70,48 @@
   border-collapse: collapse;
   font-family: var(--sans);
   font-size: 0.88rem;
+
+  /* Figures in a table are data: they line up and sit on the baseline. */
+  font-variant-numeric: lining-nums tabular-nums;
   min-width: 100%;
+}
+
+/*
+ * Booktabs, the convention every journal uses: a heavy rule above the header,
+ * a light one below it, a heavy one at the foot, and nothing at all between
+ * rows or between columns.
+ */
+.prose thead th {
+  border-bottom: 1px solid var(--rule-strong);
+  border-top: 0;
+  font-weight: 600;
+}
+
+.prose thead {
+  border-top: 2px solid var(--text);
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 2px solid var(--text);
 }
 
 .prose th,
 .prose td {
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 0;
   padding: 0.45rem 0.8rem 0.45rem 0;
   text-align: left;
   vertical-align: top;
 }
 
-.prose thead th {
-  border-bottom: 1px solid var(--rule-strong);
-  font-weight: 600;
+.prose th:last-child,
+.prose td:last-child {
+  padding-right: 0;
+}
+
+/* A column of numbers reads down the right edge. */
+.prose td.numeric,
+.prose th.numeric {
+  text-align: right;
 }
 
 /* Code -------------------------------------------------------------------- */
@@ -220,7 +248,12 @@
 /* Math -------------------------------------------------------------------- */
 
 .prose .katex {
-  font-size: 1.03em;
+  /*
+   * KaTeX only ships Computer Modern, so inline math cannot match the text
+   * face. Its x-height is smaller than Source Serif's, and this closes most of
+   * the gap; the shapes still differ, which is true of most printed papers too.
+   */
+  font-size: 1.09em;
 }
 
 .prose .katex-display {
