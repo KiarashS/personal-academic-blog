@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # Sets the Pages build type to "workflow" if it is not already, which is
       # also what reconciles the github-pages environment's deployment branch
       # policy after the default branch changes.
