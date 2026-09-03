@@ -23,7 +23,7 @@ jobs:
       # also what reconciles the github-pages environment's deployment branch
       # policy after the default branch changes.
       - id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
       - uses: actions/setup-node@v7
