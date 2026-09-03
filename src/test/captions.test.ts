@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
+import { rehypeCodeBlocks } from '../../plugins/code-blocks';
 import { rehypeFigures } from '../../plugins/figures';
 import { rehypeCaptions } from '../../plugins/captions';
 import { rehypeContentTweaks } from '../../plugins/content-tweaks';
@@ -17,6 +18,7 @@ const render = (markdown: string): string =>
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       .use(rehypeContentTweaks, { base: '/' })
+      .use(rehypeCodeBlocks)
       .use(rehypeFigures, { publicDir: 'public', base: '/' })
       .use(rehypeCaptions)
       .use(rehypeStringify, { allowDangerousHtml: true })
@@ -71,5 +73,38 @@ describe('rehypeCaptions', () => {
   it('numbers an image whose caption came from the markdown title', () => {
     const html = render('![A plot](/nope.png "The residuals.")');
     expect(html).toContain('Figure 1.</span> The residuals.');
+  });
+
+  it('counts code listings in a third sequence, captioned above', () => {
+    const html = render(
+      [
+        '<video src="/a.mp4"></video>',
+        '',
+        'Caption: A moving picture.',
+        '',
+        '```python',
+        'x = 1',
+        '```',
+        '',
+        'Caption: The first listing.',
+        '',
+        '```python',
+        'y = 2',
+        '```',
+        '',
+        'Caption: The second listing.',
+      ].join('\n'),
+    );
+
+    expect(html).toContain('Figure 1.</span> A moving picture.');
+    expect(html).toContain('Listing 1.</span> The first listing.');
+    expect(html).toContain('Listing 2.</span> The second listing.');
+    expect(html.indexOf('Listing 1.')).toBeLessThan(html.indexOf('code-block__bar'));
+  });
+
+  it('leaves an uncaptioned code block outside a figure', () => {
+    const html = render('```python\nx = 1\n```');
+    expect(html).toContain('code-block');
+    expect(html).not.toContain('captioned');
   });
 });

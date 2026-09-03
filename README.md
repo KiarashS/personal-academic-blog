@@ -154,12 +154,13 @@ directly after it.
 Caption: The stages of `npm run build`.
 ```
 
-That works after a table, a `mermaid` fence, a notebook, a `<video>` or an
-image; an image can use its Markdown title instead, which comes to the same
-thing. Figures and tables are numbered in two separate sequences per post —
-Figure 1, Figure 2, Table 1 — at build time, so the numbers are right with
-scripting off. A caption can hold markup, links and math. Table captions go
-above the table and figure captions below, which is where a journal puts them.
+That works after a table, a code fence, a `mermaid` fence, a notebook, a
+`<video>` or an image; an image can use its Markdown title instead, which comes
+to the same thing. Figures, tables and code listings are numbered in three
+separate sequences per post — Figure 1, Figure 2, Table 1, Listing 1 — at build
+time, so the numbers are right with scripting off. A caption can hold markup,
+links and math. Figure captions go below the block; table and listing captions
+go above it, which is where a journal puts each.
 
 The block and its caption are centred in the measure; the caption is set in the
 sans face at a smaller size, with its label in the text colour.

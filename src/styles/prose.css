@@ -450,8 +450,14 @@
   text-wrap: pretty;
 }
 
-.prose .captioned--table .caption {
+.prose .captioned--table .caption,
+.prose .captioned--code .caption {
   margin: 0 0 0.6rem;
+}
+
+/* Centring the block must not centre the code inside it. */
+.prose .captioned--code .code-block {
+  text-align: left;
 }
 
 .prose .caption__label {

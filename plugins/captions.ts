@@ -13,10 +13,13 @@ function classesOf(node: Element): string[] {
   return list.filter(Boolean);
 }
 
+type Kind = 'figure' | 'table' | 'code';
+
 /** What a block should be called in its caption, and how it is counted. */
-function kindOf(node: Element): 'table' | 'figure' | undefined {
+function kindOf(node: Element): Kind | undefined {
   const classes = classesOf(node);
   if (classes.includes('table-wrap')) return 'table';
+  if (classes.includes('code-block')) return 'code';
   if (
     classes.includes('figure') ||
     classes.includes('mermaid-figure') ||
@@ -28,6 +31,11 @@ function kindOf(node: Element): 'table' | 'figure' | undefined {
   if (node.tagName === 'video' || node.tagName === 'figure') return 'figure';
   return undefined;
 }
+
+const LABELS: Record<Kind, string> = { figure: 'Figure', table: 'Table', code: 'Listing' };
+
+/** Only a figure's caption goes below it; a table's and a listing's go above. */
+const ABOVE = new Set<Kind>(['table', 'code']);
 
 /**
  * The index of the next real sibling. remark-rehype leaves newline text nodes
@@ -77,17 +85,17 @@ function figcaption(label: string, body: ElementContent[]): Element {
 
 /**
  * Captions for every kind of block, numbered per post the way a paper numbers
- * them: figures in one sequence, tables in another. A caption is a paragraph
- * beginning `Caption:` directly after the block; images may also use the
- * Markdown title, which `rehypeFigures` has already turned into a figcaption.
+ * them: figures in one sequence, tables in another, code listings in a third.
+ * A caption is a paragraph beginning `Caption:` directly after the block;
+ * images may also use the Markdown title, which `rehypeFigures` has already
+ * turned into a figcaption.
  *
- * Table captions are placed above the table and figure captions below, which
- * is the journal convention.
+ * Figure captions are placed below the block, table and listing captions above
+ * it, which is the journal convention for each.
  */
 export function rehypeCaptions() {
   return (tree: Root) => {
-    let figures = 0;
-    let tables = 0;
+    const counts: Record<Kind, number> = { figure: 0, table: 0, code: 0 };
 
     const walk = (parent: Root | Element) => {
       const children = 'children' in parent ? parent.children : [];
@@ -114,8 +122,7 @@ export function rehypeCaptions() {
           continue;
         }
 
-        const number = kind === 'table' ? (tables += 1) : (figures += 1);
-        const label = `${kind === 'table' ? 'Table' : 'Figure'} ${number}.`;
+        const label = `${LABELS[kind]} ${(counts[kind] += 1)}.`;
         const body = following ? stripMarker(following) : [...(existing?.children ?? [])];
         const caption = figcaption(label, body);
 
@@ -123,8 +130,7 @@ export function rehypeCaptions() {
         if (existing) node.children = node.children.filter((child) => child !== existing);
 
         if (node.tagName === 'figure') {
-          // Figure captions sit below, table captions above.
-          if (kind === 'table') node.children.unshift(caption);
+          if (ABOVE.has(kind)) node.children.unshift(caption);
           else node.children.push(caption);
           node.properties = {
             ...node.properties,
@@ -135,7 +141,7 @@ export function rehypeCaptions() {
             type: 'element',
             tagName: 'figure',
             properties: { className: ['captioned', `captioned--${kind}`] },
-            children: kind === 'table' ? [caption, node] : [node, caption],
+            children: ABOVE.has(kind) ? [caption, node] : [node, caption],
           };
         }
       }

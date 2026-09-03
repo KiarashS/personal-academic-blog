@@ -20,14 +20,19 @@ def bootstrap_se(sample, statistic, replicates=2000, seed=0):
     return np.std([statistic(row) for row in draws], ddof=1)
 ```
 
+Caption: The bootstrap standard error, resampling with replacement. Listings
+are numbered in their own sequence, and their captions go above them.
+
 ```r
 fit <- lm(mpg ~ wt + factor(cyl), data = mtcars)
 summary(fit)$coefficients[, c("Estimate", "Std. Error")]
 ```
 
-Each block gets a language label in the corner and a copy button on hover. An
-unknown language is left unhighlighted rather than guessed at, because a wrong
-guess colours the wrong tokens and reads worse than plain text.
+The language and the copy button sit in a bar above each block, and every line
+is numbered. The numbers come from a CSS counter, so copying the block gives
+the code and nothing else. An unknown language is left unhighlighted rather
+than guessed at, because a wrong guess colours the wrong tokens and reads worse
+than plain text.
 
 ## Figures
 
@@ -46,9 +51,10 @@ plots from glaring out of a dark page.
 ## Captions
 
 Any block can be captioned by following it with a paragraph that starts with
-`Caption:`. Figures and tables are numbered separately, the way a paper numbers
-them, and the numbering is done at build time so it survives with JavaScript
-off. Images can use the Markdown title instead, which comes to the same thing.
+`Caption:`. Figures, tables and code listings are numbered in three separate
+sequences, the way a paper numbers them, and the numbering is done at build
+time so it survives with JavaScript off. Images can use the Markdown title
+instead, which comes to the same thing.
 
 ## Tables
 
