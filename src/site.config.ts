@@ -92,7 +92,7 @@ export const siteConfig: SiteConfig = {
     archive: true,
   },
   cv: '',
-  categories: [
+  /**categories: [
     {
       slug: 'ai-in-healthcare',
       label: 'AI in Healthcare',
@@ -118,7 +118,7 @@ export const siteConfig: SiteConfig = {
       label: 'Mathematics',
       description: 'Derivations, proofs and the notation they need.',
     },
-  ],
+  ],*/
   nav: [
     { label: 'Posts', to: '/' },
     { label: 'Publications', to: '/publications', feature: 'publications' },
