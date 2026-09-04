@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildPost, selectPosts, slugFromPath, tableOfContents } from '../lib/post-builder';
+import {
+  buildPost,
+  featuredFirst,
+  selectPosts,
+  slugFromPath,
+  tableOfContents,
+} from '../lib/post-builder';
 import { toPlainText, readingMinutes } from '../lib/markdown-text';
 import type { Heading, PostMeta } from '../lib/types';
 
@@ -16,6 +22,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     summary: '',
     readingMinutes: 1,
     draft: false,
+    featured: false,
     headings: [],
     ...overrides,
   };
@@ -115,5 +122,35 @@ describe('toPlainText', () => {
   it('never reports less than a minute of reading', () => {
     expect(readingMinutes('')).toBe(1);
     expect(readingMinutes('word '.repeat(440).trim())).toBe(2);
+  });
+});
+
+describe('featuredFirst', () => {
+  // As `selectPosts` leaves it: newest first.
+  const list = [
+    meta({ slug: 'newest', date: '2026-03-01' }),
+    meta({ slug: 'pinned-newer', date: '2026-02-15', featured: true }),
+    meta({ slug: 'older', date: '2026-02-01' }),
+    meta({ slug: 'pinned', date: '2026-01-01', featured: true }),
+  ];
+
+  it('lifts featured posts to the front, keeping date order within each group', () => {
+    expect(featuredFirst(list).map((post) => post.slug)).toEqual([
+      'pinned-newer',
+      'pinned',
+      'newest',
+      'older',
+    ]);
+  });
+
+  it('leaves a list with nothing pinned exactly as it was', () => {
+    const plain = list.map((post) => ({ ...post, featured: false }));
+    expect(featuredFirst(plain)).toEqual(plain);
+  });
+
+  it('does not touch the list it is given', () => {
+    const before = [...list];
+    featuredFirst(list);
+    expect(list).toEqual(before);
   });
 });

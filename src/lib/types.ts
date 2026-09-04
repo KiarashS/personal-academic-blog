@@ -25,6 +25,8 @@ export interface PostFrontmatter {
   tags?: string[];
   summary?: string;
   draft?: boolean;
+  /** Pins the post to the top of the index. */
+  featured?: boolean;
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
@@ -51,6 +53,7 @@ export interface PostMeta {
   readingMinutes: number;
   doi?: string;
   draft: boolean;
+  featured: boolean;
   headings: Heading[];
 }
 

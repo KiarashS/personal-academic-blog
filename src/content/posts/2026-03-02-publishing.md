@@ -46,6 +46,13 @@ Short queries are matched literally and longer ones fuzzily. Fuzzy-matching a
 four-letter word against a whole post body matches every post, while a typo in
 a longer word should still find what you meant.
 
+## Sharing
+
+Each post ends with links to LinkedIn, X, Bluesky and email, plus a button that
+copies the canonical URL. They are ordinary links built when the page is
+rendered: no share widget, no script from anyone else, and nothing that counts
+who clicked.
+
 ## Themes
 
 The toggle in the header has three positions: follow the system, force light,

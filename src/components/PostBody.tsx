@@ -26,17 +26,46 @@ export function PostBody({ slug }: { slug: string }) {
     const container = containerRef.current;
     if (!container) return;
 
+    const flash = (element: HTMLElement) => {
+      element.dataset.copied = 'true';
+      window.setTimeout(() => delete element.dataset.copied, 1500);
+    };
+
     const onClick = (event: MouseEvent) => {
-      const button = (event.target as HTMLElement).closest('.code-block__copy');
-      if (!button) return;
-      const code = button.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
-      navigator.clipboard?.writeText(code).then(
-        () => {
-          button.firstChild!.textContent = 'copied';
-          window.setTimeout(() => {
-            button.firstChild!.textContent = 'copy';
-          }, 1500);
-        },
+      const target = event.target as HTMLElement;
+
+      const button = target.closest('.code-block__copy');
+      if (button) {
+        const code = button.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
+        navigator.clipboard?.writeText(code).then(
+          () => {
+            button.firstChild!.textContent = 'copied';
+            window.setTimeout(() => {
+              button.firstChild!.textContent = 'copy';
+            }, 1500);
+          },
+          () => undefined,
+        );
+        return;
+      }
+
+      // A section link is worth more on the clipboard than in the address bar:
+      // it is what someone pastes into a mail or a citation. The hash is still
+      // set, so the page behaves as the link says it will, and a modified click
+      // (new tab, save) is left alone.
+      const anchor = target.closest<HTMLAnchorElement>('.heading-anchor');
+      if (!anchor || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const id = anchor.getAttribute('href')?.slice(1) ?? '';
+      if (!id) return;
+
+      event.preventDefault();
+      const url = `${window.location.origin}${window.location.pathname}#${id}`;
+      history.replaceState(null, '', `#${id}`);
+      document.getElementById(id)?.scrollIntoView();
+
+      navigator.clipboard?.writeText(url).then(
+        () => flash(anchor),
         () => undefined,
       );
     };

@@ -372,17 +372,36 @@
 /* Heading permalinks ------------------------------------------------------- */
 
 .prose :is(h2, h3, h4) .heading-anchor {
-  color: var(--rule-strong);
-  font-size: 0.8em;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
   margin-left: 0.4rem;
   opacity: 0;
+  position: relative;
   text-decoration: none;
   transition: opacity 120ms ease-in-out;
+  vertical-align: middle;
 }
 
 .prose :is(h2, h3, h4):hover .heading-anchor,
-.prose .heading-anchor:focus-visible {
+.prose .heading-anchor:focus-visible,
+.prose .heading-anchor[data-copied] {
   opacity: 1;
+}
+
+/* Says what the click did, since the visible change is otherwise a hash. */
+.prose .heading-anchor[data-copied]::after {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  content: 'link copied';
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 400;
+  left: calc(100% + 0.4rem);
+  padding: 0.05rem 0.35rem;
+  position: absolute;
+  white-space: nowrap;
 }
 
 /* Figures ------------------------------------------------------------------ */

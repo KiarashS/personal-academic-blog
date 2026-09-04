@@ -636,6 +636,8 @@ mark {
   .post-nav,
   .pagination,
   .related,
+  .reading-progress,
+  .share,
   .code-block__copy,
   .heading-anchor,
   .skip-link {
@@ -742,6 +744,93 @@ mark {
 .toc a:hover {
   color: var(--text);
   text-decoration: underline;
+}
+
+/* Reading progress --------------------------------------------------------- */
+
+/*
+ * A rule across the top of the window, scaled from 0 to 1 rather than resized,
+ * so the browser can move it on the compositor. It renders at zero width
+ * without JavaScript, which is the same as not being there.
+ */
+.reading-progress {
+  background: transparent;
+  height: 2px;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 20;
+}
+
+.reading-progress__bar {
+  background: var(--accent);
+  height: 100%;
+  transform-origin: 0 50%;
+  width: 100%;
+}
+
+/* Featured posts ----------------------------------------------------------- */
+
+.post-card__pin {
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  margin-left: 0.6rem;
+  padding: 0.1rem 0.45rem;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+/* Share -------------------------------------------------------------------- */
+
+.share {
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.share__heading {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.share__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.share__link,
+.share .share__copy {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  text-decoration: none;
+}
+
+.share__link:hover,
+.share .share__copy:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
 }
 
 .post-tags {

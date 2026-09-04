@@ -1,9 +1,11 @@
-import { Suspense } from 'react';
+import { Suspense, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
 import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
+import { ReadingProgress } from '../components/ReadingProgress';
+import { ShareLinks } from '../components/ShareLinks';
 import { TableOfContents } from '../components/TableOfContents';
 import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
@@ -14,6 +16,7 @@ import { NotFoundPage } from './NotFoundPage';
 
 export function PostPage() {
   const { slug } = useParams();
+  const article = useRef<HTMLDivElement>(null);
   const post = getPost(slug);
   if (!post) return <NotFoundPage what="post" />;
 
@@ -22,53 +25,60 @@ export function PostPage() {
 
   return (
     <article>
-      <header className="post-header">
-        <h1>{post.title}</h1>
-        <p className="meta">
-          <time dateTime={isoDate(post.date)}>{formatDate(post.date)}</time>
-          <span className="meta__sep">·</span>
-          <span>{post.readingMinutes} min read</span>
-          {post.updated ? (
-            <>
-              <span className="meta__sep">·</span>
-              <span>
-                updated <time dateTime={isoDate(post.updated)}>{formatDate(post.updated)}</time>
-              </span>
-            </>
+      <ReadingProgress target={article} />
+      {/* The reading matter, which is what the progress bar measures: the tags,
+          share row, citation, comments and related posts below are not reading. */}
+      <div className="post-reading" ref={article}>
+        <header className="post-header">
+          <h1>{post.title}</h1>
+          <p className="meta">
+            <time dateTime={isoDate(post.date)}>{formatDate(post.date)}</time>
+            <span className="meta__sep">·</span>
+            <span>{post.readingMinutes} min read</span>
+            {post.updated ? (
+              <>
+                <span className="meta__sep">·</span>
+                <span>
+                  updated <time dateTime={isoDate(post.updated)}>{formatDate(post.updated)}</time>
+                </span>
+              </>
+            ) : null}
+            {post.doi ? (
+              <>
+                <span className="meta__sep">·</span>
+                <a href={`https://doi.org/${post.doi}`}>doi:{post.doi}</a>
+              </>
+            ) : null}
+          </p>
+
+          {post.authors.length > 0 ? (
+            <div className="byline">
+              {post.authors.map((author) => (
+                <div className="byline__author" key={author.id}>
+                  <Link to={`/authors/${author.id}`}>{author.name}</Link>
+                  {author.affiliation ? (
+                    <span className="byline__affil">{author.affiliation}</span>
+                  ) : null}
+                </div>
+              ))}
+            </div>
           ) : null}
-          {post.doi ? (
-            <>
-              <span className="meta__sep">·</span>
-              <a href={`https://doi.org/${post.doi}`}>doi:{post.doi}</a>
-            </>
-          ) : null}
-        </p>
+        </header>
 
-        {post.authors.length > 0 ? (
-          <div className="byline">
-            {post.authors.map((author) => (
-              <div className="byline__author" key={author.id}>
-                <Link to={`/authors/${author.id}`}>{author.name}</Link>
-                {author.affiliation ? (
-                  <span className="byline__affil">{author.affiliation}</span>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </header>
+        <TableOfContents headings={contents} />
 
-      <TableOfContents headings={contents} />
-
-      <Suspense fallback={<p className="empty">Loading…</p>}>
-        <PostBody slug={post.slug} />
-      </Suspense>
+        <Suspense fallback={<p className="empty">Loading…</p>}>
+          <PostBody slug={post.slug} />
+        </Suspense>
+      </div>
 
       {post.tags.length > 0 ? (
         <div className="post-tags">
           <TagList tags={post.tags} />
         </div>
       ) : null}
+
+      <ShareLinks post={post} />
 
       <CiteBlock post={post} />
 

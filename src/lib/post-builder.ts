@@ -46,6 +46,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       readingMinutes: readingMinutes(plainText),
       doi: data.doi,
       draft: data.draft === true,
+      featured: data.featured === true,
     },
     body: content,
     plainText,
@@ -85,6 +86,16 @@ export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptio
         return true;
       })
   );
+}
+
+/**
+ * The index order: featured posts first, newest first within each group, which
+ * a stable sort on the flag alone gives us. The feed, the archive, the tag
+ * pages and a post's neighbours stay chronological, so pinning changes what the
+ * front page leads with and nothing else.
+ */
+export function featuredFirst<T extends { featured: boolean }>(list: T[]): T[] {
+  return [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
 }
 
 export function todayUtc(): string {

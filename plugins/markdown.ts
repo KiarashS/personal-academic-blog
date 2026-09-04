@@ -172,6 +172,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
             summary: '',
             readingMinutes: 1,
             draft: true,
+            featured: false,
             headings: [],
           };
           return { code: `export default ${JSON.stringify(stub)};`, map: null };

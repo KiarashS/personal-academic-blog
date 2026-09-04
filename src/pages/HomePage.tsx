@@ -2,6 +2,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { Pagination } from '../components/Pagination';
 import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
+import { featuredFirst } from '../lib/post-builder';
 import { posts } from '../lib/posts';
 import { siteConfig } from '../site.config';
 
@@ -13,7 +14,11 @@ export function HomePage() {
     return <Navigate to="/" replace />;
   }
 
-  const { items, page, totalPages } = paginate(posts, requested, siteConfig.postsPerPage);
+  const { items, page, totalPages } = paginate(
+    featuredFirst(posts),
+    requested,
+    siteConfig.postsPerPage,
+  );
 
   // A stale /page/9 link should land somewhere real rather than show nothing.
   if (pageParam && page !== requested) {

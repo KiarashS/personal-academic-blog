@@ -51,6 +51,7 @@ authors: [you] # ids from src/content/authors.ts
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
+featured: false # pins the post to the top of the index
 slug: custom-url # optional override
 doi: 10.5281/zenodo.123 # optional, linked from the post header
 ---
@@ -63,6 +64,12 @@ dated in the future are visible with `npm run dev` and excluded from builds, so
 you can queue posts ahead of time. A build strips their text, title and summary
 from the bundle rather than only hiding them from the index; the filename
 remains as a key in the module map.
+
+`featured: true` pins a post to the top of the index and marks its card. Only
+the index is reordered — the feed, the archive, the tag pages and the
+newer/older links keep date order — so a pinned post leads the front page
+without following the reader around. Pin several and they hold their date order
+among themselves.
 
 The sample posts under `src/content/posts/` document each feature and render
 one of everything. Replace them with your own — and replace
@@ -262,6 +269,25 @@ time someone searches, so it is not part of what every other reader downloads.
 Tokens shorter than six characters must match literally; longer ones are
 matched fuzzily. So `notaton` still finds "Notation" while `seed` does not match
 every post containing the word "see". The query is mirrored into `?q=`.
+
+## What a reader gets on a post
+
+Beyond the text: a rule across the top of the window showing how far through
+the article they are, measured against the reading matter rather than the whole
+page, so it fills as the prose ends rather than after the comments. It is
+`aria-hidden` — it repeats what the scrollbar says — and it renders at zero
+width with no JavaScript, which is the same as not being there.
+
+Each heading from `h2` down carries a link icon. Clicking it copies that
+section's full URL to the clipboard and sets the hash, which is what someone
+wants when citing or sending one part of a long post. It stays a real link, so
+a middle click still opens it in a tab.
+
+The foot of the post has share links for LinkedIn, X, Bluesky and email, and a
+button that copies the canonical URL. They are ordinary links built when the
+page is rendered: no share widget, no third-party script, and nothing that
+counts who clicked. Deleting `<ShareLinks post={post} />` from
+`src/pages/PostPage.tsx` removes them.
 
 ## Typography
 

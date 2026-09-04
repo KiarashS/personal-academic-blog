@@ -4,6 +4,7 @@ date: 2026-01-05
 authors: [you]
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
+featured: true
 ---
 
 A post is one Markdown file in `src/content/posts/`. The filename sets the URL,
@@ -21,6 +22,7 @@ authors: [you]            # ids from src/content/authors.ts
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false              # drafts appear in dev, never in a build
+featured: false           # pins the post to the top of the index
 slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
 ---
@@ -76,9 +78,19 @@ rather than merely hiding it from the index, so there is no unlinked URL
 holding the draft and nothing to read in the bundle. The filename itself
 survives, as a key in the module map, so name the file with that in mind.
 
+## Featured posts
+
+`featured: true` pins a post to the top of the index and marks its card. This
+post is pinned, which is why the oldest of the samples leads the front page.
+Only the index is reordered: the feed, the archive, the tag pages and the
+newer/older links at the foot of a post stay in date order, so a pinned post
+does not follow the reader everywhere.
+
 ## Structure
 
-Headings from `h2` down get ids automatically, so you can link to a section.
+Headings from `h2` down get ids automatically. Hovering one shows a link icon;
+clicking it copies the section's full URL to the clipboard, which is what you
+want when citing or sending someone one part of a long post.
 Posts with three or more `h2`/`h3` headings get a contents list above the text,
 collapsed until the reader opens it so that a long list does not push the
 opening paragraph off the screen. Shorter posts get none at all, because a

@@ -15,6 +15,7 @@ export function PostList({ posts }: { posts: Post[] }) {
           <article>
             <h2 className="post-card__title">
               <Link to={`/posts/${post.slug}`}>{post.title}</Link>
+              {post.featured ? <span className="post-card__pin">Featured</span> : null}
             </h2>
             <PostMeta post={post} />
             <p className="post-card__summary">{post.summary}</p>
