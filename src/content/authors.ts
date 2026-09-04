@@ -15,6 +15,7 @@ export const authors: Record<string, Author> = {
     affiliation: 'Your department, your institution',
     bio: 'One or two sentences about what you work on. This appears under every post you write and on your author page.',
     // email: 'you@example.edu',
+    // cv: '/cv.pdf',                        // a file in public/, or a URL
     // Either the bare id a service uses or a full URL — both work.
     links: {
       github: 'KiarashS',

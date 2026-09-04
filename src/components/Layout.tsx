@@ -2,6 +2,7 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { visibleNav } from '../lib/features';
+import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { PageMeta } from './PageMeta';
@@ -39,6 +40,7 @@ export function Layout() {
                   {item.label}
                 </NavLink>
               ))}
+              <CvLink />
               <FeedLink icon />
               <ThemeToggle />
             </nav>

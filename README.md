@@ -298,9 +298,11 @@ short bio, email and profile links. Posts reference authors by id, and each
 author gets a page at `/authors/<id>` listing their posts. An id with no record
 still renders a byline, so a typo degrades rather than disappears.
 
-The profiles are ORCID, Google Scholar, Semantic Scholar, arXiv, GitHub,
-LinkedIn, Mastodon, Bluesky and a website, shown in that order — identity
-first, then the indexes, then code and social — with the email last. Each value
+An author's CV comes first in that row, from `cv:` on the record — a path
+under `public/` such as `/cv.pdf`, or a URL if it is hosted elsewhere. After it
+come the profiles: ORCID, Google Scholar, Semantic Scholar, arXiv, GitHub,
+LinkedIn, Mastodon, Bluesky and a website, in that order — identity first, then
+the indexes, then code and social — with the email last. Each value
 is either the bare id the service uses or a full URL:
 
 ```ts
@@ -320,6 +322,24 @@ They render as labelled chips under the author's bio, on every post and on the
 author's own page. Text rather than logos: eight service marks is a lot of
 colour for a page whose subject is the writing, and several of these services
 have no mark a reader would recognise.
+
+## CV
+
+`cv` in `src/site.config.ts` puts a CV link in the site's navigation, beside
+Posts and Archive:
+
+```ts
+cv: '/cv.pdf',            // a file in public/, or a URL
+```
+
+A path is resolved against the deployment's base path, so `/cv.pdf` means
+`public/cv.pdf`; a full URL is used as it is. It opens in its own tab, since a
+PDF that replaces the page someone was reading is a small rudeness. Leave it
+empty and no link is rendered.
+
+That is the site owner's CV. Each author record can carry its own `cv` as well,
+which appears first in the row of profile links under their bio — on every post
+they wrote and on their author page.
 
 ## Comments
 

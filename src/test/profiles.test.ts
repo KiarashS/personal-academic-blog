@@ -60,6 +60,18 @@ describe('profileLinks', () => {
     );
   });
 
+  it('puts the CV first, before the profiles', () => {
+    const person = author({ cv: '/cv.pdf', links: { orcid: '0000' }, email: 'ada@example.edu' });
+    expect(profileLinks(person).map((link) => link.key)).toEqual(['cv', 'orcid', 'email']);
+  });
+
+  it('takes a CV as a path under public/ or as a URL', () => {
+    expect(href(author({ cv: '/cv.pdf' }), 'cv')).toBe('/cv.pdf');
+    expect(href(author({ cv: 'https://example.edu/~ada/cv.pdf' }), 'cv')).toBe(
+      'https://example.edu/~ada/cv.pdf',
+    );
+  });
+
   it('adds the email last, as a mailto', () => {
     const links = profileLinks(author({ email: 'ada@example.edu', links: { github: 'ada' } }));
     expect(links.map((link) => link.key)).toEqual(['github', 'email']);

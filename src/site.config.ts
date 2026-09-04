@@ -41,6 +41,11 @@ export interface SiteConfig {
   features: Record<FeatureName, boolean>;
   nav: NavItem[];
   /**
+   * A CV for the site's owner, shown in the navigation. A path under `public/`
+   * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
+   */
+  cv: string;
+  /**
    * Comments are rendered with giscus (GitHub Discussions). Fill these in from
    * https://giscus.app after enabling Discussions on the repository. Leave
    * `repoId` empty to turn comments off site-wide.
@@ -70,6 +75,7 @@ export const siteConfig: SiteConfig = {
     publications: false,
     archive: true,
   },
+  cv: '',
   nav: [
     { label: 'Posts', to: '/' },
     { label: 'Publications', to: '/publications', feature: 'publications' },

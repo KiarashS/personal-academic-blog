@@ -1,7 +1,8 @@
+import { withBase } from './urls';
 import type { Author, ProfileKey } from './types';
 
 export interface ProfileLink {
-  key: ProfileKey | 'email';
+  key: ProfileKey | 'cv' | 'email';
   label: string;
   href: string;
 }
@@ -58,6 +59,13 @@ const isUrl = (value: string): boolean => /^https?:\/\//i.test(value);
  */
 export function profileLinks(author: Author): ProfileLink[] {
   const links: ProfileLink[] = [];
+
+  // First: of everything in this row it is the one a reader is most likely to
+  // have come for. A file kept under `public/` needs the deployment's base.
+  const cv = author.cv?.trim();
+  if (cv) {
+    links.push({ key: 'cv', label: 'CV', href: isUrl(cv) ? cv : withBase(cv) });
+  }
 
   for (const key of ORDER) {
     const value = author.links?.[key]?.trim();

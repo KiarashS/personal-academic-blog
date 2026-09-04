@@ -6,6 +6,8 @@ export interface Author {
   role?: string;
   bio?: string;
   email?: string;
+  /** A path under `public/`, or a URL if it lives somewhere else. */
+  cv?: string;
   avatar?: string;
   /**
    * Each value is either a full URL or the bare id the service uses — an ORCID
