@@ -10,8 +10,8 @@ const nav: NavItem[] = [
   { label: 'About', to: '/about' },
 ];
 
-const all = { publications: true, archive: true };
-const none = { publications: false, archive: false };
+const all = { publications: true, archive: true, categories: true };
+const none = { publications: false, archive: false, categories: false };
 
 describe('filterNav', () => {
   it('keeps gated entries when their features are on', () => {
@@ -28,17 +28,14 @@ describe('filterNav', () => {
   });
 
   it('gates each feature independently', () => {
-    expect(filterNav(nav, { publications: false, archive: true }).map((i) => i.to)).toEqual([
-      '/',
-      '/archive',
-      '/about',
-    ]);
+    const some = { publications: false, archive: true, categories: false };
+    expect(filterNav(nav, some).map((i) => i.to)).toEqual(['/', '/archive', '/about']);
   });
 });
 
 describe('siteConfig.nav', () => {
   it('gates every entry that a feature owns, so nav and routing cannot drift', () => {
     const gated = siteConfig.nav.filter((item) => item.feature).map((item) => item.to);
-    expect(gated).toEqual(expect.arrayContaining(['/publications', '/archive']));
+    expect(gated).toEqual(expect.arrayContaining(['/publications', '/archive', '/categories']));
   });
 });

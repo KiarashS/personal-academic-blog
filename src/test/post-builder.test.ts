@@ -352,6 +352,17 @@ describe('rankRelated', () => {
     ]);
   });
 
+  it('ranks on tags alone at weight zero, which is categories switched off', () => {
+    const list = [
+      current,
+      item('same-category', '2026-01-01', [], 'machine-learning'),
+      item('one-tag', '2026-04-01', ['stats'], 'tutorials'),
+    ];
+    expect(rankRelated(list, current, 4, slugify, 0).map((entry) => entry.slug)).toEqual([
+      'one-tag',
+    ]);
+  });
+
   it('excludes a post sharing neither a tag nor the category', () => {
     const list = [current, item('elsewhere', '2026-04-01', ['unrelated'], 'mathematics')];
     expect(rankRelated(list, current, 4, slugify)).toEqual([]);

@@ -9,7 +9,7 @@ export interface GiscusConfig {
 }
 
 /** Optional parts of the site that can be switched off wholesale. */
-export type FeatureName = 'publications' | 'archive';
+export type FeatureName = 'publications' | 'archive' | 'categories';
 
 export interface NavItem {
   label: string;
@@ -53,7 +53,10 @@ export interface SiteConfig {
    * prerendered page — it is absent from the built site, not merely hidden.
    */
   features: Record<FeatureName, boolean>;
-  /** Empty means the whole feature is off: no nav entry, no routes. */
+  /**
+   * The shelves themselves. The `categories` feature flag switches them on and
+   * off; an empty list here does the same, since there would be nothing to show.
+   */
   categories: Category[];
   nav: NavItem[];
   /**
@@ -90,6 +93,7 @@ export const siteConfig: SiteConfig = {
   features: {
     publications: false,
     archive: true,
+    categories: true,
   },
   cv: '',
   categories: [
@@ -123,7 +127,7 @@ export const siteConfig: SiteConfig = {
     { label: 'Posts', to: '/' },
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Archive', to: '/archive', feature: 'archive' },
-    { label: 'Categories', to: '/categories' },
+    { label: 'Categories', to: '/categories', feature: 'categories' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },

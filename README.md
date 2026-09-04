@@ -98,8 +98,11 @@ Write either the label or the slug — `Machine Learning` and `machine-learning`
 are the same shelf. Each category gets `/categories/<slug>`, paginated, with its
 own Atom feed, and they are listed at `/categories` with their descriptions and
 counts; an empty one is left out. A category the config does not define is a
-build warning, since the post would otherwise file itself nowhere. With no
-categories configured the nav entry and the routes do not exist.
+build warning, since the post would otherwise file itself nowhere. Categories
+are a feature flag: set `categories: false` (or leave the list empty) and the
+nav entry, the routes, the per-shelf feeds and the chips on every post all
+disappear together, so a post that still names one is not left pointing at a
+page that no longer exists.
 
 Posts meant to be read in order share a `series` name. The parts are listed at
 the top of each one with the current part marked, and previous/next links sit
@@ -535,11 +538,15 @@ that unregisters it if you ever need them off it quickly.
 features: {
   publications: false,   // /publications, generated from publications.bib
   archive: true,         // /archive, every post grouped by year
+  categories: true,      // /categories and the shelf listed in siteConfig.categories
 },
 ```
 
 A feature that is off has no nav entry, no route and no prerendered page, and
-does not appear in the sitemap. The page is absent from the built site rather
+does not appear in the sitemap. Categories reach a little further than the other
+two, since they also mark up individual posts: with the flag off the chip above
+each title goes as well, the per-category feeds are not written, and related
+posts fall back to ranking on shared tags alone. The page is absent from the built site rather
 than hidden with CSS. Nav visibility, routing and the prerendered route list
 all read the same flag, so they cannot fall out of step.
 

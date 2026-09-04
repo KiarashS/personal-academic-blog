@@ -210,13 +210,15 @@ export interface Relatable {
  * Posts closest to this one: the same category counts for as much as three
  * shared tags, since it is the coarser and more deliberate signal, and ties go
  * to the newer post. A post with neither a shared tag nor the same category is
- * not related, only adjacent.
+ * not related, only adjacent. A `categoryWeight` of zero ranks on tags alone,
+ * which is what the site does with the categories feature switched off.
  */
 export function rankRelated<T extends Relatable>(
   list: readonly T[],
   current: T,
   limit: number,
   slugify: (tag: string) => string,
+  categoryWeight = 3,
 ): T[] {
   const wanted = new Set(current.tags.map(slugify));
 
@@ -226,7 +228,7 @@ export function rankRelated<T extends Relatable>(
       post: candidate,
       score:
         candidate.tags.filter((tag) => wanted.has(slugify(tag))).length +
-        (current.category && candidate.category === current.category ? 3 : 0),
+        (current.category && candidate.category === current.category ? categoryWeight : 0),
     }))
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date))

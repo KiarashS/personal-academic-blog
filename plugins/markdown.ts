@@ -157,8 +157,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       const built = buildPost({ path, raw });
 
       // A category the site does not define is a typo, and a silent one: the
-      // post would simply file itself nowhere.
-      if (built.meta.category && !known.has(built.meta.category)) {
+      // post would simply file itself nowhere. With no shelves configured at
+      // all there is nothing to check against, so the check stands down.
+      if (known.size > 0 && built.meta.category && !known.has(built.meta.category)) {
         this.warn(
           `${path}: category "${built.meta.category}" is not in siteConfig.categories ` +
             `(${[...known].join(', ') || 'none configured'})`,

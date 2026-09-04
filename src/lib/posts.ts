@@ -1,3 +1,4 @@
+import { categoriesEnabled } from './features';
 import { rankRelated, selectPosts, seriesParts, todayUtc } from './post-builder';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
@@ -119,5 +120,5 @@ export function neighbours(slug: string): { previous?: Post; next?: Post } {
 export function relatedPosts(slug: string, limit = 4): Post[] {
   const post = postsBySlug.get(slug);
   if (!post) return [];
-  return rankRelated(posts, post, limit, tagSlug);
+  return rankRelated(posts, post, limit, tagSlug, categoriesEnabled() ? 3 : 0);
 }

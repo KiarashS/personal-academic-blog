@@ -10,13 +10,16 @@ export function filterNav(nav: NavItem[], features: Record<FeatureName, boolean>
   return nav.filter((item) => !item.feature || features[item.feature] === true);
 }
 
-export function visibleNav(): NavItem[] {
-  // Categories are not a feature flag: they exist if any are configured, and
-  // the entry would otherwise lead to a page listing nothing.
-  const nav =
-    siteConfig.categories.length > 0
-      ? siteConfig.nav
-      : siteConfig.nav.filter((item) => item.to !== '/categories');
+/**
+ * Whether the site uses categories at all: the flag has to be on and there has
+ * to be at least one shelf configured, since an empty index is worth no nav
+ * entry. It lives here rather than in `categories.ts` so the post index can ask
+ * without the two modules importing each other.
+ */
+export function categoriesEnabled(): boolean {
+  return isEnabled('categories') && siteConfig.categories.length > 0;
+}
 
-  return filterNav(nav, siteConfig.features);
+export function visibleNav(): NavItem[] {
+  return filterNav(siteConfig.nav, siteConfig.features);
 }
