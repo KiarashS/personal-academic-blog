@@ -22,6 +22,24 @@ const tree = (
 );
 
 /*
+ * A deploy replaces every hashed chunk, so a tab left open across one asks for
+ * files that are no longer there and the route it was navigating to fails to
+ * load. Vite reports that as `vite:preloadError`; the page is reloaded once to
+ * pick up the new build. The flag makes it once — if the chunk is missing for
+ * some other reason, a reload loop would be worse than the error.
+ */
+window.addEventListener('vite:preloadError', () => {
+  const key = 'reloaded-after-preload-error';
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+  window.location.reload();
+});
+
+window.addEventListener('load', () => {
+  window.setTimeout(() => sessionStorage.removeItem('reloaded-after-preload-error'), 5000);
+});
+
+/*
  * The service worker is what lets a browser offer "install" and what keeps the
  * site readable offline. It is registered only in a build: in development it
  * would serve yesterday's bundle back to you. Registration failing is not worth

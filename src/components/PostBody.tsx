@@ -1,16 +1,6 @@
 import { use, useEffect, useRef } from 'react';
-import { loadPostHtml } from '../lib/post-content';
+import { postHtml } from '../lib/post-content';
 import { useTheme } from './ThemeProvider';
-
-const pending = new Map<string, Promise<string>>();
-
-function htmlFor(slug: string): Promise<string> {
-  const hit = pending.get(slug);
-  if (hit) return hit;
-  const promise = loadPostHtml(slug);
-  pending.set(slug, promise);
-  return promise;
-}
 
 /**
  * Renders a post body. The HTML was produced by the build — math, highlighting,
@@ -18,7 +8,7 @@ function htmlFor(slug: string): Promise<string> {
  * the copy buttons and, in development, draw any diagram the build did not.
  */
 export function PostBody({ slug }: { slug: string }) {
-  const html = use(htmlFor(slug));
+  const html = use(postHtml(slug));
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 

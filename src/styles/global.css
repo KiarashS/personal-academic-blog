@@ -292,7 +292,8 @@ video {
   padding: 1.5rem 0 2.5rem;
 }
 
-.site-footer p {
+.site-footer p,
+.site-footer__links {
   margin: 0 0 0.35rem;
 }
 
