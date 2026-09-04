@@ -102,10 +102,12 @@ revisions:
     note: Documented captions, and the shortcut for copying a section link.
 ```
 
-They are listed at the foot of the post, oldest first, the way arXiv orders
-versions. The note is the point — a bare date says only that something changed,
-and what a reader wants to know is whether it is worth reading again — so an
-entry without a date is dropped and one without a note shows the date alone.
+They are listed at the foot of the post, newest first, so that the entry a
+returning reader wants is the one they meet — and it is the one the "updated"
+date at the top of the post links to. The note is the point: a bare date says
+only that something changed, when what a reader wants to know is whether it is
+worth reading again. An entry without a date is dropped, and one without a note
+shows the date alone.
 
 Leaving `updated` out lets it fall back to the newest revision, which is what
 the header, the Atom feed and the sitemap use, so there is one date to maintain

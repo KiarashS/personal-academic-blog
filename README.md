@@ -71,9 +71,12 @@ from the bundle rather than only hiding them from the index; the filename
 remains as a key in the module map.
 
 A post that changes after publication can carry a `revisions` list, rendered at
-the foot of the post oldest first, the way arXiv orders versions. The note
-carries the information — a bare date says only that something changed — so an
-entry without a date is dropped and one without a note shows the date alone.
+the foot of the post newest first: the question a returning reader has is what
+changed since they were last here, and the header's "updated" date links
+straight to the block, so the entry that date names is the one at the top. The
+note carries the information — a bare date says only that something changed —
+so an entry without a date is dropped and one without a note shows the date
+alone.
 Leave `updated` out and it falls back to the newest revision, which is the date
 the header, the Atom feed and the sitemap already use; set it and that wins.
 There is still one `updated` in the data, so nothing downstream changes.

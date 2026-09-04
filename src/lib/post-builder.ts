@@ -17,8 +17,10 @@ function dateFromPath(path: string): string {
 }
 
 /**
- * The post's revision history, oldest first, which is the order arXiv lists
- * versions in and the order a history reads in. An entry without a date is
+ * The post's revision history, newest first. What a returning reader wants to
+ * know is what changed since they last read it, and the header's "updated"
+ * date links straight to this block, so the entry that date names belongs at
+ * the top rather than at the end of a list. An entry without a date is
  * dropped: it has nothing to sort or display.
  */
 function revisionsFrom(entries: unknown): Revision[] {
@@ -32,7 +34,7 @@ function revisionsFrom(entries: unknown): Revision[] {
     .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
     .map((entry) => ({ date: text(entry.date), note: text(entry.note) }))
     .filter((revision) => revision.date !== '')
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export interface RawPost {
@@ -53,7 +55,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
   const { data, content } = parseFrontmatter<PostFrontmatter>(raw);
   const plainText = toPlainText(content);
   const revisions = revisionsFrom(data.revisions);
-  const newest = revisions.at(-1)?.date;
+  const newest = revisions[0]?.date;
 
   return {
     meta: {

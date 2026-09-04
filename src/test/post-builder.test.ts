@@ -162,21 +162,21 @@ describe('revisions', () => {
     buildPost(post('posts/2026-01-05-x.md', `---\ntitle: X\ndate: 2026-01-05\n${yaml}---\n\nBody.`))
       .meta;
 
-  it('reads a dated changelog and puts it in date order', () => {
+  it('reads a dated changelog and puts the newest entry first', () => {
     const meta = withRevisions(
       [
         'revisions:',
-        '  - date: 2026-03-02',
-        '    note: Added the notebook.',
         '  - date: 2026-02-19',
         '    note: Corrected the variance.',
+        '  - date: 2026-03-02',
+        '    note: Added the notebook.',
         '',
       ].join('\n'),
     );
 
     expect(meta.revisions).toEqual([
-      { date: '2026-02-19', note: 'Corrected the variance.' },
       { date: '2026-03-02', note: 'Added the notebook.' },
+      { date: '2026-02-19', note: 'Corrected the variance.' },
     ]);
   });
 
