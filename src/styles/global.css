@@ -939,15 +939,22 @@ mark {
   padding: 0;
 }
 
+/*
+ * Links and buttons in one row: a `button` carries the UA's `line-height:
+ * normal` while an `a` inherits the body's 1.65, which made the two kinds of
+ * control different heights. Both are given the same line box here.
+ */
 .share__link,
 .share .share__copy {
+  align-items: center;
   background: var(--bg);
   border: 1px solid var(--rule);
   border-radius: 4px;
   color: var(--text-muted);
-  display: inline-block;
+  display: inline-flex;
   font-family: var(--sans);
   font-size: 0.75rem;
+  line-height: 1.5;
   padding: 0.15rem 0.5rem;
   text-decoration: none;
 }
