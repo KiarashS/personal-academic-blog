@@ -93,7 +93,7 @@ export const siteConfig: SiteConfig = {
   features: {
     publications: false,
     archive: true,
-    categories: true,
+    categories: false,
   },
   cv: '',
   categories: [
