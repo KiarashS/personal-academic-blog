@@ -7,21 +7,45 @@ export interface Author {
   bio?: string;
   email?: string;
   avatar?: string;
-  links?: {
-    website?: string;
-    scholar?: string;
-    orcid?: string;
-    github?: string;
-    mastodon?: string;
-    arxiv?: string;
-  };
+  /**
+   * Each value is either a full URL or the bare id the service uses — an ORCID
+   * iD, a GitHub username — which `profileLinks` turns into a URL.
+   */
+  links?: Partial<Record<ProfileKey, string>>;
 }
+
+/** The profiles an academic reader looks for, in the order they are shown. */
+export type ProfileKey =
+  | 'orcid'
+  | 'scholar'
+  | 'semanticScholar'
+  | 'arxiv'
+  | 'github'
+  | 'linkedin'
+  | 'mastodon'
+  | 'bluesky'
+  | 'website';
 
 /** One dated change to a published post. */
 export interface Revision {
   date: string;
   /** What changed, in a line. A date on its own tells a reader nothing. */
   note: string;
+}
+
+/** Where a post's underlying work was published, or is on its way to being. */
+export interface Publication {
+  /** Free text: "Preprint", "Under review", "Published", "To appear". */
+  status?: string;
+  /** The journal, conference or repository. */
+  venue?: string;
+  year?: string;
+  doi?: string;
+  /** The paper itself, wherever it lives. */
+  url?: string;
+  pdf?: string;
+  code?: string;
+  data?: string;
 }
 
 export interface PostFrontmatter {
@@ -34,6 +58,7 @@ export interface PostFrontmatter {
   series?: string;
   /** Position within the series; without it, date order decides. */
   part?: number;
+  publication?: Publication;
   authors?: string[];
   tags?: string[];
   summary?: string;
@@ -63,6 +88,7 @@ export interface PostMeta {
   revisions: Revision[];
   series?: string;
   part?: number;
+  publication?: Publication;
   tags: string[];
   authorIds: string[];
   summary: string;

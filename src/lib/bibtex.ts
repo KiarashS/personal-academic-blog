@@ -38,7 +38,9 @@ export function toBibtex(post: Post, url: string): string {
     ['url', url],
     ['urldate', (post.updated ?? post.date).slice(0, 10)],
   ];
-  if (post.doi) fields.push(['doi', post.doi]);
+  const doi = post.publication?.doi ?? post.doi;
+  if (doi) fields.push(['doi', doi]);
+  if (post.publication?.venue) fields.push(['howpublished', post.publication.venue]);
 
   const width = Math.max(...fields.map(([name]) => name.length));
   const body = fields

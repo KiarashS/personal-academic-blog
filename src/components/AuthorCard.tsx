@@ -1,14 +1,6 @@
 import { Link } from 'react-router-dom';
+import { profileLinks } from '../lib/profiles';
 import type { Author } from '../lib/types';
-
-const LINK_LABELS: Record<string, string> = {
-  website: 'Website',
-  scholar: 'Google Scholar',
-  orcid: 'ORCID',
-  github: 'GitHub',
-  mastodon: 'Mastodon',
-  arxiv: 'arXiv',
-};
 
 interface AuthorCardProps {
   author: Author;
@@ -19,7 +11,7 @@ interface AuthorCardProps {
 
 export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: AuthorCardProps) {
   const Heading = headingLevel;
-  const links = Object.entries(author.links ?? {}).filter(([, href]) => Boolean(href));
+  const links = profileLinks(author);
 
   return (
     <section className="author-card">
@@ -30,17 +22,18 @@ export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: Aut
         <p className="meta">{[author.role, author.affiliation].filter(Boolean).join(', ')}</p>
       ) : null}
       {author.bio ? <p className="author-card__bio">{author.bio}</p> : null}
-      {links.length > 0 || author.email ? (
-        <ul className="author-links">
-          {author.email ? (
-            <li>
-              <a href={`mailto:${author.email}`}>Email</a>
-            </li>
-          ) : null}
-          {links.map(([key, href]) => (
-            <li key={key}>
-              <a href={href} target="_blank" rel="noopener noreferrer me">
-                {LINK_LABELS[key] ?? key}
+      {links.length > 0 ? (
+        <ul className="author-links" aria-label={`${author.name}: profiles and contact`}>
+          {links.map((link) => (
+            <li key={link.key}>
+              <a
+                className="author-links__link"
+                href={link.href}
+                {...(link.key === 'email'
+                  ? {}
+                  : { rel: 'me noopener noreferrer', target: '_blank' })}
+              >
+                {link.label}
               </a>
             </li>
           ))}

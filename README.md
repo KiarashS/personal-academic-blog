@@ -112,8 +112,34 @@ page.
 
 Write `[@key]` and it resolves against `src/content/references.bib` at build
 time, appending a reference list to the post. Each post also carries a "cite
-this post" block: BibTeX built from the frontmatter, with a copy button, so
-whoever quotes you gets your name and the URL right.
+this post" block built from the frontmatter, in four forms — BibTeX, APA, IEEE
+and a plain sentence — each with its own copy button, so whoever quotes you
+gets your name and the URL right. Names are reshaped per style (APA takes the
+surname first and given names as initials, IEEE the initials first), a DOI goes
+into all four, and the date cited is the date of the version being read, so a
+revised post is cited by its revision.
+
+### The paper behind a post
+
+A post that accompanies published work can carry a `publication` block:
+
+```yaml
+publication:
+  status: Preprint # or Under review, Published, To appear
+  venue: Journal of Statistical Software
+  year: 2026
+  doi: 10.5281/zenodo.123
+  url: https://arxiv.org/abs/2601.01234
+  pdf: /posts/my-post/paper.pdf
+  code: https://github.com/you/replication
+  data: https://doi.org/10.5281/zenodo.124
+```
+
+Every field is optional. It renders above the text — a reader who arrives from
+a citation wants the paper, not the commentary — and the DOI moves out of the
+header line so it is not printed twice. That DOI is the one the citation
+formats use. A `pdf`, `code` or `data` path under `public/` gets the
+deployment's base path; a full URL is left alone.
 
 ### Diagrams
 
@@ -268,10 +294,32 @@ comment iframe all follow.
 ## Authors
 
 `src/content/authors.ts` holds the author records: name, role, affiliation,
-short bio, email, and links (website, Google Scholar, ORCID, GitHub, arXiv,
-Mastodon). Posts reference authors by id, and each author gets a page at
-`/authors/<id>` listing their posts. An id with no record still renders a
-byline, so a typo degrades rather than disappears.
+short bio, email and profile links. Posts reference authors by id, and each
+author gets a page at `/authors/<id>` listing their posts. An id with no record
+still renders a byline, so a typo degrades rather than disappears.
+
+The profiles are ORCID, Google Scholar, Semantic Scholar, arXiv, GitHub,
+LinkedIn, Mastodon, Bluesky and a website, shown in that order — identity
+first, then the indexes, then code and social — with the email last. Each value
+is either the bare id the service uses or a full URL:
+
+```ts
+links: {
+  orcid: '0000-0002-1825-0097',        // or https://orcid.org/0000-0002-1825-0097
+  scholar: 'AbCdEfGhIjK',              // the `user=` value on your profile
+  semanticScholar: '1741101',
+  github: 'KiarashS',
+  linkedin: 'kiarash-soleimanzadeh',   // or 'company/name'
+  mastodon: '@you@mathstodon.xyz',
+  bluesky: 'you.bsky.social',
+  website: 'https://kiarashs.ir',
+}
+```
+
+They render as labelled chips under the author's bio, on every post and on the
+author's own page. Text rather than logos: eight service marks is a lot of
+colour for a page whose subject is the writing, and several of these services
+have no mark a reader would recognise.
 
 ## Comments
 

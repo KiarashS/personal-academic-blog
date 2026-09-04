@@ -15,11 +15,19 @@ export const authors: Record<string, Author> = {
     affiliation: 'Your department, your institution',
     bio: 'One or two sentences about what you work on. This appears under every post you write and on your author page.',
     // email: 'you@example.edu',
+    // Either the bare id a service uses or a full URL — both work.
     links: {
-      // website: 'https://example.edu/~you',
-      // scholar: 'https://scholar.google.com/citations?user=...',
-      // orcid: 'https://orcid.org/0000-0000-0000-0000',
-      // github: 'https://github.com/you',
+      github: 'KiarashS',
+      website: 'https://kiarashs.ir',
+      // orcid: '0000-0000-0000-0000',
+      // scholar: 'AbCdEfGhIjK',            // the `user=` value on your profile
+      // semanticScholar: '1741101',        // the number in the author URL
+      // arxiv: 'soleimanzadeh_k_1',
+      // github: 'KiarashS',
+      // linkedin: 'kiarash-soleimanzadeh', // or 'company/name'
+      // mastodon: '@you@mathstodon.xyz',
+      // bluesky: 'you.bsky.social',
+      // website: 'https://kiarashs.ir',
     },
   },
   coauthor: {

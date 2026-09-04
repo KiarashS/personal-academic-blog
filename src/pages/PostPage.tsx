@@ -4,6 +4,7 @@ import { AuthorCard } from '../components/AuthorCard';
 import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
+import { PublicationNote } from '../components/PublicationNote';
 import { ReadingProgress } from '../components/ReadingProgress';
 import { Revisions } from '../components/Revisions';
 import { SeriesHeader, SeriesLinks } from '../components/SeriesNav';
@@ -54,7 +55,7 @@ export function PostPage() {
                 </span>
               </>
             ) : null}
-            {post.doi ? (
+            {post.doi && !post.publication ? (
               <>
                 <span className="meta__sep">·</span>
                 <a href={`https://doi.org/${post.doi}`}>doi:{post.doi}</a>
@@ -79,6 +80,10 @@ export function PostPage() {
         {/* Printed pages leave the address bar behind, so the URL goes on the
             page itself, where a reader can type it back in. */}
         <p className="print-only print-source">{canonicalUrl(`/posts/${post.slug}`)}</p>
+
+        {post.publication ? (
+          <PublicationNote publication={{ doi: post.doi, ...post.publication }} />
+        ) : null}
 
         {series ? <SeriesHeader series={series} /> : null}
 

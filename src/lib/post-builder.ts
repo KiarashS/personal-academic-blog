@@ -1,6 +1,6 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
-import type { Heading, PostFrontmatter, PostMeta, Revision } from './types';
+import type { Heading, PostFrontmatter, PostMeta, Publication, Revision } from './types';
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
 
@@ -37,6 +37,37 @@ function revisionsFrom(entries: unknown): Revision[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+const PUBLICATION_FIELDS = [
+  'status',
+  'venue',
+  'year',
+  'doi',
+  'url',
+  'pdf',
+  'code',
+  'data',
+] as const;
+
+/**
+ * The publication block, keeping only the fields we know and only the values
+ * that are text. A `year:` written as a number in YAML is still a year, so it
+ * is read as one; anything else is dropped rather than printed as `[object
+ * Object]` on the page.
+ */
+function publicationFrom(value: unknown): Publication | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const source = value as Record<string, unknown>;
+
+  const entries = PUBLICATION_FIELDS.map((field): [string, string] | undefined => {
+    const raw = source[field];
+    if (typeof raw === 'string' && raw.trim()) return [field, raw.trim()];
+    if (typeof raw === 'number' && Number.isFinite(raw)) return [field, String(raw)];
+    return undefined;
+  }).filter((entry): entry is [string, string] => entry !== undefined);
+
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
 export interface RawPost {
   path: string;
   raw: string;
@@ -69,6 +100,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       series:
         typeof data.series === 'string' && data.series.trim() ? data.series.trim() : undefined,
       part: typeof data.part === 'number' ? data.part : undefined,
+      publication: publicationFrom(data.publication),
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
       summary: data.summary ?? excerpt(plainText),

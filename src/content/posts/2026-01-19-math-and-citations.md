@@ -4,6 +4,14 @@ date: 2026-01-19
 authors: [you]
 tags: [guide, math, citations]
 summary: KaTeX for equations, a BibTeX file for references, and a cite-this-post block generated from frontmatter.
+publication:
+  status: Preprint
+  venue: A journal you submitted to
+  year: 2026
+  doi: 10.0000/placeholder
+  url: https://example.org/preprint
+  pdf: /posts/writing-a-post/example.pdf
+  code: https://github.com/KiarashS/personal-academic-blog
 ---
 
 Math is written between dollar signs and rendered by KaTeX when the site is
@@ -33,6 +41,29 @@ $$
 Strict mode is off and errors do not throw, so a malformed expression renders
 in red where it stands instead of blanking the page.
 
+## The paper behind a post
+
+A post that accompanies published work can say so in its frontmatter, and the
+box at the top of this one is the result:
+
+```yaml
+publication:
+  status: Preprint # or Under review, Published, To appear
+  venue: Journal of Statistical Software
+  year: 2026
+  doi: 10.5281/zenodo.123
+  url: https://arxiv.org/abs/2601.01234
+  pdf: /posts/my-post/paper.pdf
+  code: https://github.com/you/replication
+  data: https://doi.org/10.5281/zenodo.124
+```
+
+Every field is optional. The DOI moves out of the header line and into the box
+so it is not printed twice, and it is the DOI the citations below use. A `pdf`,
+`code` or `data` path under `public/` picks up the deployment's base path; a
+full URL is left alone. The values in this post are placeholders — that DOI
+resolves to nothing.
+
 ## Citations
 
 Write `[@key]` and the key is resolved against `src/content/references.bib` at
@@ -46,7 +77,13 @@ by key, and the list follows.
 ## Citing the post itself
 
 Each post carries a "cite this post" block under the text, built from the
-frontmatter: authors, title, year, and the post's URL, formatted as BibTeX with
-a copy button. If the post has a `doi`, it goes in the entry too. The point is
-that someone quoting you does not have to reconstruct the fields by hand and
-get your name wrong.
+frontmatter in four forms — BibTeX, APA, IEEE and a plain sentence — each with
+its own copy button. Names are reshaped for each style: APA wants the surname
+first and given names as initials, IEEE wants the initials first, and the plain
+form leaves them as you wrote them. A DOI, from the post or its publication
+block, goes into all four; APA uses it in place of the URL, which is what the
+style asks for.
+
+The date cited is the date of the version being read, so a post that has been
+revised is cited by its revision. The point of all this is that someone quoting
+you does not reconstruct the fields by hand and get your name wrong.
