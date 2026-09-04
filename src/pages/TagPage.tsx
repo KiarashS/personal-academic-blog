@@ -1,4 +1,5 @@
 import { Navigate, useParams } from 'react-router-dom';
+import { FeedLink } from '../components/FeedLink';
 import { Pagination } from '../components/Pagination';
 import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
@@ -20,7 +21,8 @@ export function TagPage() {
     <>
       <h1>Tagged “{label}”</h1>
       <p className="lede">
-        {matching.length} post{matching.length === 1 ? '' : 's'}.
+        {matching.length} post{matching.length === 1 ? '' : 's'} ·{' '}
+        <FeedLink path={`/tags/${tag}/feed.xml`} label="Feed for this tag" />
       </p>
       <PostList posts={items} />
       <Pagination

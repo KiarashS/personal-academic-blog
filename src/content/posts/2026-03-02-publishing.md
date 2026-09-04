@@ -25,9 +25,17 @@ navigation between pages stays instant.
 
 ## Feed and sitemap
 
-`feed.xml` is an Atom feed with the full text of each post, linked from the head
-of every page so browser extensions and readers find it on their own.
-`sitemap.xml` lists every canonical URL with its last-modified date.
+`feed.xml` is an Atom feed with the full text of each post, and every tag has
+one of its own. Both are linked from the head of the page, and both are also
+visible: the icon beside the nav, the link in the footer, and a per-tag link on
+each tag page. `sitemap.xml` lists every canonical URL with its last-modified
+date.
+
+## Keyboard
+
+`/` searches, `j` and `k` walk a list of posts, `t` cycles the theme, and `?`
+shows the list — also reachable from the footer, since a shortcut nobody knows
+about is not a shortcut. Keys stay out of the way while you are typing.
 
 ## Comments
 

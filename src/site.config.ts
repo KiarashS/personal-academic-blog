@@ -18,6 +18,14 @@ export interface NavItem {
   feature?: FeatureName;
 }
 
+export interface AnalyticsConfig {
+  /**
+   * Cloudflare Web Analytics site token. Empty means no analytics script is
+   * emitted at all — the tag is absent from the built HTML, not merely inert.
+   */
+  cloudflareToken: string;
+}
+
 export interface SiteConfig {
   title: string;
   /** Under a home-screen icon, where a full name will not fit. */
@@ -38,6 +46,13 @@ export interface SiteConfig {
    * `repoId` empty to turn comments off site-wide.
    */
   giscus: GiscusConfig;
+  /**
+   * Cloudflare Web Analytics: no cookies, no cross-site identifiers, and
+   * nothing to configure beyond the token. Create a site at
+   * https://dash.cloudflare.com under Analytics & Logs → Web Analytics and
+   * paste the token from the snippet it gives you.
+   */
+  analytics: AnalyticsConfig;
 }
 
 export const siteConfig: SiteConfig = {
@@ -71,5 +86,8 @@ export const siteConfig: SiteConfig = {
     mapping: 'pathname',
     reactionsEnabled: true,
     lang: 'en',
+  },
+  analytics: {
+    cloudflareToken: '',
   },
 };

@@ -52,6 +52,17 @@ const escapeXml = (value) =>
 
 const preload = await fontPreload();
 
+/*
+ * Cloudflare Web Analytics, when a token is configured: one deferred script
+ * from Cloudflare, no cookies and no identifier that follows a reader between
+ * sites. With no token the tag is not written at all, so the default build
+ * talks to nobody.
+ */
+const analytics = siteConfig.analytics?.cloudflareToken
+  ? `\n    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" ` +
+    `data-cf-beacon='${JSON.stringify({ token: siteConfig.analytics.cloudflareToken })}'></script>`
+  : '';
+
 function head({ title, description, url, type, image, feed }) {
   return (
     [
@@ -83,7 +94,9 @@ function head({ title, description, url, type, image, feed }) {
       `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />`,
       `<meta name="twitter:title" content="${escapeXml(title)}" />`,
       `<meta name="twitter:description" content="${escapeXml(description)}" />`,
-    ].join('\n    ') + preload
+    ].join('\n    ') +
+    preload +
+    analytics
   );
 }
 

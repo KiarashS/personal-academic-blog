@@ -2,6 +2,8 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { visibleNav } from '../lib/features';
+import { FeedLink } from './FeedLink';
+import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
 import { ThemeToggle } from './ThemeToggle';
@@ -37,6 +39,7 @@ export function Layout() {
                   {item.label}
                 </NavLink>
               ))}
+              <FeedLink icon />
               <ThemeToggle />
             </nav>
           </div>
@@ -59,7 +62,7 @@ export function Layout() {
           </p>
           <p>
             <Link to="/tags">Tags</Link> · <Link to="/search">Search</Link> ·{' '}
-            <Link to="/about">About</Link>
+            <Link to="/about">About</Link> · <FeedLink /> · <KeyboardShortcuts />
           </p>
         </div>
       </footer>

@@ -632,6 +632,7 @@ mark {
 
   .site-nav,
   .site-footer,
+  .shortcuts,
   .comments,
   .post-nav,
   .pagination,
@@ -744,6 +745,107 @@ mark {
 .toc a:hover {
   color: var(--text);
   text-decoration: underline;
+}
+
+/* Feed and shortcuts ------------------------------------------------------- */
+
+.feed-link {
+  color: var(--text-muted);
+}
+
+.feed-link--icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem;
+}
+
+.feed-link--icon:hover {
+  color: var(--accent);
+}
+
+/* A plain link in the footer's row, not a button that looks pressed. */
+.shortcuts__open {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 2px;
+}
+
+.shortcuts__open:hover {
+  color: var(--text);
+}
+
+.shortcuts {
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  color: var(--text);
+  max-width: min(24rem, 92vw);
+  padding: 1.25rem 1.4rem;
+}
+
+.shortcuts::backdrop {
+  backdrop-filter: blur(1px);
+  background: rgb(0 0 0 / 35%);
+}
+
+.shortcuts__title {
+  font-size: 1rem;
+  margin: 0 0 0.8rem;
+}
+
+.shortcuts__list {
+  margin: 0;
+}
+
+.shortcuts__row {
+  align-items: baseline;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+}
+
+.shortcuts__row dt {
+  flex: 0 0 2.5rem;
+  text-align: right;
+}
+
+.shortcuts__row dd {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.shortcuts kbd {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.shortcuts__close {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.shortcuts__close:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
 }
 
 /* Reading progress --------------------------------------------------------- */

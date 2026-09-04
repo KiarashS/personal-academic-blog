@@ -260,6 +260,25 @@ path. To switch them on:
 Until then, each post shows a note where the thread would be. The script is
 loaded lazily and the iframe follows the site's theme.
 
+## Feed
+
+`feed.xml` is an Atom feed carrying the full text of every post, and each tag
+has its own at `/tags/<tag>/feed.xml`. Both are linked from the head of every
+page for readers that look, and both are also said out loud: an icon in the
+header, a "Atom feed" link in the footer, and a per-tag link under the heading
+of a tag page. Browsers dropped the address-bar feed button years ago, so
+discovery alone reaches nobody who is not already looking.
+
+## Keyboard shortcuts
+
+`/` search, `j` and `k` through a list of posts, `t` to cycle the theme, `?` for
+the list itself. The list is also a button in the footer, so nobody has to know
+a shortcut to find the shortcuts. Keys are ignored while typing in a field, and
+any Ctrl, Cmd or Alt combination is left to the browser. Everything they do is
+something the page already offers to a mouse. `src/lib/shortcuts.ts` holds the
+table; the dialog is generated from it, so the documentation cannot drift from
+the behaviour.
+
 ## Search
 
 Client-side, over titles, tags, author names, summaries and full post text,
@@ -435,6 +454,24 @@ again before publishing.
 `src/site.config.ts` holds the title, tagline, description, navigation, posts
 per page, and the giscus settings. `url` matters more than the rest: canonical
 links, Open Graph tags, the feed and the BibTeX entries are all built from it.
+
+## Analytics
+
+Off by default: with no token the script tag is absent from the built HTML, and
+the site talks to no one but its own host.
+
+To turn it on, create a site at <https://dash.cloudflare.com> under Analytics &
+Logs → Web Analytics and paste the token from the snippet it hands you into
+`analytics.cloudflareToken` in `src/site.config.ts`. The prerenderer then writes
+one deferred script from `static.cloudflareinsights.com` into each page's head.
+Cloudflare Web Analytics sets no cookies and builds no cross-site identifier, so
+it needs no consent banner; it reports page views, referrers and countries,
+which covers popular posts and where readers come from. The site works
+identically without it, and the service worker leaves the request alone, being
+cross-origin.
+
+Any other tag-based analytics would go in the same place in
+`scripts/prerender.mjs`.
 
 ## Deploying
 
