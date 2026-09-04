@@ -6,6 +6,7 @@ const post = (overrides: Partial<Post> = {}): Post => ({
   slug: 'a-post',
   title: 'What the bootstrap estimates',
   date: '2026-08-19',
+  revisions: [],
   tags: [],
   authors: [{ id: 'a', name: 'Ada Lovelace' }],
   summary: '',

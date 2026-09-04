@@ -5,6 +5,7 @@ import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
 import { ReadingProgress } from '../components/ReadingProgress';
+import { Revisions } from '../components/Revisions';
 import { ShareLinks } from '../components/ShareLinks';
 import { TableOfContents } from '../components/TableOfContents';
 import { RelatedPosts } from '../components/RelatedPosts';
@@ -39,7 +40,14 @@ export function PostPage() {
               <>
                 <span className="meta__sep">·</span>
                 <span>
-                  updated <time dateTime={isoDate(post.updated)}>{formatDate(post.updated)}</time>
+                  updated{' '}
+                  {post.revisions.length > 0 ? (
+                    <a href="#revisions">
+                      <time dateTime={isoDate(post.updated)}>{formatDate(post.updated)}</time>
+                    </a>
+                  ) : (
+                    <time dateTime={isoDate(post.updated)}>{formatDate(post.updated)}</time>
+                  )}
                 </span>
               </>
             ) : null}
@@ -77,6 +85,8 @@ export function PostPage() {
           <TagList tags={post.tags} />
         </div>
       ) : null}
+
+      <Revisions revisions={post.revisions} />
 
       <ShareLinks post={post} />
 

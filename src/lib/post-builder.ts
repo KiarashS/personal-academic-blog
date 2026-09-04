@@ -1,6 +1,6 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
-import type { Heading, PostFrontmatter, PostMeta } from './types';
+import type { Heading, PostFrontmatter, PostMeta, Revision } from './types';
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
 
@@ -14,6 +14,25 @@ function dateFromPath(path: string): string {
   const base = path.split('/').pop() ?? '';
   const match = DATE_PREFIX.exec(base);
   return match ? match[0].slice(0, 10) : '';
+}
+
+/**
+ * The post's revision history, oldest first, which is the order arXiv lists
+ * versions in and the order a history reads in. An entry without a date is
+ * dropped: it has nothing to sort or display.
+ */
+function revisionsFrom(entries: unknown): Revision[] {
+  if (!Array.isArray(entries)) return [];
+
+  // Frontmatter is whatever the author typed, so a field that is not a string
+  // is treated as absent rather than stringified into the page.
+  const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+
+  return entries
+    .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
+    .map((entry) => ({ date: text(entry.date), note: text(entry.note) }))
+    .filter((revision) => revision.date !== '')
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export interface RawPost {
@@ -33,13 +52,18 @@ export interface BuiltPost {
 export function buildPost({ path, raw }: RawPost): BuiltPost {
   const { data, content } = parseFrontmatter<PostFrontmatter>(raw);
   const plainText = toPlainText(content);
+  const revisions = revisionsFrom(data.revisions);
+  const newest = revisions.at(-1)?.date;
 
   return {
     meta: {
       slug: data.slug ?? slugFromPath(path),
       title: data.title ?? slugFromPath(path),
       date: data.date ?? dateFromPath(path),
-      updated: data.updated,
+      // One `updated` still drives the header, the feed and the sitemap; a
+      // history just means it no longer has to be maintained by hand.
+      updated: data.updated ?? newest,
+      revisions,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
       summary: data.summary ?? excerpt(plainText),

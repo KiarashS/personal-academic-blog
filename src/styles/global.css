@@ -848,6 +848,39 @@ mark {
   color: var(--text);
 }
 
+/* Revisions ---------------------------------------------------------------- */
+
+.revisions {
+  border-top: 1px solid var(--rule);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.revisions__list {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.revisions__list li {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.2rem 0;
+}
+
+.revisions__date {
+  color: var(--text-muted);
+  flex: 0 0 5.5rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.revisions__note {
+  color: var(--text);
+}
+
 /* Reading progress --------------------------------------------------------- */
 
 /*

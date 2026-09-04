@@ -170,6 +170,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
             tags: [],
             authorIds: [],
             summary: '',
+            revisions: [],
             readingMinutes: 1,
             draft: true,
             featured: false,

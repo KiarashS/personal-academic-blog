@@ -23,6 +23,22 @@ export function KeyboardShortcuts() {
 
   const open = useCallback(() => dialog.current?.showModal(), []);
 
+  /**
+   * A click on the backdrop lands on the dialog element itself, so the target
+   * says nothing; the coordinates do. `detail === 0` is a keyboard activation,
+   * which reports 0,0 and would otherwise read as a click in the far corner.
+   */
+  const onClick = useCallback((event: React.MouseEvent<HTMLDialogElement>) => {
+    if (event.detail === 0) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const inside =
+      event.clientX >= box.left &&
+      event.clientX <= box.right &&
+      event.clientY >= box.top &&
+      event.clientY <= box.bottom;
+    if (!inside) event.currentTarget.close();
+  }, []);
+
   const move = useCallback((by: 1 | -1) => {
     const links = [...document.querySelectorAll<HTMLAnchorElement>(POST_LINKS)];
     const next = links[step(links, links.indexOf(document.activeElement as HTMLAnchorElement), by)];
@@ -66,7 +82,12 @@ export function KeyboardShortcuts() {
       <button className="shortcuts__open" type="button" onClick={open}>
         Keyboard shortcuts
       </button>
-      <dialog className="shortcuts" ref={dialog} aria-labelledby="shortcuts-title">
+      <dialog
+        className="shortcuts"
+        ref={dialog}
+        aria-labelledby="shortcuts-title"
+        onClick={onClick}
+      >
         <h2 className="shortcuts__title" id="shortcuts-title">
           Keyboard shortcuts
         </h2>

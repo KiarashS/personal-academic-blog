@@ -17,6 +17,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     slug: 'x',
     title: 'X',
     date: '2026-01-01',
+    revisions: [],
     tags: [],
     authorIds: [],
     summary: '',
@@ -152,5 +153,68 @@ describe('featuredFirst', () => {
     const before = [...list];
     featuredFirst(list);
     expect(list).toEqual(before);
+  });
+});
+
+describe('revisions', () => {
+  const withRevisions = (yaml: string) =>
+    buildPost(post('posts/2026-01-05-x.md', `---\ntitle: X\ndate: 2026-01-05\n${yaml}---\n\nBody.`))
+      .meta;
+
+  it('reads a dated changelog and puts it in date order', () => {
+    const meta = withRevisions(
+      [
+        'revisions:',
+        '  - date: 2026-03-02',
+        '    note: Added the notebook.',
+        '  - date: 2026-02-19',
+        '    note: Corrected the variance.',
+        '',
+      ].join('\n'),
+    );
+
+    expect(meta.revisions).toEqual([
+      { date: '2026-02-19', note: 'Corrected the variance.' },
+      { date: '2026-03-02', note: 'Added the notebook.' },
+    ]);
+  });
+
+  it('derives `updated` from the newest revision', () => {
+    const meta = withRevisions(
+      [
+        'revisions:',
+        '  - date: 2026-02-19',
+        '    note: One.',
+        '  - date: 2026-03-02',
+        '    note: Two.',
+        '',
+      ].join('\n'),
+    );
+    expect(meta.updated).toBe('2026-03-02');
+  });
+
+  it('keeps an explicit `updated` over the revision dates', () => {
+    const meta = withRevisions(
+      ['updated: 2026-04-01', 'revisions:', '  - date: 2026-03-02', '    note: One.', ''].join(
+        '\n',
+      ),
+    );
+    expect(meta.updated).toBe('2026-04-01');
+  });
+
+  it('drops an entry with no date, which there is nothing to show for', () => {
+    const meta = withRevisions(
+      ['revisions:', '  - note: Undated.', '  - date: 2026-03-02', ''].join('\n'),
+    );
+    expect(meta.revisions).toEqual([{ date: '2026-03-02', note: '' }]);
+  });
+
+  it('is empty, not undefined, when the post has no history', () => {
+    expect(withRevisions('').revisions).toEqual([]);
+    expect(withRevisions('').updated).toBeUndefined();
+  });
+
+  it('ignores a `revisions` field that is not a list', () => {
+    expect(withRevisions('revisions: yesterday\n').revisions).toEqual([]);
   });
 });

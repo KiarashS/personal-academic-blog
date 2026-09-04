@@ -5,6 +5,11 @@ authors: [you]
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
+revisions:
+  - date: 2026-01-12
+    note: Added the section on files that belong to one post.
+  - date: 2026-02-20
+    note: Documented captions, and the shortcut for copying a section link.
 ---
 
 A post is one Markdown file in `src/content/posts/`. The filename sets the URL,
@@ -23,6 +28,9 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false              # drafts appear in dev, never in a build
 featured: false           # pins the post to the top of the index
+revisions:                # optional; see below
+  - date: 2026-01-12
+    note: What changed, in a line.
 slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
 ---
@@ -77,6 +85,28 @@ development. The build strips an unpublished post's text, title and summary
 rather than merely hiding it from the index, so there is no unlinked URL
 holding the draft and nothing to read in the bundle. The filename itself
 survives, as a key in the module map, so name the file with that in mind.
+
+## Revisions
+
+A post that changes after it is published can carry its history:
+
+```yaml
+revisions:
+  - date: 2026-01-12
+    note: Added the section on files that belong to one post.
+  - date: 2026-02-20
+    note: Documented captions, and the shortcut for copying a section link.
+```
+
+They are listed at the foot of the post, oldest first, the way arXiv orders
+versions. The note is the point — a bare date says only that something changed,
+and what a reader wants to know is whether it is worth reading again — so an
+entry without a date is dropped and one without a note shows the date alone.
+
+Leaving `updated` out lets it fall back to the newest revision, which is what
+the header, the Atom feed and the sitemap use, so there is one date to maintain
+instead of two. Setting `updated` explicitly overrides that. This post has a
+history; that is where its "updated" date comes from.
 
 ## Featured posts
 

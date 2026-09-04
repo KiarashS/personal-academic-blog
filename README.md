@@ -52,6 +52,9 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
 featured: false # pins the post to the top of the index
+revisions: # optional history; see below
+  - date: 2026-01-12
+    note: What changed, in a line.
 slug: custom-url # optional override
 doi: 10.5281/zenodo.123 # optional, linked from the post header
 ---
@@ -64,6 +67,14 @@ dated in the future are visible with `npm run dev` and excluded from builds, so
 you can queue posts ahead of time. A build strips their text, title and summary
 from the bundle rather than only hiding them from the index; the filename
 remains as a key in the module map.
+
+A post that changes after publication can carry a `revisions` list, rendered at
+the foot of the post oldest first, the way arXiv orders versions. The note
+carries the information — a bare date says only that something changed — so an
+entry without a date is dropped and one without a note shows the date alone.
+Leave `updated` out and it falls back to the newest revision, which is the date
+the header, the Atom feed and the sitemap already use; set it and that wins.
+There is still one `updated` in the data, so nothing downstream changes.
 
 `featured: true` pins a post to the top of the index and marks its card. Only
 the index is reordered — the feed, the archive, the tag pages and the
@@ -273,7 +284,8 @@ discovery alone reaches nobody who is not already looking.
 
 `/` search, `j` and `k` through a list of posts, `t` to cycle the theme, `?` for
 the list itself. The list is also a button in the footer, so nobody has to know
-a shortcut to find the shortcuts. Keys are ignored while typing in a field, and
+a shortcut to find the shortcuts; it closes on Escape, on Close, or on a click
+outside it. Keys are ignored while typing in a field, and
 any Ctrl, Cmd or Alt combination is left to the browser. Everything they do is
 something the page already offers to a mouse. `src/lib/shortcuts.ts` holds the
 table; the dialog is generated from it, so the documentation cannot drift from

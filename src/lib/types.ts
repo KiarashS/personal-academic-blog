@@ -17,10 +17,19 @@ export interface Author {
   };
 }
 
+/** One dated change to a published post. */
+export interface Revision {
+  date: string;
+  /** What changed, in a line. A date on its own tells a reader nothing. */
+  note: string;
+}
+
 export interface PostFrontmatter {
   title: string;
   date: string;
+  /** Falls back to the newest revision when `revisions` is given. */
   updated?: string;
+  revisions?: Revision[];
   authors?: string[];
   tags?: string[];
   summary?: string;
@@ -47,6 +56,7 @@ export interface PostMeta {
   title: string;
   date: string;
   updated?: string;
+  revisions: Revision[];
   tags: string[];
   authorIds: string[];
   summary: string;
