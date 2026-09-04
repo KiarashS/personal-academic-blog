@@ -952,6 +952,10 @@ mark {
   border: 1px solid var(--rule);
   border-radius: 4px;
   color: var(--text-muted);
+
+  /* A `button` points at nothing by default, so Print was the one control in
+     the row that did not answer the mouse the way its neighbours do. */
+  cursor: pointer;
   display: inline-flex;
   font-family: var(--sans);
   font-size: 0.75rem;
