@@ -1,9 +1,11 @@
 ---
 title: Code, tables and notes
 date: 2026-02-16
+updated: 2026-09-03
 authors: [you, coauthor]
 tags: [guide, code]
 summary: Syntax highlighting without a vendored theme, scrolling tables, footnotes, and what multiple authors look like.
+doi: 10.5281/zenodo.123
 ---
 
 Fenced code is highlighted at build time by highlight.js. The token colours are
