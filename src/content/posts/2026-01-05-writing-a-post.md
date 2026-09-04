@@ -130,6 +130,12 @@ Leave `part` out and the parts fall into date order. Number some but not all
 and the numbered ones come first, so a half-numbered series still reads in a
 sensible order rather than interleaving.
 
+Grouping is the `series` string and nothing else: no tag, title or filename is
+consulted, and the match is exact, so `Bootstrap methods` and `Bootstrap
+Methods` are two series with one post each. A series with only one published
+part renders nothing at all, which keeps part 1 from announcing "Part 1 of 1"
+while part 2 is still a draft.
+
 ## Featured posts
 
 `featured: true` pins a post to the top of the index and marks its card. This

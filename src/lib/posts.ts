@@ -78,15 +78,20 @@ export interface Series {
 }
 
 /**
- * The series a post belongs to, in reading order. Multi-part work is read
- * forwards, which is the opposite of what the newer/older links at the foot of
- * a post offer, so it needs its own navigation rather than a relabelling.
+ * The series a post belongs to, in reading order, once there is more than one
+ * published part. Multi-part work is read forwards, which is the opposite of
+ * what the newer/older links at the foot of a post offer, so it needs its own
+ * navigation rather than a relabelling.
  */
 export function seriesFor(slug: string): Series | undefined {
   const post = postsBySlug.get(slug);
   if (!post?.series) return undefined;
 
   const parts = seriesParts(posts, post.series);
+  // A series of one is not a series: part 1 written before part 2 exists, or a
+  // series name misspelled. Either way there is nothing to navigate.
+  if (parts.length < 2) return undefined;
+
   const index = parts.findIndex((candidate) => candidate.slug === slug);
   if (index === -1) return undefined;
 

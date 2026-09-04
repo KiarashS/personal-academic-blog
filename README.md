@@ -83,7 +83,10 @@ the top of each one with the current part marked, and previous/next links sit
 above the newer/older pair at the foot — those mean different things, the
 archive's order against the author's. Without `part` the parts fall into date
 order; number some and not others and the numbered ones come first, so a
-half-numbered series still reads sensibly.
+half-numbered series still reads sensibly. The `series` string is the whole of
+the grouping — nothing is inferred from tags, titles or filenames, and the
+match is exact — and a series with fewer than two published parts renders
+nothing, so part 1 says nothing about a series until part 2 exists.
 
 `featured: true` pins a post to the top of the index and marks its card. Only
 the index is reordered — the feed, the archive, the tag pages and the
