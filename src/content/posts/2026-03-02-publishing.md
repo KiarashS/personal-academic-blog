@@ -2,6 +2,7 @@
 title: Publishing and what readers get
 date: 2026-03-02
 authors: [you]
+category: Tutorials
 tags: [guide, deployment]
 summary: What the build produces, how deployment works, and the three settings you have to fill in yourself.
 series: Running this blog

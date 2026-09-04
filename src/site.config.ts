@@ -26,6 +26,20 @@ export interface AnalyticsConfig {
   cloudflareToken: string;
 }
 
+/**
+ * A category is the coarse shelf a post sits on, above its tags: a post has one
+ * category and any number of tags. The list is fixed here rather than taken
+ * from whatever posts happen to say, so the set stays small, the navigation has
+ * an order to follow, and a misspelled name is caught by the build.
+ */
+export interface Category {
+  /** What the URL says: `/categories/<slug>`. */
+  slug: string;
+  label: string;
+  /** A sentence for the categories index. */
+  description?: string;
+}
+
 export interface SiteConfig {
   title: string;
   /** Under a home-screen icon, where a full name will not fit. */
@@ -39,6 +53,8 @@ export interface SiteConfig {
    * prerendered page — it is absent from the built site, not merely hidden.
    */
   features: Record<FeatureName, boolean>;
+  /** Empty means the whole feature is off: no nav entry, no routes. */
+  categories: Category[];
   nav: NavItem[];
   /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
@@ -76,10 +92,38 @@ export const siteConfig: SiteConfig = {
     archive: true,
   },
   cv: '',
+  categories: [
+    {
+      slug: 'ai-in-healthcare',
+      label: 'AI in Healthcare',
+      description: 'Clinical data, models that touch patients, and what it takes to trust one.',
+    },
+    {
+      slug: 'machine-learning',
+      label: 'Machine Learning',
+      description: 'Methods, training runs and the parts of them that did not work.',
+    },
+    {
+      slug: 'research-notes',
+      label: 'Research Notes',
+      description: 'Working notes, reading summaries and unfinished arguments.',
+    },
+    {
+      slug: 'tutorials',
+      label: 'Tutorials',
+      description: 'How something is done, start to finish.',
+    },
+    {
+      slug: 'mathematics',
+      label: 'Mathematics',
+      description: 'Derivations, proofs and the notation they need.',
+    },
+  ],
   nav: [
     { label: 'Posts', to: '/' },
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Archive', to: '/archive', feature: 'archive' },
+    { label: 'Categories', to: '/categories' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },

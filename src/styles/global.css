@@ -782,6 +782,65 @@ mark {
   display: none;
 }
 
+/* Categories --------------------------------------------------------------- */
+
+/* The shelf a post sits on, said quietly in the meta line rather than shouted
+   as a coloured badge: it is metadata, like the date beside it. */
+.category-chip {
+  color: var(--text-muted);
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+
+.category-chip:hover {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.category-list > li + li {
+  border-top: 1px solid var(--rule);
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+.category-list__title {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.15rem;
+  gap: 0.75rem;
+  margin: 0 0 0.3rem;
+}
+
+.category-list__title a {
+  text-decoration: none;
+}
+
+.category-list__title a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+.category-list__count {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.category-list__description {
+  color: var(--text-muted);
+  margin: 0;
+}
+
 /* Feed and shortcuts ------------------------------------------------------- */
 
 .feed-link {

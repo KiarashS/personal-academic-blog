@@ -1,5 +1,6 @@
 import { siteConfig } from '../site.config';
 import { authors } from '../content/authors';
+import { allCategories, categoriesEnabled, getCategory, postsInCategory } from './categories';
 import { displayTag, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
 import { isEnabled } from './features';
@@ -33,6 +34,26 @@ export function metaFor(pathname: string): RouteMeta {
   if (segments[0] === 'posts') {
     const post = posts.find((candidate) => candidate.slug === segments[1]);
     if (post) return { title: withSuffix(post.title), description: post.summary };
+  }
+
+  if (segments[0] === 'categories' && segments[1] && categoriesEnabled()) {
+    const category = getCategory(segments[1]);
+    if (category) {
+      const count = postsInCategory(category.slug).length;
+      const page = segments[2] === 'page' ? `, page ${segments[3]}` : '';
+      return {
+        title: withSuffix(`${category.label}${page}`),
+        description:
+          category.description ?? `${count} post${count === 1 ? '' : 's'} in ${category.label}.`,
+      };
+    }
+  }
+
+  if (segments[0] === 'categories' && categoriesEnabled()) {
+    return {
+      title: withSuffix('Categories'),
+      description: 'The categories posts are filed under.',
+    };
   }
 
   if (segments[0] === 'tags' && segments[1]) {
@@ -90,6 +111,19 @@ export function allRoutes(): string[] {
   const routes = new Set<string>(['/', '/tags', '/search', '/about']);
   if (isEnabled('publications')) routes.add('/publications');
   if (isEnabled('archive')) routes.add('/archive');
+
+  if (categoriesEnabled()) {
+    routes.add('/categories');
+    for (const category of allCategories) {
+      const inside = postsInCategory(category.slug);
+      if (inside.length === 0) continue;
+      routes.add(`/categories/${category.slug}`);
+      const pages = paginate(inside, 1, siteConfig.postsPerPage).totalPages;
+      for (let page = 2; page <= pages; page += 1) {
+        routes.add(`/categories/${category.slug}/page/${page}`);
+      }
+    }
+  }
 
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(`/page/${page}`);

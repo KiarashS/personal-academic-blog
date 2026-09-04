@@ -19,6 +19,8 @@ const {
   tagCounts,
   postsByTag,
   tagSlug,
+  categoryCounts,
+  postsInCategory,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -109,6 +111,7 @@ function pageFor(route) {
   const post =
     route.startsWith('/posts/') && posts.find((candidate) => `/posts/${candidate.slug}` === route);
   const tag = /^\/tags\/([^/]+)/.exec(route)?.[1];
+  const category = /^\/categories\/([^/]+)/.exec(route)?.[1];
 
   return {
     ...metaFor(route),
@@ -117,7 +120,12 @@ function pageFor(route) {
     image: post ? cardFor(post.slug) : cardFor('site'),
     feed: tag
       ? { title: `${siteConfig.title}: ${tag}`, href: canonicalUrl(`/tags/${tag}/feed.xml`) }
-      : undefined,
+      : category
+        ? {
+            title: `${siteConfig.title}: ${category}`,
+            href: canonicalUrl(`/categories/${category}/feed.xml`),
+          }
+        : undefined,
   };
 }
 
@@ -209,6 +217,17 @@ await writeFeed({
   alternate: '/',
   entries: posts,
 });
+
+// One feed per category, for a reader who wants the shelf and not the archive.
+for (const { category } of categoryCounts()) {
+  await writeFeed({
+    path: `categories/${category.slug}/feed.xml`,
+    title: `${siteConfig.title}: ${category.label}`,
+    subtitle: category.description ?? `Posts in ${category.label}.`,
+    alternate: `/categories/${category.slug}`,
+    entries: postsInCategory(category.slug),
+  });
+}
 
 // One feed per tag, so a reader can follow a single line of work.
 for (const { tag } of tagCounts()) {

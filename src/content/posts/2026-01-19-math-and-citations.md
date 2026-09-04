@@ -2,6 +2,7 @@
 title: Math and citations
 date: 2026-01-19
 authors: [you]
+category: Mathematics
 tags: [guide, math, citations]
 summary: KaTeX for equations, a BibTeX file for references, and a cite-this-post block generated from frontmatter.
 publication:

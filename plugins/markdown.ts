@@ -15,6 +15,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { buildPost, todayUtc } from '../src/lib/post-builder';
+import { siteConfig } from '../src/site.config';
 import type { Heading } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
@@ -130,6 +131,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     return value;
   }
 
+  const known = new Set(siteConfig.categories.map((category) => category.slug));
+
   return {
     name: 'academic-markdown',
     enforce: 'pre',
@@ -152,6 +155,15 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
       const raw = readFileSync(path, 'utf8');
       const built = buildPost({ path, raw });
+
+      // A category the site does not define is a typo, and a silent one: the
+      // post would simply file itself nowhere.
+      if (built.meta.category && !known.has(built.meta.category)) {
+        this.warn(
+          `${path}: category "${built.meta.category}" is not in siteConfig.categories ` +
+            `(${[...known].join(', ') || 'none configured'})`,
+        );
+      }
 
       // A draft or a future-dated post is filtered out of the post list, but
       // its module would still be emitted as a fetchable chunk. In a build its

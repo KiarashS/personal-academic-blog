@@ -6,6 +6,7 @@ import { ThemeProvider } from './components/ThemeProvider';
 
 export { allRoutes, metaFor } from './lib/route-meta';
 export { posts, postsByTag, tagCounts } from './lib/posts';
+export { categoryCounts, postsInCategory } from './lib/categories';
 export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
 export { canonicalUrl, withBase } from './lib/urls';

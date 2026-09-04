@@ -61,6 +61,8 @@ export interface PostFrontmatter {
   /** Position within the series; without it, date order decides. */
   part?: number;
   publication?: Publication;
+  /** One category, by slug or label; see `categories` in the site config. */
+  category?: string;
   authors?: string[];
   tags?: string[];
   summary?: string;
@@ -91,6 +93,8 @@ export interface PostMeta {
   series?: string;
   part?: number;
   publication?: Publication;
+  /** The category's slug, or undefined when the post names none. */
+  category?: string;
   tags: string[];
   authorIds: string[];
   summary: string;

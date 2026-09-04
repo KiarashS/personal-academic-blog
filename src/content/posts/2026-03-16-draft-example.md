@@ -2,6 +2,7 @@
 title: A draft, for demonstration
 date: 2026-03-16
 authors: [you]
+category: Research Notes
 tags: [guide]
 summary: This post has draft set to true, so it is visible in development and absent from every build.
 draft: true

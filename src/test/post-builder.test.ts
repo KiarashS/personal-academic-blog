@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildPost,
+  categorySlug,
   featuredFirst,
+  rankRelated,
   selectPosts,
   seriesParts,
   slugFromPath,
@@ -287,5 +289,99 @@ describe('series frontmatter', () => {
 
   it('ignores a part that is not a number', () => {
     expect(meta('series: X\npart: second\n').part).toBeUndefined();
+  });
+});
+
+describe('categorySlug', () => {
+  it('takes a label or a slug to the same value', () => {
+    expect(categorySlug('AI in Healthcare')).toBe('ai-in-healthcare');
+    expect(categorySlug('ai-in-healthcare')).toBe('ai-in-healthcare');
+    expect(categorySlug('  Research Notes  ')).toBe('research-notes');
+  });
+});
+
+describe('category frontmatter', () => {
+  const built = (yaml: string) =>
+    buildPost(post('posts/2026-01-05-x.md', `---\ntitle: X\ndate: 2026-01-05\n${yaml}---\n\nBody.`))
+      .meta;
+
+  it('stores the slug, however the post wrote it', () => {
+    expect(built('category: Machine Learning\n').category).toBe('machine-learning');
+  });
+
+  it('leaves a post with no category uncategorised', () => {
+    expect(built('').category).toBeUndefined();
+    expect(built('category: "  "\n').category).toBeUndefined();
+  });
+});
+
+describe('rankRelated', () => {
+  const slugify = (tag: string) => tag.toLowerCase();
+  const item = (slug: string, date: string, tags: string[], category?: string) => ({
+    slug,
+    date,
+    tags,
+    category,
+  });
+
+  const current = item('here', '2026-05-01', ['bootstrap', 'stats'], 'machine-learning');
+
+  it('ranks a shared category above a single shared tag', () => {
+    const list = [
+      current,
+      item('same-category', '2026-01-01', [], 'machine-learning'),
+      item('one-tag', '2026-04-01', ['stats'], 'tutorials'),
+    ];
+    expect(rankRelated(list, current, 4, slugify).map((entry) => entry.slug)).toEqual([
+      'same-category',
+      'one-tag',
+    ]);
+  });
+
+  it('lets enough shared tags outweigh the category', () => {
+    // The category is worth three tags, so four shared tags beat it.
+    const wide = item('here', '2026-05-01', ['bootstrap', 'stats', 'x', 'y'], 'machine-learning');
+    const list = [
+      wide,
+      item('same-category', '2026-01-01', [], 'machine-learning'),
+      item('four-tags', '2026-01-01', ['bootstrap', 'stats', 'x', 'y'], 'tutorials'),
+    ];
+    expect(rankRelated(list, wide, 4, slugify).map((entry) => entry.slug)).toEqual([
+      'four-tags',
+      'same-category',
+    ]);
+  });
+
+  it('excludes a post sharing neither a tag nor the category', () => {
+    const list = [current, item('elsewhere', '2026-04-01', ['unrelated'], 'mathematics')];
+    expect(rankRelated(list, current, 4, slugify)).toEqual([]);
+  });
+
+  it('breaks ties by date, newest first, and never returns the post itself', () => {
+    const list = [
+      current,
+      item('older', '2026-01-01', ['stats']),
+      item('newer', '2026-04-01', ['stats']),
+    ];
+    expect(rankRelated(list, current, 4, slugify).map((entry) => entry.slug)).toEqual([
+      'newer',
+      'older',
+    ]);
+  });
+
+  it('honours the limit', () => {
+    const list = [
+      current,
+      item('a', '2026-04-01', ['stats']),
+      item('b', '2026-03-01', ['stats']),
+      item('c', '2026-02-01', ['stats']),
+    ];
+    expect(rankRelated(list, current, 2, slugify)).toHaveLength(2);
+  });
+
+  it('still works for a post with no category at all', () => {
+    const plain = item('plain', '2026-05-01', ['stats']);
+    const list = [plain, item('other', '2026-04-01', ['stats'], 'tutorials')];
+    expect(rankRelated(list, plain, 4, slugify).map((entry) => entry.slug)).toEqual(['other']);
   });
 });

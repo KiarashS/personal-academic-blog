@@ -2,6 +2,7 @@
 title: Writing a post
 date: 2026-01-05
 authors: [you]
+category: Tutorials
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
@@ -28,6 +29,7 @@ updated: 2026-01-12       # optional; shown beside the date
 authors: [you]            # ids from src/content/authors.ts
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
+category: Tutorials       # one of the site's categories; optional
 draft: false              # drafts appear in dev, never in a build
 featured: false           # pins the post to the top of the index
 revisions:                # optional; see below
@@ -122,6 +124,17 @@ Leaving `updated` out lets it fall back to the newest revision, which is what
 the header, the Atom feed and the sitemap use, so there is one date to maintain
 instead of two. Setting `updated` explicitly overrides that. This post has a
 history; that is where its "updated" date comes from.
+
+## Categories
+
+Tags are free-form and many; a category is one of a fixed few, and a post has
+at most one. The set lives in `src/site.config.ts` with a description each, so
+`/categories` can say what belongs on each shelf rather than showing a cloud of
+words. Write the label or the slug — `Research Notes` and `research-notes` are
+the same thing — and the build warns if the name is not one the site knows.
+
+Each category has a page of its own, paginated, with an Atom feed, and the name
+appears in small caps beside the date on every card and at the top of the post.
 
 ## Series
 

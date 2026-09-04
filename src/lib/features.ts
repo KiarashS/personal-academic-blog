@@ -11,5 +11,12 @@ export function filterNav(nav: NavItem[], features: Record<FeatureName, boolean>
 }
 
 export function visibleNav(): NavItem[] {
-  return filterNav(siteConfig.nav, siteConfig.features);
+  // Categories are not a feature flag: they exist if any are configured, and
+  // the entry would otherwise lead to a page listing nothing.
+  const nav =
+    siteConfig.categories.length > 0
+      ? siteConfig.nav
+      : siteConfig.nav.filter((item) => item.to !== '/categories');
+
+  return filterNav(nav, siteConfig.features);
 }

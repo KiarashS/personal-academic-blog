@@ -12,6 +12,7 @@ import { ShareLinks } from '../components/ShareLinks';
 import { TableOfContents } from '../components/TableOfContents';
 import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
+import { getCategory } from '../lib/categories';
 import { formatDate, isoDate } from '../lib/format';
 import { getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
@@ -27,6 +28,7 @@ export function PostPage() {
   const { previous, next } = neighbours(post.slug);
   const contents = tableOfContents(post.headings);
   const series = seriesFor(post.slug);
+  const category = getCategory(post.category);
 
   return (
     <article>
@@ -37,6 +39,14 @@ export function PostPage() {
         <header className="post-header">
           <h1>{post.title}</h1>
           <p className="meta">
+            {category ? (
+              <>
+                <Link className="category-chip" to={`/categories/${category.slug}`}>
+                  {category.label}
+                </Link>
+                <span className="meta__sep">·</span>
+              </>
+            ) : null}
             <time dateTime={isoDate(post.date)}>{formatDate(post.date)}</time>
             <span className="meta__sep">·</span>
             <span>{post.readingMinutes} min read</span>

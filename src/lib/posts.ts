@@ -1,4 +1,4 @@
-import { selectPosts, seriesParts, todayUtc } from './post-builder';
+import { rankRelated, selectPosts, seriesParts, todayUtc } from './post-builder';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
 import type { Post, PostMeta } from './types';
@@ -112,24 +112,12 @@ export function neighbours(slug: string): { previous?: Post; next?: Post } {
 }
 
 /**
- * Posts sharing the most tags with this one, newest first among ties. Tags are
- * the only signal available without a similarity index, and for a research
- * notebook they are usually the right one.
+ * Posts closest to this one, by shared category and tags. Without a similarity
+ * index those are the signals there are, and for a research notebook they are
+ * usually the right ones.
  */
-export function relatedPosts(slug: string, limit = 3): Post[] {
+export function relatedPosts(slug: string, limit = 4): Post[] {
   const post = postsBySlug.get(slug);
-  if (!post || post.tags.length === 0) return [];
-
-  const wanted = new Set(post.tags.map((tag) => tagSlug(tag)));
-
-  return posts
-    .filter((candidate) => candidate.slug !== slug)
-    .map((candidate) => ({
-      post: candidate,
-      shared: candidate.tags.filter((tag) => wanted.has(tagSlug(tag))).length,
-    }))
-    .filter((entry) => entry.shared > 0)
-    .sort((a, b) => b.shared - a.shared || b.post.date.localeCompare(a.post.date))
-    .slice(0, limit)
-    .map((entry) => entry.post);
+  if (!post) return [];
+  return rankRelated(posts, post, limit, tagSlug);
 }

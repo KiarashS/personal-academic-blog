@@ -1,7 +1,10 @@
 import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { categoriesEnabled } from './lib/categories';
 import { isEnabled } from './lib/features';
+import { CategoriesPage } from './pages/CategoriesPage';
+import { CategoryPage } from './pages/CategoryPage';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { TagPage } from './pages/TagPage';
@@ -55,6 +58,13 @@ export function App() {
               </Suspense>
             }
           />
+        ) : null}
+        {categoriesEnabled() ? (
+          <>
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="categories/:category" element={<CategoryPage />} />
+            <Route path="categories/:category/page/:page" element={<CategoryPage />} />
+          </>
         ) : null}
         <Route path="tags" element={<TagsPage />} />
         <Route path="tags/:tag" element={<TagPage />} />

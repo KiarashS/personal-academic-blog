@@ -4,6 +4,19 @@ import type { Heading, PostFrontmatter, PostMeta, Publication, Revision } from '
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
 
+/**
+ * A category is written as either its slug or its label — `research-notes` and
+ * `Research Notes` are the same shelf — so both are reduced to the slug here
+ * and matched against the configured list elsewhere.
+ */
+export function categorySlug(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 export function slugFromPath(path: string): string {
   const base = path.split('/').pop() ?? path;
   return base.replace(/\.mdx?$/, '').replace(DATE_PREFIX, '');
@@ -101,6 +114,10 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
         typeof data.series === 'string' && data.series.trim() ? data.series.trim() : undefined,
       part: typeof data.part === 'number' ? data.part : undefined,
       publication: publicationFrom(data.publication),
+      category:
+        typeof data.category === 'string' && data.category.trim()
+          ? categorySlug(data.category)
+          : undefined,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
       summary: data.summary ?? excerpt(plainText),
@@ -180,6 +197,41 @@ export function seriesParts<T extends SeriesMember>(list: readonly T[], name: st
       if (b.part !== undefined) return 1;
       return a.date.localeCompare(b.date);
     });
+}
+
+export interface Relatable {
+  slug: string;
+  date: string;
+  tags: string[];
+  category?: string;
+}
+
+/**
+ * Posts closest to this one: the same category counts for as much as three
+ * shared tags, since it is the coarser and more deliberate signal, and ties go
+ * to the newer post. A post with neither a shared tag nor the same category is
+ * not related, only adjacent.
+ */
+export function rankRelated<T extends Relatable>(
+  list: readonly T[],
+  current: T,
+  limit: number,
+  slugify: (tag: string) => string,
+): T[] {
+  const wanted = new Set(current.tags.map(slugify));
+
+  return list
+    .filter((candidate) => candidate.slug !== current.slug)
+    .map((candidate) => ({
+      post: candidate,
+      score:
+        candidate.tags.filter((tag) => wanted.has(slugify(tag))).length +
+        (current.category && candidate.category === current.category ? 3 : 0),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || b.post.date.localeCompare(a.post.date))
+    .slice(0, limit)
+    .map((entry) => entry.post);
 }
 
 export function todayUtc(): string {

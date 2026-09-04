@@ -48,6 +48,7 @@ title: Writing a post
 date: 2026-01-05 # optional; falls back to the filename prefix
 updated: 2026-01-12 # optional
 authors: [you] # ids from src/content/authors.ts
+category: Tutorials # one of siteConfig.categories; optional
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
@@ -80,6 +81,25 @@ alone.
 Leave `updated` out and it falls back to the newest revision, which is the date
 the header, the Atom feed and the sitemap already use; set it and that wins.
 There is still one `updated` in the data, so nothing downstream changes.
+
+A post can also name one `category`, the coarse shelf above its tags. The set
+is fixed in `src/site.config.ts` rather than taken from whatever posts happen
+to say, so it stays small, the navigation has an order to follow, and a
+misspelled name is caught by the build:
+
+```ts
+categories: [
+  { slug: 'machine-learning', label: 'Machine Learning', description: 'Methods, …' },
+  …
+]
+```
+
+Write either the label or the slug — `Machine Learning` and `machine-learning`
+are the same shelf. Each category gets `/categories/<slug>`, paginated, with its
+own Atom feed, and they are listed at `/categories` with their descriptions and
+counts; an empty one is left out. A category the config does not define is a
+build warning, since the post would otherwise file itself nowhere. With no
+categories configured the nav entry and the routes do not exist.
 
 Posts meant to be read in order share a `series` name. The parts are listed at
 the top of each one with the current part marked, and previous/next links sit
@@ -383,6 +403,14 @@ any Ctrl, Cmd or Alt combination is left to the browser. Everything they do is
 something the page already offers to a mouse. `src/lib/shortcuts.ts` holds the
 table; the dialog is generated from it, so the documentation cannot drift from
 the behaviour.
+
+## Related posts
+
+The foot of each post lists up to four others, ranked by what they share: the
+same category counts for as much as three shared tags, being the coarser and
+more deliberate signal, and ties go to the newer post. A post sharing neither a
+tag nor the category is not shown — adjacent is not related. The ranking is a
+pure function, `rankRelated` in `src/lib/post-builder.ts`.
 
 ## Search
 

@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import { getCategory } from '../lib/categories';
 import { formatDate, isoDate } from '../lib/format';
 import type { Post } from '../lib/types';
 
@@ -10,8 +11,18 @@ interface PostMetaProps {
 }
 
 export function PostMeta({ post, dateStyle = 'short', showReadingTime = true }: PostMetaProps) {
+  const category = getCategory(post.category);
+
   return (
     <p className="meta">
+      {category ? (
+        <>
+          <Link className="category-chip" to={`/categories/${category.slug}`}>
+            {category.label}
+          </Link>
+          <span className="meta__sep">·</span>
+        </>
+      ) : null}
       <time dateTime={isoDate(post.date)}>{formatDate(post.date, dateStyle)}</time>
       {post.authors.length > 0 ? (
         <>
