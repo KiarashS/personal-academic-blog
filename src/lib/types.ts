@@ -30,6 +30,10 @@ export interface PostFrontmatter {
   /** Falls back to the newest revision when `revisions` is given. */
   updated?: string;
   revisions?: Revision[];
+  /** Name of a multi-part series this post belongs to. */
+  series?: string;
+  /** Position within the series; without it, date order decides. */
+  part?: number;
   authors?: string[];
   tags?: string[];
   summary?: string;
@@ -57,6 +61,8 @@ export interface PostMeta {
   date: string;
   updated?: string;
   revisions: Revision[];
+  series?: string;
+  part?: number;
   tags: string[];
   authorIds: string[];
   summary: string;

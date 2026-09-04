@@ -4,6 +4,8 @@ date: 2026-03-02
 authors: [you]
 tags: [guide, deployment]
 summary: What the build produces, how deployment works, and the three settings you have to fill in yourself.
+series: Running this blog
+part: 2
 ---
 
 `npm run build` renders diagrams, compiles the Markdown, bundles the client,
@@ -60,6 +62,17 @@ Each post ends with links to LinkedIn, X, Bluesky and email, plus a button that
 copies the canonical URL. They are ordinary links built when the page is
 rendered: no share widget, no script from anyone else, and nothing that counts
 who clicked.
+
+## Print and PDF
+
+The share row has a Print button, which is the same dialog a browser's Save as
+PDF goes through. Before it opens, every collapsed `details` on the page is
+expanded — a contents list or a citation folded shut prints as a blank line —
+and closed again afterwards. The stylesheet drops the navigation, the comments
+and the buttons, forces the light palette whatever the reader chose, prints the
+target of every external link after it, keeps figures, tables and code from
+breaking across a page, and puts the post's own URL under the title, since a
+printout has no address bar.
 
 ## Themes
 

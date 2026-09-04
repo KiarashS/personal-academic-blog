@@ -64,6 +64,9 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       // history just means it no longer has to be maintained by hand.
       updated: data.updated ?? newest,
       revisions,
+      series:
+        typeof data.series === 'string' && data.series.trim() ? data.series.trim() : undefined,
+      part: typeof data.part === 'number' ? data.part : undefined,
       tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
       authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
       summary: data.summary ?? excerpt(plainText),
@@ -120,6 +123,29 @@ export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptio
  */
 export function featuredFirst<T extends { featured: boolean }>(list: T[]): T[] {
   return [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
+}
+
+export interface SeriesMember {
+  series?: string;
+  part?: number;
+  date: string;
+}
+
+/**
+ * The posts of one series, in reading order: by `part` where an author has
+ * numbered them, by date otherwise. A numbered post always comes before an
+ * unnumbered one, so half-numbered series still read sensibly rather than
+ * interleaving.
+ */
+export function seriesParts<T extends SeriesMember>(list: readonly T[], name: string): T[] {
+  return list
+    .filter((post) => post.series === name)
+    .sort((a, b) => {
+      if (a.part !== undefined && b.part !== undefined) return a.part - b.part;
+      if (a.part !== undefined) return -1;
+      if (b.part !== undefined) return 1;
+      return a.date.localeCompare(b.date);
+    });
 }
 
 export function todayUtc(): string {

@@ -3,6 +3,7 @@ import {
   buildPost,
   featuredFirst,
   selectPosts,
+  seriesParts,
   slugFromPath,
   tableOfContents,
 } from '../lib/post-builder';
@@ -216,5 +217,75 @@ describe('revisions', () => {
 
   it('ignores a `revisions` field that is not a list', () => {
     expect(withRevisions('revisions: yesterday\n').revisions).toEqual([]);
+  });
+});
+
+describe('seriesParts', () => {
+  const member = (slug: string, date: string, series?: string, part?: number) => ({
+    slug,
+    date,
+    series,
+    part,
+  });
+
+  const list = [
+    member('three', '2026-03-01', 'Bootstrap', 3),
+    member('one', '2026-01-01', 'Bootstrap', 1),
+    member('elsewhere', '2026-02-01', 'Other', 1),
+    member('two', '2026-02-01', 'Bootstrap', 2),
+    member('loose', '2026-04-01'),
+  ];
+
+  it('keeps only the named series, in part order', () => {
+    expect(seriesParts(list, 'Bootstrap').map((post) => post.slug)).toEqual([
+      'one',
+      'two',
+      'three',
+    ]);
+  });
+
+  it('falls back to date order when nothing is numbered', () => {
+    const undated = [
+      member('later', '2026-05-01', 'Notes'),
+      member('earlier', '2026-01-01', 'Notes'),
+    ];
+    expect(seriesParts(undated, 'Notes').map((post) => post.slug)).toEqual(['earlier', 'later']);
+  });
+
+  it('puts numbered parts before unnumbered ones rather than interleaving', () => {
+    const mixed = [
+      member('unnumbered', '2026-01-01', 'Notes'),
+      member('second', '2026-05-01', 'Notes', 2),
+      member('first', '2026-06-01', 'Notes', 1),
+    ];
+    expect(seriesParts(mixed, 'Notes').map((post) => post.slug)).toEqual([
+      'first',
+      'second',
+      'unnumbered',
+    ]);
+  });
+
+  it('is empty for a series nobody wrote', () => {
+    expect(seriesParts(list, 'Nothing')).toEqual([]);
+  });
+});
+
+describe('series frontmatter', () => {
+  const meta = (yaml: string) =>
+    buildPost(post('posts/2026-01-05-x.md', `---\ntitle: X\ndate: 2026-01-05\n${yaml}---\n\nBody.`))
+      .meta;
+
+  it('reads the name and the part', () => {
+    const built = meta('series: Running this blog\npart: 2\n');
+    expect(built.series).toBe('Running this blog');
+    expect(built.part).toBe(2);
+  });
+
+  it('treats a blank series as no series', () => {
+    expect(meta('series: "   "\n').series).toBeUndefined();
+  });
+
+  it('ignores a part that is not a number', () => {
+    expect(meta('series: X\npart: second\n').part).toBeUndefined();
   });
 });

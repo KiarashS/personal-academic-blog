@@ -604,80 +604,6 @@ mark {
   }
 }
 
-@media print {
-  /*
-   * Papers get printed. The chrome goes, the palette is forced light whatever
-   * the reader chose, links keep their targets on paper, and figures, tables
-   * and code are not allowed to break across a page.
-   */
-  @page {
-    margin: 20mm 18mm;
-  }
-
-  :root,
-  :root[data-theme='dark'] {
-    --bg: #fff;
-    --bg-subtle: #fff;
-    --text: #000;
-    --text-muted: #444;
-    --rule: #bbb;
-    --rule-strong: #666;
-    --link: #000;
-    --accent: #000;
-    --code-bg: #fff;
-    --mark: #eee;
-
-    color-scheme: light;
-  }
-
-  .site-nav,
-  .site-footer,
-  .shortcuts,
-  .comments,
-  .post-nav,
-  .pagination,
-  .related,
-  .reading-progress,
-  .share,
-  .code-block__copy,
-  .heading-anchor,
-  .skip-link {
-    display: none;
-  }
-
-  body {
-    font-size: 11pt;
-  }
-
-  .shell,
-  .prose {
-    max-width: none;
-    padding: 0;
-  }
-
-  /* A citation is not much use on paper without its target. */
-  .prose a[href^='http']::after {
-    content: ' (' attr(href) ')';
-    font-size: 0.85em;
-    word-break: break-all;
-  }
-
-  figure,
-  table,
-  pre,
-  .code-block,
-  .mermaid-figure,
-  .toc {
-    break-inside: avoid;
-  }
-
-  h1,
-  h2,
-  h3 {
-    break-after: avoid;
-  }
-}
-
 .visually-hidden {
   border: 0;
 
@@ -745,6 +671,10 @@ mark {
 .toc a:hover {
   color: var(--text);
   text-decoration: underline;
+}
+
+.print-only {
+  display: none;
 }
 
 /* Feed and shortcuts ------------------------------------------------------- */
@@ -846,6 +776,66 @@ mark {
 .shortcuts__close:hover {
   border-color: var(--rule-strong);
   color: var(--text);
+}
+
+/* Series -------------------------------------------------------------------- */
+
+.series {
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-family: var(--sans);
+  margin: 1.5rem 0 2rem;
+  padding: 0.8rem 1rem;
+}
+
+.series__heading {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.series__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.series__count {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.series__list {
+  font-size: 0.85rem;
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.series__part {
+  margin: 0.15rem 0;
+}
+
+.series__part--here {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.series__part--here::marker {
+  font-weight: 600;
+}
+
+.post-nav--series {
+  border-top: 0;
+  margin-top: 2.5rem;
+  padding-top: 0;
+}
+
+.post-nav__end {
+  text-align: right;
 }
 
 /* Revisions ---------------------------------------------------------------- */
@@ -1134,4 +1124,135 @@ mark {
 
 .route-error p {
   color: var(--text-muted);
+}
+
+@media print {
+  /*
+   * Papers get printed. The chrome goes, the palette is forced light whatever
+   * the reader chose, links keep their targets on paper, and figures, tables
+   * and code are not allowed to break across a page.
+   */
+  @page {
+    margin: 20mm 18mm;
+  }
+
+  :root,
+  :root:not([data-theme='light']),
+  :root[data-theme='dark'] {
+    --bg: #fff;
+    --bg-subtle: #fff;
+    --text: #000;
+    --text-muted: #444;
+    --rule: #bbb;
+    --rule-strong: #666;
+    --link: #000;
+    --accent: #000;
+    --code-bg: #fff;
+    --mark: #eee;
+
+    color-scheme: light;
+  }
+
+  .site-nav,
+  .site-footer,
+  .shortcuts,
+  .comments,
+  .post-nav,
+  .pagination,
+  .related,
+  .reading-progress,
+  .share,
+  .code-block__copy,
+  .heading-anchor,
+  .toc__count,
+  .skip-link {
+    display: none;
+  }
+
+  /* Written for paper only: the URL of the page being read. */
+  .print-only {
+    display: block;
+  }
+
+  .print-source {
+    color: #444;
+    font-family: var(--sans);
+    font-size: 9pt;
+    margin: 0 0 1.5rem;
+    word-break: break-all;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+
+  .shell,
+  .prose {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* A line stranded at the top or bottom of a page is a printing artefact. */
+  p,
+  li,
+  blockquote {
+    orphans: 2;
+    widows: 2;
+  }
+
+  /*
+   * The contents list and the citation are `details`, which the print handler
+   * opens; their summaries are then redundant chrome around content that is
+   * already visible.
+   */
+  .toc summary,
+  .cite summary {
+    font-weight: 600;
+    list-style: none;
+  }
+
+  .toc,
+  .cite {
+    border: 0;
+    padding: 0;
+  }
+
+  .toc a,
+  .series a {
+    text-decoration: none;
+  }
+
+  /* On paper the series is a list of what else to read, not navigation. */
+  .series {
+    background: none;
+    border: 1px solid #bbb;
+  }
+
+  .revisions,
+  .cite {
+    break-inside: avoid;
+  }
+
+  /* A citation is not much use on paper without its target. In-page links
+     are left alone: their target is the page in the reader's hand. */
+  .prose a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  figure,
+  table,
+  pre,
+  .code-block,
+  .mermaid-figure,
+  .toc {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
 }

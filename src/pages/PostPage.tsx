@@ -6,13 +6,15 @@ import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
 import { ReadingProgress } from '../components/ReadingProgress';
 import { Revisions } from '../components/Revisions';
+import { SeriesHeader, SeriesLinks } from '../components/SeriesNav';
 import { ShareLinks } from '../components/ShareLinks';
 import { TableOfContents } from '../components/TableOfContents';
 import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
 import { formatDate, isoDate } from '../lib/format';
-import { getPost, neighbours, relatedPosts } from '../lib/posts';
+import { getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
+import { canonicalUrl } from '../lib/urls';
 import { NotFoundPage } from './NotFoundPage';
 
 export function PostPage() {
@@ -23,6 +25,7 @@ export function PostPage() {
 
   const { previous, next } = neighbours(post.slug);
   const contents = tableOfContents(post.headings);
+  const series = seriesFor(post.slug);
 
   return (
     <article>
@@ -73,6 +76,12 @@ export function PostPage() {
           ) : null}
         </header>
 
+        {/* Printed pages leave the address bar behind, so the URL goes on the
+            page itself, where a reader can type it back in. */}
+        <p className="print-only print-source">{canonicalUrl(`/posts/${post.slug}`)}</p>
+
+        {series ? <SeriesHeader series={series} /> : null}
+
         <TableOfContents headings={contents} />
 
         <Suspense fallback={<p className="empty">Loading…</p>}>
@@ -96,20 +105,22 @@ export function PostPage() {
         <AuthorCard key={author.id} author={author} />
       ))}
 
+      {series ? <SeriesLinks series={series} /> : null}
+
       {previous || next ? (
         <nav className="post-nav" aria-label="Adjacent posts">
           <div>
             {next ? (
               <Link to={`/posts/${next.slug}`} rel="prev">
-                <span className="post-nav__label">Newer</span>
+                <span className="post-nav__label">Newer post</span>
                 {next.title}
               </Link>
             ) : null}
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div className="post-nav__end">
             {previous ? (
               <Link to={`/posts/${previous.slug}`} rel="next">
-                <span className="post-nav__label">Older</span>
+                <span className="post-nav__label">Older post</span>
                 {previous.title}
               </Link>
             ) : null}

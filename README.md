@@ -52,6 +52,8 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
 featured: false # pins the post to the top of the index
+series: Running this blog # optional; groups multi-part posts
+part: 1 # optional; position within the series
 revisions: # optional history; see below
   - date: 2026-01-12
     note: What changed, in a line.
@@ -75,6 +77,13 @@ entry without a date is dropped and one without a note shows the date alone.
 Leave `updated` out and it falls back to the newest revision, which is the date
 the header, the Atom feed and the sitemap already use; set it and that wins.
 There is still one `updated` in the data, so nothing downstream changes.
+
+Posts meant to be read in order share a `series` name. The parts are listed at
+the top of each one with the current part marked, and previous/next links sit
+above the newer/older pair at the foot — those mean different things, the
+archive's order against the author's. Without `part` the parts fall into date
+order; number some and not others and the numbered ones come first, so a
+half-numbered series still reads sensibly.
 
 `featured: true` pins a post to the top of the index and marks its card. Only
 the index is reordered — the feed, the archive, the tag pages and the
@@ -319,6 +328,21 @@ button that copies the canonical URL. They are ordinary links built when the
 page is rendered: no share widget, no third-party script, and nothing that
 counts who clicked. Deleting `<ShareLinks post={post} />` from
 `src/pages/PostPage.tsx` removes them.
+
+## Print and PDF
+
+The share row carries a Print button, which opens the same dialog as a
+browser's Save as PDF. Before it opens, every collapsed `details` is expanded —
+a contents list or a citation folded shut prints as a blank line — and closed
+again afterwards. The listeners are on `window`, so Ctrl-P gets the same
+treatment as the button.
+
+What paper gets: no navigation, comments, share row or progress bar; the light
+palette whatever the reader chose or their system asks for; the target of every
+external link printed after it, while in-page links are left alone; the post's
+own URL under the title, since a printout has no address bar; and figures,
+tables, code blocks, the citation and the revision list kept from breaking
+across a page, with orphans and widows held at two lines.
 
 ## Typography
 

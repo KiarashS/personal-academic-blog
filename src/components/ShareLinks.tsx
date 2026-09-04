@@ -1,4 +1,5 @@
 import { CopyButton } from './CopyButton';
+import { PrintButton } from './PrintButton';
 import { shareTargets } from '../lib/share';
 import { canonicalUrl } from '../lib/urls';
 import type { Post } from '../lib/types';
@@ -39,6 +40,9 @@ export function ShareLinks({ post }: { post: Post }) {
             text={url}
             label="to the clipboard"
           />
+        </li>
+        <li>
+          <PrintButton />
         </li>
       </ul>
     </section>

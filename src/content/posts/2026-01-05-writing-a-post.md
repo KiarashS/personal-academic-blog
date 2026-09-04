@@ -5,6 +5,8 @@ authors: [you]
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
+series: Running this blog
+part: 1
 revisions:
   - date: 2026-01-12
     note: Added the section on files that belong to one post.
@@ -31,6 +33,8 @@ featured: false           # pins the post to the top of the index
 revisions:                # optional; see below
   - date: 2026-01-12
     note: What changed, in a line.
+series: Running this blog # optional; groups multi-part posts
+part: 1                   # optional; position within the series
 slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
 ---
@@ -107,6 +111,24 @@ Leaving `updated` out lets it fall back to the newest revision, which is what
 the header, the Atom feed and the sitemap use, so there is one date to maintain
 instead of two. Setting `updated` explicitly overrides that. This post has a
 history; that is where its "updated" date comes from.
+
+## Series
+
+Two or more posts that are meant to be read in order share a `series` name:
+
+```yaml
+series: Running this blog
+part: 1
+```
+
+The parts are listed at the top of each post with the current one marked, and
+previous/next links appear above the newer/older pair at the foot. Those two
+mean different things: newer and older are the archive's order, previous and
+next in a series are the author's. This post is part 1 of two.
+
+Leave `part` out and the parts fall into date order. Number some but not all
+and the numbered ones come first, so a half-numbered series still reads in a
+sensible order rather than interleaving.
 
 ## Featured posts
 

@@ -1,4 +1,4 @@
-import { selectPosts, todayUtc } from './post-builder';
+import { selectPosts, seriesParts, todayUtc } from './post-builder';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
 import type { Post, PostMeta } from './types';
@@ -66,6 +66,37 @@ export function tagCounts(): TagCount[] {
   return [...counts.values()].sort((a, b) =>
     b.count === a.count ? a.tag.localeCompare(b.tag) : b.count - a.count,
   );
+}
+
+export interface Series {
+  name: string;
+  parts: Post[];
+  /** Where this post sits, counting from 1. */
+  position: number;
+  previous?: Post;
+  next?: Post;
+}
+
+/**
+ * The series a post belongs to, in reading order. Multi-part work is read
+ * forwards, which is the opposite of what the newer/older links at the foot of
+ * a post offer, so it needs its own navigation rather than a relabelling.
+ */
+export function seriesFor(slug: string): Series | undefined {
+  const post = postsBySlug.get(slug);
+  if (!post?.series) return undefined;
+
+  const parts = seriesParts(posts, post.series);
+  const index = parts.findIndex((candidate) => candidate.slug === slug);
+  if (index === -1) return undefined;
+
+  return {
+    name: post.series,
+    parts,
+    position: index + 1,
+    previous: parts[index - 1],
+    next: parts[index + 1],
+  };
 }
 
 /** Adjacent posts in reverse-chronological order, for the post footer. */
