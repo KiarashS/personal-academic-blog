@@ -192,6 +192,16 @@ posts can each have a `plot.png` without colliding. The cost is that renaming a
 post's slug means renaming its folder; put anything shared between posts in
 `public/figures/` instead.
 
+An image whose file is wider than the text column is wrapped in a link to
+itself, so a click opens the original at full size in its own tab. The
+threshold is intrinsic width — 800px by default, against a column of about 610
+— so a picture the page can already show in full gets no link and no cursor
+change, and an SVG never gets one, since the page scales vectors losslessly on
+its own. With a `.dark` sibling each variant links to itself, so whichever one
+the reader can see is the one that opens. No lightbox, no library: middle-click,
+right-click-save and keyboard all behave as they should, and the page needs no
+JavaScript for any of it.
+
 Always write the path from the root, starting with `/`. Only then can the build
 measure the image, find a `.dark` sibling and add the base path — and links in
 prose, such as a PDF, get the base path the same way. `npm run links` fails the

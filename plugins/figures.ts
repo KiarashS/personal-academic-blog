@@ -8,6 +8,13 @@ export interface FigureOptions {
   publicDir: string;
   /** Deployment base path, prefixed onto root-relative sources. */
   base: string;
+  /**
+   * Intrinsic width, in pixels, from which an image is linked to its own file
+   * so a reader can see it at full size. Below it the link would open the same
+   * pixels the page is already showing. The default is comfortably wider than
+   * the text column.
+   */
+  fullSizeFrom?: number;
   onWarn?: (message: string) => void;
 }
 
@@ -23,6 +30,12 @@ function measure(file: string): Dimensions | undefined {
     return undefined;
   }
 }
+
+/**
+ * A vector image is already as sharp as the reader's screen allows, and zooming
+ * the page scales it losslessly, so linking it to itself buys nothing.
+ */
+const isVector = (src: string): boolean => /\.svg$/i.test(src);
 
 /** `plot.png` -> `plot.dark.png`, the convention for a dark-theme variant. */
 function darkSibling(src: string): string {
@@ -54,6 +67,24 @@ function img(src: string, alt: string, size: Dimensions | undefined, className?:
  */
 export function rehypeFigures(options: FigureOptions) {
   const base = options.base.replace(/\/$/, '');
+  const fullSizeFrom = options.fullSizeFrom ?? 800;
+
+  /**
+   * Wraps an image in a link to its own file. Each theme variant links to
+   * itself, so whichever one the reader can see is the one that opens, and it
+   * opens in its own tab rather than replacing the page being read.
+   */
+  const zoomable = (image: Element, href: string): Element => ({
+    type: 'element',
+    tagName: 'a',
+    properties: {
+      className: ['figure-zoom'],
+      href,
+      target: '_blank',
+      rel: ['noopener', 'noreferrer'],
+    },
+    children: [image],
+  });
 
   return (tree: Root) => {
     const walk = (node: Root | Element) => {
@@ -91,12 +122,20 @@ export function rehypeFigures(options: FigureOptions) {
         const dark = rootRelative && existsSync(join(options.publicDir, darkSibling(src)));
         const href = (path: string) => (rootRelative ? `${base}${path}` : path);
 
+        // Only worth offering when the file holds detail the column cannot
+        // show: a picture displayed at its own size has nothing more to give.
+        const zoom = !isVector(src) && (size?.width ?? 0) >= fullSizeFrom;
+        const link = (image: Element, path: string) => (zoom ? zoomable(image, href(path)) : image);
+
         const pictures: Element[] = dark
           ? [
-              img(href(src), alt, size, 'figure-image figure-image--light'),
-              img(href(darkSibling(src)), alt, size, 'figure-image figure-image--dark'),
+              link(img(href(src), alt, size, 'figure-image figure-image--light'), src),
+              link(
+                img(href(darkSibling(src)), alt, size, 'figure-image figure-image--dark'),
+                darkSibling(src),
+              ),
             ]
-          : [img(href(src), alt, size, 'figure-image')];
+          : [link(img(href(src), alt, size, 'figure-image'), src)];
 
         children[index] = {
           type: 'element',

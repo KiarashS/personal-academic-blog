@@ -418,6 +418,19 @@
   max-width: 100%;
 }
 
+/* An image whose file holds more detail than the column can show links to
+   itself. The cursor is the only chrome: the figure is still just a figure. */
+.prose .figure-zoom {
+  cursor: zoom-in;
+  display: inline-block;
+  line-height: 0;
+}
+
+.prose .figure-zoom:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* A dark-theme sibling, swapped the same way diagrams are. */
 .figure-image--dark {
   display: none;

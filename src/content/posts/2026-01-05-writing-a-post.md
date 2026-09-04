@@ -61,6 +61,15 @@ Which renders as:
 
 and a link to [the example attachment](/posts/writing-a-post/example.pdf).
 
+An image whose file is wider than the text column is linked to itself, so a
+click opens the original at full size in a new tab. The plot below is 1400px
+wide and the column is about 610, which is the difference between reading the
+axis and guessing at it. Images the column can already show in full get no
+link, and a diagram in SVG never gets one, since the page scales vectors on its
+own.
+
+![A damped oscillation, drawn wide](/posts/writing-a-post/wide-plot.png "Click it: the file is 1400px wide, the column is not. A `.dark` sibling means the dark theme gets its own version, and each one links to itself.")
+
 The folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
 served at `/posts/writing-a-post/diagram.svg` and lands next to the post's own
 `index.html` in the build. Deleting a post means deleting one folder, and two
