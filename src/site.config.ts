@@ -141,7 +141,8 @@ export const siteConfig: SiteConfig = {
     reactionsEnabled: true,
     lang: 'en',
   },
+  /**cloudflareToken: 4168dd00de054245af7717a2039aa20f*/
   analytics: {
-    cloudflareToken: '4168dd00de054245af7717a2039aa20f',
+    cloudflareToken: '',
   },
 };
