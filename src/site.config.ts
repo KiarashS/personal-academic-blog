@@ -136,7 +136,7 @@ export const siteConfig: SiteConfig = {
     repo: 'KiarashS/personal-academic-blog',
     repoId: 'R_kgDOUMUy0Q',
     category: 'Comments',
-    categoryId: 'DIC_kwDOUMUy0c4DE8eA',
+    categoryId: 'DIC_kwDOUMUy0c4DE8gX',
     mapping: 'pathname',
     reactionsEnabled: true,
     lang: 'en',
