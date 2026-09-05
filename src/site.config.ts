@@ -86,7 +86,7 @@ export const siteConfig: SiteConfig = {
   description: 'A personal research notebook: working notes, drafts and reading summaries.',
   // Origin only; the deployment's base path is added by `canonicalUrl`.
   // Canonical links, Open Graph tags, the feed and BibTeX are all built from it.
-  url: 'https://kiarashs.github.io',
+  url: 'https://blog.kiarashs.ir',
   // Low on purpose while the archive is small, so the pagination is visible
   // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
