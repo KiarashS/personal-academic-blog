@@ -142,6 +142,6 @@ export const siteConfig: SiteConfig = {
     lang: 'en',
   },
   analytics: {
-    cloudflareToken: '',
+    cloudflareToken: '4168dd00de054245af7717a2039aa20f',
   },
 };
