@@ -5,6 +5,11 @@ export interface Author {
   affiliation?: string;
   role?: string;
   bio?: string;
+  /**
+   * Subjects the author works on, in their own words. The bio says it in prose;
+   * this is the keyword form a reader scans, so keep the entries short.
+   */
+  interests?: string[];
   email?: string;
   /** A path under `public/`, or a URL if it lives somewhere else. */
   cv?: string;

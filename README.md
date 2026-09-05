@@ -327,9 +327,23 @@ comment iframe all follow.
 ## Authors
 
 `src/content/authors.ts` holds the author records: name, role, affiliation,
-short bio, email and profile links. Posts reference authors by id, and each
+short bio, research interests, email and profile links. Posts reference authors by id, and each
 author gets a page at `/authors/<id>` listing their posts. An id with no record
 still renders a byline, so a typo degrades rather than disappears.
+
+`interests` is optional and takes a list of short phrases, rendered as one
+muted line under the bio on every post the author has written and on their own
+page:
+
+```ts
+interests: ['Machine learning for clinical data', 'Causal inference'],
+```
+
+The bio says what someone works on in prose; this is the keyword form a reader
+scans, so it wants three or four entries rather than a paragraph's worth. Blank
+entries are dropped, so a trailing comma in the list costs nothing. An author
+with no bio but with interests gets them as the meta description on their page,
+which reads better in a search result than "Posts by X."
 
 An author's CV comes first in that row, from `cv:` on the record — a path
 under `public/` such as `/cv.pdf`, or a URL if it is hosted elsewhere. After it

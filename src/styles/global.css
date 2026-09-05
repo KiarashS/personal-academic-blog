@@ -518,6 +518,21 @@ mark {
   margin: 0.5rem 0 0.6rem;
 }
 
+/* Metadata, not prose: the bio above it is a sentence, this is a scannable
+   line, so it takes the muted colour the other meta rows use. */
+.author-card__interests {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.author-card__label {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .author-links {
   display: flex;
   flex-wrap: wrap;

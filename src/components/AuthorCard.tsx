@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { profileLinks } from '../lib/profiles';
+import { profileLinks, researchInterests } from '../lib/profiles';
 import type { Author } from '../lib/types';
 
 interface AuthorCardProps {
@@ -12,6 +12,7 @@ interface AuthorCardProps {
 export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: AuthorCardProps) {
   const Heading = headingLevel;
   const links = profileLinks(author);
+  const interests = researchInterests(author);
 
   return (
     <section className="author-card">
@@ -22,6 +23,11 @@ export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: Aut
         <p className="meta">{[author.role, author.affiliation].filter(Boolean).join(', ')}</p>
       ) : null}
       {author.bio ? <p className="author-card__bio">{author.bio}</p> : null}
+      {interests.length > 0 ? (
+        <p className="author-card__interests">
+          <span className="author-card__label">Research interests:</span> {interests.join(', ')}
+        </p>
+      ) : null}
       {links.length > 0 ? (
         <ul className="author-links" aria-label={`${author.name}: profiles and contact`}>
           {links.map((link) => (

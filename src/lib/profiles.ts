@@ -1,6 +1,14 @@
 import { withBase } from './urls';
 import type { Author, ProfileKey } from './types';
 
+/**
+ * An author's research interests, trimmed and with the blanks dropped, so a
+ * trailing comma in the record does not render an empty entry.
+ */
+export function researchInterests(author: Author): string[] {
+  return (author.interests ?? []).map((interest) => interest.trim()).filter(Boolean);
+}
+
 export interface ProfileLink {
   key: ProfileKey | 'cv' | 'email';
   label: string;

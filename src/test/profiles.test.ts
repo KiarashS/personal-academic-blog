@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { profileLinks } from '../lib/profiles';
+import { profileLinks, researchInterests } from '../lib/profiles';
 import type { Author } from '../lib/types';
 
 const author = (overrides: Partial<Author> = {}): Author => ({
@@ -96,5 +96,25 @@ describe('profileLinks', () => {
 
   it('is empty for an author with nothing to link to', () => {
     expect(profileLinks(author())).toEqual([]);
+  });
+});
+
+describe('researchInterests', () => {
+  it('keeps the order the record lists them in', () => {
+    expect(researchInterests(author({ interests: ['Causal inference', 'Clinical NLP'] }))).toEqual([
+      'Causal inference',
+      'Clinical NLP',
+    ]);
+  });
+
+  it('trims each entry and drops the blanks a trailing comma leaves', () => {
+    expect(researchInterests(author({ interests: ['  Bayesian statistics ', '', '   '] }))).toEqual(
+      ['Bayesian statistics'],
+    );
+  });
+
+  it('is empty for an author who lists none', () => {
+    expect(researchInterests(author())).toEqual([]);
+    expect(researchInterests(author({ interests: [] }))).toEqual([]);
   });
 });

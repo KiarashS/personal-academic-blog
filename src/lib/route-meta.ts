@@ -1,5 +1,6 @@
 import { siteConfig } from '../site.config';
 import { authors } from '../content/authors';
+import { researchInterests } from './profiles';
 import { allCategories, categoriesEnabled, getCategory, postsInCategory } from './categories';
 import { displayTag, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
@@ -73,10 +74,14 @@ export function metaFor(pathname: string): RouteMeta {
   if (segments[0] === 'authors' && segments[1]) {
     const author = authors[segments[1]];
     if (author) {
-      return {
-        title: withSuffix(author.name),
-        description: author.bio ?? `Posts by ${author.name}.`,
-      };
+      // Interests stand in for a bio the record does not have: a search result
+      // saying what someone works on beats one saying only that they write.
+      const interests = researchInterests(author);
+      const fallback =
+        interests.length > 0
+          ? `${author.name} works on ${interests.join(', ')}.`
+          : `Posts by ${author.name}.`;
+      return { title: withSuffix(author.name), description: author.bio ?? fallback };
     }
   }
 

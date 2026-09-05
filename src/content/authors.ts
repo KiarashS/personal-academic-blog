@@ -14,6 +14,8 @@ export const authors: Record<string, Author> = {
     role: 'Your role',
     affiliation: 'Your department, your institution',
     bio: 'One or two sentences about what you work on. This appears under every post you write and on your author page.',
+    // The keyword form of the bio, shown as one line under it. Optional.
+    // interests: ['Machine learning for clinical data', 'Causal inference', 'Bayesian statistics'],
     // email: 'you@example.edu',
     // cv: '/cv.pdf',                        // a file in public/, or a URL
     // Either the bare id a service uses or a full URL — both work.
@@ -37,6 +39,7 @@ export const authors: Record<string, Author> = {
     role: 'Your role',
     affiliation: 'Their department, their institution',
     bio: 'Posts can list several authors. Each one gets a byline, a card at the foot of the post, and a page listing what they have written.',
+    interests: ['Their first subject', 'Their second'],
     links: {},
   },
 };
