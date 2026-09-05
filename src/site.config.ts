@@ -134,9 +134,9 @@ export const siteConfig: SiteConfig = {
   ],
   giscus: {
     repo: 'KiarashS/personal-academic-blog',
-    repoId: '',
+    repoId: 'R_kgDOUMUy0Q',
     category: 'Comments',
-    categoryId: '',
+    categoryId: 'DIC_kwDOUMUy0c4DE8eA',
     mapping: 'pathname',
     reactionsEnabled: true,
     lang: 'en',
