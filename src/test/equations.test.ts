@@ -39,6 +39,15 @@ describe('rehypeEquations', () => {
     expect(html).not.toContain('\\label');
   });
 
+  it('wraps the whole block, not the code inside it', () => {
+    // remark-math emits `pre > code.math-display` and rehype-katex replaces the
+    // `pre`. A wrapper inside it survives as an empty `pre` that the code-block
+    // plugin then dresses in a copy button.
+    const html = render('$$\nx = 1\n\\label{one}\n$$');
+    expect(html).toContain('<div class="equation" id="eq-one"><pre>');
+    expect(html).not.toContain('<pre><div class="equation"');
+  });
+
   it('leaves an unlabelled equation unnumbered', () => {
     const html = render('$$\nx = 1\n$$');
     expect(html).not.toContain('\\tag');

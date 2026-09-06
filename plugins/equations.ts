@@ -25,8 +25,22 @@ function classesOf(node: Element): string[] {
   return list.filter(Boolean);
 }
 
-const isDisplayMath = (node: RootContent): node is Element =>
+const isDisplayMath = (node: RootContent): boolean =>
   isElement(node) && classesOf(node).includes('math-display');
+
+/**
+ * The element holding the TeX of a display equation, given the block it sits
+ * in. remark-math emits block math as `pre > code.math-display`, and
+ * rehype-katex replaces the whole `pre` when it renders it — so the block to
+ * wrap is the `pre`, and the TeX to rewrite is the `code` inside it. Anything
+ * put between the two is left behind for the code-block plugin to find, which
+ * dresses the equation in a copy button.
+ */
+function displayMathIn(block: Element): Element | undefined {
+  if (isDisplayMath(block)) return block;
+  if (block.tagName !== 'pre') return undefined;
+  return block.children.find((child): child is Element => isDisplayMath(child));
+}
 
 /** The id an equation is reachable at, and what `\eqref` points to. */
 export const equationId = (key: string): string =>
@@ -76,10 +90,12 @@ export function rehypeEquations(options: EquationOptions = {}) {
       const children = 'children' in parent ? parent.children : [];
 
       for (let index = 0; index < children.length; index += 1) {
-        const node = children[index];
-        if (!isElement(node)) continue;
-        if (!isDisplayMath(node)) {
-          number(node);
+        const block = children[index];
+        if (!isElement(block)) continue;
+
+        const node = displayMathIn(block);
+        if (!node) {
+          number(block);
           continue;
         }
 
@@ -100,13 +116,13 @@ export function rehypeEquations(options: EquationOptions = {}) {
         count += 1;
         numbers.set(key, count);
         node.children = [{ type: 'text', value: numbered(tex, count) }];
-        // The id goes on a wrapper, not on the math itself: rehype-katex
-        // replaces the element it renders, and the id would go with it.
+        // The id goes on a wrapper outside the block, not on the math itself:
+        // rehype-katex replaces what it renders, and the id would go with it.
         children[index] = {
           type: 'element',
           tagName: 'div',
           properties: { className: ['equation'], id: equationId(key) },
-          children: [node],
+          children: [block],
         };
       }
     };

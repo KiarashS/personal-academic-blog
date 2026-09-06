@@ -354,6 +354,10 @@ video {
 
 /* Tags -------------------------------------------------------------------- */
 
+/* Scoped to the list rather than left as a bare `.tag`: KaTeX before 0.18 named
+   the number on a tagged equation `.tag`, and an unscoped rule drew a chip
+   border around it. Mermaid still bundles that older KaTeX, so the scope is
+   still load-bearing. Every tag on this site comes from `TagList`. */
 .tag-list {
   display: flex;
   flex-wrap: wrap;
@@ -363,7 +367,7 @@ video {
   padding: 0;
 }
 
-.tag {
+.tag-list .tag {
   border: 1px solid var(--rule);
   border-radius: 999px;
   color: var(--text-muted);
@@ -374,12 +378,12 @@ video {
   white-space: nowrap;
 }
 
-.tag:hover {
+.tag-list .tag:hover {
   border-color: var(--rule-strong);
   color: var(--text);
 }
 
-.tag--active {
+.tag-list .tag--active {
   background: var(--bg-subtle);
   color: var(--text);
 }
