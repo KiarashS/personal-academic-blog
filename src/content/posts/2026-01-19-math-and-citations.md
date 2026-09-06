@@ -42,6 +42,29 @@ $$
 Strict mode is off and errors do not throw, so a malformed expression renders
 in red where it stands instead of blanking the page.
 
+## Numbering an equation
+
+Label a display equation and it gets a number; leave it unlabelled and it does
+not. Both of the equations above are unlabelled, which is why neither carries a
+number. This one is labelled:
+
+$$
+p(\theta \mid y) = \frac{p(y \mid \theta)\, p(\theta)}{p(y)}
+\label{bayes}
+$$
+
+Refer to it with `\eqref{bayes}` and the reference becomes a link to the
+equation carrying its number: substituting \eqref{bayes} into the likelihood is
+the usual first step. The numbers are assigned in document order at build time,
+so inserting an equation above this one renumbers everything below it and every
+reference follows. A label the post never refers to still gets its number, and a
+reference to a label that does not exist renders as `(?)` and warns during the
+build rather than failing it.
+
+Numbering only what is labelled is deliberate. A derivation that runs to fifteen
+display equations does not want fifteen numbers down its right margin when the
+prose refers to two of them.
+
 ## The paper behind a post
 
 A post that accompanies published work can say so in its frontmatter, and the

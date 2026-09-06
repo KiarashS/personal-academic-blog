@@ -3,6 +3,13 @@ import { toString } from 'hast-util-to-string';
 
 const HEADINGS = new Set(['h2', 'h3', 'h4']);
 
+/**
+ * remark-gfm opens its footnote section with `<h2 class="sr-only">Footnotes</h2>`.
+ * It is a landmark for a screen reader, not a section of the post, so it takes
+ * neither an anchor nor a line in the contents list.
+ */
+export const FOOTNOTE_HEADING = 'footnote-label';
+
 /** Two links of a chain, drawn rather than set in text so it scales cleanly. */
 function linkIcon(): Element {
   const path = (d: string): Element => ({
@@ -50,7 +57,7 @@ export function rehypeHeadingAnchors() {
         if (child.type !== 'element') continue;
         const id = typeof child.properties?.id === 'string' ? child.properties.id : '';
 
-        if (HEADINGS.has(child.tagName) && id) {
+        if (HEADINGS.has(child.tagName) && id && id !== FOOTNOTE_HEADING) {
           child.children.push({
             type: 'element',
             tagName: 'a',

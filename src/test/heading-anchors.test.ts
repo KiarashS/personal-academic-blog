@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
@@ -39,6 +40,22 @@ describe('rehypeHeadingAnchors', () => {
   it('anchors h2 to h4 and leaves h1 and h5 alone', () => {
     const html = render('# One\n\n## Two\n\n### Three\n\n#### Four\n\n##### Five');
     expect(html.match(/class="heading-anchor"/g)).toHaveLength(3);
+  });
+
+  it("leaves remark-gfm's hidden footnote heading alone", () => {
+    // It is a landmark for a screen reader, not a section anyone links to.
+    const html = String(
+      unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkRehype)
+        .use(rehypeSlug)
+        .use(rehypeHeadingAnchors)
+        .use(rehypeStringify)
+        .processSync('## Real section\n\nText.[^1]\n\n[^1]: A note.'),
+    );
+    expect(html).toContain('id="footnote-label"');
+    expect(html.match(/class="heading-anchor"/g)).toHaveLength(1);
   });
 
   it('skips a heading with no id to link to', () => {

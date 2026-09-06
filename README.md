@@ -131,6 +131,36 @@ JavaScript reaches the browser, only its stylesheet and fonts. Environments
 like `aligned` and `cases` work. Errors render in red rather than blanking the
 page.
 
+Display equations are numbered when they are labelled, and only then:
+
+```latex
+$$
+p(\theta \mid y) = \frac{p(y \mid \theta)\, p(\theta)}{p(y)}
+\label{bayes}
+$$
+```
+
+`\eqref{bayes}` in the prose then becomes a link showing that equation's
+number. Numbers are assigned in document order during the build, so inserting an
+equation renumbers what follows and every reference with it. A reference whose
+label does not exist renders as `(?)` and warns; two equations sharing a label
+warn as well, and references point at the first. `\label` is stripped before
+KaTeX sees the TeX, and the `\tag` that carries the number is appended after the
+body, which is where KaTeX needs it when the equation is a `\begin{aligned}`
+block. A `\eqref` inside code or inline math is left alone.
+
+Numbering only labelled equations keeps a fifteen-equation derivation from
+carrying fifteen numbers when the prose refers to two of them.
+
+### Footnotes
+
+GitHub-flavoured footnotes: `Text.[^1]` with `[^1]: The note.` anywhere in the
+file. They collect into a section at the foot of the post with a rule above it
+and a back-link on each note. remark-gfm heads that section with a
+screen-reader-only "Footnotes" landmark, which stays out of the contents list
+and takes no heading anchor, so a post with two sections and a footnote does not
+get a contents list claiming three.
+
 ### Citations
 
 Write `[@key]` and it resolves against `src/content/references.bib` at build
@@ -629,10 +659,29 @@ links, Open Graph tags, the feed and the BibTeX entries are all built from it.
 Off by default: with no token the script tag is absent from the built HTML, and
 the site talks to no one but its own host.
 
-To turn it on, create a site at <https://dash.cloudflare.com> under Analytics &
-Logs → Web Analytics and paste the token from the snippet it hands you into
-`analytics.cloudflareToken` in `src/site.config.ts`. The prerenderer then writes
-one deferred script from `static.cloudflareinsights.com` into each page's head.
+How you turn it on depends on how the domain is served, and the two ways do not
+mix.
+
+A domain proxied through Cloudflare, which is what `blog.kiarashs.ir` is, takes
+the automatic setup: enable Web Analytics for the zone at
+<https://dash.cloudflare.com> and the edge injects the beacon into every HTML
+response it proxies. `analytics.cloudflareToken` stays empty. The beacon then
+posts to `/cdn-cgi/rum` on the site's own origin, which the edge terminates, so
+nothing crosses an origin boundary.
+
+A domain that is not behind Cloudflare takes the manual snippet: add the site
+under Analytics & Logs → Web Analytics, and paste the token from the JS snippet
+it hands you into `analytics.cloudflareToken`. The prerenderer then writes one
+deferred script from `static.cloudflareinsights.com` into each page's head.
+
+Setting a token on a proxied domain is the combination to avoid. `beacon.min.js`
+picks its endpoint from whether the `data-cf-beacon` JSON carries a `version`
+field: the manual form has none, so it posts to the absolute
+`https://cloudflareinsights.com/cdn-cgi/rum` instead of the relative path. That
+URL answers 404 with no `Access-Control-Allow-Origin` header, and a browser
+reports a response like that as an access-control failure rather than as a 404,
+so the console fills with CORS errors on every page load while nothing is
+collected.
 Cloudflare Web Analytics sets no cookies and builds no cross-site identifier, so
 it needs no consent banner; it reports page views, referrers and countries,
 which covers popular posts and where readers come from. The site works

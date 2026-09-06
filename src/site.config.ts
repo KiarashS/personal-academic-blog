@@ -71,10 +71,18 @@ export interface SiteConfig {
    */
   giscus: GiscusConfig;
   /**
-   * Cloudflare Web Analytics: no cookies, no cross-site identifiers, and
-   * nothing to configure beyond the token. Create a site at
-   * https://dash.cloudflare.com under Analytics & Logs → Web Analytics and
-   * paste the token from the snippet it gives you.
+   * Cloudflare Web Analytics: no cookies and no cross-site identifiers.
+   *
+   * Which setup applies depends on how the domain is served. A domain proxied
+   * through Cloudflare wants the automatic setup: enable Web Analytics for the
+   * zone and the edge injects the beacon itself, so the token stays empty here.
+   * A domain that is not behind Cloudflare wants the manual snippet, and its
+   * token goes below.
+   *
+   * Setting a token on a proxied domain is the one combination that fails, and
+   * it fails loudly: the manual beacon posts cross-origin to
+   * cloudflareinsights.com, which answers 404 with no CORS header, so every
+   * page load reports an access-control error in the console.
    */
   analytics: AnalyticsConfig;
 }
@@ -141,8 +149,10 @@ export const siteConfig: SiteConfig = {
     reactionsEnabled: true,
     lang: 'en',
   },
-  /**cloudflareToken: 4168dd00de054245af7717a2039aa20f*/
   analytics: {
+    // Empty: blog.kiarashs.ir is proxied through Cloudflare, so the beacon is
+    // the zone's to inject. Enable Web Analytics for the zone rather than
+    // pasting a token here.
     cloudflareToken: '',
   },
 };

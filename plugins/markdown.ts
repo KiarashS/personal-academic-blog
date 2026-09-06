@@ -20,10 +20,11 @@ import type { Heading } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
 import { rehypeContentTweaks } from './content-tweaks';
-import { rehypeHeadingAnchors } from './heading-anchors';
+import { FOOTNOTE_HEADING, rehypeHeadingAnchors } from './heading-anchors';
 import { rehypeFigures } from './figures';
 import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
+import { rehypeEquations } from './equations';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -41,7 +42,9 @@ function collectHeadings() {
         if (child.type !== 'element') continue;
         const depth = child.tagName === 'h2' ? 2 : child.tagName === 'h3' ? 3 : 0;
         const id = typeof child.properties?.id === 'string' ? child.properties.id : '';
-        if (depth && id) headings.push({ id, text: toString(child), depth: depth });
+        if (depth && id && id !== FOOTNOTE_HEADING) {
+          headings.push({ id, text: toString(child), depth: depth });
+        }
         walk(child);
       }
     };
@@ -69,6 +72,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const compiled = new Map<string, Compiled>();
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
+  const equationWarnings = new Set<string>();
 
   const cellProcessor = unified()
     .use(remarkParse)
@@ -108,6 +112,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onMissing: (source) => missingDiagrams.add(source),
       })
       .use(rehypeHighlight, { detect: false, ignoreMissing: true })
+      // Before KaTeX: it numbers the labelled equations by rewriting their TeX,
+      // and KaTeX renders the `\tag` it leaves behind.
+      .use(rehypeEquations, { onWarn: (message: string) => equationWarnings.add(message) })
       .use(rehypeKatex, { strict: false, throwOnError: false })
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
@@ -147,6 +154,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       compiled.clear();
       missingDiagrams.clear();
       missingImages.clear();
+      equationWarnings.clear();
     },
 
     async transform(_code, id) {
@@ -221,6 +229,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
     buildEnd() {
       for (const message of missingImages) this.warn(message);
+      for (const message of equationWarnings) this.warn(message);
 
       if (missingDiagrams.size > 0) {
         this.warn(

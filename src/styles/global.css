@@ -724,7 +724,10 @@ mark {
   }
 }
 
-.visually-hidden {
+/* `.sr-only` is the name remark-gfm gives its hidden footnote heading; without
+   it that heading renders as a visible "Footnotes" line above the notes. */
+.visually-hidden,
+.sr-only {
   border: 0;
 
   /* `clip` is deprecated; `clip-path` is supported everywhere current. */
@@ -1311,6 +1314,56 @@ mark {
 
 .route-error p {
   color: var(--text-muted);
+}
+
+/* Footnotes and equation references --------------------------------------- */
+
+/* remark-gfm collects the notes into a section of its own at the foot of the
+   post. Its heading is hidden, so a rule does the work of announcing them. */
+.prose .footnotes {
+  border-top: 1px solid var(--rule);
+  font-size: 0.92rem;
+  margin-top: 2.75rem;
+  padding-top: 1rem;
+}
+
+.prose .footnotes ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.prose .footnotes li {
+  margin: 0.4rem 0;
+}
+
+.prose .footnotes li p {
+  margin: 0;
+}
+
+/* The back-link closes the note, so it needs air between it and the full stop. */
+.data-footnote-backref {
+  margin-left: 0.35rem;
+  text-decoration: none;
+}
+
+/* Jumping to a note or an equation should not put it against the top edge. */
+.prose .footnotes li,
+.prose .equation {
+  scroll-margin-top: 1.5rem;
+}
+
+/* Arriving from a reference, the target says so for a moment: with several
+   equations on screen the number alone does not tell you which one you got. */
+.prose .footnotes li:target,
+.prose .equation:target {
+  background: var(--mark);
+  border-radius: 4px;
+  box-shadow: 0 0 0 0.4rem var(--mark);
+}
+
+/* A number and its brackets never break across lines. */
+.eqref {
+  white-space: nowrap;
 }
 
 @media print {
