@@ -1446,7 +1446,7 @@ mark {
    the middle of the screen while `align-items: flex-start` still lines the
    portrait up with the top of the words rather than with their middle. */
 .banner {
-  align-items: flex-start;
+  align-items: center;
   animation: banner-in 0.5s ease 1 forwards;
   display: flex;
   flex-wrap: wrap;
@@ -1481,12 +1481,13 @@ mark {
 /* The rim is the container's own padding; the highlight below travels around
    it, and the picture sits on top covering everything inside. */
 
-/* Beside the name rather than centred on the whole column: centred, its middle
-   lands level with the link list, and the face belongs with the name. The
-   offset drops it from the line box top to roughly the cap line. */
+/* Centred against the words, not against the whole screen: the two blocks are
+   within a few pixels of the same height, so this reads as one row that starts
+   and ends together. Aligning the picture's top to the name's cap line instead
+   left it hanging 22px past the last line, because the picture is the taller
+   of the two. */
 .banner__avatar {
   aspect-ratio: 1;
-  margin-top: 0.95rem;
   background: var(--rule);
   border-radius: 50%;
   flex: 0 0 auto;
