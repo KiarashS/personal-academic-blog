@@ -61,6 +61,12 @@ export interface HomeConfig {
   signature: boolean;
   /** Degrees to tilt the signature, the way a signed page is never quite square. */
   signatureTilt: number;
+  /**
+   * A portrait beside the text, as a path under `public/` — `/avatar.jpg` — or
+   * a URL. It is cropped to a circle with a highlight that travels around the
+   * rim. Empty leaves the front page as words alone.
+   */
+  avatar: string;
 }
 
 export interface SiteConfig {
@@ -144,6 +150,7 @@ export const siteConfig: SiteConfig = {
     greeting: 'Hi, I am',
     signature: true,
     signatureTilt: -3,
+    avatar: '',
   },
   cv: '',
   categories: [

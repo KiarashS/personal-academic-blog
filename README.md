@@ -654,8 +654,16 @@ home: {
   greeting: 'Hi, I am',   // runs into your name; empty for no lead-in
   signature: true,        // draw src/content/signature.svg in place of the name
   signatureTilt: -3,      // degrees, the way a signed page is never square
+  avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
 },
 ```
+
+`avatar` takes a path under `public/` or a URL. Put the file in `public/` and
+name it here, and it is cropped to a circle beside the words, with one bright
+arc travelling around the rim every six seconds. It takes the room the text
+leaves, between 7rem and 13rem, and below 46rem it moves above the text, which
+is the order a profile reads in. Reduced motion keeps the rim and stops the
+highlight. Leave it empty and the front page is words alone.
 
 The signature writes itself: a vertical front sweeps left to right over 2.6s and
 each letter's clip rectangle opens as it passes, then the flourish underneath

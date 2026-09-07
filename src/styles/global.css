@@ -1427,12 +1427,90 @@ mark {
 }
 
 .banner {
+  align-items: center;
   animation: banner-in 0.5s ease 1 forwards;
   display: flex;
   flex: 1;
-  flex-direction: column;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
   padding: 1rem 0;
+}
+
+/* The words take the room they need and the portrait takes what is left, so a
+   long tagline does not squeeze the picture into a coin. */
+.banner__text {
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+/* Below the point where both fit side by side, the portrait leads and the
+   words follow, which is the order a profile reads in. */
+@media (width <= 46rem) {
+  .banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .banner__avatar {
+    order: -1;
+  }
+}
+
+/* The rim is the container's own padding; the highlight below travels around
+   it, and the picture sits on top covering everything inside. */
+.banner__avatar {
+  aspect-ratio: 1;
+  background: var(--rule);
+  border-radius: 50%;
+  flex: 0 0 auto;
+  isolation: isolate;
+  padding: 3px;
+  position: relative;
+  width: clamp(7rem, 17vw, 13rem);
+}
+
+/* One bright arc on an otherwise transparent cone, turned slowly: a highlight
+   moving around the rim rather than a border that blinks. */
+.banner__avatar::before {
+  animation: avatar-shine 6s linear infinite;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 280deg,
+    var(--accent) 330deg,
+    transparent 360deg
+  );
+  border-radius: 50%;
+  content: '';
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+@keyframes avatar-shine {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* A reader who asks for less motion keeps the rim, without the travelling
+   highlight going round behind their reading. */
+@media (prefers-reduced-motion: reduce) {
+  .banner__avatar::before {
+    animation: none;
+    background: var(--accent);
+    opacity: 0.35;
+  }
+}
+
+.banner__avatar-image {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
 }
 
 @keyframes banner-in {
@@ -1468,7 +1546,7 @@ mark {
    lands on the same line as "Hi, I am" at every size, and the flourish, which
    the SVG draws past the box, hangs below it. */
 .banner__signature {
-  --signature-width: 145px;
+  --signature-width: 128px;
 
   cursor: pointer;
   display: inline-block;
@@ -1480,19 +1558,19 @@ mark {
 
 @media (width >= 768px) {
   .banner__signature {
-    --signature-width: 152px;
+    --signature-width: 134px;
   }
 }
 
 @media (width >= 1024px) {
   .banner__signature {
-    --signature-width: 160px;
+    --signature-width: 141px;
   }
 }
 
 @media (width >= 1280px) {
   .banner__signature {
-    --signature-width: 200px;
+    --signature-width: 176px;
   }
 }
 
