@@ -1,5 +1,5 @@
 export type ShortcutAction =
-  'search' | 'next' | 'previous' | 'followPrev' | 'followNext' | 'theme' | 'help';
+  'search' | 'next' | 'previous' | 'followPrev' | 'followNext' | 'blog' | 'theme' | 'help';
 
 export interface Shortcut {
   /** As it is printed in the help dialog. */
@@ -15,6 +15,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'k', action: 'previous', description: 'Previous post in the list' },
   { keys: '[', action: 'followPrev', description: 'Previous page, or the newer post' },
   { keys: ']', action: 'followNext', description: 'Next page, or the older post' },
+  { keys: 'b', action: 'blog', description: 'Back to the blog index' },
   { keys: 't', action: 'theme', description: 'Cycle light, dark and system theme' },
   { keys: '?', action: 'help', description: 'Show this list' },
 ];

@@ -66,15 +66,20 @@ export function KeyboardShortcuts() {
    */
   const pending = useRef<1 | -1 | null>(null);
 
+  /** Trailing slashes are noise here: `/blog/` and `/blog` are the same page. */
+  const atIndex = useCallback(
+    () => pathname.replace(/\/+$/, '') === blogIndexPath().replace(/\/+$/, ''),
+    [pathname],
+  );
+
   const move = useCallback(
     (by: 1 | -1) => {
       if (focusPost(by)) return;
-      const index = blogIndexPath();
-      if (pathname.replace(/\/+$/, '') === index.replace(/\/+$/, '')) return;
+      if (atIndex()) return;
       pending.current = by;
-      void navigate(index);
+      void navigate(blogIndexPath());
     },
-    [focusPost, navigate, pathname],
+    [atIndex, focusPost, navigate],
   );
 
   useEffect(() => {
@@ -109,6 +114,11 @@ export function KeyboardShortcuts() {
           // own handler is what keeps the navigation client-side.
           document.querySelector<HTMLAnchorElement>(RELATION[action])?.click();
           return;
+        case 'blog':
+          // A later page of the index is a path of its own, so `b` there goes
+          // back to the first page; on the first page there is nowhere to go.
+          if (!atIndex()) void navigate(blogIndexPath());
+          return;
         case 'theme':
           return cycle();
         case 'help':
@@ -118,7 +128,7 @@ export function KeyboardShortcuts() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [cycle, move, navigate, open, pathname]);
+  }, [atIndex, cycle, move, navigate, open, pathname]);
 
   return (
     <>

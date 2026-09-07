@@ -8,6 +8,11 @@ describe('actionFor', () => {
     }
   });
 
+  it('gives each key one meaning', () => {
+    const keys = SHORTCUTS.map((shortcut) => shortcut.keys);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
   it('ignores a key that is not a shortcut', () => {
     expect(actionFor({ key: 'q' })).toBeUndefined();
     expect(actionFor({ key: 'Enter' })).toBeUndefined();

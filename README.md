@@ -443,7 +443,8 @@ discovery alone reaches nobody who is not already looking.
 ## Keyboard shortcuts
 
 `/` search, `j` and `k` through a list of posts, `[` and `]` for previous and
-next, `t` to cycle the theme, `?` for the list itself.
+next, `b` back to the blog index, `t` to cycle the theme, `?` for the list
+itself.
 
 `j` and `k` move focus down and up a list, and from a page that has no list —
 the front page, a post — they go to the blog index and land on its first or
@@ -452,7 +453,8 @@ of the index, the newer or older post at the foot of a post, or the neighbouring
 part when the post belongs to a series, which wins because it is the more
 deliberate ordering. They work by following `rel="prev"` and `rel="next"` in the
 markup rather than by knowing what page they are on, so a new kind of
-previous/next link is picked up by saying so in its HTML.
+previous/next link is picked up by saying so in its HTML. `b` goes to the blog
+index from anywhere, and from page four of it to page one.
 
 The list is also a button in the footer, so nobody has to know
 a shortcut to find the shortcuts; it closes on Escape, on Close, or on a click
