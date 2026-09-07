@@ -150,7 +150,7 @@ export const siteConfig: SiteConfig = {
     greeting: 'Hi, I am',
     signature: true,
     signatureTilt: -3,
-    avatar: '',
+    avatar: '/avatar.jpg',
   },
   cv: '',
   categories: [
