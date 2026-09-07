@@ -155,7 +155,7 @@ export const siteConfig: SiteConfig = {
   owner: 'you',
   home: {
     greeting: 'Hi, I am',
-    tagline: '',
+    tagline: 'A curious mind working on AI for health',
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
