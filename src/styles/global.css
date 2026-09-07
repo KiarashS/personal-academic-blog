@@ -272,59 +272,65 @@ video {
 .mobile-nav__toggle {
   background: none;
   border: 0;
-  color: var(--text-muted);
+  color: var(--text);
   cursor: pointer;
   display: none;
+  height: 2rem;
   line-height: 0;
-  padding: 0.35rem;
+  padding: 0.25rem 0;
+  width: 2rem;
 }
 
-.mobile-nav__toggle:hover {
-  color: var(--text);
-}
-
-.mobile-nav__panel {
-  background: var(--bg);
-  border: 0;
-  color: var(--text);
+.mobile-nav__toggle svg {
   height: 100%;
-  margin: 0 0 0 auto;
-  max-height: none;
-  max-width: none;
-  padding: 4.5rem 2rem 2rem;
-  width: min(20rem, 85vw);
+  width: 100%;
 }
 
-.mobile-nav__panel::backdrop {
-  background: rgb(0 0 0 / 45%);
+/* The sheet is the width of the screen and starts where the header ends, so
+   the button stays above it and stays live: that is how it is closed again.
+   `visibility` rides the same transition, which keeps it out of the tab order
+   and off the scrollable area while it is parked to the right. */
+.mobile-nav__panel {
+  --mobile-nav-top: 4.5rem;
+
+  background: var(--bg);
+  inset: var(--mobile-nav-top) 0 0;
+  opacity: 0.95;
+  position: fixed;
+  transform: translateX(100%);
+  transition:
+    transform 300ms ease-in-out,
+    visibility 300ms ease-in-out;
+  visibility: hidden;
+  z-index: 10;
+}
+
+.mobile-nav__panel--open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav__panel {
+    transition: none;
+  }
 }
 
 .mobile-nav__panel nav {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  padding-top: 2rem;
 }
 
 .mobile-nav__panel a {
   color: var(--text);
   font-family: var(--sans);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 2rem;
+  padding: 1rem 3rem;
   text-decoration: none;
-}
-
-.mobile-nav__close {
-  background: none;
-  border: 0;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 1.75rem;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  position: absolute;
-  right: 1.25rem;
-  top: 1rem;
 }
 
 @media (width <= 40rem) {
