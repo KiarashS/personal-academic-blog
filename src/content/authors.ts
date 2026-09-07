@@ -40,6 +40,7 @@ export const authors: Record<string, Author> = {
     affiliation: 'Their department, their institution',
     bio: 'Posts can list several authors. Each one gets a byline, a card at the foot of the post, and a page listing what they have written.',
     interests: ['Their first subject', 'Their second'],
+    email: 'test@example.com'
     links: {},
   },
 };
