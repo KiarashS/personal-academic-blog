@@ -60,6 +60,19 @@ export interface HomeConfig {
    */
   tagline: string;
   /**
+   * What a link to the front page says about itself when it is shared: the
+   * Open Graph and search-result description. The site's `description` is about
+   * the writing, and the front page is about the person, so a preview built
+   * from it describes the wrong thing. Empty falls back to the site's.
+   */
+  description: string;
+  /**
+   * A row of profile links under the lines — ORCID, Google Scholar, GitHub,
+   * whatever the owner's record in `src/content/authors.ts` fills in, in the
+   * order `profileLinks` puts them. Off leaves the front page as words alone.
+   */
+  profileLinks: boolean;
+  /**
    * Draw `src/content/signature.svg` in place of the name. It is inlined
    * rather than loaded as an image so its ink follows the site's theme,
    * including a manual light/dark choice, which an `img` cannot. Off renders
@@ -156,6 +169,8 @@ export const siteConfig: SiteConfig = {
   home: {
     greeting: 'Hi, I am',
     tagline: 'A curious mind working on AI for health',
+    description: 'Kiarash Soleimanzadeh: a curious mind working on AI for health.',
+    profileLinks: true,
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',

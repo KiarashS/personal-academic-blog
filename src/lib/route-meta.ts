@@ -35,7 +35,13 @@ export function metaFor(pathname: string): RouteMeta {
   // The front page carries the site's own title, whether that page is the home
   // page or the blog index. `/blog` only exists when it is the latter's new
   // address, so it names itself.
-  if (path === '/') return { title: withSuffix(undefined), description: siteConfig.description };
+  if (path === '/') {
+    // With the home feature on, `/` is a page about the person and the site's
+    // own description is about the writing, so the front page keeps its own.
+    const description =
+      (isEnabled('home') && siteConfig.home.description) || siteConfig.description;
+    return { title: withSuffix(undefined), description };
+  }
   if (path === blogIndexPath()) {
     return { title: withSuffix('Blog'), description: siteConfig.description };
   }

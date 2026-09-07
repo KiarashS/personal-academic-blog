@@ -361,6 +361,12 @@ short bio, research interests, email and profile links. Posts reference authors 
 author gets a page at `/authors/<id>` listing their posts. An id with no record
 still renders a byline, so a typo degrades rather than disappears.
 
+Everything but `name` is optional, and a field that is missing is left out of
+the page rather than replaced with anything. That is why the record ships with
+those fields commented rather than filled with a description of themselves: an
+unedited `role: 'Your role'` is published under every post you write, while no
+`role` at all is simply a card with one less line on it.
+
 `interests` is optional and takes a list of short phrases, rendered as one
 muted line under the bio on every post the author has written and on their own
 page:
@@ -455,6 +461,12 @@ deliberate ordering. They work by following `rel="prev"` and `rel="next"` in the
 markup rather than by knowing what page they are on, so a new kind of
 previous/next link is picked up by saying so in its HTML. `b` goes to the blog
 index from anywhere, and from page four of it to page one.
+
+Escape leaves the search box for the results. The search page focuses its box
+on arrival, which is what a reader who came to type wants, but it also meant
+`j` and `k` typed letters and Tab was the only way out; now the keyboard route
+runs end to end — `/`, the query, Escape, then `j`, `k` and Enter. An empty box
+has nothing to move to, so Escape there is left to the browser.
 
 The list is also a button in the footer, so nobody has to know
 a shortcut to find the shortcuts; it closes on Escape, on Close, or on a click
@@ -666,6 +678,8 @@ screen.
 home: {
   greeting: 'Hi, I am',   // runs into your name; empty for no lead-in
   tagline: '',            // the line under the name; empty uses the site's
+  description: '',        // what a link to `/` previews as; empty uses the site's
+  profileLinks: true,     // ORCID, Scholar and the rest, under the lines
   signature: true,        // draw src/content/signature.svg in place of the name
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
@@ -676,6 +690,25 @@ home: {
 writing and sits under the site title in the header on every other page, and on
 the social card for the site's root; the front page usually wants to say
 something about you instead. Leave it empty and the two stay the same string.
+
+`home.description` is the same split one layer down, in the head rather than on
+the page: `siteConfig.description` is what the blog is, and a link to `/` shared
+anywhere previews a page about a person. Empty falls back to the site's.
+
+`home.profileLinks` puts a row of links under those sentences — ORCID, Google
+Scholar, GitHub, a CV, an email address, whatever the owner's record in
+`src/content/authors.ts` fills in, in the order `profileLinks` gives them. They
+are the same links the contact page and every author card show, from the same
+record, so an ORCID that changes changes once. Plain links rather than the
+bordered chips the author cards use: those sit under a post as one more block of
+furniture, and this row sits under two lines of light type at display size.
+
+The front page is also the one page that carries structured data: a schema.org
+`Person` with `sameAs` pointing at those same profiles, which is what connects a
+name in a search result to an ORCID iD. It is built in
+`src/lib/structured-data.ts` from the owner's record, so a field the record does
+not fill in is left out rather than published empty, and it appears on `/` only
+— a `Person` block on every route would claim each of them is one.
 
 `avatar` takes a path under `public/` or a URL. Put the file in `public/` and
 name it here, and it is cropped to a circle beside the words, with one bright

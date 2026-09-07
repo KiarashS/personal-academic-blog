@@ -24,6 +24,8 @@ const {
   postPath,
   postSlugFromPath,
   blogIndexPath,
+  structuredDataFor,
+  serialiseJsonLd,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -68,7 +70,7 @@ const analytics = siteConfig.analytics?.cloudflareToken
     `data-cf-beacon='${JSON.stringify({ token: siteConfig.analytics.cloudflareToken })}'></script>`
   : '';
 
-function head({ title, description, url, type, image, feed }) {
+function head({ title, description, url, type, image, feed, jsonLd }) {
   return (
     [
       `<title>${escapeXml(title)}</title>`,
@@ -99,6 +101,9 @@ function head({ title, description, url, type, image, feed }) {
       `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />`,
       `<meta name="twitter:title" content="${escapeXml(title)}" />`,
       `<meta name="twitter:description" content="${escapeXml(description)}" />`,
+      // Already escaped for a script body by `serialiseJsonLd`; the XML escape
+      // the meta tags use would turn the JSON into entities the parser rejects.
+      ...(jsonLd ? [`<script type="application/ld+json">${jsonLd}</script>`] : []),
     ].join('\n    ') +
     preload +
     analytics
@@ -116,9 +121,12 @@ function pageFor(route) {
   const tag = /^\/tags\/([^/]+)/.exec(route)?.[1];
   const category = /^\/categories\/([^/]+)/.exec(route)?.[1];
 
+  const data = structuredDataFor(route);
+
   return {
     ...metaFor(route),
     url: canonicalUrl(route),
+    jsonLd: data ? serialiseJsonLd(data) : undefined,
     type: post ? 'article' : 'website',
     image: post ? cardFor(post.slug) : cardFor('site'),
     feed: tag

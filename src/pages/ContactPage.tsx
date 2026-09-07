@@ -1,7 +1,5 @@
 import { Suspense, use } from 'react';
-import { authors } from '../content/authors';
-import { profileLinks } from '../lib/profiles';
-import { siteConfig } from '../site.config';
+import { profileLinks, siteOwner } from '../lib/profiles';
 import { RoutedHtml } from '../components/RoutedHtml';
 
 const load = () => import('../content/contact.md') as Promise<{ html: string }>;
@@ -19,7 +17,7 @@ function ContactBody() {
  * place rather than three.
  */
 export function ContactPage() {
-  const person = authors[siteConfig.owner] ?? Object.values(authors)[0];
+  const person = siteOwner();
   const links = person ? profileLinks(person) : [];
 
   return (

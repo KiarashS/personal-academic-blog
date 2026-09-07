@@ -2,7 +2,6 @@
 title: Home
 ---
 
-Technical articles in my professional life, [my blog](/blog)
+I write up the technical side of my work on [my blog](/blog).
 
-Read more [my profile](https://profile.kiarashs.ir), [about me](/about) or
-[contact me](/contact)
+More [about me](/about), or on [my profile](https://profile.kiarashs.ir).

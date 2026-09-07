@@ -1,5 +1,16 @@
+import { authors } from '../content/authors';
+import { siteConfig } from '../site.config';
 import { withBase } from './urls';
 import type { Author, ProfileKey } from './types';
+
+/**
+ * The author the site belongs to. `owner` naming a record that has since been
+ * renamed or removed would otherwise leave the contact page and the front page
+ * with nobody, so the first record stands in.
+ */
+export function siteOwner(): Author {
+  return authors[siteConfig.owner] ?? Object.values(authors)[0];
+}
 
 /**
  * An author's research interests, trimmed and with the blanks dropped, so a

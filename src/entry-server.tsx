@@ -12,6 +12,7 @@ export { siteConfig } from './site.config';
 export { canonicalUrl, withBase } from './lib/urls';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';
+export { serialiseJsonLd, structuredDataFor } from './lib/structured-data';
 
 /**
  * Renders one route to HTML. `prerenderToNodeStream` waits for suspended

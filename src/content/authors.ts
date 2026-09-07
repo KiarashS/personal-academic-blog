@@ -3,17 +3,20 @@ import type { Author } from '../lib/types';
 /**
  * Authors referenced by id in post frontmatter (`authors: [you]`).
  *
- * Everything here is placeholder text. Replace it with your own details
- * before publishing — these records are rendered on post pages, on author
- * pages, and in the BibTeX that readers copy.
+ * These records are rendered on post pages, on author pages, and in the BibTeX
+ * that readers copy, so an unfilled field is published verbatim. Every one but
+ * `name` is optional and is left out of the page when it is missing, which is
+ * why the ones below are commented rather than carrying a description of
+ * themselves.
  */
 export const authors: Record<string, Author> = {
   you: {
     id: 'you',
     name: 'Kiarash Soleimanzadeh',
-    role: 'Your role',
-    affiliation: 'Your department, your institution',
-    bio: 'One or two sentences about what you work on. This appears under every post you write and on your author page.',
+    // role: 'Research scientist',           // shown next to the affiliation
+    // affiliation: 'Your department, your institution',
+    // One or two sentences on what you work on, under every post you write.
+    // bio: '',
     // The keyword form of the bio, shown as one line under it. Optional.
     // interests: ['Machine learning for clinical data', 'Causal inference', 'Bayesian statistics'],
     // email: 'you@example.edu',

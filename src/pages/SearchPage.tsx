@@ -45,6 +45,24 @@ export function SearchPage() {
   // Derived rather than stored, so clearing the box needs no state update.
   const shown = typed ? hits : [];
 
+  /**
+   * Escape leaves the box for the results. The page focuses the box on arrival,
+   * which is right — a reader who came here came to type — but it also means
+   * `j` and `k` type letters instead of walking the list, and Tab was the only
+   * way out. Now the keyboard route is whole: `/`, the query, Escape, then the
+   * same j/k/Enter that work on every other list on the site.
+   *
+   * An empty box has no results to move to, so Escape there does what a search
+   * field normally does and clears nothing, leaving the key to the browser.
+   */
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Escape') return;
+    const first = document.querySelector<HTMLAnchorElement>('.post-list .post-card__title a');
+    if (!first) return;
+    event.preventDefault();
+    first.focus();
+  };
+
   return (
     <>
       <h1>Search</h1>
@@ -61,6 +79,7 @@ export function SearchPage() {
           placeholder={`Search ${posts.length} posts — title, tag, author, full text`}
           autoComplete="off"
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={onKeyDown}
         />
       </form>
 

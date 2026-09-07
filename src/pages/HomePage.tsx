@@ -2,6 +2,7 @@ import { Suspense, use } from 'react';
 import { Avatar } from '../components/Avatar';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { Signature } from '../components/Signature';
+import { profileLinks, siteOwner } from '../lib/profiles';
 import { siteConfig } from '../site.config';
 
 const load = () => import('../content/home.md') as Promise<{ html: string }>;
@@ -21,6 +22,9 @@ function HomeBody() {
  */
 export function HomePage() {
   const { greeting, signature: signed, avatar } = siteConfig.home;
+  // The same links the contact page and every author card show, from the same
+  // record: an ORCID that changes changes in one place.
+  const links = siteConfig.home.profileLinks ? profileLinks(siteOwner()) : [];
   // The front page speaks for the person; the header's tagline speaks for the
   // writing. They are the same line until this one is filled in.
   const tagline = siteConfig.home.tagline || siteConfig.tagline;
@@ -36,6 +40,22 @@ export function HomePage() {
         <Suspense fallback={<p className="empty">Loading…</p>}>
           <HomeBody />
         </Suspense>
+        {links.length > 0 ? (
+          <ul className="banner__links" aria-label={`${siteConfig.title}: profiles and contact`}>
+            {links.map((link) => (
+              <li key={link.key}>
+                <a
+                  href={link.href}
+                  {...(link.key === 'email'
+                    ? {}
+                    : { rel: 'me noopener noreferrer', target: '_blank' })}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
       {avatar ? <Avatar src={avatar} /> : null}
     </div>

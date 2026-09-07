@@ -1640,6 +1640,34 @@ mark {
   font-weight: 400;
 }
 
+/* Not the bordered chips the author cards use: those sit under a post as one
+   more block of furniture, while this row sits under two lines of 300-weight
+   type at display size, where eight boxes would be the loudest thing on an
+   otherwise quiet page. Plain links, spaced far enough apart to be tapped. */
+.banner__links {
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  gap: 0.35rem 1.1rem;
+  list-style: none;
+  margin: 1.3rem 0 0;
+  padding: 0;
+}
+
+.banner__links a {
+  color: var(--text-muted);
+  display: inline-block;
+  padding-block: 0.2rem;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+}
+
+.banner__links a:hover {
+  color: var(--text);
+  text-decoration-color: currentcolor;
+}
+
 /* Footnotes and equation references --------------------------------------- */
 
 /* remark-gfm collects the notes into a section of its own at the foot of the
