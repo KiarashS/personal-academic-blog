@@ -293,9 +293,12 @@ video {
 .mobile-nav__panel {
   --mobile-nav-top: 4.5rem;
 
-  background: var(--bg);
+  /* The transparency belongs to the background, not the element: `opacity`
+     applies to everything inside, so at 0.95 the nav labels were themselves
+     see-through and a post title behind them read straight through "Home". The
+     page still ghosts through, as the reference does; the words do not. */
+  background: color-mix(in srgb, var(--bg) 95%, transparent);
   inset: var(--mobile-nav-top) 0 0;
-  opacity: 0.95;
   position: fixed;
   transform: translateX(100%);
   transition:
