@@ -137,7 +137,7 @@ export const siteConfig: SiteConfig = {
     archive: true,
     categories: false,
     slides: false,
-    contact: true,
+    contact: false,
   },
   owner: 'you',
   home: {
