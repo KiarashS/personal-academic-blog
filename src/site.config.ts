@@ -131,7 +131,7 @@ export const siteConfig: SiteConfig = {
   features: {
     // Off: the blog is the whole site and its index is the front page. On: the
     // front page is the site's own and the blog moves to /blog. See the README.
-    home: false,
+    home: true,
     publications: false,
     archive: true,
     categories: false,
