@@ -1,6 +1,7 @@
 import { Suspense, use } from 'react';
 import { AuthorCard } from '../components/AuthorCard';
 import { authors } from '../content/authors';
+import { RoutedHtml } from '../components/RoutedHtml';
 
 const load = () => import('../content/about.md') as Promise<{ html: string }>;
 let promise: Promise<{ html: string }> | null = null;
@@ -8,7 +9,7 @@ let promise: Promise<{ html: string }> | null = null;
 function AboutBody() {
   promise ??= load();
   const { html } = use(promise);
-  return <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <RoutedHtml className="prose" html={html} />;
 }
 
 export function AboutPage() {

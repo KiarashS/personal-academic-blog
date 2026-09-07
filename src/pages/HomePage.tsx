@@ -1,4 +1,5 @@
 import { Suspense, use } from 'react';
+import { RoutedHtml } from '../components/RoutedHtml';
 import { Signature } from '../components/Signature';
 import { siteConfig } from '../site.config';
 
@@ -8,7 +9,7 @@ let promise: Promise<{ html: string }> | null = null;
 function HomeBody() {
   promise ??= load();
   const { html } = use(promise);
-  return <div className="banner__lines" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <RoutedHtml className="banner__lines" html={html} />;
 }
 
 /**

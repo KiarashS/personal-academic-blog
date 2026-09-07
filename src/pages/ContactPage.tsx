@@ -2,6 +2,7 @@ import { Suspense, use } from 'react';
 import { authors } from '../content/authors';
 import { profileLinks } from '../lib/profiles';
 import { siteConfig } from '../site.config';
+import { RoutedHtml } from '../components/RoutedHtml';
 
 const load = () => import('../content/contact.md') as Promise<{ html: string }>;
 let promise: Promise<{ html: string }> | null = null;
@@ -9,7 +10,7 @@ let promise: Promise<{ html: string }> | null = null;
 function ContactBody() {
   promise ??= load();
   const { html } = use(promise);
-  return <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <RoutedHtml className="prose" html={html} />;
 }
 
 /**

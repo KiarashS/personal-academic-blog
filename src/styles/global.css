@@ -1457,37 +1457,42 @@ mark {
   font-weight: 400;
 }
 
-/* Sized in pixels per breakpoint rather than in ems: the drawing has to keep
+/* Sized in pixels per breakpoint, as the original is: the drawing has to keep
    its own proportions, and a signature that scaled with the surrounding type
-   would wobble against it. The tilt is set inline, from the config. */
+   would wobble against it. The tilt is set inline, from the config.
+
+   The height is the box's own baseline rather than the drawing's full height:
+   0.2901 puts the glyphs on it, measured in the browser against the baseline of
+   the words beside them rather than derived from the viewBox alone. An inline-block with no line box of its own puts its
+   bottom margin edge on the text baseline, so with that height the signature
+   lands on the same line as "Hi, I am" at every size, and the flourish, which
+   the SVG draws past the box, hangs below it. */
 .banner__signature {
+  --signature-width: 145px;
+
   cursor: pointer;
   display: inline-block;
-  height: 35px;
+  height: calc(var(--signature-width) * 0.2901);
   margin-left: -4px;
-  vertical-align: -0.28em;
-  width: 145px;
+  vertical-align: baseline;
+  width: var(--signature-width);
 }
 
 @media (width >= 768px) {
   .banner__signature {
-    height: 37px;
-    width: 152px;
+    --signature-width: 152px;
   }
 }
 
 @media (width >= 1024px) {
   .banner__signature {
-    height: 40px;
-    width: 160px;
+    --signature-width: 160px;
   }
 }
 
 @media (width >= 1280px) {
   .banner__signature {
-    height: 55px;
-    vertical-align: -0.34em;
-    width: 200px;
+    --signature-width: 200px;
   }
 }
 
@@ -1512,8 +1517,8 @@ mark {
 /* Tighter than body copy. The page's 1.65 leading is set for reading a post at
    16px; at 24px it opens a gap wide enough to read as two separate lines. */
 .banner__tagline {
-  font-size: clamp(1.125rem, 0.9rem + 1vw, 1.5rem);
-  line-height: 1.35;
+  font-size: clamp(1.0625rem, 0.88rem + 0.8vw, 1.375rem);
+  line-height: 1.4;
   margin: 1rem 0 0.9rem;
   text-wrap: pretty;
 }

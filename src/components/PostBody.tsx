@@ -1,4 +1,6 @@
 import { use, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postHtml } from '../lib/post-content';
 import { useTheme } from './ThemeProvider';
 
@@ -11,6 +13,7 @@ export function PostBody({ slug }: { slug: string }) {
   const html = use(postHtml(slug));
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -44,7 +47,17 @@ export function PostBody({ slug }: { slug: string }) {
       // set, so the page behaves as the link says it will, and a modified click
       // (new tab, save) is left alone.
       const anchor = target.closest<HTMLAnchorElement>('.heading-anchor');
-      if (!anchor || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (!anchor || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        // Any other link in the prose: a plain anchor, because that is what
+        // Markdown produces. Routed rather than followed, so a cross-reference
+        // between posts does not reload the site.
+        const link = target.closest('a');
+        if (link && shouldRoute(link, event)) {
+          event.preventDefault();
+          void navigate(routerPath(link));
+        }
+        return;
+      }
 
       const id = anchor.getAttribute('href')?.slice(1) ?? '';
       if (!id) return;
@@ -62,7 +75,7 @@ export function PostBody({ slug }: { slug: string }) {
 
     container.addEventListener('click', onClick);
     return () => container.removeEventListener('click', onClick);
-  }, [html]);
+  }, [html, navigate]);
 
   // Only reached in development, or if `npm run diagrams` was not run: the
   // build normally inlines both light and dark SVG for every diagram.
