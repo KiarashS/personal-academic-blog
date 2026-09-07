@@ -9,6 +9,15 @@ import { blogIndexPath } from '../lib/routes';
 const POST_LINKS = '.post-list .post-card__title a, .archive-list a';
 
 /**
+ * Every "previous" and "next" on the site already says so in its markup: the
+ * pagination, the newer/older pair at the foot of a post, and the series links
+ * above them. Following the relation rather than a place means one pair of keys
+ * reads as the page's own sense of forward and back, and a series link wins
+ * over the adjacent post because it is rendered first.
+ */
+const RELATION = { followPrev: 'a[rel~="prev"]', followNext: 'a[rel~="next"]' } as const;
+
+/**
  * Keyboard shortcuts, and the dialog that documents them. The button is part of
  * the component so that the list has a way in that does not require knowing the
  * shortcut first.
@@ -94,6 +103,12 @@ export function KeyboardShortcuts() {
           return move(1);
         case 'previous':
           return move(-1);
+        case 'followPrev':
+        case 'followNext':
+          // Clicked rather than navigated to: these are router links, and their
+          // own handler is what keeps the navigation client-side.
+          document.querySelector<HTMLAnchorElement>(RELATION[action])?.click();
+          return;
         case 'theme':
           return cycle();
         case 'help':

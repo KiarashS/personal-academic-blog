@@ -442,8 +442,19 @@ discovery alone reaches nobody who is not already looking.
 
 ## Keyboard shortcuts
 
-`/` search, `j` and `k` through a list of posts, `t` to cycle the theme, `?` for
-the list itself. The list is also a button in the footer, so nobody has to know
+`/` search, `j` and `k` through a list of posts, `[` and `]` for previous and
+next, `t` to cycle the theme, `?` for the list itself.
+
+`j` and `k` move focus down and up a list, and from a page that has no list —
+the front page, a post — they go to the blog index and land on its first or
+last entry. `[` and `]` follow whatever the page calls previous and next: a page
+of the index, the newer or older post at the foot of a post, or the neighbouring
+part when the post belongs to a series, which wins because it is the more
+deliberate ordering. They work by following `rel="prev"` and `rel="next"` in the
+markup rather than by knowing what page they are on, so a new kind of
+previous/next link is picked up by saying so in its HTML.
+
+The list is also a button in the footer, so nobody has to know
 a shortcut to find the shortcuts; it closes on Escape, on Close, or on a click
 outside it. Keys are ignored while typing in a field, and
 any Ctrl, Cmd or Alt combination is left to the browser. Everything they do is

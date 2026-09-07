@@ -1,4 +1,5 @@
-export type ShortcutAction = 'search' | 'next' | 'previous' | 'theme' | 'help';
+export type ShortcutAction =
+  'search' | 'next' | 'previous' | 'followPrev' | 'followNext' | 'theme' | 'help';
 
 export interface Shortcut {
   /** As it is printed in the help dialog. */
@@ -12,6 +13,8 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: '/', action: 'search', description: 'Search the archive' },
   { keys: 'j', action: 'next', description: 'Next post in the list' },
   { keys: 'k', action: 'previous', description: 'Previous post in the list' },
+  { keys: '[', action: 'followPrev', description: 'Previous page, or the newer post' },
+  { keys: ']', action: 'followNext', description: 'Next page, or the older post' },
   { keys: 't', action: 'theme', description: 'Cycle light, dark and system theme' },
   { keys: '?', action: 'help', description: 'Show this list' },
 ];
