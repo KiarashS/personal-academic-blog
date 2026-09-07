@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
+import { looksLikeMissingChunk, recoverFromMissingChunk } from './lib/recover';
 import { ThemeProvider } from './components/ThemeProvider';
 import 'katex/dist/katex.min.css';
 import './styles/fonts.css';
@@ -22,21 +23,18 @@ const tree = (
 );
 
 /*
- * A deploy replaces every hashed chunk, so a tab left open across one asks for
- * files that are no longer there and the route it was navigating to fails to
- * load. Vite reports that as `vite:preloadError`; the page is reloaded once to
- * pick up the new build. The flag makes it once — if the chunk is missing for
- * some other reason, a reload loop would be worse than the error.
+ * A chunk that is no longer on the server, because a deploy replaced it while
+ * this tab was open. Vite reports the ones it preloads as `vite:preloadError`;
+ * a plain `import()` that the preload helper did not wrap surfaces instead as
+ * an unhandled rejection, so both are listened for. `RouteBoundary` calls the
+ * same recovery for anything that gets as far as a render.
  */
 window.addEventListener('vite:preloadError', () => {
-  const key = 'reloaded-after-preload-error';
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, '1');
-  window.location.reload();
+  void recoverFromMissingChunk();
 });
 
-window.addEventListener('load', () => {
-  window.setTimeout(() => sessionStorage.removeItem('reloaded-after-preload-error'), 5000);
+window.addEventListener('unhandledrejection', (event) => {
+  if (looksLikeMissingChunk(event.reason)) void recoverFromMissingChunk();
 });
 
 /*

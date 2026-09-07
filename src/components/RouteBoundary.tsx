@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import { looksLikeMissingChunk, recoverFromMissingChunk } from '../lib/recover';
 
 interface Props {
   children: ReactNode;
@@ -24,6 +25,10 @@ export class RouteBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('Route failed to render', error, info.componentStack);
+    // A missing chunk is a stale tab, not a broken page, so try to become the
+    // current build rather than sitting on an explanation the reader cannot act
+    // on. If the attempt has already been made, the message below stands.
+    if (looksLikeMissingChunk(error)) void recoverFromMissingChunk();
   }
 
   render(): ReactNode {
@@ -37,7 +42,13 @@ export class RouteBoundary extends Component<Props, State> {
           and fetches the rest when you are connected.
         </p>
         <p>
-          <button type="button" className="theme-toggle" onClick={() => window.location.reload()}>
+          <button
+            className="theme-toggle"
+            onClick={() => {
+              void recoverFromMissingChunk({ force: true });
+            }}
+            type="button"
+          >
             Try again
           </button>
         </p>

@@ -601,6 +601,26 @@ One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
 cannot prove the import is dead.
 
+## When a deploy lands under an open tab
+
+Every chunk is hashed, so a deploy replaces all of them. A tab that was open
+across one then asks for files that are gone, and GitHub Pages answers a missing
+asset with `404.html` — an HTML body where the browser expected a module. It
+refuses it, the route fails to render, and the reader gets "This page could not
+be loaded".
+
+`src/lib/recover.ts` catches that. Vite reports the chunks it preloads as
+`vite:preloadError`; a plain `import()` the preload helper did not wrap arrives
+instead as an unhandled rejection, and anything that gets as far as a render is
+caught by `RouteBoundary`. All three route to the same recovery, which
+unregisters the service worker and empties its caches before reloading. The
+clearing is the part that matters: the worker may still be serving the build
+that asked for those chunks, so a plain reload can fail exactly the same way.
+
+One attempt, then a minute's silence, so a chunk that is missing for some other
+reason cannot put the page in a reload loop. After that the message stands, and
+its button forces another attempt.
+
 ## A blog, or a site with a blog in it
 
 `home` decides which of the two this is, and it is the only switch involved.
