@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
 import { actionFor, isTyping, step, SHORTCUTS } from '../lib/shortcuts';
+import { blogIndexPath } from '../lib/routes';
 
 // The index, a tag page and the search results share the card markup; the
 // archive is a plainer list of the same thing.
@@ -39,13 +40,40 @@ export function KeyboardShortcuts() {
     if (!inside) event.currentTarget.close();
   }, []);
 
-  const move = useCallback((by: 1 | -1) => {
+  const focusPost = useCallback((by: 1 | -1) => {
     const links = [...document.querySelectorAll<HTMLAnchorElement>(POST_LINKS)];
     const next = links[step(links, links.indexOf(document.activeElement as HTMLAnchorElement), by)];
-    if (!next) return;
+    if (!next) return false;
     next.focus();
     next.scrollIntoView({ block: 'center', behavior: 'instant' });
+    return true;
   }, []);
+
+  /**
+   * Where to carry on from once the blog index has rendered. Pressing `j` on a
+   * page with no list — the front page, a post — takes the reader to the list
+   * and puts them on its first entry, rather than doing nothing at all. The
+   * front page used to be the list, so that is where the key is reached for.
+   */
+  const pending = useRef<1 | -1 | null>(null);
+
+  const move = useCallback(
+    (by: 1 | -1) => {
+      if (focusPost(by)) return;
+      const index = blogIndexPath();
+      if (pathname.replace(/\/+$/, '') === index.replace(/\/+$/, '')) return;
+      pending.current = by;
+      void navigate(index);
+    },
+    [focusPost, navigate, pathname],
+  );
+
+  useEffect(() => {
+    const by = pending.current;
+    if (by === null) return;
+    pending.current = null;
+    focusPost(by);
+  }, [focusPost, pathname]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
