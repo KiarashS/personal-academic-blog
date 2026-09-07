@@ -49,6 +49,19 @@ export interface Category {
   description?: string;
 }
 
+export interface HomeConfig {
+  /** Runs into the name: "Hi, I am" then whoever you are. Empty for no lead-in. */
+  greeting: string;
+  /**
+   * A signature drawn in place of the name, as a path under `public/` or a
+   * URL. An SVG holds up at display size; the name is used as its alt text.
+   * Empty renders the name as type.
+   */
+  signature: string;
+  /** Degrees to tilt the signature, the way a signed page is never quite square. */
+  signatureTilt: number;
+}
+
 export interface SiteConfig {
   title: string;
   /** Under a home-screen icon, where a full name will not fit. */
@@ -63,11 +76,13 @@ export interface SiteConfig {
    */
   features: Record<FeatureName, boolean>;
   /**
-   * The author whose name, interests and profile links lead the home page.
-   * An id from `src/content/authors.ts`; the first record is used if it names
-   * one that does not exist.
+   * The author this site belongs to, whose profile links the contact page is
+   * built from. An id from `src/content/authors.ts`; the first record is used
+   * if it names one that does not exist.
    */
   owner: string;
+  /** The front page, when the `home` feature is on. */
+  home: HomeConfig;
   /**
    * The shelves themselves. The `categories` feature flag switches them on and
    * off; an empty list here does the same, since there would be nothing to show.
@@ -124,6 +139,11 @@ export const siteConfig: SiteConfig = {
     contact: false,
   },
   owner: 'you',
+  home: {
+    greeting: 'Hi, I am',
+    signature: '',
+    signatureTilt: -3,
+  },
   cv: '',
   categories: [
     {

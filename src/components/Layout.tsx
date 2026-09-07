@@ -1,7 +1,7 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
-import { visibleNav } from '../lib/features';
+import { isEnabled, visibleNav } from '../lib/features';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
@@ -19,6 +19,10 @@ function ScrollToTop() {
 
 export function Layout() {
   const year = new Date().getFullYear();
+  // The front page carries the name at display size, so the header drops its
+  // own copy of it and the tagline and leaves the nav on its own.
+  const onHome = useLocation().pathname.replace(/\/+$/, '') === '';
+  const bare = isEnabled('home') && onHome;
 
   return (
     <div className="page">
@@ -28,12 +32,14 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="site-header">
+      <header className={`site-header${bare ? ' site-header--bare' : ''}`}>
         <div className="shell">
           <div className="site-header__inner">
-            <Link className="site-title" to="/">
-              {siteConfig.title}
-            </Link>
+            {bare ? null : (
+              <Link className="site-title" to="/">
+                {siteConfig.title}
+              </Link>
+            )}
             <nav className="site-nav" aria-label="Main">
               {visibleNav().map((item) => (
                 <NavLink key={item.to} to={item.to} end={item.to === '/'}>
@@ -45,11 +51,11 @@ export function Layout() {
               <ThemeToggle />
             </nav>
           </div>
-          <p className="site-tagline">{siteConfig.tagline}</p>
+          {bare ? null : <p className="site-tagline">{siteConfig.tagline}</p>}
         </div>
       </header>
 
-      <main className="site-main" id="main">
+      <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main">
         <div className="shell">
           <RouteBoundary>
             <Outlet />

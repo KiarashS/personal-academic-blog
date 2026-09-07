@@ -250,12 +250,15 @@ video {
   max-width: var(--measure);
 }
 
+/* Wraps: the nav grows by a whole entry every time a feature is switched on,
+   and eight of them do not fit a phone on one line. */
 .site-nav {
-  display: flex;
   align-items: center;
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
   font-family: var(--sans);
   font-size: 0.85rem;
+  gap: 0.5rem 1rem;
 }
 
 .site-nav a {
@@ -1322,34 +1325,81 @@ mark {
 
 /* Home page ---------------------------------------------------------------- */
 
-/* The name leads, then who and where, then the prose. No hero, no animation:
-   a reader arriving from a citation wants to know who this is. */
-.home__name {
-  margin-bottom: 0.25rem;
+/* On the front page the name is the page, so the header keeps only the nav and
+   lets it sit where the eye already is on the way down. */
+.site-header--bare {
+  border-bottom: 0;
 }
 
-.home__role {
-  margin-top: 0;
+.site-header--bare .site-header__inner {
+  justify-content: flex-end;
 }
 
-.home__interests {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 1rem 0 0;
+/* The front page is exactly one screen. `.page` is already a full-height column
+   with `.site-main` taking the slack, so the banner claims that slack and
+   centres itself in it: no scrollbar, and no guessing at the header's height. */
+.site-main--banner {
+  display: flex;
+  padding-bottom: 2.5rem;
 }
 
-.home__links {
-  margin-top: 0.8rem;
+.site-main--banner > .shell {
+  display: flex;
+  flex-direction: column;
 }
 
-.home__heading {
-  margin-top: 3rem;
+.banner {
+  animation: banner-in 0.5s ease 1 forwards;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 0;
 }
 
-.home__more {
-  font-family: var(--sans);
-  font-size: 0.85rem;
-  margin-top: 1.5rem;
+@keyframes banner-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* The one place on the site where type is set at display size. */
+.banner__name {
+  font-size: clamp(1.875rem, 1.1rem + 3.4vw, 3rem);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.banner__greeting {
+  font-weight: 400;
+}
+
+.banner__signature {
+  display: inline-block;
+  height: 1.2em;
+  margin-left: -0.1em;
+  vertical-align: -0.25em;
+  width: auto;
+}
+
+.banner__tagline {
+  font-size: clamp(1.125rem, 0.9rem + 1vw, 1.5rem);
+  margin: 1rem 0 0.75rem;
+}
+
+/* Lighter than the name above them, which is the whole hierarchy the page has. */
+.banner__lines p {
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.25rem);
+  font-weight: 300;
+  margin: 0 0 0.5rem;
+}
+
+.banner__lines a {
+  font-weight: 400;
 }
 
 /* Footnotes and equation references --------------------------------------- */

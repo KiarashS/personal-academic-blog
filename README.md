@@ -617,12 +617,29 @@ in the code writes either shape by hand — `postPath`, `blogIndexPath` and
 canonical URLs, the feed, the sitemap, the prerendered route list and the giscus
 comment key all read them.
 
-The front page is not a splash screen. It is your name, role and affiliation
-from `src/content/authors.ts`, the prose in `src/content/home.md`, your research
-interests and profile links, and the four most recent posts. Everything but the
-prose is generated from records that already exist, so the page cannot drift out
-of step with the rest of the site. `owner` in the config names the author record
-it speaks for.
+The front page is one screen and stops: a greeting and your name at display
+size, the tagline, and the two or three sentences in `src/content/home.md` that
+point at everything else. No list of posts under it — the blog has its own index
+and the nav is one click away. It claims whatever height the header and footer
+leave, so it fits the window exactly rather than guessing at a `vh` figure.
+
+The header goes bare on that page, dropping its own copy of the name and the
+tagline and leaving the nav, since the name is already the largest thing on the
+screen.
+
+`home` in the config carries what the banner says:
+
+```ts
+home: {
+  greeting: 'Hi, I am',   // runs into your name; empty for no lead-in
+  signature: '',          // an image drawn in place of the name
+  signatureTilt: -3,      // degrees, the way a signed page is never square
+},
+```
+
+`signature` takes a path under `public/` or a URL, and an SVG holds up at
+display size. Your name is used as its alt text. Leave it empty and the name is
+set as type.
 
 Two things to know before switching it on. Post URLs change, so do it before
 anything external cites one; a URL in a citation is not something you get to
