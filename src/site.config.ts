@@ -170,7 +170,7 @@ export const siteConfig: SiteConfig = {
     greeting: 'Hi, I am',
     tagline: 'A curious mind working on AI for health',
     description: 'Kiarash Soleimanzadeh: a curious mind working on AI for health.',
-    profileLinks: true,
+    profileLinks: false,
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
