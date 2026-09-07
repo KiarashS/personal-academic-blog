@@ -16,6 +16,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { buildPost, todayUtc } from '../src/lib/post-builder';
 import { siteConfig } from '../src/site.config';
+import type { FeatureName } from '../src/site.config';
 import type { Heading } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
@@ -25,6 +26,7 @@ import { rehypeFigures } from './figures';
 import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
+import { rehypeFeatureLinks } from './feature-links';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -73,6 +75,20 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
+  const featureLinkWarnings = new Set<string>();
+
+  // The pages a flag can take away. Prose that points at one of them degrades
+  // to plain words rather than shipping a link to a 404.
+  const FEATURE_PATHS: Record<string, FeatureName> = {
+    '/publications': 'publications',
+    '/archive': 'archive',
+    '/categories': 'categories',
+    '/slides': 'slides',
+    '/contact': 'contact',
+  };
+  const disabledPaths = Object.entries(FEATURE_PATHS)
+    .filter(([, feature]) => siteConfig.features[feature] !== true)
+    .map(([path]) => path);
 
   const cellProcessor = unified()
     .use(remarkParse)
@@ -119,6 +135,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)
+      .use(rehypeFeatureLinks, {
+        disabled: disabledPaths,
+        onWarn: (message: string) => featureLinkWarnings.add(message),
+      })
       .use(rehypeContentTweaks, { base })
       .use(rehypeHeadingAnchors)
       .use(rehypeFigures, {
@@ -155,6 +175,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       missingDiagrams.clear();
       missingImages.clear();
       equationWarnings.clear();
+      featureLinkWarnings.clear();
     },
 
     async transform(_code, id) {
@@ -230,6 +251,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     buildEnd() {
       for (const message of missingImages) this.warn(message);
       for (const message of equationWarnings) this.warn(message);
+      for (const message of featureLinkWarnings) this.warn(message);
 
       if (missingDiagrams.size > 0) {
         this.warn(

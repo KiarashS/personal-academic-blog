@@ -657,7 +657,14 @@ home: {
 },
 ```
 
-The signature is inlined from `src/content/signature.svg` rather than loaded as
+The signature writes itself: a vertical front sweeps left to right over 2.6s and
+each letter's clip rectangle opens as it passes, then the flourish underneath
+draws in over 820ms. It plays when the drawing scrolls into view and again on a
+click, and a reader who asks for reduced motion gets it finished instead. The
+markup ships complete and is hidden only once the effect runs, so a reader
+without JavaScript sees the name rather than an empty box.
+
+It is inlined from `src/content/signature.svg` rather than loaded as
 an image, so `.ks-glyph` and `.ks-flourish` inside it take their ink from the
 page's own colour token. An `img` would keep whatever colour the file was drawn
 in, and a reader who picks dark mode on a light system would get dark ink on a
@@ -666,11 +673,12 @@ the name is set as type. It is sized in pixels per breakpoint, not in `em`: the
 drawing has to keep its proportions rather than wobble against the type beside
 it.
 
-The link lines are `src/content/home.md`, so they are yours to write. One thing
-to watch: a link to a page whose feature is off is a broken link, and
-`npm run links` fails the build on it. The shipped `home.md` points at
-`/contact`, so `contact` is on by default; turn it off and that line has to go
-too.
+The link lines are `src/content/home.md`, so they are yours to write, and they
+survive a feature being switched off. A link to `/contact`, `/slides`,
+`/archive`, `/publications` or `/categories` whose flag is off has its anchor
+dropped at build time and its words kept, so the sentence still reads and the
+build stays green; the build warns which link it dropped. A link to a page no
+flag explains is a mistake, and `npm run links` still fails on it.
 
 Below 40rem the header's nav collapses into a menu button and a panel, since the
 nav gains an entry every time a feature is switched on and eight of them are two

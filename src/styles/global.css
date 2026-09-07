@@ -1448,8 +1448,9 @@ mark {
 /* The one place on the site where type is set at display size. */
 .banner__name {
   font-size: clamp(1.875rem, 1.1rem + 3.4vw, 3rem);
-  line-height: 1.1;
+  line-height: 1.15;
   margin: 0;
+  text-wrap: balance;
 }
 
 .banner__greeting {
@@ -1460,6 +1461,7 @@ mark {
    its own proportions, and a signature that scaled with the surrounding type
    would wobble against it. The tilt is set inline, from the config. */
 .banner__signature {
+  cursor: pointer;
   display: inline-block;
   height: 35px;
   margin-left: -4px;
@@ -1507,16 +1509,22 @@ mark {
   stroke: var(--text);
 }
 
+/* Tighter than body copy. The page's 1.65 leading is set for reading a post at
+   16px; at 24px it opens a gap wide enough to read as two separate lines. */
 .banner__tagline {
   font-size: clamp(1.125rem, 0.9rem + 1vw, 1.5rem);
-  margin: 1rem 0 0.75rem;
+  line-height: 1.35;
+  margin: 1rem 0 0.9rem;
+  text-wrap: pretty;
 }
 
 /* Lighter than the name above them, which is the whole hierarchy the page has. */
 .banner__lines p {
   font-size: clamp(1rem, 0.86rem + 0.55vw, 1.25rem);
   font-weight: 300;
-  margin: 0 0 0.5rem;
+  line-height: 1.5;
+  margin: 0 0 0.55rem;
+  text-wrap: pretty;
 }
 
 .banner__lines a {

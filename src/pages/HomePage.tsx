@@ -1,5 +1,5 @@
 import { Suspense, use } from 'react';
-import signatureSource from '../content/signature.svg?raw';
+import { Signature } from '../components/Signature';
 import { siteConfig } from '../site.config';
 
 const load = () => import('../content/home.md') as Promise<{ html: string }>;
@@ -9,32 +9,6 @@ function HomeBody() {
   promise ??= load();
   const { html } = use(promise);
   return <div className="banner__lines" dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-/**
- * The file is stored exactly as it is published, `role="img"` included, which
- * axe reports as an image with no alternative text. The name belongs on the
- * wrapper, which is what the reader hears, so the inner element is hidden from
- * the accessibility tree here rather than by editing the drawing.
- */
-const signature = signatureSource.replace('role="img"', 'aria-hidden="true" focusable="false"');
-
-/**
- * The signature, inlined so `.ks-glyph` and `.ks-flourish` take their ink from
- * the page's own tokens. Loaded as an image it would keep whatever colour the
- * file was drawn in, and a reader who picks dark mode on a light system would
- * get dark ink on a dark page.
- */
-function Signature() {
-  return (
-    <span
-      className="banner__signature"
-      role="img"
-      aria-label={siteConfig.title}
-      style={{ transform: `rotate(${siteConfig.home.signatureTilt}deg)` }}
-      dangerouslySetInnerHTML={{ __html: signature }}
-    />
-  );
 }
 
 /**
