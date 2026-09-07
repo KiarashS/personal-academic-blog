@@ -1403,6 +1403,15 @@ mark {
 
 /* Home page ---------------------------------------------------------------- */
 
+/* The front page is not prose, so the 68-character measure does not apply to
+   it: at 46rem the portrait takes 208px of a 736px column and leaves the words
+   about 45 characters, which is narrower than anything else on the site. The
+   whole page widens together — header, banner and footer — so the nav still
+   ends on the same line the portrait does. */
+.page--banner .shell {
+  max-width: 56rem;
+}
+
 /* On the front page the name is the page, so the header keeps only the nav and
    lets it sit where the eye already is on the way down. */
 .site-header--bare {
@@ -1426,15 +1435,20 @@ mark {
   flex-direction: column;
 }
 
+/* `margin-block: auto` rather than `flex: 1`: the box is only as tall as what
+   is in it and the leftover height splits above and below, so the pair sits in
+   the middle of the screen while `align-items: flex-start` still lines the
+   portrait up with the top of the words rather than with their middle. */
 .banner {
-  align-items: center;
+  align-items: flex-start;
   animation: banner-in 0.5s ease 1 forwards;
   display: flex;
-  flex: 1;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: space-between;
+  margin-block: auto;
   padding: 1rem 0;
+  width: 100%;
 }
 
 /* The words take the room they need and the portrait takes what is left, so a
@@ -1460,8 +1474,13 @@ mark {
 
 /* The rim is the container's own padding; the highlight below travels around
    it, and the picture sits on top covering everything inside. */
+
+/* Beside the name rather than centred on the whole column: centred, its middle
+   lands level with the link list, and the face belongs with the name. The
+   offset drops it from the line box top to roughly the cap line. */
 .banner__avatar {
   aspect-ratio: 1;
+  margin-top: 0.95rem;
   background: var(--rule);
   border-radius: 50%;
   flex: 0 0 auto;

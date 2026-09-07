@@ -665,6 +665,13 @@ leaves, between 7rem and 13rem, and below 46rem it moves above the text, which
 is the order a profile reads in. Reduced motion keeps the rim and stops the
 highlight. Leave it empty and the front page is words alone.
 
+The front page also uses a wider column than the rest of the site, 56rem
+against `--wide`'s 46rem, because it is not prose and the portrait would
+otherwise take its width out of the words: at 46rem they were left about 45
+characters, narrower than anything else here. The whole page widens together,
+header and footer included, so the nav still ends on the line the portrait
+does. Everything else keeps the reading measure.
+
 The signature writes itself: a vertical front sweeps left to right over 2.6s and
 each letter's clip rectangle opens as it passes, then the flourish underneath
 draws in over 820ms. It plays when the drawing scrolls into view and again on a

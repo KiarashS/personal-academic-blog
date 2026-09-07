@@ -26,7 +26,7 @@ export function Layout() {
   const bare = isEnabled('home') && onHome;
 
   return (
-    <div className="page">
+    <div className={`page${bare ? ' page--banner' : ''}`}>
       <PageMeta />
       <ScrollToTop />
       <a className="skip-link" href="#main">
