@@ -18,6 +18,7 @@ import { getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
 import { canonicalUrl } from '../lib/urls';
 import { NotFoundPage } from './NotFoundPage';
+import { postPath } from '../lib/routes';
 
 export function PostPage() {
   const { slug } = useParams();
@@ -89,7 +90,7 @@ export function PostPage() {
 
         {/* Printed pages leave the address bar behind, so the URL goes on the
             page itself, where a reader can type it back in. */}
-        <p className="print-only print-source">{canonicalUrl(`/posts/${post.slug}`)}</p>
+        <p className="print-only print-source">{canonicalUrl(postPath(post.slug))}</p>
 
         {post.publication ? (
           <PublicationNote publication={{ doi: post.doi, ...post.publication }} />
@@ -126,7 +127,7 @@ export function PostPage() {
         <nav className="post-nav" aria-label="Adjacent posts">
           <div>
             {next ? (
-              <Link to={`/posts/${next.slug}`} rel="prev">
+              <Link to={postPath(next.slug)} rel="prev">
                 <span className="post-nav__label">Newer post</span>
                 {next.title}
               </Link>
@@ -134,7 +135,7 @@ export function PostPage() {
           </div>
           <div className="post-nav__end">
             {previous ? (
-              <Link to={`/posts/${previous.slug}`} rel="next">
+              <Link to={postPath(previous.slug)} rel="next">
                 <span className="post-nav__label">Older post</span>
                 {previous.title}
               </Link>
@@ -145,7 +146,7 @@ export function PostPage() {
 
       <RelatedPosts posts={relatedPosts(post.slug)} />
 
-      <Comments term={`/posts/${post.slug}`} />
+      <Comments term={postPath(post.slug)} />
     </article>
   );
 }

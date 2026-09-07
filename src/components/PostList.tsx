@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { PostMeta } from './PostMeta';
 import { TagList } from './TagList';
 import type { Post } from '../lib/types';
+import { postPath } from '../lib/routes';
 
 export function PostList({ posts }: { posts: Post[] }) {
   if (posts.length === 0) {
@@ -14,7 +15,7 @@ export function PostList({ posts }: { posts: Post[] }) {
         <li key={post.slug}>
           <article>
             <h2 className="post-card__title">
-              <Link to={`/posts/${post.slug}`}>{post.title}</Link>
+              <Link to={postPath(post.slug)}>{post.title}</Link>
               {post.featured ? <span className="post-card__pin">Featured</span> : null}
             </h2>
             <PostMeta post={post} />

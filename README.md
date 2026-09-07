@@ -580,9 +580,12 @@ that unregisters it if you ever need them off it quickly.
 
 ```ts
 features: {
+  home: false,           // a front page for the site; moves the blog to /blog
   publications: false,   // /publications, generated from publications.bib
   archive: true,         // /archive, every post grouped by year
-  categories: true,      // /categories and the shelf listed in siteConfig.categories
+  categories: true,      // /categories and the shelves in siteConfig.categories
+  slides: false,         // /slides, talks and their materials
+  contact: false,        // /contact, from contact.md plus your profile links
 },
 ```
 
@@ -597,6 +600,62 @@ all read the same flag, so they cannot fall out of step.
 One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
 cannot prove the import is dead.
+
+## A blog, or a site with a blog in it
+
+`home` decides which of the two this is, and it is the only switch involved.
+
+Off, the blog is the site. Its index is the front page at `/`, numbered pages
+are `/page/2`, and posts are `/posts/<slug>`. That is the default, and nothing
+about it has changed.
+
+On, the site gets a front page of its own and the blog moves aside whole: the
+index to `/blog`, its pages to `/blog/page/2`, and posts to `/blog/<slug>`. The
+list and its items stay in one branch of the URL tree rather than two. Nothing
+in the code writes either shape by hand — `postPath`, `blogIndexPath` and
+`blogPagePath` in `src/lib/routes.ts` are the only places that know, and links,
+canonical URLs, the feed, the sitemap, the prerendered route list and the giscus
+comment key all read them.
+
+The front page is not a splash screen. It is your name, role and affiliation
+from `src/content/authors.ts`, the prose in `src/content/home.md`, your research
+interests and profile links, and the four most recent posts. Everything but the
+prose is generated from records that already exist, so the page cannot drift out
+of step with the rest of the site. `owner` in the config names the author record
+it speaks for.
+
+Two things to know before switching it on. Post URLs change, so do it before
+anything external cites one; a URL in a citation is not something you get to
+take back. And the deployment needs redirects from the old paths, which GitHub
+Pages cannot do on its own: on Cloudflare a redirect rule from `/posts/*` to
+`/blog/*` covers it.
+
+One name is reserved. With the blog at `/blog`, a post slugged `page` would
+shadow `/blog/page/2`, so `RESERVED_SLUGS` in `src/lib/routes.ts` lists it and
+the build warns rather than letting a reader find out. Keeping tags, categories
+and the archive at the top level is what keeps that list to one word.
+
+Post assets stay under `public/posts/<slug>/` whichever shape is in use.
+Markdown references them by path, so they do not follow the page.
+
+## Slides and contact
+
+`slides` renders `src/content/slides.ts` at `/slides`, newest first. A talk needs
+a title and a date; `event`, `summary`, and links to `slides`, `video`, `code`
+and `paper` are each optional, and each takes a URL or a path under `public/`:
+
+```ts
+{
+  title: 'AI in Medicine',
+  date: '2026-04-12',
+  event: 'The seminar it was given at',
+  summary: 'One sentence on what it covered.',
+  slides: '/slides/ai-in-medicine.pdf',
+}
+```
+
+`contact` renders `src/content/contact.md` at `/contact`, followed by the same
+profile row the author cards use, so an address changes in one place.
 
 ## Working without the assets
 

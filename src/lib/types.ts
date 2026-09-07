@@ -33,6 +33,26 @@ export type ProfileKey =
   | 'bluesky'
   | 'website';
 
+/**
+ * A talk, lecture or seminar, with wherever its materials live. Everything but
+ * the title and the date is optional: a deck with no video is still a deck.
+ */
+export interface SlideDeck {
+  title: string;
+  /** ISO date the talk was given, `2026-04-12`. */
+  date: string;
+  /** The conference, seminar series or course it was given at. */
+  event?: string;
+  /** A sentence on what it covered. */
+  summary?: string;
+  /** The deck: a path under `public/`, or a URL if it is hosted elsewhere. */
+  slides?: string;
+  video?: string;
+  code?: string;
+  /** A paper the talk is based on. */
+  paper?: string;
+}
+
 /** One dated change to a published post. */
 export interface Revision {
   date: string;

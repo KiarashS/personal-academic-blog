@@ -21,6 +21,9 @@ const {
   tagSlug,
   categoryCounts,
   postsInCategory,
+  postPath,
+  postSlugFromPath,
+  blogIndexPath,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -108,8 +111,8 @@ function cardFor(slug) {
 }
 
 function pageFor(route) {
-  const post =
-    route.startsWith('/posts/') && posts.find((candidate) => `/posts/${candidate.slug}` === route);
+  const slug = postSlugFromPath(route);
+  const post = slug && posts.find((candidate) => candidate.slug === slug);
   const tag = /^\/tags\/([^/]+)/.exec(route)?.[1];
   const category = /^\/categories\/([^/]+)/.exec(route)?.[1];
 
@@ -171,7 +174,7 @@ await write(
 const iso = (date) => new Date(`${date}T00:00:00Z`).toISOString();
 
 async function entryFor(post) {
-  const url = canonicalUrl(`/posts/${post.slug}`);
+  const url = canonicalUrl(postPath(post.slug));
   const html = await loadPostHtml(post.slug);
   return [
     '  <entry>',
@@ -214,7 +217,7 @@ await writeFeed({
   path: 'feed.xml',
   title: siteConfig.title,
   subtitle: siteConfig.description,
-  alternate: '/',
+  alternate: blogIndexPath(),
   entries: posts,
 });
 
@@ -247,7 +250,7 @@ await write(
     '<?xml version="1.0" encoding="utf-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...allRoutes().map((route) => {
-      const post = posts.find((candidate) => `/posts/${candidate.slug}` === route);
+      const post = posts.find((candidate) => postPath(candidate.slug) === route);
       const lastmod = post ? (post.updated ?? post.date) : undefined;
       return [
         '  <url>',

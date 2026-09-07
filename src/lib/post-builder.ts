@@ -1,5 +1,6 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
+import { RESERVED_SLUGS } from './routes';
 import type { Heading, PostFrontmatter, PostMeta, Publication, Revision } from './types';
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
@@ -156,6 +157,12 @@ export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptio
       )
       // Sorting first means a duplicated slug resolves to the newer post.
       .filter((post) => {
+        if (RESERVED_SLUGS.has(post.slug)) {
+          console.warn(
+            `Post slug "${post.slug}" is reserved: with the home feature on it would ` +
+              'shadow a page of the blog index. Rename the file or set `slug:` in its frontmatter.',
+          );
+        }
         if (seen.has(post.slug)) {
           console.warn(`Duplicate post slug "${post.slug}" — keeping the newer post.`);
           return false;

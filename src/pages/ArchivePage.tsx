@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { posts } from '../lib/posts';
 import { formatDate, isoDate } from '../lib/format';
 import type { Post } from '../lib/types';
+import { postPath } from '../lib/routes';
 
 function byYear(list: Post[]): [string, Post[]][] {
   const groups = new Map<string, Post[]>();
@@ -29,7 +30,7 @@ export function ArchivePage() {
             {list.map((post) => (
               <li key={post.slug}>
                 <time dateTime={isoDate(post.date)}>{formatDate(post.date, 'short')}</time>
-                <Link to={`/posts/${post.slug}`}>{post.title}</Link>
+                <Link to={postPath(post.slug)}>{post.title}</Link>
               </li>
             ))}
           </ul>

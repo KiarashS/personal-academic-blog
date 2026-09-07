@@ -3,6 +3,7 @@ import { canonicalUrl } from '../lib/urls';
 import { siteConfig } from '../site.config';
 import { CopyButton } from './CopyButton';
 import type { Post } from '../lib/types';
+import { postPath } from '../lib/routes';
 
 /**
  * How to cite the post, in the four forms a reader is likely to want, each
@@ -11,7 +12,7 @@ import type { Post } from '../lib/types';
  * would need JavaScript to do what four labelled paragraphs already do.
  */
 export function CiteBlock({ post }: { post: Post }) {
-  const url = canonicalUrl(`/posts/${post.slug}`);
+  const url = canonicalUrl(postPath(post.slug));
 
   return (
     <details className="cite">

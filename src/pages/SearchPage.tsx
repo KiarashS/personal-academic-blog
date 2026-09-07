@@ -5,6 +5,7 @@ import { TagList } from '../components/TagList';
 import { search } from '../lib/search';
 import type { SearchHit } from '../lib/search';
 import { posts } from '../lib/posts';
+import { postPath } from '../lib/routes';
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
@@ -75,7 +76,7 @@ export function SearchPage() {
             <li key={post.slug}>
               <article>
                 <h2 className="post-card__title">
-                  <Link to={`/posts/${post.slug}`}>{post.title}</Link>
+                  <Link to={postPath(post.slug)}>{post.title}</Link>
                 </h2>
                 <PostMeta post={post} showReadingTime={false} />
                 <p className="search-snippet">{snippet ?? post.summary}</p>

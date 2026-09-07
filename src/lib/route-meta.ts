@@ -5,6 +5,7 @@ import { allCategories, categoriesEnabled, getCategory, postsInCategory } from '
 import { displayTag, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
 import { isEnabled } from './features';
+import { blogIndexPath, blogPagePath, postPath, postSlugFromPath } from './routes';
 
 export interface RouteMeta {
   title: string;
@@ -23,18 +24,36 @@ export function metaFor(pathname: string): RouteMeta {
   const path = pathname.replace(/\/+$/, '') || '/';
   const segments = path.split('/').filter(Boolean);
 
-  if (path === '/') return { title: withSuffix(undefined), description: siteConfig.description };
+  // A post first: with the home feature on it lives under /blog, where the
+  // index and its numbered pages also live.
+  const slug = postSlugFromPath(path);
+  if (slug) {
+    const post = posts.find((candidate) => candidate.slug === slug);
+    if (post) return { title: withSuffix(post.title), description: post.summary };
+  }
 
-  if (segments[0] === 'page') {
+  // The front page carries the site's own title, whether that page is the home
+  // page or the blog index. `/blog` only exists when it is the latter's new
+  // address, so it names itself.
+  if (path === '/') return { title: withSuffix(undefined), description: siteConfig.description };
+  if (path === blogIndexPath()) {
+    return { title: withSuffix('Blog'), description: siteConfig.description };
+  }
+
+  const paged = /^\/(?:blog\/)?page\/(\d+)$/.exec(path);
+  if (paged && path === blogPagePath(Number(paged[1]))) {
     return {
-      title: withSuffix(`Posts, page ${segments[1]}`),
+      title: withSuffix(`Posts, page ${paged[1]}`),
       description: siteConfig.description,
     };
   }
 
-  if (segments[0] === 'posts') {
-    const post = posts.find((candidate) => candidate.slug === segments[1]);
-    if (post) return { title: withSuffix(post.title), description: post.summary };
+  if (path === '/slides' && isEnabled('slides')) {
+    return { title: withSuffix('Slides'), description: 'Talks, lectures and their materials.' };
+  }
+
+  if (path === '/contact' && isEnabled('contact')) {
+    return { title: withSuffix('Contact'), description: `How to reach ${siteConfig.title}.` };
   }
 
   if (segments[0] === 'categories' && segments[1] && categoriesEnabled()) {
@@ -114,8 +133,11 @@ export function metaFor(pathname: string): RouteMeta {
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
   const routes = new Set<string>(['/', '/tags', '/search', '/about']);
+  if (isEnabled('home')) routes.add(blogIndexPath());
   if (isEnabled('publications')) routes.add('/publications');
   if (isEnabled('archive')) routes.add('/archive');
+  if (isEnabled('slides')) routes.add('/slides');
+  if (isEnabled('contact')) routes.add('/contact');
 
   if (categoriesEnabled()) {
     routes.add('/categories');
@@ -131,9 +153,9 @@ export function allRoutes(): string[] {
   }
 
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
-  for (let page = 2; page <= totalPages; page += 1) routes.add(`/page/${page}`);
+  for (let page = 2; page <= totalPages; page += 1) routes.add(blogPagePath(page));
 
-  for (const post of posts) routes.add(`/posts/${post.slug}`);
+  for (const post of posts) routes.add(postPath(post.slug));
   for (const id of Object.keys(authors)) routes.add(`/authors/${id}`);
 
   const tags = new Set(posts.flatMap((post) => post.tags.map((tag) => tag)));

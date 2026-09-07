@@ -1,4 +1,4 @@
-import { siteConfig } from '../site.config';
+import { BLOG_INDEX, siteConfig } from '../site.config';
 import type { FeatureName, NavItem } from '../site.config';
 
 export function isEnabled(feature: FeatureName): boolean {
@@ -20,6 +20,14 @@ export function categoriesEnabled(): boolean {
   return isEnabled('categories') && siteConfig.categories.length > 0;
 }
 
+/**
+ * The nav as rendered: gated entries dropped, and the blog entry pointed at
+ * wherever the blog index currently is. The config names it symbolically
+ * because the `home` feature is what decides between `/` and `/blog`.
+ */
 export function visibleNav(): NavItem[] {
-  return filterNav(siteConfig.nav, siteConfig.features);
+  const blog = isEnabled('home') ? '/blog' : '/';
+  return filterNav(siteConfig.nav, siteConfig.features).map((item) =>
+    item.to === BLOG_INDEX ? { ...item, to: blog } : item,
+  );
 }

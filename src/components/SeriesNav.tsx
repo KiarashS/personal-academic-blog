@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Series } from '../lib/posts';
+import { postPath } from '../lib/routes';
 
 /**
  * Where this post sits in a multi-part piece, listed at the top because a
@@ -26,7 +27,7 @@ export function SeriesHeader({ series }: { series: Series }) {
             {index + 1 === series.position ? (
               <span aria-current="page">{part.title}</span>
             ) : (
-              <Link to={`/posts/${part.slug}`}>{part.title}</Link>
+              <Link to={postPath(part.slug)}>{part.title}</Link>
             )}
           </li>
         ))}
@@ -47,7 +48,7 @@ export function SeriesLinks({ series }: { series: Series }) {
     <nav className="post-nav post-nav--series" aria-label={`${series.name} series`}>
       <div>
         {series.previous ? (
-          <Link to={`/posts/${series.previous.slug}`} rel="prev">
+          <Link to={postPath(series.previous.slug)} rel="prev">
             <span className="post-nav__label">Previous in {series.name}</span>
             {series.previous.title}
           </Link>
@@ -55,7 +56,7 @@ export function SeriesLinks({ series }: { series: Series }) {
       </div>
       <div className="post-nav__end">
         {series.next ? (
-          <Link to={`/posts/${series.next.slug}`} rel="next">
+          <Link to={postPath(series.next.slug)} rel="next">
             <span className="post-nav__label">Next in {series.name}</span>
             {series.next.title}
           </Link>

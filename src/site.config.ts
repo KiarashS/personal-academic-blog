@@ -1,3 +1,11 @@
+/**
+ * Where a nav entry writes "the blog index" without knowing where that is:
+ * `visibleNav` resolves it, because the answer depends on the `home` feature.
+ * It lives here rather than in `lib/routes.ts` so the config can name it
+ * without the two modules importing each other.
+ */
+export const BLOG_INDEX = '@blog';
+
 export interface GiscusConfig {
   repo: `${string}/${string}`;
   repoId: string;
@@ -9,10 +17,11 @@ export interface GiscusConfig {
 }
 
 /** Optional parts of the site that can be switched off wholesale. */
-export type FeatureName = 'publications' | 'archive' | 'categories';
+export type FeatureName = 'home' | 'publications' | 'archive' | 'categories' | 'slides' | 'contact';
 
 export interface NavItem {
   label: string;
+  /** A path, or `BLOG_INDEX` for wherever the blog index currently is. */
   to: string;
   /** When set, the entry and its route only exist if that feature is on. */
   feature?: FeatureName;
@@ -53,6 +62,12 @@ export interface SiteConfig {
    * prerendered page — it is absent from the built site, not merely hidden.
    */
   features: Record<FeatureName, boolean>;
+  /**
+   * The author whose name, interests and profile links lead the home page.
+   * An id from `src/content/authors.ts`; the first record is used if it names
+   * one that does not exist.
+   */
+  owner: string;
   /**
    * The shelves themselves. The `categories` feature flag switches them on and
    * off; an empty list here does the same, since there would be nothing to show.
@@ -99,10 +114,16 @@ export const siteConfig: SiteConfig = {
   // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
   features: {
+    // Off: the blog is the whole site and its index is the front page. On: the
+    // front page is the site's own and the blog moves to /blog. See the README.
+    home: false,
     publications: false,
     archive: true,
     categories: false,
+    slides: false,
+    contact: false,
   },
+  owner: 'you',
   cv: '',
   categories: [
     {
@@ -132,13 +153,16 @@ export const siteConfig: SiteConfig = {
     },
   ],
   nav: [
-    { label: 'Posts', to: '/' },
+    { label: 'Home', to: '/', feature: 'home' },
+    { label: 'Blog', to: BLOG_INDEX },
     { label: 'Publications', to: '/publications', feature: 'publications' },
+    { label: 'Slides', to: '/slides', feature: 'slides' },
     { label: 'Archive', to: '/archive', feature: 'archive' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },
+    { label: 'Contact', to: '/contact', feature: 'contact' },
   ],
   giscus: {
     repo: 'KiarashS/personal-academic-blog',

@@ -1,6 +1,7 @@
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
 const dist = resolve('dist');
@@ -59,17 +60,28 @@ const base = `http://localhost:${server.address().port}`;
 
 // One page of each kind rather than all of them: the templates are shared, so
 // a violation on one post is a violation on every post.
+const { postPath, blogIndexPath } = await import(
+  pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href
+);
+
+// Deduped: with no home page the blog index is the front page, so the two
+// entries collapse to one.
 const routes = [
-  '/',
-  '/posts/code-tables-and-notes/',
-  '/publications/',
-  '/archive/',
-  '/tags/',
-  '/tags/guide/',
-  '/authors/you/',
-  '/search/',
-  '/about/',
-  '/404.html',
+  ...new Set([
+    '/',
+    `${blogIndexPath().replace(/\/$/, '')}/`,
+    `${postPath('code-tables-and-notes')}/`,
+    '/publications/',
+    '/archive/',
+    '/tags/',
+    '/tags/guide/',
+    '/authors/you/',
+    '/slides/',
+    '/contact/',
+    '/search/',
+    '/about/',
+    '/404.html',
+  ]),
 ];
 
 const browser = await chromium.launch(launchOptions);

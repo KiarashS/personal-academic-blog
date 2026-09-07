@@ -10,8 +10,22 @@ const nav: NavItem[] = [
   { label: 'About', to: '/about' },
 ];
 
-const all = { publications: true, archive: true, categories: true };
-const none = { publications: false, archive: false, categories: false };
+const all = {
+  home: true,
+  publications: true,
+  archive: true,
+  categories: true,
+  slides: true,
+  contact: true,
+};
+const none = {
+  home: false,
+  publications: false,
+  archive: false,
+  categories: false,
+  slides: false,
+  contact: false,
+};
 
 describe('filterNav', () => {
   it('keeps gated entries when their features are on', () => {
@@ -28,7 +42,7 @@ describe('filterNav', () => {
   });
 
   it('gates each feature independently', () => {
-    const some = { publications: false, archive: true, categories: false };
+    const some = { ...none, archive: true };
     expect(filterNav(nav, some).map((i) => i.to)).toEqual(['/', '/archive', '/about']);
   });
 });
@@ -37,5 +51,15 @@ describe('siteConfig.nav', () => {
   it('gates every entry that a feature owns, so nav and routing cannot drift', () => {
     const gated = siteConfig.nav.filter((item) => item.feature).map((item) => item.to);
     expect(gated).toEqual(expect.arrayContaining(['/publications', '/archive', '/categories']));
+  });
+});
+
+describe('visibleNav', () => {
+  it('points the blog entry at wherever the blog index is', async () => {
+    const { BLOG_INDEX } = await import('../site.config');
+    const { visibleNav } = await import('../lib/features');
+    const blog = visibleNav().find((item) => item.label === 'Blog');
+    expect(blog?.to).not.toBe(BLOG_INDEX);
+    expect(['/', '/blog']).toContain(blog?.to);
   });
 });

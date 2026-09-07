@@ -3,6 +3,7 @@ import { PrintButton } from './PrintButton';
 import { shareTargets } from '../lib/share';
 import { canonicalUrl } from '../lib/urls';
 import type { Post } from '../lib/types';
+import { postPath } from '../lib/routes';
 
 /**
  * Where to send a post. Every target is an ordinary link built at render time,
@@ -10,7 +11,7 @@ import type { Post } from '../lib/types';
  * prerendered HTML before React takes over.
  */
 export function ShareLinks({ post }: { post: Post }) {
-  const url = canonicalUrl(`/posts/${post.slug}`);
+  const url = canonicalUrl(postPath(post.slug));
 
   return (
     <section className="share" aria-labelledby="share-heading">
