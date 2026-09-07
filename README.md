@@ -652,11 +652,17 @@ screen.
 ```ts
 home: {
   greeting: 'Hi, I am',   // runs into your name; empty for no lead-in
+  tagline: '',            // the line under the name; empty uses the site's
   signature: true,        // draw src/content/signature.svg in place of the name
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
 },
 ```
+
+`home.tagline` is the front page's own line. `siteConfig.tagline` describes the
+writing and sits under the site title in the header on every other page, and on
+the social card for the site's root; the front page usually wants to say
+something about you instead. Leave it empty and the two stay the same string.
 
 `avatar` takes a path under `public/` or a URL. Put the file in `public/` and
 name it here, and it is cropped to a circle beside the words, with one bright

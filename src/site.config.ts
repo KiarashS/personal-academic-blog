@@ -53,6 +53,13 @@ export interface HomeConfig {
   /** Runs into the name: "Hi, I am" then whoever you are. Empty for no lead-in. */
   greeting: string;
   /**
+   * The line under the name on the front page. The site's `tagline` describes
+   * the writing and sits under the title in the header everywhere else; this is
+   * the front page's own, which is usually about you rather than about the
+   * posts. Empty falls back to the site's, so one string still covers both.
+   */
+  tagline: string;
+  /**
    * Draw `src/content/signature.svg` in place of the name. It is inlined
    * rather than loaded as an image so its ink follows the site's theme,
    * including a manual light/dark choice, which an `img` cannot. Off renders
@@ -148,6 +155,7 @@ export const siteConfig: SiteConfig = {
   owner: 'you',
   home: {
     greeting: 'Hi, I am',
+    tagline: '',
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
