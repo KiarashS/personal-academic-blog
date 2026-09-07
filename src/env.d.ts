@@ -10,3 +10,9 @@ declare module '*.bib' {
   const entries: import('./lib/bib-parse').BibEntry[];
   export default entries;
 }
+
+declare module '*.svg?raw' {
+  /** The file's markup, for inlining where a themeable SVG is wanted. */
+  const source: string;
+  export default source;
+}

@@ -5,6 +5,7 @@ import { isEnabled, visibleNav } from '../lib/features';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
+import { MobileNav } from './MobileNav';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
 import { ThemeToggle } from './ThemeToggle';
@@ -48,8 +49,11 @@ export function Layout() {
               ))}
               <CvLink />
               <FeedLink icon />
-              <ThemeToggle />
             </nav>
+            <div className="site-header__controls">
+              <ThemeToggle />
+              <MobileNav />
+            </div>
           </div>
           {bare ? null : <p className="site-tagline">{siteConfig.tagline}</p>}
         </div>

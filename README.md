@@ -632,14 +632,30 @@ screen.
 ```ts
 home: {
   greeting: 'Hi, I am',   // runs into your name; empty for no lead-in
-  signature: '',          // an image drawn in place of the name
+  signature: true,        // draw src/content/signature.svg in place of the name
   signatureTilt: -3,      // degrees, the way a signed page is never square
 },
 ```
 
-`signature` takes a path under `public/` or a URL, and an SVG holds up at
-display size. Your name is used as its alt text. Leave it empty and the name is
-set as type.
+The signature is inlined from `src/content/signature.svg` rather than loaded as
+an image, so `.ks-glyph` and `.ks-flourish` inside it take their ink from the
+page's own colour token. An `img` would keep whatever colour the file was drawn
+in, and a reader who picks dark mode on a light system would get dark ink on a
+dark page. Replace the file with your own drawing, or set `signature: false` and
+the name is set as type. It is sized in pixels per breakpoint, not in `em`: the
+drawing has to keep its proportions rather than wobble against the type beside
+it.
+
+The link lines are `src/content/home.md`, so they are yours to write. One thing
+to watch: a link to a page whose feature is off is a broken link, and
+`npm run links` fails the build on it. The shipped `home.md` points at
+`/contact`, so `contact` is on by default; turn it off and that line has to go
+too.
+
+Below 40rem the header's nav collapses into a menu button and a panel, since the
+nav gains an entry every time a feature is switched on and eight of them are two
+wrapped rows on a phone. It is a `dialog`, so Escape, the backdrop and focus
+containment come with it.
 
 Two things to know before switching it on. Post URLs change, so do it before
 anything external cites one; a URL in a citation is not something you get to

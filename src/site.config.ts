@@ -53,11 +53,12 @@ export interface HomeConfig {
   /** Runs into the name: "Hi, I am" then whoever you are. Empty for no lead-in. */
   greeting: string;
   /**
-   * A signature drawn in place of the name, as a path under `public/` or a
-   * URL. An SVG holds up at display size; the name is used as its alt text.
-   * Empty renders the name as type.
+   * Draw `src/content/signature.svg` in place of the name. It is inlined
+   * rather than loaded as an image so its ink follows the site's theme,
+   * including a manual light/dark choice, which an `img` cannot. Off renders
+   * the name as type.
    */
-  signature: string;
+  signature: boolean;
   /** Degrees to tilt the signature, the way a signed page is never quite square. */
   signatureTilt: number;
 }
@@ -136,12 +137,12 @@ export const siteConfig: SiteConfig = {
     archive: true,
     categories: false,
     slides: false,
-    contact: false,
+    contact: true,
   },
   owner: 'you',
   home: {
     greeting: 'Hi, I am',
-    signature: '',
+    signature: true,
     signatureTilt: -3,
   },
   cv: '',
