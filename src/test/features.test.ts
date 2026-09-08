@@ -12,6 +12,7 @@ const nav: NavItem[] = [
 
 const all = {
   home: true,
+  about: true,
   publications: true,
   archive: true,
   categories: true,
@@ -21,6 +22,7 @@ const all = {
 };
 const none = {
   home: false,
+  about: false,
   publications: false,
   archive: false,
   categories: false,
@@ -52,7 +54,9 @@ describe('filterNav', () => {
 describe('siteConfig.nav', () => {
   it('gates every entry that a feature owns, so nav and routing cannot drift', () => {
     const gated = siteConfig.nav.filter((item) => item.feature).map((item) => item.to);
-    expect(gated).toEqual(expect.arrayContaining(['/publications', '/archive', '/categories']));
+    expect(gated).toEqual(
+      expect.arrayContaining(['/about', '/publications', '/archive', '/categories']),
+    );
   });
 });
 

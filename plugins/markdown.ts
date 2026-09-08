@@ -80,6 +80,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   // The pages a flag can take away. Prose that points at one of them degrades
   // to plain words rather than shipping a link to a 404.
   const FEATURE_PATHS: Record<string, FeatureName> = {
+    '/about': 'about',
     '/publications': 'publications',
     '/archive': 'archive',
     '/categories': 'categories',

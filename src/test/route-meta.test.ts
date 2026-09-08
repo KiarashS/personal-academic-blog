@@ -20,3 +20,25 @@ describe('metaFor on the front page', () => {
     }
   });
 });
+
+describe('an optional page', () => {
+  it('is written out and titled while its feature is on', async () => {
+    const { allRoutes, metaFor } = await import('../lib/route-meta');
+    expect(allRoutes()).toContain('/about');
+    expect(metaFor('/about').title).toContain('About');
+  });
+
+  it('is absent from the build and answers as not found when it is off', async () => {
+    const { siteConfig } = await import('../site.config');
+    const { allRoutes, metaFor } = await import('../lib/route-meta');
+
+    siteConfig.features.about = false;
+    try {
+      expect(allRoutes()).not.toContain('/about');
+      // The catch-all below it, rather than a page with no route behind it.
+      expect(metaFor('/about').title).toContain('Not found');
+    } finally {
+      siteConfig.features.about = true;
+    }
+  });
+});

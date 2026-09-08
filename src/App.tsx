@@ -102,7 +102,9 @@ export function App() {
         <Route path="tags/:tag/page/:page" element={<TagPage />} />
         <Route path="authors/:id" element={<AuthorPage />} />
         <Route path="search" element={<Lazily name="SearchPage" of={SearchPage} />} />
-        <Route path="about" element={<Lazily name="AboutPage" of={AboutPage} />} />
+        {isEnabled('about') ? (
+          <Route path="about" element={<Lazily name="AboutPage" of={AboutPage} />} />
+        ) : null}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

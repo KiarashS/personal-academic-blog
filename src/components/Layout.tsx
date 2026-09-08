@@ -96,7 +96,12 @@ export function Layout() {
               React's and fails hydration on every page. */}
           <div className="site-footer__links">
             <Link to="/tags">Tags</Link> · <Link to="/search">Search</Link> ·{' '}
-            <Link to="/about">About</Link> · <FeedLink /> · <KeyboardShortcuts />
+            {isEnabled('about') ? (
+              <>
+                <Link to="/about">About</Link> ·{' '}
+              </>
+            ) : null}
+            <FeedLink /> · <KeyboardShortcuts />
           </div>
         </div>
       </footer>

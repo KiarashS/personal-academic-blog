@@ -18,7 +18,7 @@ export interface GiscusConfig {
 
 /** Optional parts of the site that can be switched off wholesale. */
 export type FeatureName =
-  'home' | 'publications' | 'archive' | 'categories' | 'projects' | 'slides' | 'contact';
+  'home' | 'about' | 'publications' | 'archive' | 'categories' | 'projects' | 'slides' | 'contact';
 
 export interface NavItem {
   label: string;
@@ -174,6 +174,7 @@ export const siteConfig: SiteConfig = {
     // Off: the blog is the whole site and its index is the front page. On: the
     // front page is the site's own and the blog moves to /blog. See the README.
     home: true,
+    about: true,
     publications: false,
     archive: true,
     categories: false,
@@ -241,7 +242,7 @@ export const siteConfig: SiteConfig = {
     },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
-    { label: 'About', to: '/about' },
+    { label: 'About', to: '/about', feature: 'about' },
     { label: 'Contact', to: '/contact', feature: 'contact' },
   ],
   giscus: {

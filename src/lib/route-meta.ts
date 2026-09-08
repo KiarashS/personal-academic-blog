@@ -131,15 +131,18 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (path === '/about') return { title: withSuffix('About'), description: siteConfig.description };
+  if (path === '/about' && isEnabled('about')) {
+    return { title: withSuffix('About'), description: siteConfig.description };
+  }
 
   return { title: withSuffix('Not found'), description: siteConfig.description };
 }
 
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
-  const routes = new Set<string>(['/', '/tags', '/search', '/about']);
+  const routes = new Set<string>(['/', '/tags', '/search']);
   if (isEnabled('home')) routes.add(blogIndexPath());
+  if (isEnabled('about')) routes.add('/about');
   if (isEnabled('publications')) routes.add('/publications');
   if (isEnabled('archive')) routes.add('/archive');
   if (isEnabled('slides')) routes.add('/slides');

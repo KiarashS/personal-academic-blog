@@ -674,21 +674,32 @@ that unregisters it if you ever need them off it quickly.
 ```ts
 features: {
   home: false,           // a front page for the site; moves the blog to /blog
+  about: true,           // /about, from about.md plus the author cards
   publications: false,   // /publications, generated from publications.bib
   archive: true,         // /archive, every post grouped by year
   categories: true,      // /categories and the shelves in siteConfig.categories
+  projects: false,       // the Projects group in nav; see above
   slides: false,         // /slides, talks and their materials
   contact: false,        // /contact, from contact.md plus your profile links
 },
 ```
 
 A feature that is off has no nav entry, no route and no prerendered page, and
-does not appear in the sitemap. Categories reach a little further than the other
-two, since they also mark up individual posts: with the flag off the chip above
-each title goes as well, the per-category feeds are not written, and related
-posts fall back to ranking on shared tags alone. The page is absent from the built site rather
-than hidden with CSS. Nav visibility, routing and the prerendered route list
-all read the same flag, so they cannot fall out of step.
+does not appear in the sitemap. The page is absent from the built site rather
+than hidden with CSS. Nav visibility, routing and the prerendered route list all
+read the same flag, so they cannot fall out of step.
+
+Two reach further than the rest. `about` is linked from the footer as well as
+the nav, so that link goes with the page. Categories also mark up individual
+posts: with the flag off the chip above each title goes as well, the
+per-category feeds are not written, and related posts fall back to ranking on
+shared tags alone.
+
+Prose is written once and the flags move under it, so a link in a post or on the
+front page that points at a page a flag has taken away is unwrapped by
+`plugins/feature-links.ts` — the anchor goes, the words stay. Turn `about` off
+and `home.md`'s "More [about me](/about), or on my profile" renders as "More
+about me, or on my profile", with the sentence intact and no link to a 404.
 
 One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
