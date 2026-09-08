@@ -5,7 +5,10 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'dist-server', 'node_modules', '.cache'] },
+  // `public/projects` holds whole pages served verbatim, scripts included, and
+  // some of them will be someone else's. Linting a vendored bundle against this
+  // project's rules fails the build over code nobody here is going to change.
+  { ignores: ['dist', 'dist-server', 'node_modules', '.cache', 'public/projects'] },
 
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

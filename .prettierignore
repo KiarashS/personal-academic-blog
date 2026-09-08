@@ -4,3 +4,6 @@ dist-server
 package-lock.json
 src/content/posts
 public/figures
+
+# Projects are files served as they are, including ones you did not write.
+public/projects
