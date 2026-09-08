@@ -653,7 +653,7 @@ mark {
   color: var(--text);
 }
 
-/* The paper behind a post ------------------------------------------------------------- */
+/* The work behind a post --------------------------------------------------------------- */
 
 .paper {
   border: 1px solid var(--rule);
@@ -662,6 +662,15 @@ mark {
   font-family: var(--sans);
   margin: 1.5rem 0 2rem;
   padding: 0.8rem 1rem;
+}
+
+/* The name of the work, above the venue and status that qualify it. A project
+   has nothing but this line to say what it is, so it leads. */
+.paper__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  text-wrap: pretty;
 }
 
 .paper__where {

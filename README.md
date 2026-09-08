@@ -172,12 +172,13 @@ surname first and given names as initials, IEEE the initials first), a DOI goes
 into all four, and the date cited is the date of the version being read, so a
 revised post is cited by its revision.
 
-### The paper behind a post
+### The work behind a post
 
 A post that accompanies published work can carry a `publication` block:
 
 ```yaml
 publication:
+  title: A title for the paper
   status: Preprint # or Under review, Published, To appear
   venue: Journal of Statistical Software
   year: 2026
@@ -193,6 +194,31 @@ a citation wants the paper, not the commentary — and the DOI moves out of the
 header line so it is not printed twice. That DOI is the one the citation
 formats use. A `pdf`, `code` or `data` path under `public/` gets the
 deployment's base path; a full URL is left alone.
+
+Work that was never going to be a paper uses the same block with
+`kind: project`:
+
+```yaml
+publication:
+  kind: project
+  title: hazard-tools
+  status: Maintained # or In progress, Archived
+  url: https://hazard-tools.example.org
+  code: https://github.com/you/hazard-tools
+  data: https://doi.org/10.5281/zenodo.125
+```
+
+A project has a name where a paper has a venue and a year, so `title` is the
+line that carries it, and the four links are labelled for where they lead:
+Project, Documentation, Repository, Dataset, against Paper, PDF, Code, Data. A
+DOI still works — Zenodo mints one for a release — and the citation formats use
+it the same way.
+
+One block rather than a `related:` list beside it, because a second field for
+almost the same thing is how frontmatter rots: you end up with two ways to name
+a repository and no rule for which one a post should use. `kind` is checked
+against the two values it can take, so a mistyped `projekt` renders as a paper
+instead of reaching the page as a label nothing knows how to draw.
 
 ### Diagrams
 

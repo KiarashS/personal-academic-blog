@@ -396,3 +396,36 @@ describe('rankRelated', () => {
     expect(rankRelated(list, plain, 4, slugify).map((entry) => entry.slug)).toEqual(['other']);
   });
 });
+
+describe('the publication block', () => {
+  const built = (block: string) =>
+    buildPost(
+      post(
+        'src/content/posts/2026-01-01-x.md',
+        ['---', 'title: X', block, '---', '', 'Body.'].join('\n'),
+      ),
+    ).meta.publication;
+
+  it('reads a paper by default, with no kind of its own', () => {
+    const publication = built(['publication:', '  venue: A journal', '  year: 2026'].join('\n'));
+    expect(publication).toEqual({ venue: 'A journal', year: '2026' });
+  });
+
+  it('reads a project, with the name that stands in for a venue', () => {
+    const publication = built(
+      ['publication:', '  kind: project', '  title: hazard-tools', '  status: Maintained'].join(
+        '\n',
+      ),
+    );
+    expect(publication).toEqual({ kind: 'project', title: 'hazard-tools', status: 'Maintained' });
+  });
+
+  it('treats a kind it does not know as a paper rather than passing it on', () => {
+    const publication = built(['publication:', '  kind: projekt', '  title: X'].join('\n'));
+    expect(publication).toEqual({ title: 'X' });
+  });
+
+  it('is not created by a kind alone, which describes nothing', () => {
+    expect(built(['publication:', '  kind: project'].join('\n'))).toBeUndefined();
+  });
+});

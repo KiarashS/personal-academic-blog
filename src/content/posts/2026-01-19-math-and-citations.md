@@ -65,13 +65,14 @@ Numbering only what is labelled is deliberate. A derivation that runs to fifteen
 display equations does not want fifteen numbers down its right margin when the
 prose refers to two of them.
 
-## The paper behind a post
+## The work behind a post
 
 A post that accompanies published work can say so in its frontmatter, and the
 box at the top of this one is the result:
 
 ```yaml
 publication:
+  title: A title for the paper
   status: Preprint # or Under review, Published, To appear
   venue: Journal of Statistical Software
   year: 2026
@@ -87,6 +88,26 @@ so it is not printed twice, and it is the DOI the citations below use. A `pdf`,
 `code` or `data` path under `public/` picks up the deployment's base path; a
 full URL is left alone. The values in this post are placeholders — that DOI
 resolves to nothing.
+
+Not every piece of work becomes a paper. A post about a library, a dataset or
+something still running says so with `kind: project`, which is the same box with
+its links named for where they lead:
+
+```yaml
+publication:
+  kind: project
+  title: hazard-tools
+  status: Maintained # or In progress, Archived
+  url: https://hazard-tools.example.org
+  code: https://github.com/you/hazard-tools
+  data: https://doi.org/10.5281/zenodo.125
+  pdf: https://hazard-tools.example.org/guide.pdf
+```
+
+A project has a name where a paper has a venue, so `title` is the line that
+carries it. `url` is labelled Project rather than Paper, `code` Repository,
+`data` Dataset and `pdf` Documentation. A DOI still works — Zenodo will mint one
+for a release — and the citations use it exactly as they would a paper's.
 
 ## Citations
 

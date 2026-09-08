@@ -60,11 +60,25 @@ export interface Revision {
   note: string;
 }
 
-/** Where a post's underlying work was published, or is on its way to being. */
+/** What the block describes: a paper, or a thing that was never going to be one. */
+export type PublicationKind = 'paper' | 'project';
+
+/**
+ * The work a post is about: where it was published, or is on its way to being,
+ * or — for a `project` — the software, dataset or ongoing effort it documents,
+ * which has a name and a repository but no venue and no year of record.
+ */
 export interface Publication {
-  /** Free text: "Preprint", "Under review", "Published", "To appear". */
+  /** Absent means a paper, which is the common case and the older behaviour. */
+  kind?: PublicationKind;
+  /** What the work is called. A project needs one; a paper reads better with it. */
+  title?: string;
+  /**
+   * Free text. "Preprint", "Under review", "Published", "To appear" for a
+   * paper; "Maintained", "Archived", "In progress" for a project.
+   */
   status?: string;
-  /** The journal, conference or repository. */
+  /** The journal, conference or repository. A project usually has none. */
   venue?: string;
   year?: string;
   doi?: string;

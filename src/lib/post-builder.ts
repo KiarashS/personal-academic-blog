@@ -1,7 +1,14 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
 import { RESERVED_SLUGS } from './routes';
-import type { Heading, PostFrontmatter, PostMeta, Publication, Revision } from './types';
+import type {
+  Heading,
+  PostFrontmatter,
+  PostMeta,
+  Publication,
+  PublicationKind,
+  Revision,
+} from './types';
 
 const DATE_PREFIX = /^\d{4}-\d{2}-\d{2}-/;
 
@@ -52,6 +59,7 @@ function revisionsFrom(entries: unknown): Revision[] {
 }
 
 const PUBLICATION_FIELDS = [
+  'title',
   'status',
   'venue',
   'year',
@@ -62,15 +70,24 @@ const PUBLICATION_FIELDS = [
   'data',
 ] as const;
 
+const PUBLICATION_KINDS = new Set<PublicationKind>(['paper', 'project']);
+
 /**
  * The publication block, keeping only the fields we know and only the values
  * that are text. A `year:` written as a number in YAML is still a year, so it
  * is read as one; anything else is dropped rather than printed as `[object
  * Object]` on the page.
+ *
+ * `kind` is checked against the two it can be rather than passed through: a
+ * mistyped `projekt` would otherwise reach the page as a kind nothing knows how
+ * to label. An unrecognised one falls back to a paper, which is what the block
+ * meant before there was a choice.
  */
 function publicationFrom(value: unknown): Publication | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const source = value as Record<string, unknown>;
+
+  const kind = typeof source.kind === 'string' ? source.kind.trim().toLowerCase() : '';
 
   const entries = PUBLICATION_FIELDS.map((field): [string, string] | undefined => {
     const raw = source[field];
@@ -79,7 +96,11 @@ function publicationFrom(value: unknown): Publication | undefined {
     return undefined;
   }).filter((entry): entry is [string, string] => entry !== undefined);
 
-  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+  const known = PUBLICATION_KINDS.has(kind as PublicationKind)
+    ? { kind: kind as PublicationKind }
+    : {};
+
+  return entries.length > 0 ? { ...known, ...Object.fromEntries(entries) } : undefined;
 }
 
 export interface RawPost {
