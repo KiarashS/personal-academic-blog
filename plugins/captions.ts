@@ -1,7 +1,15 @@
 import type { Element, ElementContent, Root, RootContent } from 'hast';
 import { toString } from 'hast-util-to-string';
+import { linkIcon } from './link-icon';
 
 const CAPTION = /^caption:\s*/i;
+
+/**
+ * A name for the block, Pandoc's way: `Caption: The layout. {#fig-architecture}`.
+ * It has to look like an id — a letter, then word characters or hyphens — or it
+ * is left in the caption as written, where the author will see it and fix it.
+ */
+const NAME = /\s*\{#([A-Za-z][\w-]*)\}\s*$/;
 
 function isElement(node: RootContent, tagName?: string): node is Element {
   return node.type === 'element' && (!tagName || node.tagName === tagName);
@@ -40,6 +48,18 @@ const LABELS: Record<Kind, string> = {
 };
 
 /**
+ * The automatic id, short and prefixed by kind. `rehype-slug` has already named
+ * the headings from their own text, so a section called "Figure 2" owns
+ * `#figure-2`; these cannot collide with that.
+ */
+const PREFIXES: Record<Kind, string> = {
+  figure: 'fig',
+  table: 'tbl',
+  code: 'lst',
+  notebook: 'nb',
+};
+
+/**
  * A caption goes below a block the reader takes in at a glance and above one
  * they read from the top down: a figure below, everything else above.
  */
@@ -73,7 +93,37 @@ function stripMarker(paragraph: Element): ElementContent[] {
   return children;
 }
 
-function figcaption(label: string, body: ElementContent[]): Element {
+/**
+ * Takes an explicit `{#name}` off the end of the caption and returns both. The
+ * marker is only recognised in the caption's last text node, which is where an
+ * author writes it; one in the middle of a sentence is prose.
+ */
+function takeName(body: ElementContent[]): { name?: string; body: ElementContent[] } {
+  const last = body[body.length - 1];
+  if (last?.type !== 'text') return { body };
+
+  const found = NAME.exec(last.value);
+  if (!found) return { body };
+
+  const trimmed = last.value.slice(0, found.index).trimEnd();
+  const rest = trimmed ? [...body.slice(0, -1), { ...last, value: trimmed }] : body.slice(0, -1);
+  return { name: found[1], body: rest };
+}
+
+function permalink(id: string, label: string): Element {
+  return {
+    type: 'element',
+    tagName: 'a',
+    properties: {
+      className: ['caption-anchor'],
+      href: `#${id}`,
+      'aria-label': `Copy a link to ${label}`,
+    },
+    children: [linkIcon('caption-anchor__icon')],
+  };
+}
+
+function figcaption(label: string, body: ElementContent[], anchor: Element): Element {
   return {
     type: 'element',
     tagName: 'figcaption',
@@ -87,6 +137,8 @@ function figcaption(label: string, body: ElementContent[]): Element {
       },
       { type: 'text', value: ' ' },
       ...body,
+      { type: 'text', value: ' ' },
+      anchor,
     ],
   };
 }
@@ -104,6 +156,9 @@ function figcaption(label: string, body: ElementContent[]): Element {
 export function rehypeCaptions() {
   return (tree: Root) => {
     const counts: Record<Kind, number> = { figure: 0, table: 0, code: 0, notebook: 0 };
+    // First name wins. A second block claiming it falls back to its number,
+    // which keeps every id in the post unique and every link working.
+    const taken = new Set<string>();
 
     const walk = (parent: Root | Element) => {
       const children = 'children' in parent ? parent.children : [];
@@ -130,10 +185,22 @@ export function rehypeCaptions() {
           continue;
         }
 
-        const label = `${LABELS[kind]} ${(counts[kind] += 1)}.`;
+        const number = (counts[kind] += 1);
+        const label = `${LABELS[kind]} ${number}.`;
         const above = isAbove(kind);
-        const body = following ? stripMarker(following) : [...(existing?.children ?? [])];
-        const caption = figcaption(label, body);
+        const raw = following ? stripMarker(following) : [...(existing?.children ?? [])];
+        const { name, body } = takeName(raw);
+
+        // A block that is numbered is a block someone can refer to, so it gets
+        // an address whether or not the author thought to name one. The name is
+        // worth writing anyway: insert a figure above this one and the number
+        // shifts, and a link someone saved to `#fig-3` lands on the wrong
+        // picture, while `#fig-architecture` still lands here.
+        const automatic = `${PREFIXES[kind]}-${number}`;
+        const id = name && !taken.has(name) ? name : automatic;
+        taken.add(id);
+
+        const caption = figcaption(label, body, permalink(id, `${LABELS[kind]} ${number}`));
 
         if (following) children.splice(followingIndex, 1);
         if (existing) node.children = node.children.filter((child) => child !== existing);
@@ -143,12 +210,16 @@ export function rehypeCaptions() {
         if (node.tagName === 'figure') {
           if (above) node.children.unshift(caption);
           else node.children.push(caption);
-          node.properties = { ...node.properties, className: [...classesOf(node), ...classes] };
+          node.properties = {
+            ...node.properties,
+            id,
+            className: [...classesOf(node), ...classes],
+          };
         } else {
           children[index] = {
             type: 'element',
             tagName: 'figure',
-            properties: { className: classes },
+            properties: { id, className: classes },
             children: above ? [caption, node] : [node, caption],
           };
         }

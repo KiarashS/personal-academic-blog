@@ -415,6 +415,52 @@
   white-space: nowrap;
 }
 
+/* Caption permalinks ------------------------------------------------------- */
+
+/* Every numbered block gets an address, so the number in the caption is
+   something a reader can actually follow. It behaves as the heading anchors do
+   — hidden until the block is hovered, and the click copies the URL rather than
+   only setting the hash — and the post page treats both with one handler.
+   `scroll-margin-top` sits with the block's own layout rule below. */
+.prose .caption-anchor {
+  align-items: center;
+  color: var(--text-muted);
+  display: inline-flex;
+  margin-left: 0.3rem;
+  opacity: 0;
+  position: relative;
+  text-decoration: none;
+  transition: opacity 120ms ease-in-out;
+  vertical-align: middle;
+}
+
+.prose .captioned:hover .caption-anchor,
+.prose .caption-anchor:focus-visible,
+.prose .caption-anchor[data-copied] {
+  opacity: 1;
+}
+
+.prose .caption-anchor[data-copied]::after {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  content: 'link copied';
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 400;
+  left: calc(100% + 0.4rem);
+  padding: 0.05rem 0.35rem;
+  position: absolute;
+  white-space: nowrap;
+}
+
+/* A printed page has no clipboard and no hover. */
+@media print {
+  .prose .caption-anchor {
+    display: none;
+  }
+}
+
 /* Figures ------------------------------------------------------------------ */
 
 .prose .figure {
@@ -480,6 +526,7 @@
   display: block;
   margin: 1.75rem auto;
   max-width: 100%;
+  scroll-margin-top: 1.5rem;
   text-align: center;
 }
 

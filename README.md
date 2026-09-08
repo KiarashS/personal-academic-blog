@@ -294,6 +294,39 @@ links and math. A caption goes below a block the reader takes in at a glance,
 so an image or a diagram, and above one they read from the top down: a table, a
 listing or a notebook.
 
+### Linking to a figure
+
+A block that is numbered can be linked to. Every captioned block gets an id and
+a permalink in its caption, the way headings do: `#fig-2`, `#tbl-1`, `#lst-3`,
+`#nb-1`, counted per post per kind. The prefixes are short so they cannot
+collide with a heading — `rehype-slug` names headings from their own text, so a
+section called "Figure 2" already owns `#figure-2`.
+
+Name a block yourself and the link survives editing:
+
+```markdown
+![The system](/architecture.svg 'How the parts fit. {#fig-architecture}')
+
+Caption: The runs that made it. {#tbl-runs}
+```
+
+The `{#name}` is taken off the end of the caption and does not appear in it. It
+is worth writing on anything you refer to, because inserting a figure above this
+one moves every number below it, and a link someone saved to `#fig-3` then lands
+on the wrong picture. A name that is not a usable id is left in the caption as
+written, where you will see it; two blocks claiming the same name means the
+first keeps it and the second falls back to its number, so ids stay unique.
+
+Then a cross-reference is an ordinary link — `[Figure 2](#fig-architecture)` —
+and `npm run links` checks it, so renaming a figure fails the build rather than
+leaving a link that goes nowhere.
+
+The caption's chain icon copies the whole URL rather than only setting the hash,
+which is the same handler the heading permalinks use. Landing on one of these
+links from outside is handled in `ScrollToTop`: the browser tries the fragment
+before React has mounted the route, so without that the scroll was undone and
+every permalink on the site landed at the top of the post.
+
 The block and its caption are centred in the measure; the caption is set in the
 sans face at a smaller size, with its label in the text colour.
 

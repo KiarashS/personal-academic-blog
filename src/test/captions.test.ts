@@ -107,4 +107,62 @@ describe('rehypeCaptions', () => {
     expect(html).toContain('code-block');
     expect(html).not.toContain('captioned');
   });
+
+  it('gives every numbered block an address of its own kind', () => {
+    const html = render(
+      [
+        '![A plot](/nope.png "The residuals.")',
+        '',
+        '| a | b |',
+        '| - | - |',
+        '| 1 | 2 |',
+        '',
+        'Caption: The runs.',
+        '',
+        '```python',
+        'x = 1',
+        '```',
+        '',
+        'Caption: The loader.',
+      ].join('\n'),
+    );
+
+    expect(html).toContain('id="fig-1"');
+    expect(html).toContain('id="tbl-1"');
+    expect(html).toContain('id="lst-1"');
+    expect(html).toContain('<a class="caption-anchor" href="#fig-1"');
+    expect(html).toContain('aria-label="Copy a link to Listing 1"');
+  });
+
+  it('takes a name off the end of the caption and keeps the words', () => {
+    const html = render('![A plot](/nope.png "The layout. {#fig-architecture}")');
+
+    expect(html).toContain('id="fig-architecture"');
+    expect(html).toContain('href="#fig-architecture"');
+    expect(html).toContain('The layout.');
+    expect(html).not.toContain('{#fig-architecture}');
+    // The number the reader sees does not move because the block was named.
+    expect(html).toContain('Figure 1.');
+  });
+
+  it('leaves a malformed name in the caption, where it will be noticed', () => {
+    const html = render('![A plot](/nope.png "The layout. {#2-figures}")');
+
+    expect(html).toContain('{#2-figures}');
+    expect(html).toContain('id="fig-1"');
+  });
+
+  it('falls back to the number when two blocks claim the same name', () => {
+    const html = render(
+      [
+        '![One](/nope.png "First. {#fig-same}")',
+        '',
+        '![Two](/nope.png "Second. {#fig-same}")',
+      ].join('\n'),
+    );
+
+    expect(html).toContain('id="fig-same"');
+    expect(html).toContain('id="fig-2"');
+    expect(html.match(/id="fig-same"/g)).toHaveLength(1);
+  });
 });

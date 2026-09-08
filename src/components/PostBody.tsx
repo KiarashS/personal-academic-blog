@@ -43,11 +43,11 @@ export function PostBody({ slug }: { slug: string }) {
         return;
       }
 
-      // A section link is worth more on the clipboard than in the address bar:
-      // it is what someone pastes into a mail or a citation. The hash is still
-      // set, so the page behaves as the link says it will, and a modified click
-      // (new tab, save) is left alone.
-      const anchor = target.closest<HTMLAnchorElement>('.heading-anchor');
+      // A link to a section, or to Figure 2, is worth more on the clipboard
+      // than in the address bar: it is what someone pastes into a mail or a
+      // citation. The hash is still set, so the page behaves as the link says
+      // it will, and a modified click (new tab, save) is left alone.
+      const anchor = target.closest<HTMLAnchorElement>('.heading-anchor, .caption-anchor');
       if (!anchor || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         // Any other link in the prose: a plain anchor, because that is what
         // Markdown produces. Routed rather than followed, so a cross-reference

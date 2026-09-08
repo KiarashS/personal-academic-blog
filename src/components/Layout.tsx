@@ -10,11 +10,25 @@ import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
 import { ThemeToggle } from './ThemeToggle';
 
+/**
+ * A new page starts at the top — unless the link named a place on it.
+ *
+ * The browser does try the fragment itself, but it tries before React has
+ * mounted the route, and this effect then scrolled over the result: every
+ * permalink on the site, headings included, landed at the top of the post
+ * rather than at the thing it pointed to. So the hash is handled here, once
+ * the block it names is actually in the document.
+ */
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
+    const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    if (target) {
+      target.scrollIntoView();
+      return;
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, hash]);
   return null;
 }
 
