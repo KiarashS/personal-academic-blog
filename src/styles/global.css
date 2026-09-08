@@ -1410,6 +1410,74 @@ mark {
   color: var(--text-muted);
 }
 
+/* Loading screen ------------------------------------------------------------ */
+
+/* Pages are prerendered, so the HTML is already complete when it arrives and
+   there is normally nothing to wait for. What is worth covering is hydration:
+   React re-renders the front page and each post through a suspended boundary,
+   and until the module behind it lands the page shows its fallback where the
+   prose should be. On a fast connection that is over in a frame or two.
+
+   Hence the delay below rather than a screen that always appears: it fades in
+   only if the wait passes 150ms, so a quick load shows nothing at all rather
+   than a flicker. The element exists in index.html and is inert until the
+   inline script sets `data-loading` on the root. */
+.splash {
+  display: none;
+}
+
+[data-loading] .splash {
+  align-items: center;
+  animation: splash-in 200ms ease 150ms both;
+  background: var(--bg);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 100;
+}
+
+/* One turning arc on a faint ring, in the page's own ink. */
+.splash__ring {
+  animation: splash-spin 700ms linear infinite;
+  block-size: 1.75rem;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  inline-size: 1.75rem;
+}
+
+@keyframes splash-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes splash-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* A reader who asks for less motion still gets to see that something is
+   happening, without a spinner going round while they wait. */
+@media (prefers-reduced-motion: reduce) {
+  .splash__ring {
+    animation: splash-pulse 1.6s ease-in-out infinite;
+    border-top-color: var(--rule);
+  }
+}
+
+@keyframes splash-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
 /* Home page ---------------------------------------------------------------- */
 
 /* The front page is not prose, so the 68-character measure does not apply to
@@ -1431,12 +1499,33 @@ mark {
   justify-content: flex-end;
 }
 
-/* The front page is exactly one screen. `.page` is already a full-height column
-   with `.site-main` taking the slack, so the banner claims that slack and
-   centres itself in it: no scrollbar, and no guessing at the header's height. */
+/* The front page used to end exactly at the window, footer rule included, so a
+   reader met the bottom of the site before scrolling a single pixel. The column
+   now runs `--banner-overhang` past the window and the footer goes with it.
+
+   The banner does not move. `.site-main` is `flex: 1`, so its box grows by the
+   whole overhang, and its bottom padding grows by the same amount — the content
+   box it centres in keeps the height and the top edge it had. The two values
+   have to be changed together or the name drifts down the screen.
+
+   `svh` rather than `vh`: on a phone `vh` is the height with the address bar
+   retracted, which is not what the reader is looking at on arrival, and the
+   footer would show through until they scrolled. */
 .site-main--banner {
   display: flex;
   padding-bottom: 2.5rem;
+}
+
+.page--banner {
+  /* Taller than the footer, or the footer would still be in view; the surplus
+     is the gap between the fold and the rule. */
+  --banner-overhang: 11rem;
+
+  min-height: calc(100svh + var(--banner-overhang));
+}
+
+.page--banner .site-main--banner {
+  padding-bottom: calc(2.5rem + var(--banner-overhang));
 }
 
 .site-main--banner > .shell {

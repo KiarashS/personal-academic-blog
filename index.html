@@ -31,9 +31,23 @@
           }
         } catch (e) {}
       })();
+
+      // The loading screen is switched on from here rather than being on by
+      // default, so a reader with no JavaScript never meets one that nothing
+      // can turn off. `SplashScreen` clears the flag once React has hydrated;
+      // the timer is the failsafe for the case where the bundle never arrives
+      // at all, and it is set by the same script that set the flag, so the two
+      // cannot come apart.
+      document.documentElement.dataset.loading = '';
+      setTimeout(function () {
+        delete document.documentElement.dataset.loading;
+      }, 8000);
     </script>
   </head>
   <body>
+    <!-- Outside #root: it has to be in the document before any of the bundle
+         runs, and React must not try to hydrate it. -->
+    <div class="splash" aria-hidden="true"><span class="splash__ring"></span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

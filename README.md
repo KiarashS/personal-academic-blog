@@ -626,6 +626,28 @@ One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
 cannot prove the import is dead.
 
+## The loading screen
+
+Pages are prerendered, so the HTML arrives complete and there is usually nothing
+to wait for. What there is to cover is hydration. React re-renders the front
+page and each post through a suspended boundary, and until the module behind it
+lands the page shows the boundary's fallback where the prose should be — on a
+throttled connection I measured that at 750ms on `/`.
+
+So the screen appears on a slow load and never on a fast one. `index.html` sets
+`data-loading` on the root element in the same inline script that applies the
+theme, before first paint; the CSS fades the overlay in after a 150ms delay, so
+a load that finishes inside that window shows nothing rather than a flicker.
+`SplashScreen` clears the flag in an effect, which on a prerendered page runs
+once hydration has committed, after giving `document.fonts.ready` up to 1.5s so
+the words do not reflow a beat later.
+
+Two things it cannot do. It cannot appear for a reader with JavaScript off,
+because the flag that shows it is set by script — the markup is inert until
+then. And it cannot strand anybody if the bundle never arrives: the same inline
+script sets an 8s timer that clears the flag whatever happens, which I checked
+by serving 500s for every `.js` request.
+
 ## When a deploy lands under an open tab
 
 Every chunk is hashed, so a deploy replaces all of them. A tab that was open
@@ -662,11 +684,23 @@ in the code writes either shape by hand — `postPath`, `blogIndexPath` and
 canonical URLs, the feed, the sitemap, the prerendered route list and the giscus
 comment key all read them.
 
-The front page is one screen and stops: a greeting and your name at display
-size, the tagline, and the two or three sentences in `src/content/home.md` that
-point at everything else. No list of posts under it — the blog has its own index
-and the nav is one click away. It claims whatever height the header and footer
-leave, so it fits the window exactly rather than guessing at a `vh` figure.
+The front page is one screen: a greeting and your name at display size, the
+tagline, and the two or three sentences in `src/content/home.md` that point at
+everything else. No list of posts under it — the blog has its own index and the
+nav is one click away.
+
+The footer sits below the fold rather than at the bottom of that screen. Ending
+the window on the copyright rule read as the bottom of the site to a reader who
+had not scrolled at all. `--banner-overhang` on `.page--banner` is how far past
+the window the column runs, and it has to be larger than the footer is tall —
+at 11rem the rule lands 36px below the fold on a 390×844 phone and 58px below
+on a desktop. The banner itself does not move: `.site-main` is `flex: 1`, so its
+box grows by the whole overhang while its bottom padding grows by the same
+amount, which leaves the content box it centres in exactly where it was. Change
+one of the two and the name drifts down the screen. The height is `100svh`, not
+`100vh` — on a phone `vh` is the window with the address bar retracted, which is
+not what a reader is looking at on arrival, and the footer would show through
+until they scrolled.
 
 The header goes bare on that page, dropping its own copy of the name and the
 tagline and leaving the nav, since the name is already the largest thing on the
