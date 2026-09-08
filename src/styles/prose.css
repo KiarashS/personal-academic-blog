@@ -171,15 +171,26 @@
   padding-left: 0;
 }
 
+/*
+ * `content-box`, against the sheet's own `border-box` default: the gutter is
+ * `--code-digits` characters wide *plus* its padding, and the block sets that
+ * from its line count. Sized the other way the padding ate the whole of a
+ * `min-width` in `ch`, leaving each number its natural width — so line 10 sat a
+ * character further right than line 9 and took its code with it.
+ *
+ * The gap to the code is a character and a little: at 1ch the digits and the
+ * first token read as one column.
+ */
 .code-line::before {
   background: var(--code-bg);
+  box-sizing: content-box;
   color: var(--text-muted);
   content: counter(line);
   counter-increment: line;
   display: inline-block;
   left: 0;
-  min-width: 2ch;
-  padding: 0 1ch 0 1rem;
+  min-width: calc(var(--code-digits, 2) * 1ch);
+  padding: 0 calc(1ch + 3px) 0 1rem;
   position: sticky;
   text-align: right;
   user-select: none;

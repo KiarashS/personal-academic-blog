@@ -42,6 +42,23 @@ describe('rehypeCodeBlocks', () => {
     expect(lines(fence('js', 'const a = 1;\nconst b = 2;\nconst c = 3;'))).toHaveLength(3);
   });
 
+  it('sizes the number gutter to the widest line number', () => {
+    const digits = (count: number) =>
+      pre(fence('js', Array.from({ length: count }, (_, i) => `line ${i};`).join('\n'))).properties
+        ?.style;
+
+    // Right-aligning in a gutter this wide is what keeps line 9 and line 10
+    // starting their code at the same column.
+    expect(digits(9)).toBe('--code-digits:1');
+    expect(digits(10)).toBe('--code-digits:2');
+    expect(digits(99)).toBe('--code-digits:2');
+    expect(digits(100)).toBe('--code-digits:3');
+  });
+
+  it('leaves a block too short to number without a gutter', () => {
+    expect(pre(fence('js', 'const a = 1;')).properties?.style).toBeUndefined();
+  });
+
   it('leaves the code the copy button reads unchanged', () => {
     const source = 'def f(x):\n    return x + 1\n';
     expect(toString(pre(fence('python', source)))).toBe(source);

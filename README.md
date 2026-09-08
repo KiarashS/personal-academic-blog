@@ -215,6 +215,15 @@ build time and the number itself comes from a CSS counter, so it is not part of
 the text that is copied or selected, and the gutter stays put while a long line
 scrolls under it.
 
+The gutter is as wide as the widest number in that block and the numbers are
+right-aligned in it, so line 9 and line 10 start their code at the same column.
+The plugin counts the lines and writes `--code-digits` onto the `pre`; the rule
+reads it. It also sets `box-sizing: content-box` against the sheet's default,
+without which the padding consumes the whole of a `min-width` given in `ch` and
+each number falls back to its natural width — which is how a two-digit number
+came to sit a character further right than a one-digit one, and push its line of
+code along with it.
+
 ### Figures
 
 An image alone in a paragraph becomes a `figure`, and the quoted title after
