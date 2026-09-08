@@ -928,14 +928,23 @@ it rather than a link of its own:
 },
 ```
 
-On a wide screen the label opens a popover. It is a disclosure button rather
-than a hover menu: a menu that needs a pointer held over it cannot be used on a
-touch screen and is awkward with a keyboard, and this one answers to a click, to
-Enter, to Escape — which closes it and puts focus back on the button — and to a
-click anywhere outside. The list is in the document either way, so a reader with
-no JavaScript gets the links, open and unclosable. On a narrow screen there is
-no popover at all: the sheet already fills the window, so the entries are simply
-stepped in under the label.
+A group is a `details` element at both sizes, closed until it is asked for. The
+browser opens and closes one with no script at all, which is why it is used here
+rather than a button and a class: written that way the popover stayed
+`visibility: hidden` until JavaScript added the class, so its links sat in the
+page unreachable.
+
+On a wide screen it is a popover, and a disclosure rather than a hover menu — a
+menu that needs a pointer held over it cannot be used on a touch screen and is
+awkward with a keyboard. It answers to a click, to Enter, to Escape, which
+closes it and puts focus back on the label, and to a click anywhere outside. The
+last two are all the script adds; `details` does the rest.
+
+On a narrow screen it is the same disclosure, with the entries stepped in under
+the label rather than floating over the page, and closing the sheet folds it
+back up so the menu opens the same way every time. The sheet itself needs
+JavaScript to slide in, so the no-script guarantee above covers the wide-screen
+popover only.
 
 A group's entries are ordinary anchors, never router links. They go to a page
 React does not render, and routing one would hand it to React Router, which has

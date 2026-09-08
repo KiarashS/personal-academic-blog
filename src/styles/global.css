@@ -268,16 +268,18 @@ video {
   position: relative;
 }
 
+/* The browser's own disclosure triangle, removed in the two ways browsers
+   want it removed, so the caret below is the only marker. */
 .nav-group__toggle {
   align-items: center;
-  background: none;
-  border: 0;
-  color: inherit;
   cursor: pointer;
   display: inline-flex;
-  font: inherit;
   gap: 0.25rem;
-  padding: 0;
+  list-style: none;
+}
+
+.nav-group__toggle::-webkit-details-marker {
+  display: none;
 }
 
 .nav-group__toggle:hover {
@@ -288,12 +290,12 @@ video {
   transition: transform 150ms ease-in-out;
 }
 
-.nav-group__toggle[aria-expanded='true'] .nav-group__caret {
+.nav-group[open] .nav-group__caret {
   transform: rotate(180deg);
 }
 
-/* Present in the document either way, so a reader with no JavaScript has the
-   links; `visibility` rather than `display` keeps the fade. */
+/* Shown by `details` being open, which is a state the browser keeps on its own.
+   `visibility` rather than `display` so the fade has something to fade. */
 .nav-group__popover {
   background: var(--bg);
   border: 1px solid var(--rule);
@@ -320,7 +322,7 @@ video {
   z-index: 20;
 }
 
-.nav-group__popover--open {
+.nav-group[open] .nav-group__popover {
   opacity: 1;
   visibility: visible;
 }
@@ -418,34 +420,58 @@ video {
   text-decoration: none;
 }
 
-/* No popover on a sheet that is already the whole screen: a group is its label
-   and its entries stepped in under it. `display: contents` puts both in the
-   nav's own column, so the label lines up with the links above it.
+/* A group on the sheet is a disclosure, closed until it is asked for: its label
+   reads as a peer of the entries above it, and its own entries appear under it
+   only once the reader opens it.
 
    These rules follow `.mobile-nav__panel a` deliberately. They carry the same
    specificity, so placed before it the padding below would lose and the entries
    would sit flush with the top-level ones. */
-.mobile-nav__group {
-  display: contents;
-}
-
 .mobile-nav__group-label {
-  color: var(--text-muted);
+  align-items: center;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
   font-family: var(--sans);
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  margin: 1.2rem 0 0.2rem;
-  padding: 0 3rem;
-  text-transform: uppercase;
+  font-size: 1.5rem;
+  font-weight: 700;
+  gap: 0.6rem;
+  letter-spacing: 0.1em;
+  line-height: 2rem;
+  list-style: none;
+  padding: 1rem 3rem;
 }
 
-/* Smaller and stepped in, so the group reads as one entry with a list under it
-   rather than three more entries of equal weight. */
+.mobile-nav__group-label::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-nav__group-caret {
+  height: 16px;
+  transition: transform 150ms ease-in-out;
+  width: 16px;
+}
+
+.mobile-nav__group[open] .mobile-nav__group-caret {
+  transform: rotate(180deg);
+}
+
+/* Smaller and stepped in, so the entries read as a list under one heading
+   rather than as more entries of equal weight. `block` because inside `details`
+   they are no longer flex items of the nav's column, and an inline anchor at
+   this size runs along the row and out of the sheet. */
 .mobile-nav__group a {
+  display: block;
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 0.55rem 3rem 0.55rem 4.25rem;
+  padding: 0.4rem 3rem 0.4rem 4.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav__group-caret {
+    transition: none;
+  }
 }
 
 @media (width <= 40rem) {

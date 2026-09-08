@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isNavGroup, visibleNav } from '../lib/features';
-import { NavGroupLink } from './NavGroup';
+import { NavCaret, NavGroupLink } from './NavGroup';
 
 /** The two icons the one button shows, taken from the reference implementation. */
 const BARS =
@@ -51,6 +51,14 @@ export function MobileNav() {
     };
   }, [open]);
 
+  // Folding the groups back up belongs to the sheet closing, not to one way of
+  // closing it: the button, Escape, a tap on the empty space and following a
+  // link all end here, and the menu should open the same way every time.
+  useEffect(() => {
+    if (open) return;
+    for (const group of panel.current?.querySelectorAll('details') ?? []) group.open = false;
+  }, [open]);
+
   const close = () => {
     setOpen(false);
     // Back to the button that opened it, rather than the top of the document.
@@ -86,14 +94,18 @@ export function MobileNav() {
         <nav aria-label="Main">
           {visibleNav().map((item) =>
             isNavGroup(item) ? (
-              // The sheet is already the whole screen, so a group is simply its
-              // label and its entries indented under it; nothing to open.
-              <div className="mobile-nav__group" key={item.label}>
-                <p className="mobile-nav__group-label">{item.label}</p>
+              // Closed until the reader asks for it. `details` again, for the
+              // same reason as on a wide screen: the browser opens and closes
+              // one without any script, so the entries are reachable either way.
+              <details className="mobile-nav__group" key={item.label}>
+                <summary className="mobile-nav__group-label">
+                  {item.label}
+                  <NavCaret className="mobile-nav__group-caret" />
+                </summary>
                 {item.items.map((child) => (
                   <NavGroupLink item={child} key={child.to} onClick={close} />
                 ))}
-              </div>
+              </details>
             ) : (
               <Link key={item.to} onClick={close} to={item.to ?? '/'}>
                 {item.label}

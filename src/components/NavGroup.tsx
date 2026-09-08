@@ -1,7 +1,28 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isExternal } from '../lib/features';
 import { withBase } from '../lib/urls';
 import type { NavItem } from '../site.config';
+
+/** The chevron that says the label opens something. */
+export function NavCaret({ className }: { className: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      focusable="false"
+      height="10"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      width="10"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
 
 /**
  * One entry under a group. Always a real anchor, never a router link: these go
@@ -26,35 +47,33 @@ export function NavGroupLink({ item, onClick }: { item: NavItem; onClick?: () =>
 
 /**
  * A nav entry that opens a list rather than going somewhere: the wide-screen
- * half of a group. It is a disclosure button, not a hover menu — a menu that
- * needs a pointer to be held over it is unusable on a touch screen and awkward
- * with a keyboard, and this one answers to a click, to Enter, and to Escape.
+ * half of a group.
  *
- * The narrow-screen half is in `MobileNav`, where the entries are simply
- * indented under the label; a panel that already fills the screen has no need
- * of a second layer that opens and closes.
+ * `details` rather than a button and a class, because the browser already knows
+ * how to open and close one and does it with no script at all. That is the
+ * point here: written as a div the popover stayed `visibility: hidden` until a
+ * class arrived, so with scripting off its links sat in the page unreachable.
+ * Now they open on a click either way.
+ *
+ * The state below mirrors the element's rather than driving what is on screen —
+ * CSS does that, from `[open]`. It exists so the two listeners are only
+ * attached while the popover is up: Escape and a click elsewhere, which are the
+ * things `details` has no opinion about.
  */
 export function NavGroup({ item }: { item: NavItem & { items: NavItem[] } }) {
   const [open, setOpen] = useState(false);
-  const wrap = useRef<HTMLDivElement>(null);
-  const toggle = useRef<HTMLButtonElement>(null);
-  const id = useId();
+  const wrap = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     if (!open) return;
-
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       setOpen(false);
-      toggle.current?.focus();
+      wrap.current?.querySelector('summary')?.focus();
     };
-
-    // A click anywhere else closes it, including on another group's button,
-    // which then opens its own.
-    const onPointer = (event: MouseEvent) => {
+    const onPointer = (event: PointerEvent) => {
       if (!wrap.current?.contains(event.target as Node)) setOpen(false);
     };
-
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer);
     return () => {
@@ -64,38 +83,19 @@ export function NavGroup({ item }: { item: NavItem & { items: NavItem[] } }) {
   }, [open]);
 
   return (
-    <div className="nav-group" ref={wrap}>
-      <button
-        aria-controls={id}
-        aria-expanded={open}
-        className="nav-group__toggle"
-        onClick={() => {
-          setOpen((was) => !was);
-        }}
-        ref={toggle}
-        type="button"
-      >
+    <details
+      className="nav-group"
+      onToggle={(event) => {
+        setOpen(event.currentTarget.open);
+      }}
+      open={open}
+      ref={wrap}
+    >
+      <summary className="nav-group__toggle">
         {item.label}
-        <svg
-          aria-hidden="true"
-          className="nav-group__caret"
-          fill="none"
-          focusable="false"
-          height="10"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          width="10"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </button>
-
-      {/* Rendered either way so the links are in the document for a reader
-          without JavaScript, who gets the list open and cannot close it. */}
-      <div className={`nav-group__popover${open ? ' nav-group__popover--open' : ''}`} id={id}>
+        <NavCaret className="nav-group__caret" />
+      </summary>
+      <div className="nav-group__popover">
         {item.items.map((child) => (
           <NavGroupLink
             item={child}
@@ -106,6 +106,6 @@ export function NavGroup({ item }: { item: NavItem & { items: NavItem[] } }) {
           />
         ))}
       </div>
-    </div>
+    </details>
   );
 }
