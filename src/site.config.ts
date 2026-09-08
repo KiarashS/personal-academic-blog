@@ -179,7 +179,7 @@ export const siteConfig: SiteConfig = {
     categories: false,
     // On once `nav`'s Projects group lists work of yours rather than the
     // example that ships with it.
-    projects: false,
+    projects: true,
     slides: false,
     contact: false,
   },
