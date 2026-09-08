@@ -17,14 +17,29 @@ export interface GiscusConfig {
 }
 
 /** Optional parts of the site that can be switched off wholesale. */
-export type FeatureName = 'home' | 'publications' | 'archive' | 'categories' | 'slides' | 'contact';
+export type FeatureName =
+  'home' | 'publications' | 'archive' | 'categories' | 'projects' | 'slides' | 'contact';
 
 export interface NavItem {
   label: string;
-  /** A path, or `BLOG_INDEX` for wherever the blog index currently is. */
-  to: string;
+  /**
+   * A path, or `BLOG_INDEX` for wherever the blog index currently is. A group
+   * has none: it is a label with a list under it rather than a link itself.
+   */
+  to?: string;
   /** When set, the entry and its route only exist if that feature is on. */
   feature?: FeatureName;
+  /**
+   * Entries shown under this one — a popover on a wide screen, an indented list
+   * in the menu on a narrow one. A group whose entries have all been gated away
+   * is dropped along with them.
+   *
+   * These are links out of the app: a page of your own under `public/`, or
+   * another site. They are ordinary anchors and load as documents, which is
+   * what a page React does not render needs. `npm run links` still checks the
+   * internal ones, so a folder you have not added yet fails the build.
+   */
+  items?: NavItem[];
 }
 
 export interface AnalyticsConfig {
@@ -162,6 +177,9 @@ export const siteConfig: SiteConfig = {
     publications: false,
     archive: true,
     categories: false,
+    // On once `nav`'s Projects group lists work of yours rather than the
+    // example that ships with it.
+    projects: false,
     slides: false,
     contact: false,
   },
@@ -210,6 +228,17 @@ export const siteConfig: SiteConfig = {
     { label: 'Slides', to: '/slides', feature: 'slides' },
     { label: 'Archive', to: '/archive', feature: 'archive' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
+    {
+      // A label with a list under it rather than a link: standalone pages of
+      // your own kept in `public/projects/<name>/`, and work that lives
+      // somewhere else. Replace these two with your own and turn the flag on.
+      label: 'Projects',
+      feature: 'projects',
+      items: [
+        { label: 'An example project', to: '/projects/example/' },
+        { label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
+      ],
+    },
     { label: 'Tags', to: '/tags' },
     { label: 'Search', to: '/search' },
     { label: 'About', to: '/about' },

@@ -261,6 +261,88 @@ video {
   gap: 0.5rem 1rem;
 }
 
+/* A nav entry that opens a list. The wrapper is the positioning context for
+   the popover and the thing a click is measured against when deciding whether
+   it landed outside. */
+.nav-group {
+  position: relative;
+}
+
+.nav-group__toggle {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 0.25rem;
+  padding: 0;
+}
+
+.nav-group__toggle:hover {
+  color: var(--text);
+}
+
+.nav-group__caret {
+  transition: transform 150ms ease-in-out;
+}
+
+.nav-group__toggle[aria-expanded='true'] .nav-group__caret {
+  transform: rotate(180deg);
+}
+
+/* Present in the document either way, so a reader with no JavaScript has the
+   links; `visibility` rather than `display` keeps the fade. */
+.nav-group__popover {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 8%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+
+  /* Hanging from the button's leading edge, which is where the eye already is.
+     `max-width` keeps a long project name from running off a narrow window;
+     the names wrap rather than the popover overflowing. */
+  inset-inline-start: 0;
+  max-width: min(18rem, calc(100vw - 2rem));
+  min-width: max-content;
+  opacity: 0;
+  padding: 0.4rem;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  transition:
+    opacity 150ms ease-in-out,
+    visibility 150ms ease-in-out;
+  visibility: hidden;
+  z-index: 20;
+}
+
+.nav-group__popover--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-group__popover a {
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  text-decoration: none;
+}
+
+.nav-group__popover a:hover {
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-group__popover,
+  .nav-group__caret {
+    transition: none;
+  }
+}
+
 .site-header__controls {
   align-items: center;
   display: flex;
@@ -334,6 +416,36 @@ video {
   line-height: 2rem;
   padding: 1rem 3rem;
   text-decoration: none;
+}
+
+/* No popover on a sheet that is already the whole screen: a group is its label
+   and its entries stepped in under it. `display: contents` puts both in the
+   nav's own column, so the label lines up with the links above it.
+
+   These rules follow `.mobile-nav__panel a` deliberately. They carry the same
+   specificity, so placed before it the padding below would lose and the entries
+   would sit flush with the top-level ones. */
+.mobile-nav__group {
+  display: contents;
+}
+
+.mobile-nav__group-label {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  margin: 1.2rem 0 0.2rem;
+  padding: 0 3rem;
+  text-transform: uppercase;
+}
+
+/* Smaller and stepped in, so the group reads as one entry with a list under it
+   rather than three more entries of equal weight. */
+.mobile-nav__group a {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.55rem 3rem 0.55rem 4.25rem;
 }
 
 @media (width <= 40rem) {

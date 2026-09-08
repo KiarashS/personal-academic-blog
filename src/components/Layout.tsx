@@ -1,11 +1,12 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
-import { isEnabled, visibleNav } from '../lib/features';
+import { isEnabled, isNavGroup, visibleNav } from '../lib/features';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
+import { NavGroup } from './NavGroup';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
 import { ThemeToggle } from './ThemeToggle';
@@ -56,11 +57,15 @@ export function Layout() {
               </Link>
             )}
             <nav className="site-nav" aria-label="Main">
-              {visibleNav().map((item) => (
-                <NavLink key={item.to} to={item.to} end={item.to === '/'}>
-                  {item.label}
-                </NavLink>
-              ))}
+              {visibleNav().map((item) =>
+                isNavGroup(item) ? (
+                  <NavGroup item={item} key={item.label} />
+                ) : (
+                  <NavLink end={item.to === '/'} key={item.to} to={item.to ?? '/'}>
+                    {item.label}
+                  </NavLink>
+                ),
+              )}
               <CvLink />
               <FeedLink icon />
             </nav>

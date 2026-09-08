@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { visibleNav } from '../lib/features';
+import { isNavGroup, visibleNav } from '../lib/features';
+import { NavGroupLink } from './NavGroup';
 
 /** The two icons the one button shows, taken from the reference implementation. */
 const BARS =
@@ -83,11 +84,22 @@ export function MobileNav() {
         ref={panel}
       >
         <nav aria-label="Main">
-          {visibleNav().map((item) => (
-            <Link key={item.to} onClick={close} to={item.to}>
-              {item.label}
-            </Link>
-          ))}
+          {visibleNav().map((item) =>
+            isNavGroup(item) ? (
+              // The sheet is already the whole screen, so a group is simply its
+              // label and its entries indented under it; nothing to open.
+              <div className="mobile-nav__group" key={item.label}>
+                <p className="mobile-nav__group-label">{item.label}</p>
+                {item.items.map((child) => (
+                  <NavGroupLink item={child} key={child.to} onClick={close} />
+                ))}
+              </div>
+            ) : (
+              <Link key={item.to} onClick={close} to={item.to ?? '/'}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
       </div>
     </>

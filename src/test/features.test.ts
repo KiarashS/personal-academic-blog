@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterNav } from '../lib/features';
+import { filterNav, isExternal, isNavGroup } from '../lib/features';
 import { siteConfig } from '../site.config';
 import type { NavItem } from '../site.config';
 
@@ -15,6 +15,7 @@ const all = {
   publications: true,
   archive: true,
   categories: true,
+  projects: true,
   slides: true,
   contact: true,
 };
@@ -23,6 +24,7 @@ const none = {
   publications: false,
   archive: false,
   categories: false,
+  projects: false,
   slides: false,
   contact: false,
 };
@@ -61,5 +63,56 @@ describe('visibleNav', () => {
     const blog = visibleNav().find((item) => item.label === 'Blog');
     expect(blog?.to).not.toBe(BLOG_INDEX);
     expect(['/', '/blog']).toContain(blog?.to);
+  });
+});
+
+describe('groups', () => {
+  const grouped: NavItem[] = [
+    { label: 'Blog', to: '/' },
+    {
+      label: 'Projects',
+      feature: 'projects',
+      items: [
+        { label: 'Mine', to: '/projects/one/' },
+        { label: 'Theirs', to: 'https://example.org/x' },
+        { label: 'Slides', to: '/slides', feature: 'slides' },
+      ],
+    },
+  ];
+
+  it('is a group when it has entries, and a plain entry otherwise', () => {
+    expect(isNavGroup(grouped[1])).toBe(true);
+    expect(isNavGroup(grouped[0])).toBe(false);
+    expect(isNavGroup({ label: 'Empty', items: [] })).toBe(false);
+  });
+
+  it('gates the entries inside a group, not only the group', () => {
+    const kept = filterNav(grouped, { ...none, projects: true });
+    expect(kept[1].items?.map((i) => i.to)).toEqual(['/projects/one/', 'https://example.org/x']);
+  });
+
+  it('drops a group whose own feature is off', () => {
+    expect(filterNav(grouped, none).map((i) => i.label)).toEqual(['Blog']);
+  });
+
+  it('drops a group left with nothing to label', () => {
+    const emptied: NavItem[] = [
+      { label: 'Projects', items: [{ label: 'Slides', to: '/slides', feature: 'slides' }] },
+    ];
+    expect(filterNav(emptied, none)).toEqual([]);
+    expect(filterNav(emptied, all)).toHaveLength(1);
+  });
+});
+
+describe('isExternal', () => {
+  it('is true for anything with a scheme, or none at all', () => {
+    expect(isExternal('https://example.org')).toBe(true);
+    expect(isExternal('mailto:a@b.c')).toBe(true);
+    expect(isExternal('//example.org')).toBe(true);
+  });
+
+  it('is false for a path on this site, whether or not React renders it', () => {
+    expect(isExternal('/projects/one/')).toBe(false);
+    expect(isExternal('/blog')).toBe(false);
   });
 });

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>An example project</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fdfdfc;
+        --text: #1b1b18;
+        --muted: #6b6b60;
+        --rule: #e2e0d8;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14140f;
+          --text: #e6e4dc;
+          --muted: #9a988c;
+          --rule: #2f2e27;
+        }
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: Georgia, 'Times New Roman', serif;
+        line-height: 1.65;
+        margin: 0 auto;
+        max-width: 42rem;
+        padding: 3rem 1.25rem 4rem;
+      }
+
+      h1 {
+        font-size: 1.9rem;
+        line-height: 1.2;
+        margin: 0 0 0.4rem;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-family: system-ui, sans-serif;
+        font-size: 0.85rem;
+        margin: 0 0 2rem;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        color: var(--muted);
+        font-family: system-ui, sans-serif;
+        font-size: 0.85rem;
+        margin-top: 3rem;
+        padding-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>An example project</h1>
+    <p class="meta">A placeholder. Replace this folder with a project of your own.</p>
+
+    <p>
+      This page is a plain HTML file at <code>public/projects/example/index.html</code>, served at
+      <code>/projects/example/</code>. Nothing here goes through the site's build: no Markdown, no
+      React, no bundling. Whatever you put in the folder is what a reader gets, which is the point —
+      a demo with its own scripts, a rendered notebook, a D3 visualisation or a report exported from
+      somewhere else can all live here unchanged.
+    </p>
+
+    <p>
+      Add the folder to the <code>Projects</code> group in <code>src/site.config.ts</code> and it
+      appears in the site's navigation. An entry can just as well be a URL somewhere else.
+    </p>
+
+    <footer><a href="/">Back to the site</a></footer>
+  </body>
+</html>
