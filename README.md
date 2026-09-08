@@ -626,27 +626,44 @@ One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
 cannot prove the import is dead.
 
-## The loading screen
+## Why the prerender renders synchronously
 
-Pages are prerendered, so the HTML arrives complete and there is usually nothing
-to wait for. What there is to cover is hydration. React re-renders the front
-page and each post through a suspended boundary, and until the module behind it
-lands the page shows the boundary's fallback where the prose should be — on a
-throttled connection I measured that at 750ms on `/`.
+Every route component is `lazy` in `src/App.tsx`, which is right for a reader:
+KaTeX, highlight.js and the search index belong on the routes that use them, not
+in the first request. It was wrong for the build. React's streaming prerender
+writes the shell as it goes, and a Suspense boundary it cannot finish before the
+shell is flushed gets its fallback written there instead, with the real markup
+appended afterwards in a hidden block and a script to swap the two over.
 
-So the screen appears on a slow load and never on a fast one. `index.html` sets
-`data-loading` on the root element in the same inline script that applies the
-theme, before first paint; the CSS fades the overlay in after a 150ms delay, so
-a load that finishes inside that window shows nothing rather than a flicker.
-`SplashScreen` clears the flag in an effect, which on a prerendered page runs
-once hydration has committed, after giving `document.fonts.ready` up to 1.5s so
-the words do not reflow a beat later.
+That page is whole only for a reader running JavaScript. With scripts off, the
+front page and every post rendered as the word "Loading…" and nothing else — the
+name, the signature, the portrait and the entire article were all in the file,
+in a `hidden` div nothing was going to reveal. It took the front page's inlined
+signature to tip `/` over the threshold: comment the `Signature` out and the same
+page prerendered complete.
 
-Two things it cannot do. It cannot appear for a reader with JavaScript off,
-because the flag that shows it is set by script — the markup is inert until
-then. And it cannot strand anybody if the bundle never arrives: the same inline
-script sets an 8s timer that clears the flag whatever happens, which I checked
-by serving 500s for every `.js` request.
+Three changes, and the point of all three is that nothing suspends during a
+build:
+
+`src/lib/page-registry.ts` holds the route components the server already has.
+`entry-server.tsx` imports the pages for real and registers them; `App` asks for
+the registered one and falls back to the lazy one. The map stays empty in the
+browser, so the reader's bundle still splits.
+
+`src/lib/resource.ts` is the same idea for content. `use(promise)` is what a
+reader needs and the opposite of what the build needs, so a resource keeps the
+value beside the promise: warm it once and `useResource` reads it without
+suspending. `entry-server.tsx` warms `home.md`, `about.md`, `contact.md` and
+every post body before it renders anything.
+
+With nothing left to suspend, `render` uses `renderToString` rather than
+`prerenderToNodeStream`. The streaming renderer has no work to do on a tree that
+never waits, and the synchronous one cannot defer a boundary it has no reason to
+defer, so the file it writes is the whole page.
+
+The check that matters is `grep -rl 'class="empty">Loading' dist --include=index.html`,
+which should find nothing. A page that starts suspending again will show up
+there, and in `div hidden id="S:`.
 
 ## When a deploy lands under an open tab
 

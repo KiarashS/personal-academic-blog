@@ -1,17 +1,15 @@
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import { Avatar } from '../components/Avatar';
 import { RoutedHtml } from '../components/RoutedHtml';
+import { resource, useResource } from '../lib/resource';
 import { Signature } from '../components/Signature';
 import { profileLinks, siteOwner } from '../lib/profiles';
 import { siteConfig } from '../site.config';
 
-const load = () => import('../content/home.md') as Promise<{ html: string }>;
-let promise: Promise<{ html: string }> | null = null;
+export const homeBody = resource(() => import('../content/home.md') as Promise<{ html: string }>);
 
 function HomeBody() {
-  promise ??= load();
-  const { html } = use(promise);
-  return <RoutedHtml className="banner__lines" html={html} />;
+  return <RoutedHtml className="banner__lines" html={useResource(homeBody).html} />;
 }
 
 /**

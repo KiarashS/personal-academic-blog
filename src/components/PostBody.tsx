@@ -1,7 +1,8 @@
-import { use, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { routerPath, shouldRoute } from '../lib/internal-links';
-import { postHtml } from '../lib/post-content';
+import { postBody } from '../lib/post-content';
+import { useResource } from '../lib/resource';
 import { useTheme } from './ThemeProvider';
 
 /**
@@ -10,7 +11,7 @@ import { useTheme } from './ThemeProvider';
  * the copy buttons and, in development, draw any diagram the build did not.
  */
 export function PostBody({ slug }: { slug: string }) {
-  const html = use(postHtml(slug));
+  const html = useResource(postBody(slug));
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();

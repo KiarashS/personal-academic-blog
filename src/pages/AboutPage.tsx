@@ -1,15 +1,13 @@
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import { AuthorCard } from '../components/AuthorCard';
 import { authors } from '../content/authors';
 import { RoutedHtml } from '../components/RoutedHtml';
+import { resource, useResource } from '../lib/resource';
 
-const load = () => import('../content/about.md') as Promise<{ html: string }>;
-let promise: Promise<{ html: string }> | null = null;
+export const aboutBody = resource(() => import('../content/about.md') as Promise<{ html: string }>);
 
 function AboutBody() {
-  promise ??= load();
-  const { html } = use(promise);
-  return <RoutedHtml className="prose" html={html} />;
+  return <RoutedHtml className="prose" html={useResource(aboutBody).html} />;
 }
 
 export function AboutPage() {

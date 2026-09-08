@@ -8,7 +8,6 @@ import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
-import { SplashScreen } from './SplashScreen';
 import { ThemeToggle } from './ThemeToggle';
 
 function ScrollToTop() {
@@ -30,7 +29,6 @@ export function Layout() {
     <div className={`page${bare ? ' page--banner' : ''}`}>
       <PageMeta />
       <ScrollToTop />
-      <SplashScreen />
       <a className="skip-link" href="#main">
         Skip to content
       </a>

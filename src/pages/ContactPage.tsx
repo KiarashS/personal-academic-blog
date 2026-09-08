@@ -1,14 +1,14 @@
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import { profileLinks, siteOwner } from '../lib/profiles';
 import { RoutedHtml } from '../components/RoutedHtml';
+import { resource, useResource } from '../lib/resource';
 
-const load = () => import('../content/contact.md') as Promise<{ html: string }>;
-let promise: Promise<{ html: string }> | null = null;
+export const contactBody = resource(
+  () => import('../content/contact.md') as Promise<{ html: string }>,
+);
 
 function ContactBody() {
-  promise ??= load();
-  const { html } = use(promise);
-  return <RoutedHtml className="prose" html={html} />;
+  return <RoutedHtml className="prose" html={useResource(contactBody).html} />;
 }
 
 /**
