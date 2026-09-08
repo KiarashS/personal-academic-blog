@@ -272,6 +272,12 @@ video {
    want it removed, so the caret below is the only marker. */
 .nav-group__toggle {
   align-items: center;
+
+  /* The same resting colour a nav link has. It is a `summary`, not an `a`, so
+     `.site-nav a` does not reach it, and without this it inherited the header's
+     full-strength text — which is exactly how the nav marks the page you are
+     on, so Projects read as the current page from everywhere. */
+  color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
   gap: 0.25rem;
@@ -282,7 +288,12 @@ video {
   display: none;
 }
 
-.nav-group__toggle:hover {
+/* Darker while the popover is up, the way a link darkens under the pointer.
+   Never the `aria-current` treatment: a group is not a page, and its entries
+   leave the app, so there is no route for the nav to match. */
+.nav-group__toggle:hover,
+.nav-group__toggle:focus-visible,
+.nav-group[open] .nav-group__toggle {
   color: var(--text);
 }
 
