@@ -810,7 +810,7 @@ home: {
   tagline: '',            // the line under the name; empty uses the site's
   description: '',        // what a link to `/` previews as; empty uses the site's
   profileLinks: true,     // ORCID, Scholar and the rest, under the lines
-  signature: true,        // draw src/content/signature.svg in place of the name
+  signature: true,        // write the name rather than set it as type
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
 },
@@ -854,37 +854,47 @@ characters, narrower than anything else here. The whole page widens together,
 header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
-The signature writes itself along a pen path: the letters are uncovered through
-a mask stroked over their centreline, one stroke at a time, over 3.4s, then the
-hand lifts for 200ms and the flourish underneath draws in over 800ms.
+The signature writes itself. The letters are pen strokes, drawn in the order a
+hand makes them over 4.2s, then the hand lifts for 200ms and the flourish
+underneath draws in over 800ms.
 
 Those durations are a hand's, not a designer's. At this size the drawing is
-close to life size on a desktop screen — 178px is about 4.7cm — and the pen
-travels 1384 user units through it, 507px or 13.4cm of path. Cursive runs at a
+close to life size on a desktop screen — 176px is about 4.7cm — and the pen
+travels 1639 user units through it, 612px or 16.2cm of path, because cursive
+doubles back on itself and the width is not the distance. Handwriting runs at a
 few centimetres a second and a signature someone is taking care over is at the
-slow end of that, so 3.4s puts the hand at 3.9cm/s. The swash is quicker because
+slow end of that, so 4.2s puts the hand at 3.9cm/s. The swash is quicker because
 a flourish is a flick.
 
-The centreline is the point. The glyphs are filled outlines — closed shapes
-traced from handwriting — so they cannot be drawn stroke-wise: a dash animation
-on one would trace around the letter's contour rather than through it. Only the
-flourish was ever a real stroke, which is why that part alone used to look like
-drawing while a front wiped across the rest.
+`src/content/signature-script.svg` is what ships. `scripts/draw-signature.mjs`
+is its editable form, and the SVG is generated: run the script and it rewrites
+the file. A letter there is a short list of positions the pen passes through,
+joined by a centripetal Catmull-Rom spline — the curve goes through every point,
+meets itself smoothly at each one, and, unlike the uniform kind, does not loop
+or overshoot where the points bunch up, which is wherever a stroke turns hard.
+That is most of why the hand looks even. The rest is the grid: heights are given
+as multiples of the x-height, so an arch that should match a bowl is written as
+the same number, and the forward lean is one shear over the finished drawing
+rather than something built into each letter.
 
-There is a second signature in the repo that sidesteps all of this.
-`src/content/signature-script.svg` is the name written as pen strokes to begin
-with — four of them, plus the flourish — so the letters _are_ the path and no
-mask is involved. `Signature.tsx` animates `.ks-pen` and `.ks-stroke` alike, so
-it is a drop-in: change the import at the top of that file and nothing else
-moves. It is 1.7KB against 30KB, and the pen covers 14.4cm at 4.2cm/s.
+"iarash" is one point list, not six, so the little U where two letters meet is
+not drawn by either of them — it is what the spline does between the end of one
+downstroke and the start of the next upstroke. A hand does not lift between
+them and neither does this. The K is two strokes because a hand makes it in two,
+and the i's dot is a third.
 
-`scripts/draw-signature.mjs` is its editable form. The letters there are
-functions of a position on a writing grid — baseline, x-height, ascender — so a
-shoulder that reads wrong is a line to change rather than an archaeology
-problem in a wall of bezier numbers. It is invented lettering, though, not
-anyone's handwriting, which is the reason the traced file is still the default.
+It is invented lettering, not anyone's handwriting, and it is four strokes and
+2KB.
 
-`scripts/trace-signature.mjs` derives the path and writes it into
+The repo also carries a traced signature, `src/content/signature.svg`, and the
+machinery for it. That one is filled outlines — closed shapes traced from real
+handwriting — so it cannot be drawn stroke-wise: a dash animation on a glyph
+would trace around its contour rather than through it. It needs a centreline
+derived for it, and it is 30KB. `Signature.tsx` animates `.ks-pen` and
+`.ks-stroke` alike, so the two are swappable: change the import at the top of
+that file, and the aspect ratio in `.banner__signature`, and nothing else moves.
+
+`scripts/trace-signature.mjs` derives that centreline and writes it into
 `src/content/signature.svg` as `<mask id="ks-write">`. It rasterises each glyph,
 thins it to a one-pixel skeleton, and walks every branch of it, emitting one
 `<path class="ks-pen">` per stroke — nineteen for this signature. Run it when
@@ -900,26 +910,30 @@ those parts are never revealed at all — so the walk covers every branch, and
 each forward run becomes its own stroke rather than retracing, because a pen
 that retraces uncovers nothing while it does. And an SVG dash pattern restarts
 at every subpath, so nineteen subpaths in one path uncover the whole name at
-once; nineteen elements, each waiting for the ink before it, do not.
+once; nineteen elements, each waiting for the ink before it, do not. That last
+one applies to the drawn signature too, which is why its four strokes are four
+elements.
 
-The mask is stroked at 26 user units, which is the narrowest that covers the
-letters: measured against the unmasked drawing, 26 leaves 7 of 101,133 ink
-pixels uncovered and no wider value does better, so those seven are antialiasing
-at the edges. A consequence worth knowing: a mask that wide uncovers a
-neighbouring stroke passing within half of it, so where a letter doubles back on
-itself the ink arrives slightly early. It plays when the drawing scrolls into view and again on a
-click, and a reader who asks for reduced motion gets it finished instead. The
-markup ships complete and is hidden only once the effect runs, so a reader
-without JavaScript sees the name rather than an empty box.
+That mask, when it is used, is stroked at 26 user units, which is the narrowest
+that covers the letters: measured against the unmasked drawing, 26 leaves 7 of
+101,133 ink pixels uncovered and no wider value does better, so those seven are
+antialiasing at the edges. A consequence worth knowing: a mask that wide
+uncovers a neighbouring stroke passing within half of it, so where a letter
+doubles back on itself the ink arrives slightly early. Nothing like it applies
+to the drawn signature, where the stroke is the letter.
 
-It is inlined from `src/content/signature.svg` rather than loaded as
-an image, so `.ks-glyph` and `.ks-flourish` inside it take their ink from the
-page's own colour token. An `img` would keep whatever colour the file was drawn
-in, and a reader who picks dark mode on a light system would get dark ink on a
-dark page. Replace the file with your own drawing, or set `signature: false` and
-the name is set as type. It is sized in pixels per breakpoint, not in `em`: the
-drawing has to keep its proportions rather than wobble against the type beside
-it.
+Either way it plays when the drawing scrolls into view and again on a click, and
+a reader who asks for reduced motion gets it finished instead. The markup ships
+complete and is hidden only once the effect runs, so a reader without JavaScript
+sees the name rather than an empty box.
+
+The file is inlined rather than loaded as an image, so `.ks-stroke`, `.ks-glyph`
+and `.ks-flourish` inside it take their ink from the page's own colour token. An
+`img` would keep whatever colour the file was drawn in, and a reader who picks
+dark mode on a light system would get dark ink on a dark page. Replace the file
+with your own drawing, or set `signature: false` and the name is set as type. It
+is sized in pixels per breakpoint, not in `em`: the drawing has to keep its
+proportions rather than wobble against the type beside it.
 
 The link lines are `src/content/home.md`, so they are yours to write, and they
 survive a feature being switched off. A link to `/contact`, `/slides`,

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import signatureSource from '../content/signature.svg?raw';
+import signatureSource from '../content/signature-script.svg?raw';
 import { siteConfig } from '../site.config';
 
 /**
@@ -13,37 +13,40 @@ const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusab
 /**
  * The name, a lift, and then the swash under it.
  *
- * At this size the drawing is close to life size on a desktop screen — 178px is
- * about 4.7cm — and the pen travels 1384 user units through it, 507px or 13.4cm
- * of path. Cursive runs at a few centimetres a second and a signature someone
- * is taking care over is at the slow end of that, so 3.4s puts the hand at
- * 3.9cm/s. The swash is quicker because a flourish is a flick, and the pause
+ * At this size the drawing is close to life size on a desktop screen — 176px is
+ * about 4.7cm — and the pen travels 1639 user units through it, 612px or 16.2cm
+ * of path, because cursive doubles back on itself and the width is not the
+ * distance. Handwriting runs at a few centimetres a second and a signature
+ * someone is taking care over is at the slow end of that, so 4.2s puts the hand
+ * at 3.9cm/s. The swash is quicker because a flourish is a flick, and the pause
  * between them is the hand lifting.
  */
-const NAME_MS = 3400;
+const NAME_MS = 4200;
 const LIFT_MS = 200;
 const FLOURISH_MS = 800;
 
 /**
  * The signature, written rather than shown.
  *
- * `.ks-pen` in the drawing is the path a hand would take through the letters —
- * the centreline, traced from the filled glyphs by skeletonising them, one
- * subpath per stroke. It is never drawn. It is the mask the letters are
- * revealed through, stroked wide enough to cover them, and animating its dash
- * offset uncovers the name along the line the pen travels. That is what makes
- * this look like writing rather than a wipe: the glyphs themselves are filled
- * outlines and cannot be drawn stroke-wise at all.
+ * The letters in `signature-script.svg` are pen strokes — `.ks-stroke` — so the
+ * drawing already holds the line a hand would take through them and animating
+ * their dash offsets writes the name in the order it was written. That is what
+ * makes this look like writing rather than a wipe.
+ *
+ * The alternative in the repo, `signature.svg`, is a traced signature: filled
+ * outlines, which cannot be drawn stroke-wise at all, so it carries a separate
+ * centreline in `.ks-pen` and is revealed through it as a mask. Both classes
+ * are animated the same way here, which is what makes the two files swappable
+ * by changing the import above and nothing else.
  *
  * It plays when the drawing comes into view and again on a click, and the SVG
- * is inlined so `.ks-glyph` and `.ks-flourish` take their ink from the page's
- * own tokens — loaded as an image it would keep the colour it was drawn in, and
- * a reader who picks dark mode on a light system would get dark ink on a dark
- * page.
+ * is inlined so the ink comes from the page's own tokens — loaded as an image
+ * it would keep the colour it was drawn in, and a reader who picks dark mode on
+ * a light system would get dark ink on a dark page.
  *
- * The markup ships complete, the mask fully open. Nothing is hidden until the
- * effect below hides it, so a reader without JavaScript, or one looking before
- * hydration, sees the name rather than an empty box.
+ * The markup ships complete. Nothing is hidden until the effect below hides it,
+ * so a reader without JavaScript, or one looking before hydration, sees the
+ * name rather than an empty box.
  */
 export function Signature() {
   const wrap = useRef<HTMLSpanElement>(null);

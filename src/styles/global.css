@@ -1758,7 +1758,7 @@ mark {
 
   cursor: pointer;
   display: inline-block;
-  height: calc(var(--signature-width) * 0.2901);
+  height: calc(var(--signature-width) * 0.3395);
   margin-left: -4px;
   vertical-align: baseline;
   width: var(--signature-width);
