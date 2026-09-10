@@ -855,8 +855,14 @@ header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
 The signature writes itself along a pen path: the letters are uncovered through
-a mask stroked over their centreline, one stroke at a time, over 1.5s, then the
-flourish underneath draws in over 600ms.
+a mask stroked over their centreline, one stroke at a time, over 2.4s, then the
+hand lifts for 150ms and the flourish underneath draws in over 650ms.
+
+Those durations are a hand's, not a designer's. At this size the drawing is
+close to life size on a desktop screen — 178px is about 4.7cm — and the pen
+travels 1384 user units through it, 507px or 13.4cm of path. Careful cursive
+runs at a few centimetres a second, so 2.4s puts the hand at 5.6cm/s. The swash
+is quicker because a flourish is a flick.
 
 The centreline is the point. The glyphs are filled outlines — closed shapes
 traced from handwriting — so they cannot be drawn stroke-wise: a dash animation

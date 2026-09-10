@@ -10,9 +10,18 @@ import { siteConfig } from '../site.config';
  */
 const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusable="false"');
 
-/** The name, and then the swash under it. Together a shade over two seconds. */
-const NAME_MS = 1500;
-const FLOURISH_MS = 600;
+/**
+ * The name, a lift, and then the swash under it.
+ *
+ * At this size the drawing is close to life size on a desktop screen — 178px is
+ * about 4.7cm — and the pen travels 1358 user units through it, near 13cm of
+ * path. Careful cursive runs at a few centimetres a second, so 2.4s puts the
+ * hand at about 5.5cm/s. The swash is quicker because a flourish is a flick,
+ * and the pause between them is the hand lifting.
+ */
+const NAME_MS = 2400;
+const LIFT_MS = 150;
+const FLOURISH_MS = 650;
 
 /**
  * The signature, written rather than shown.
@@ -95,11 +104,11 @@ export function Signature() {
         pen.style.strokeDashoffset = '0';
       });
 
-      // The swash follows the hand off the end of the name.
+      // The swash after the hand has lifted off the end of the name.
       timer = window.setTimeout(() => {
         flourish.style.transition = `stroke-dashoffset ${FLOURISH_MS}ms cubic-bezier(.4,.1,.3,1)`;
         flourish.style.strokeDashoffset = '0';
-      }, NAME_MS);
+      }, NAME_MS + LIFT_MS);
     };
 
     hide();
