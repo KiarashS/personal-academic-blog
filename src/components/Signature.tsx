@@ -52,7 +52,9 @@ export function Signature() {
     const root = wrap.current;
     if (!root) return;
 
-    const pens = [...root.querySelectorAll<SVGPathElement>('.ks-pen')];
+    // `.ks-pen` is a mask over filled letterforms; `.ks-stroke` is a letter
+    // that is itself a stroke and needs no mask. Both are drawn the same way.
+    const pens = [...root.querySelectorAll<SVGPathElement>('.ks-pen, .ks-stroke')];
     const flourish = root.querySelector<SVGPathElement>('.ks-flourish');
     if (pens.length === 0 || !flourish) return;
 

@@ -871,6 +871,19 @@ on one would trace around the letter's contour rather than through it. Only the
 flourish was ever a real stroke, which is why that part alone used to look like
 drawing while a front wiped across the rest.
 
+There is a second signature in the repo that sidesteps all of this.
+`src/content/signature-script.svg` is the name written as pen strokes to begin
+with — four of them, plus the flourish — so the letters _are_ the path and no
+mask is involved. `Signature.tsx` animates `.ks-pen` and `.ks-stroke` alike, so
+it is a drop-in: change the import at the top of that file and nothing else
+moves. It is 1.7KB against 30KB, and the pen covers 14.4cm at 4.2cm/s.
+
+`scripts/draw-signature.mjs` is its editable form. The letters there are
+functions of a position on a writing grid — baseline, x-height, ascender — so a
+shoulder that reads wrong is a line to change rather than an archaeology
+problem in a wall of bezier numbers. It is invented lettering, though, not
+anyone's handwriting, which is the reason the traced file is still the default.
+
 `scripts/trace-signature.mjs` derives the path and writes it into
 `src/content/signature.svg` as `<mask id="ks-write">`. It rasterises each glyph,
 thins it to a one-pixel skeleton, and walks every branch of it, emitting one

@@ -1796,7 +1796,8 @@ mark {
   stroke: var(--text);
 }
 
-.banner__signature .ks-flourish {
+.banner__signature .ks-flourish,
+.banner__signature .ks-stroke {
   stroke: var(--text);
 }
 
