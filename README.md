@@ -854,9 +854,40 @@ characters, narrower than anything else here. The whole page widens together,
 header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
-The signature writes itself: a vertical front sweeps left to right over 2.6s and
-each letter's clip rectangle opens as it passes, then the flourish underneath
-draws in over 820ms. It plays when the drawing scrolls into view and again on a
+The signature writes itself along a pen path: the letters are uncovered through
+a mask stroked over their centreline, one stroke at a time, over 1.5s, then the
+flourish underneath draws in over 600ms.
+
+The centreline is the point. The glyphs are filled outlines — closed shapes
+traced from handwriting — so they cannot be drawn stroke-wise: a dash animation
+on one would trace around the letter's contour rather than through it. Only the
+flourish was ever a real stroke, which is why that part alone used to look like
+drawing while a front wiped across the rest.
+
+`scripts/trace-signature.mjs` derives the path and writes it into
+`src/content/signature.svg` as `<mask id="ks-write">`. It rasterises each glyph,
+thins it to a one-pixel skeleton, and walks every branch of it, emitting one
+`<path class="ks-pen">` per stroke — nineteen for this signature. Run it when
+the artwork changes; nothing in `npm run build` calls it, since the result is
+committed and deriving it needs a browser.
+
+Three things in there were each a bug first. An eight-connected skeleton makes
+every diagonal run a chain of little triangles, and the walk read each one as a
+junction: one letter came out as 561 strokes until the redundant diagonals were
+dropped, after which the K is 7. Taking only the longest path through the
+skeleton left the K's descender and upper swash untraced, which for a mask means
+those parts are never revealed at all — so the walk covers every branch, and
+each forward run becomes its own stroke rather than retracing, because a pen
+that retraces uncovers nothing while it does. And an SVG dash pattern restarts
+at every subpath, so nineteen subpaths in one path uncover the whole name at
+once; nineteen elements, each waiting for the ink before it, do not.
+
+The mask is stroked at 26 user units, which is the narrowest that covers the
+letters: measured against the unmasked drawing, 26 leaves 7 of 101,133 ink
+pixels uncovered and no wider value does better, so those seven are antialiasing
+at the edges. A consequence worth knowing: a mask that wide uncovers a
+neighbouring stroke passing within half of it, so where a letter doubles back on
+itself the ink arrives slightly early. It plays when the drawing scrolls into view and again on a
 click, and a reader who asks for reduced motion gets it finished instead. The
 markup ships complete and is hidden only once the effect runs, so a reader
 without JavaScript sees the name rather than an empty box.

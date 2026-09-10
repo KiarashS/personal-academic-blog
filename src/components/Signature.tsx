@@ -10,20 +10,20 @@ import { siteConfig } from '../site.config';
  */
 const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusable="false"');
 
-/** Ease in and out, as the original does: slow at both ends of the stroke. */
-const ease = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
-
-const GLYPH_MS = 2600;
-const FLOURISH_MS = 820;
-
-/** A little air around each glyph, so the sweep never clips its own edge. */
-const PAD = 7;
+/** The name, and then the swash under it. Together a shade over two seconds. */
+const NAME_MS = 1500;
+const FLOURISH_MS = 600;
 
 /**
- * The signature, written rather than shown: a vertical front sweeps left to
- * right and each letter's clip rectangle opens as it passes, then the flourish
- * underneath draws itself in. It is the same shape of animation the original
- * uses, at the same durations.
+ * The signature, written rather than shown.
+ *
+ * `.ks-pen` in the drawing is the path a hand would take through the letters —
+ * the centreline, traced from the filled glyphs by skeletonising them, one
+ * subpath per stroke. It is never drawn. It is the mask the letters are
+ * revealed through, stroked wide enough to cover them, and animating its dash
+ * offset uncovers the name along the line the pen travels. That is what makes
+ * this look like writing rather than a wipe: the glyphs themselves are filled
+ * outlines and cannot be drawn stroke-wise at all.
  *
  * It plays when the drawing comes into view and again on a click, and the SVG
  * is inlined so `.ks-glyph` and `.ks-flourish` take their ink from the page's
@@ -31,9 +31,9 @@ const PAD = 7;
  * a reader who picks dark mode on a light system would get dark ink on a dark
  * page.
  *
- * The markup ships complete. Nothing is hidden until the effect below hides it,
- * so a reader without JavaScript, or one looking before hydration, sees the
- * name rather than an empty box.
+ * The markup ships complete, the mask fully open. Nothing is hidden until the
+ * effect below hides it, so a reader without JavaScript, or one looking before
+ * hydration, sees the name rather than an empty box.
  */
 export function Signature() {
   const wrap = useRef<HTMLSpanElement>(null);
@@ -42,56 +42,64 @@ export function Signature() {
     const root = wrap.current;
     if (!root) return;
 
-    const glyphs = [...root.querySelectorAll<SVGGraphicsElement>('.ks-glyph')];
-    const clips = [...root.querySelectorAll<SVGRectElement>('clipPath > rect')];
+    const pens = [...root.querySelectorAll<SVGPathElement>('.ks-pen')];
     const flourish = root.querySelector<SVGPathElement>('.ks-flourish');
-    if (glyphs.length === 0 || clips.length < glyphs.length || !flourish) return;
+    if (pens.length === 0 || !flourish) return;
 
     // A reader who asks for less motion gets the finished signature.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    let frame = 0;
+    /**
+     * One stroke per element, rather than one path of nineteen subpaths.
+     *
+     * A dash pattern restarts at the beginning of every subpath, so a single
+     * path holding all of them counts the same offset down in all nineteen
+     * places at once and the whole name surfaces together — which is the wipe
+     * this exists to replace, only less honest about it. Separate elements,
+     * each waiting for the ink before it, put the pen in one place at a time.
+     */
+    const lengths = pens.map((pen) => pen.getTotalLength());
+    const total = lengths.reduce((sum, length) => sum + length, 0) || 1;
+    const starts: number[] = [];
+    lengths.reduce((run, length, index) => {
+      starts[index] = (run / total) * NAME_MS;
+      return run + length;
+    }, 0);
+
+    let timer = 0;
+
+    const load = (path: SVGPathElement, length: number) => {
+      path.style.transition = 'none';
+      path.style.strokeDasharray = String(length);
+      path.style.strokeDashoffset = String(length);
+    };
 
     const hide = () => {
-      for (const rect of clips) rect.setAttribute('width', '0');
-      const length = flourish.getTotalLength();
-      flourish.style.transition = 'none';
-      flourish.style.strokeDasharray = String(length);
-      flourish.style.strokeDashoffset = String(length);
+      window.clearTimeout(timer);
+      pens.forEach((pen, index) => {
+        load(pen, lengths[index]);
+      });
+      load(flourish, flourish.getTotalLength());
+      // Read the layout back, so the browser starts the next transition from
+      // here rather than folding both changes into one frame and showing
+      // nothing at all.
+      void root.getBoundingClientRect();
     };
 
     const play = () => {
-      cancelAnimationFrame(frame);
       hide();
 
-      const boxes = glyphs.map((glyph) => glyph.getBBox());
-      const from = Math.min(...boxes.map((box) => box.x)) - PAD;
-      const to = Math.max(...boxes.map((box) => box.x + box.width)) + PAD;
-      const start = performance.now();
+      pens.forEach((pen, index) => {
+        const duration = (lengths[index] / total) * NAME_MS;
+        pen.style.transition = `stroke-dashoffset ${duration}ms linear ${starts[index]}ms`;
+        pen.style.strokeDashoffset = '0';
+      });
 
-      const step = (now: number) => {
-        const progress = Math.min(1, (now - start) / GLYPH_MS);
-        const front = from + (to - from) * ease(progress);
-
-        boxes.forEach((box, index) => {
-          const rect = clips[index];
-          rect.setAttribute('x', String(box.x - PAD));
-          rect.setAttribute('y', String(box.y - PAD));
-          rect.setAttribute('height', String(box.height + PAD * 2));
-          const width = Math.min(box.width + PAD * 2, front - (box.x - PAD));
-          rect.setAttribute('width', String(Math.max(0, width)));
-        });
-
-        if (progress < 1) {
-          frame = requestAnimationFrame(step);
-          return;
-        }
-
+      // The swash follows the hand off the end of the name.
+      timer = window.setTimeout(() => {
         flourish.style.transition = `stroke-dashoffset ${FLOURISH_MS}ms cubic-bezier(.4,.1,.3,1)`;
         flourish.style.strokeDashoffset = '0';
-      };
-
-      frame = requestAnimationFrame(step);
+      }, NAME_MS);
     };
 
     hide();
@@ -112,7 +120,7 @@ export function Signature() {
     observer.observe(root);
 
     return () => {
-      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
       observer.disconnect();
       root.removeEventListener('click', play);
     };
