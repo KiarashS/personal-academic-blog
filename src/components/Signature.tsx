@@ -14,14 +14,15 @@ const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusab
  * The name, a lift, and then the swash under it.
  *
  * At this size the drawing is close to life size on a desktop screen — 178px is
- * about 4.7cm — and the pen travels 1358 user units through it, near 13cm of
- * path. Careful cursive runs at a few centimetres a second, so 2.4s puts the
- * hand at about 5.5cm/s. The swash is quicker because a flourish is a flick,
- * and the pause between them is the hand lifting.
+ * about 4.7cm — and the pen travels 1384 user units through it, 507px or 13.4cm
+ * of path. Cursive runs at a few centimetres a second and a signature someone
+ * is taking care over is at the slow end of that, so 3.4s puts the hand at
+ * 3.9cm/s. The swash is quicker because a flourish is a flick, and the pause
+ * between them is the hand lifting.
  */
-const NAME_MS = 2400;
-const LIFT_MS = 150;
-const FLOURISH_MS = 650;
+const NAME_MS = 3400;
+const LIFT_MS = 200;
+const FLOURISH_MS = 800;
 
 /**
  * The signature, written rather than shown.
