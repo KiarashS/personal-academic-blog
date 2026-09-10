@@ -854,9 +854,19 @@ characters, narrower than anything else here. The whole page widens together,
 header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
-The signature writes itself: a vertical front sweeps left to right over 2.6s and
-each letter's clip rectangle opens as it passes, then the flourish underneath
-draws in over 820ms. It plays when the drawing scrolls into view and again on a
+The signature writes itself: each letter's clip rectangle opens across its own
+width in turn over 1.5s, one starting before the last has finished, then the
+flourish underneath draws in over 600ms.
+
+A letter at a time rather than one front crossing the whole drawing, because a
+single front spends its time in proportion to width: the K is 170 of the 456
+units, so it took 1.12s of a 2.6s animation on its own while the six letters
+after it shared 750ms. A curtain crossing 62px of one letter reads as a curtain;
+crossing the 14 to 22px each of the rest it does not, and they simply appear in
+the order a hand would make them. Each letter's share of the time is 65% its ink
+— the outline's length, which is what `getTotalLength` gives for a filled glyph
+— and 35% an even split, so the K does not swallow the clock and a one-stroke
+`i` does not take as long as a looping `a`. It plays when the drawing scrolls into view and again on a
 click, and a reader who asks for reduced motion gets it finished instead. The
 markup ships complete and is hidden only once the effect runs, so a reader
 without JavaScript sees the name rather than an empty box.
