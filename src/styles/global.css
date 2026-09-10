@@ -1756,11 +1756,21 @@ mark {
 .banner__signature {
   --signature-width: 128px;
 
+  /* The drawing's proportions, both printed by scripts/set-signature.mjs.
+     The descent is the share of the box hanging below the letters' baseline,
+     and it is why this is not plain `vertical-align: baseline`: it is the box
+     bottom that sits on the line of type, so without the offset the name floats
+     above the line by the depth of its own descenders. */
+  --signature-ratio: 0.6003;
+  --signature-descent: 0.2431;
+
   cursor: pointer;
   display: inline-block;
-  height: calc(var(--signature-width) * 0.3395);
+  height: calc(var(--signature-width) * var(--signature-ratio));
   margin-left: -4px;
-  vertical-align: baseline;
+  vertical-align: calc(
+    var(--signature-width) * var(--signature-ratio) * var(--signature-descent) * -1
+  );
   width: var(--signature-width);
 }
 

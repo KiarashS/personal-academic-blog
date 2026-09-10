@@ -2,13 +2,16 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 /*
- * Derives the pen path for `src/content/signature.svg` and writes it back into
- * the file, replacing whatever is there.
+ * Derives the pen path for a signature drawing and writes it back into the
+ * file, replacing whatever is there.
  *
- *   node scripts/trace-signature.mjs
+ *   node scripts/trace-signature.mjs [file.svg] [mask width]
+ *   node scripts/trace-signature.mjs src/content/signature-typeset.svg 30
  *
- * Run it when the signature artwork changes. Nothing in `npm run build` calls
- * it: the path it produces is committed, and deriving it needs a browser.
+ * Run it when the signature artwork changes, including after
+ * `scripts/set-signature.mjs` has set a name in a new font. Nothing in
+ * `npm run build` calls it: the path it produces is committed, and deriving it
+ * needs a browser.
  *
  * Why it exists. The glyphs are filled outlines — closed shapes traced from
  * handwriting — so they cannot be drawn stroke-wise: a dash animation on one
@@ -29,13 +32,18 @@ import { chromium } from 'playwright';
 /** Pixels per user unit while thinning. Higher is slower and no more faithful. */
 const SCALE = 6;
 
-/** How wide the mask has to be stroked to cover the letters it reveals. */
-const MASK_WIDTH = 26;
+/**
+ * How wide the mask has to be stroked to cover the letters it reveals. It
+ * belongs to the artwork, not to this script: the right value is the narrowest
+ * that leaves no ink behind, and a face with thicker strokes needs more. Pass
+ * it as the second argument when tracing something new.
+ */
+const MASK_WIDTH = Number(process.argv[3]) || 26;
 
 /** How far a simplified curve may stray from the traced one, in user units. */
 const TOLERANCE = 0.5;
 
-const FILE = 'src/content/signature.svg';
+const FILE = process.argv[2] || 'src/content/signature.svg';
 
 /** Ramer–Douglas–Peucker: drops points the curve does not need. */
 function simplify(points, tolerance) {
@@ -124,10 +132,23 @@ const pens = parts
   )
   .join('');
 
+/*
+ * The region is spelled out rather than left to default to it.
+ *
+ * A mask with no x/y/width/height gets -10%,-10%,120%,120%, and under
+ * `userSpaceOnUse` those percentages are of the viewport but measured from user
+ * space's own origin — not from the viewBox's. A drawing whose viewBox starts
+ * at a negative y therefore has everything above the default region masked
+ * away: a name set from a font, whose baseline is y=0 and whose letters are all
+ * above it, loses two thirds of itself. The viewBox is the region that is
+ * always right.
+ */
+const [vx, vy, vw, vh] = view;
 let next = svg.replace(/<mask id="ks-write".*?<\/mask>/s, '');
 next = next.replace(
   '</defs>',
-  `<mask id="ks-write" maskUnits="userSpaceOnUse">${pens}</mask></defs>`,
+  `<mask id="ks-write" maskUnits="userSpaceOnUse" x="${vx}" y="${vy}" ` +
+    `width="${vw}" height="${vh}">${pens}</mask></defs>`,
 );
 next = next.replace(/\smask="url\(#ks-write\)"/g, '');
 next = next.replace(/(<path class="ks-glyph")/g, '$1 mask="url(#ks-write)"');

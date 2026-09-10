@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import signatureSource from '../content/signature-script.svg?raw';
+import signatureSource from '../content/signature-typeset.svg?raw';
 import { siteConfig } from '../site.config';
 
 /**
@@ -14,14 +14,14 @@ const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusab
  * The name, a lift, and then the swash under it.
  *
  * At this size the drawing is close to life size on a desktop screen — 176px is
- * about 4.7cm — and the pen travels 1639 user units through it, 612px or 16.2cm
- * of path, because cursive doubles back on itself and the width is not the
+ * about 4.7cm — and the pen travels 2375 user units through it, 753px or 19.9cm
+ * of path, because script doubles back on itself and the width is not the
  * distance. Handwriting runs at a few centimetres a second and a signature
- * someone is taking care over is at the slow end of that, so 4.2s puts the hand
- * at 3.9cm/s. The swash is quicker because a flourish is a flick, and the pause
- * between them is the hand lifting.
+ * someone is taking care over is at the slow end of that, so 5.1s puts the hand
+ * at 3.9cm/s. The swash, where the drawing has one, is quicker because a
+ * flourish is a flick, and the pause before it is the hand lifting.
  */
-const NAME_MS = 4200;
+const NAME_MS = 5100;
 const LIFT_MS = 200;
 const FLOURISH_MS = 800;
 
@@ -58,8 +58,10 @@ export function Signature() {
     // `.ks-pen` is a mask over filled letterforms; `.ks-stroke` is a letter
     // that is itself a stroke and needs no mask. Both are drawn the same way.
     const pens = [...root.querySelectorAll<SVGPathElement>('.ks-pen, .ks-stroke')];
+    // Optional: the drawn and traced signatures end on a swash, the typeset
+    // one does not, because a font has no such thing to give it.
     const flourish = root.querySelector<SVGPathElement>('.ks-flourish');
-    if (pens.length === 0 || !flourish) return;
+    if (pens.length === 0) return;
 
     // A reader who asks for less motion gets the finished signature.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -94,7 +96,7 @@ export function Signature() {
       pens.forEach((pen, index) => {
         load(pen, lengths[index]);
       });
-      load(flourish, flourish.getTotalLength());
+      if (flourish) load(flourish, flourish.getTotalLength());
       // Read the layout back, so the browser starts the next transition from
       // here rather than folding both changes into one frame and showing
       // nothing at all.
@@ -110,11 +112,13 @@ export function Signature() {
         pen.style.strokeDashoffset = '0';
       });
 
-      // The swash after the hand has lifted off the end of the name.
-      timer = window.setTimeout(() => {
-        flourish.style.transition = `stroke-dashoffset ${FLOURISH_MS}ms cubic-bezier(.4,.1,.3,1)`;
-        flourish.style.strokeDashoffset = '0';
-      }, NAME_MS + LIFT_MS);
+      // The swash, if there is one, after the hand has lifted off the name.
+      if (flourish) {
+        timer = window.setTimeout(() => {
+          flourish.style.transition = `stroke-dashoffset ${FLOURISH_MS}ms cubic-bezier(.4,.1,.3,1)`;
+          flourish.style.strokeDashoffset = '0';
+        }, NAME_MS + LIFT_MS);
+      }
     };
 
     hide();

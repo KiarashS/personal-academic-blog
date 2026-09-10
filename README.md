@@ -854,75 +854,100 @@ characters, narrower than anything else here. The whole page widens together,
 header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
-The signature writes itself. The letters are pen strokes, drawn in the order a
-hand makes them over 4.2s, then the hand lifts for 200ms and the flourish
-underneath draws in over 800ms.
+The signature writes itself. It is the name set in a handwriting font, revealed
+one stroke at a time along the line a pen would take through it, over 5.1s.
 
 Those durations are a hand's, not a designer's. At this size the drawing is
 close to life size on a desktop screen — 176px is about 4.7cm — and the pen
-travels 1639 user units through it, 612px or 16.2cm of path, because cursive
+travels 2375 user units through it, 753px or 19.9cm of path, because script
 doubles back on itself and the width is not the distance. Handwriting runs at a
 few centimetres a second and a signature someone is taking care over is at the
-slow end of that, so 4.2s puts the hand at 3.9cm/s. The swash is quicker because
-a flourish is a flick.
+slow end of that, so 5.1s puts the hand at 3.9cm/s.
 
-`src/content/signature-script.svg` is what ships. `scripts/draw-signature.mjs`
-is its editable form, and the SVG is generated: run the script and it rewrites
-the file. A letter there is a short list of positions the pen passes through,
-joined by a centripetal Catmull-Rom spline — the curve goes through every point,
-meets itself smoothly at each one, and, unlike the uniform kind, does not loop
-or overshoot where the points bunch up, which is wherever a stroke turns hard.
-That is most of why the hand looks even. The rest is the grid: heights are given
-as multiples of the x-height, so an arch that should match a bowl is written as
-the same number, and the forward lean is one shear over the finished drawing
-rather than something built into each letter.
+**The font is not in this repo, and must not be.** `src/content/signature-typeset.svg`
+is the name set in The Rich Jullietta by Ketikata Studio, whose free release
+says "This is demo font for PERSONAL USE ONLY". Serving a font from a public
+site distributes it to everyone who visits, which that licence does not cover.
+What ships here is the output — the outlines of seven letters, which is a
+drawing, not the typeface — and every letterform is baked into the SVG, so no
+font file is fetched at any point.
 
-"iarash" is one point list, not six, so the little U where two letters meet is
-not drawn by either of them — it is what the spline does between the end of one
-downstroke and the start of the next upstroke. A hand does not lift between
-them and neither does this. The K is two strokes because a hand makes it in two,
-and the i's dot is a third.
+`scripts/set-signature.mjs` is what made it, and it needs your own copy of
+whatever font you want the name written in:
 
-It is invented lettering, not anyone's handwriting, and it is four strokes and
-2KB.
+```
+node scripts/set-signature.mjs ~/fonts/TheRichJullietta.ttf
+node scripts/trace-signature.mjs src/content/signature-typeset.svg 30
+```
 
-The repo also carries a traced signature, `src/content/signature.svg`, and the
-machinery for it. That one is filled outlines — closed shapes traced from real
-handwriting — so it cannot be drawn stroke-wise: a dash animation on a glyph
-would trace around its contour rather than through it. It needs a centreline
-derived for it, and it is 30KB. `Signature.tsx` animates `.ks-pen` and
-`.ks-stroke` alike, so the two are swappable: change the import at the top of
-that file, and the aspect ratio in `.banner__signature`, and nothing else moves.
+It emits one `.ks-glyph` path per glyph rather than one for the word, which is
+what makes the name arrive a letter at a time; a single path would be one shape
+and would arrive all at once. Ligatures and kerning are on, because a script
+face uses ligatures to make its joins meet. It prints the two numbers
+`.banner__signature` needs — the aspect ratio, and the share of the box hanging
+below the letters' baseline, which is what stops the name floating above the
+line of type beside it.
 
-`scripts/trace-signature.mjs` derives that centreline and writes it into
-`src/content/signature.svg` as `<mask id="ks-write">`. It rasterises each glyph,
-thins it to a one-pixel skeleton, and walks every branch of it, emitting one
-`<path class="ks-pen">` per stroke — nineteen for this signature. Run it when
-the artwork changes; nothing in `npm run build` calls it, since the result is
-committed and deriving it needs a browser.
+The second command is the necessary half. A font gives filled outlines, and a
+filled outline cannot be drawn stroke-wise: a dash animation on one traces
+around the letter's contour rather than through it. `scripts/trace-signature.mjs`
+derives a centreline and writes it into the file as `<mask id="ks-write">`,
+which is what the letters are revealed through. It rasterises each glyph, thins
+it to a one-pixel skeleton, and walks every branch of it, emitting one
+`<path class="ks-pen">` per stroke — 25 for this name, 19 for the traced
+signature below. Run it whenever the artwork changes; nothing in `npm run build`
+calls it, since the result is committed and deriving it needs a browser.
 
-Three things in there were each a bug first. An eight-connected skeleton makes
+The trailing number is the mask width, and it belongs to the artwork rather than
+to the script: the right value is the narrowest that leaves no ink behind, and a
+face with thicker strokes needs more. 30 leaves 0 of 537,246 ink pixels
+uncovered here; 29 leaves 7.
+
+Four things in there were each a bug first. An eight-connected skeleton makes
 every diagonal run a chain of little triangles, and the walk read each one as a
 junction: one letter came out as 561 strokes until the redundant diagonals were
 dropped, after which the K is 7. Taking only the longest path through the
 skeleton left the K's descender and upper swash untraced, which for a mask means
 those parts are never revealed at all — so the walk covers every branch, and
 each forward run becomes its own stroke rather than retracing, because a pen
-that retraces uncovers nothing while it does. And an SVG dash pattern restarts
-at every subpath, so nineteen subpaths in one path uncover the whole name at
-once; nineteen elements, each waiting for the ink before it, do not. That last
-one applies to the drawn signature too, which is why its four strokes are four
-elements.
+that retraces uncovers nothing while it does. An SVG dash pattern restarts at
+every subpath, so nineteen subpaths in one path uncover the whole name at once;
+nineteen elements, each waiting for the ink before it, do not.
 
-That mask, when it is used, is stroked at 26 user units, which is the narrowest
-that covers the letters: measured against the unmasked drawing, 26 leaves 7 of
-101,133 ink pixels uncovered and no wider value does better, so those seven are
-antialiasing at the edges. A consequence worth knowing: a mask that wide
-uncovers a neighbouring stroke passing within half of it, so where a letter
-doubles back on itself the ink arrives slightly early. Nothing like it applies
-to the drawn signature, where the stroke is the letter.
+And a mask needs its region spelled out. Left to default it gets
+-10%,-10%,120%,120%, and under `userSpaceOnUse` those percentages are of the
+viewport but measured from user space's own origin, not from the viewBox's. A
+name set from a font has its baseline at y=0 and all its letters above it, so
+the default region cut two thirds of it away. The viewBox is the region that is
+always right.
 
-Either way it plays when the drawing scrolls into view and again on a click, and
+The repo carries two other signatures, and `Signature.tsx` animates `.ks-pen`
+and `.ks-stroke` alike, so all three are swappable: change the import at the top
+of that file, and the two proportions in `.banner__signature`, and nothing else
+moves.
+
+`src/content/signature-script.svg` is the name written as pen strokes to begin
+with — four of them, plus a swash — so the letters _are_ the path and no mask is
+involved at all. `scripts/draw-signature.mjs` is its editable form: a letter
+there is a short list of positions the pen passes through, joined by a
+centripetal Catmull-Rom spline, which goes through every point, meets itself
+smoothly at each one, and does not overshoot where the points bunch up at a hard
+turn. Heights are multiples of the x-height, so an arch that should match a bowl
+is written as the same number, and the forward lean is one shear over the
+finished drawing. "iarash" is one point list rather than six, so the U where two
+letters meet is what the spline does between one downstroke and the next
+upstroke. It is invented lettering, not anyone's handwriting, and it is 2KB.
+
+`src/content/signature.svg` is a traced signature — closed shapes taken from
+real handwriting, 30KB of them, and the original reason `trace-signature.mjs`
+exists.
+
+A consequence of the mask worth knowing: stroked wide enough to cover the
+letters, it also uncovers a neighbouring stroke passing within half of that
+width, so where a letter doubles back on itself the ink arrives slightly early.
+Nothing like it applies to the drawn signature, where the stroke is the letter.
+
+However it is made, it plays when the drawing scrolls into view and again on a click, and
 a reader who asks for reduced motion gets it finished instead. The markup ships
 complete and is hidden only once the effect runs, so a reader without JavaScript
 sees the name rather than an empty box.
