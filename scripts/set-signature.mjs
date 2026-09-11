@@ -32,11 +32,20 @@ if (!FONT) {
 }
 
 /*
- * Big enough that a user unit is finer than the thinning grid in
- * `trace-signature.mjs`, and close to the scale the other two signatures are
- * drawn at, so a mask width means the same thing across all three.
+ * How wide the finished drawing is, in user units.
+ *
+ * Fixed on the drawing rather than on the type size, because a type size means
+ * nothing across fonts: an em is 2048 units in one face and 1000 in the next,
+ * and the same 260pt setting came out 584 units wide in one and 933 in another.
+ * That matters twice. The mask width in `trace-signature.mjs` is in user units,
+ * so it would mean something different per font; and the tracer rasterises at
+ * six pixels per unit, so a drawing half again as wide costs more than twice as
+ * much to thin. Pinning the width leaves both comparable.
+ *
+ * 560 is a unit finer than the thinning grid everywhere it matters, and close
+ * to where the other two signatures in the repo were drawn.
  */
-const SIZE = 260;
+const WIDTH = 560;
 
 /** Room for the round caps of the mask, which is stroked wider than the ink. */
 const PAD = 18;
@@ -53,11 +62,21 @@ const font = opentype.loadSync(FONT);
  * kerning because it is a face that expects to be kerned. Anything the font
  * substitutes is still one path here, which is correct: a ligature is one mark.
  */
-const paths = font
-  .getPaths(NAME, 0, 0, SIZE, { kerning: true, features: { liga: true, rlig: true } })
-  .filter((path) => path.commands.length > 0);
+const set = (size) =>
+  font
+    .getPaths(NAME, 0, 0, size, { kerning: true, features: { liga: true, rlig: true } })
+    .filter((path) => path.commands.length > 0);
 
-if (paths.length === 0) throw new Error(`${basename(FONT)} drew nothing for "${NAME}"`);
+const span = (list) => {
+  const boxes = list.map((path) => path.getBoundingBox());
+  return Math.max(...boxes.map((b) => b.x2)) - Math.min(...boxes.map((b) => b.x1));
+};
+
+// Set it once to find out how wide this face draws the name, then again at the
+// size that makes it WIDTH. Twice is cheaper than reasoning about an em.
+const probe = set(100);
+if (probe.length === 0) throw new Error(`${basename(FONT)} drew nothing for "${NAME}"`);
+const paths = set((100 * WIDTH) / span(probe));
 
 const boxes = paths.map((path) => path.getBoundingBox());
 const n = (v) => Math.round(v * 100) / 100;
@@ -67,7 +86,7 @@ const width = Math.max(...boxes.map((b) => b.x2)) + PAD - left;
 const height = Math.max(...boxes.map((b) => b.y2)) + PAD - top;
 
 /*
- * One decimal. The drawing is some 580 units wide and is shown at 176px, so a
+ * One decimal. The drawing is 560 units wide and is shown at 176px, so a
  * tenth of a unit is three hundredths of a pixel — below anything a screen can
  * show, and the path data is a sixth smaller for it. This matters because the
  * file is inlined into the front page rather than fetched: an ornate capital is

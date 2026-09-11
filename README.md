@@ -855,31 +855,30 @@ header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
 The signature writes itself. It is the name set in a handwriting font, revealed
-one stroke at a time along the line a pen would take through it, over 5.4s.
+one stroke at a time along the line a pen would take through it, over 4.4s.
 
 Those durations are a hand's, not a designer's. At this size the drawing is
 close to life size on a desktop screen — 176px is about 4.7cm — and the pen
-travels 2611 user units through it, 786px or 20.8cm of path, because script
+travels 2212 user units through it, 653px or 17.3cm of path, because script
 doubles back on itself and the width is not the distance. Handwriting runs at a
 few centimetres a second and a signature someone is taking care over is at the
-slow end of that, so 5.4s puts the hand at 3.9cm/s. Two thirds of that is the
-capital's swash, which is what a signature is mostly made of.
+slow end of that, so 4.4s puts the hand at 3.9cm/s.
 
 **The font is not in this repo, and must not be.** `src/content/signature-typeset.svg`
-is the name set in Bastliga One by Madhaline Studio, whose free release says
+is the name set in Amsterdam Handwriting by Mayofont, whose free release says
 "This demo font is for PERSONAL USE ONLY". Serving a font from a public site
 distributes it to everyone who visits, which that licence does not cover. What
 ships here is the output — the outlines of seven letters, which is a drawing,
 not the typeface — and every letterform is baked into the SVG, so no font file
-is fetched at any point. Thanks to Madhaline Studio for the face; the full
-version and a commercial licence are theirs to sell.
+is fetched at any point. Thanks to Mayofont for the face; the full version and a
+commercial licence are theirs to sell.
 
 `scripts/set-signature.mjs` is what made it, and it needs your own copy of
 whatever font you want the name written in:
 
 ```
-node scripts/set-signature.mjs "~/fonts/Bastliga One.otf"
-node scripts/trace-signature.mjs src/content/signature-typeset.svg 27
+node scripts/set-signature.mjs "~/fonts/Amsterdam Handwriting.ttf"
+node scripts/trace-signature.mjs src/content/signature-typeset.svg 19
 ```
 
 It emits one `.ks-glyph` path per glyph rather than one for the word, which is
@@ -890,11 +889,19 @@ face uses ligatures to make its joins meet. It prints the two numbers
 below the letters' baseline, which is what stops the name floating above the
 line of type beside it.
 
-Coordinates are rounded to a tenth of a unit, which at this size is three
-hundredths of a pixel and saves a sixth of the file. The file is inlined into
-the front page rather than fetched, and a capital with a swash like this one's
-is 65KB of outline even so — the single heaviest thing on `/`. A plainer face
-costs a third of that.
+The drawing is fixed at 560 units wide rather than at a type size, because a
+type size means nothing across fonts: an em is 2048 units in one face and 1000
+in the next, and the same setting came out 584 units wide in one and 933 in
+another. That matters twice. The mask width below is in user units, so it would
+mean something different per font; and the tracer rasterises at six pixels per
+unit, so a drawing half again as wide costs more than twice as much to thin.
+
+Coordinates are rounded to a tenth of a unit, which at that width is three
+hundredths of a pixel and saves a sixth of the file. Worth having, because the
+file is inlined into the front page rather than fetched. How much there is to
+inline is the face's doing and not the pipeline's: this one is 21KB and the
+front page 31KB, where an ornate capital tried earlier was 65KB of outline on
+its own.
 
 The second command is the necessary half. A font gives filled outlines, and a
 filled outline cannot be drawn stroke-wise: a dash animation on one traces
@@ -902,14 +909,14 @@ around the letter's contour rather than through it. `scripts/trace-signature.mjs
 derives a centreline and writes it into the file as `<mask id="ks-write">`,
 which is what the letters are revealed through. It rasterises each glyph, thins
 it to a one-pixel skeleton, and walks every branch of it, emitting one
-`<path class="ks-pen">` per stroke — 29 for this name, 19 for the traced
+`<path class="ks-pen">` per stroke — 15 for this name, 19 for the traced
 signature below. Run it whenever the artwork changes; nothing in `npm run build`
 calls it, since the result is committed and deriving it needs a browser.
 
 The trailing number is the mask width, and it belongs to the artwork rather than
 to the script: the right value is the narrowest that leaves no ink behind, and a
-face with thicker strokes needs more. 27 leaves 0 of 233,936 ink pixels
-uncovered here; 26 leaves 14.
+face with thicker strokes needs more. 19 leaves 0 of 282,025 ink pixels
+uncovered here; 18 leaves 42.
 
 Five things in there were each a bug first. An eight-connected skeleton makes
 every diagonal run a chain of little triangles, and the walk read each one as a
@@ -924,8 +931,8 @@ nineteen elements, each waiting for the ink before it, do not.
 
 The walk carries its own stack rather than the engine's. Written as a recursive
 function it goes one frame deep per skeleton pixel, and this capital's swash is
-a single connected component of ten thousand of them: it overflowed the stack
-outright. The iterative walk produces the same strokes — re-tracing the traced
+a single connected component of ten thousand of them in one face tried here: it
+overflowed the stack outright. The iterative walk produces the same strokes — re-tracing the traced
 signature after the rewrite gave back a byte-identical file — and does not care
 how long a flourish is.
 

@@ -21,7 +21,7 @@ const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusab
  * at 3.9cm/s. The swash, where the drawing has one, is quicker because a
  * flourish is a flick, and the pause before it is the hand lifting.
  */
-const NAME_MS = 5400;
+const NAME_MS = 4400;
 const LIFT_MS = 200;
 const FLOURISH_MS = 800;
 
