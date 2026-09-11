@@ -194,6 +194,13 @@ page has not got. The label and icon carry the hue and the body is set in
 5.3:1 in light and 7.9:1 in dark. On paper the tints are dropped by the printer,
 so the rule down the left side widens and does the whole job.
 
+An alert is set at 0.95rem, a step down from the 17px of running prose, which is
+what every other inset block here does — captions, tables, listings, the
+contents list and footnotes are all smaller than the text around them. It stops
+above all of them rather than joining them, because an alert is emphasis and not
+an aside. Its padding is in `em`, so the box follows the type down instead of
+keeping prose-sized margins around smaller text.
+
 The icons are drawn in `alerts.ts` in the same hand as the permalink icon —
 24 units, stroked in `currentColor`, nothing filled — rather than imported, so
 an alert does not arrive looking like it came from somebody else's site.
