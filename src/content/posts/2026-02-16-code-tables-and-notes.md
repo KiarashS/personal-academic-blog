@@ -5,7 +5,7 @@ updated: 2026-09-03
 authors: [you, coauthor]
 category: Tutorials
 tags: [guide, code]
-summary: Syntax highlighting without a vendored theme, scrolling tables, footnotes, and what multiple authors look like.
+summary: Syntax highlighting without a vendored theme, scrolling tables, footnotes, GitHub-style alerts, and what multiple authors look like.
 doi: 10.5281/zenodo.123
 featured: true
 ---
@@ -110,11 +110,47 @@ referenced.[^pipeline] Task lists render as checkboxes:
 - [ ] Whatever you add next
 
 [^pipeline]: The pipeline is remark-parse, remark-gfm, remark-math,
-    remark-rehype, then rehype-raw, rehype-slug, rehype-citation, the notebook
-    and diagram steps, rehype-highlight, rehype-katex and finally the figure and
-    caption steps. Order matters: raw HTML is parsed first, notebooks and
+    remark-rehype, then rehype-raw, rehype-slug, the alert step,
+    rehype-citation, the notebook and diagram steps, rehype-highlight,
+    rehype-katex and finally the figure and caption steps. Order matters: raw HTML is parsed first, notebooks and
     diagrams are expanded before the highlighter sees them, and captions are
     numbered last, once every block that can take one exists.
+
+## Alerts
+
+GitHub's alert syntax works here. A blockquote whose first line is one of five
+markers becomes a callout:
+
+```markdown
+> [!NOTE]
+> **Key Takeaway:** Self-supervised learning can reduce the need for labeled
+> IMU data.
+```
+
+> [!NOTE]
+> **Key Takeaway:** Self-supervised learning can reduce the need for labeled IMU data.
+
+> [!TIP]
+> Helpful advice for doing something better or more easily.
+
+> [!IMPORTANT]
+> Essential information needed to succeed.
+
+> [!WARNING]
+> Something that could cause problems if ignored.
+
+> [!CAUTION]
+> Describes potential negative consequences.
+
+The marker is matched case-insensitively, and an alert holds whatever a
+blockquote holds — several paragraphs, a list, a code fence, a citation. Any
+blockquote without one of the five markers stays a blockquote, because a
+quotation is still a quotation.
+
+The reason to borrow GitHub's syntax rather than invent one is that it degrades
+into something readable. Paste the source into a plain Markdown viewer, or read
+it as a diff, and you still get a blockquote with its label on the first line.
+Nothing is lost but the colour.
 
 ## Several authors
 

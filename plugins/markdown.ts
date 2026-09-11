@@ -27,6 +27,7 @@ import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
 import { rehypeFeatureLinks } from './feature-links';
+import { rehypeAlerts } from './alerts';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -118,6 +119,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(rehypeRaw)
       .use(rehypeSlug)
       .use(collectHeadings)
+      // Before anything that reads the tree for meaning: an alert is a
+      // blockquote until this runs, and the citation and caption passes below
+      // should see the shape the reader gets.
+      .use(rehypeAlerts)
       .use(rehypeCitation, { bibliography, linkCitations: true, path: root })
       .use(rehypeNotebook, {
         publicDir: resolve(root, 'public'),

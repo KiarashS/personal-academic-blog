@@ -161,6 +161,43 @@ screen-reader-only "Footnotes" landmark, which stays out of the contents list
 and takes no heading anchor, so a post with two sections and a footnote does not
 get a contents list claiming three.
 
+### Alerts
+
+GitHub's alert syntax, all five of them:
+
+```markdown
+> [!NOTE]
+> **Key Takeaway:** Self-supervised learning can reduce the need for labeled
+> IMU data.
+```
+
+`[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]`, matched
+case-insensitively as GitHub's own parser does. The marker can sit on the first
+line of the body, as above, or alone with a blank quoted line under it; both are
+legal and both render the same. An alert holds whatever a blockquote holds —
+several paragraphs, a list, a fence, a citation — and a blockquote with no
+marker stays a blockquote, because a quotation is still a quotation.
+
+The reason to borrow the syntax rather than invent one is that it degrades.
+Anywhere that has never heard of it — a plain Markdown viewer, a diff, an editor
+preview — the same source is still a blockquote with a legible label on its
+first line. That is also why `plugins/alerts.ts` works on the tree rather than
+the text: by the time the blockquote exists, the fallback has already been
+proven.
+
+Each type has a hue, defined once in `global.css` as a light and a dark value
+beside the rest of the palette. The tint behind an alert is mixed from that hue
+against the page's own background rather than being a sixth and seventh value
+per type, so it follows the theme and never arrives as a colour the rest of the
+page has not got. The label and icon carry the hue and the body is set in
+`--text`, so only the label has a contrast bar to clear: the tightest is Tip, at
+5.3:1 in light and 7.9:1 in dark. On paper the tints are dropped by the printer,
+so the rule down the left side widens and does the whole job.
+
+The icons are drawn in `alerts.ts` in the same hand as the permalink icon —
+24 units, stroked in `currentColor`, nothing filled — rather than imported, so
+an alert does not arrive looking like it came from somebody else's site.
+
 ### Citations
 
 Write `[@key]` and it resolves against `src/content/references.bib` at build

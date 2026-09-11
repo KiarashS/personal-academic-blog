@@ -21,6 +21,15 @@
   --light-hl-number: #7a5c1a;
   --light-hl-title: #2f5d8a;
 
+  /* One hue per alert. They carry the label and the icon, and the body of the
+     alert is set in --text, so each only has to clear 4.5:1 against its own
+     tint: the tightest is tip, at 5.3 in light and 7.9 in dark. */
+  --light-alert-note: #2f5d8a;
+  --light-alert-tip: #386f44;
+  --light-alert-important: #6b4a8a;
+  --light-alert-warning: #8a6314;
+  --light-alert-caution: #a3392c;
+
   --dark-bg: #14140f;
   --dark-bg-subtle: #1c1c16;
   --dark-text: #e6e4dc;
@@ -33,6 +42,12 @@
   --dark-hl-string: #8fbf98;
   --dark-hl-number: #d6bd7e;
   --dark-hl-title: #8fb4d9;
+
+  --dark-alert-note: #8fb4d9;
+  --dark-alert-tip: #8fbf98;
+  --dark-alert-important: #c0a6da;
+  --dark-alert-warning: #d6bd7e;
+  --dark-alert-caution: #e59e90;
 
   /* Characters, not pixels: the comfortable line is about 68 of them, and
      this tracks the face rather than the root size. */
@@ -52,6 +67,11 @@
   --hl-string: var(--light-hl-string);
   --hl-number: var(--light-hl-number);
   --hl-title: var(--light-hl-title);
+  --alert-note: var(--light-alert-note);
+  --alert-tip: var(--light-alert-tip);
+  --alert-important: var(--light-alert-important);
+  --alert-warning: var(--light-alert-warning);
+  --alert-caution: var(--light-alert-caution);
 
   color-scheme: light dark;
 }
@@ -72,6 +92,11 @@
     --hl-string: var(--dark-hl-string);
     --hl-number: var(--dark-hl-number);
     --hl-title: var(--dark-hl-title);
+    --alert-note: var(--dark-alert-note);
+    --alert-tip: var(--dark-alert-tip);
+    --alert-important: var(--dark-alert-important);
+    --alert-warning: var(--dark-alert-warning);
+    --alert-caution: var(--dark-alert-caution);
 
     color-scheme: dark;
   }
@@ -95,6 +120,11 @@
   --hl-string: var(--dark-hl-string);
   --hl-number: var(--dark-hl-number);
   --hl-title: var(--dark-hl-title);
+  --alert-note: var(--dark-alert-note);
+  --alert-tip: var(--dark-alert-tip);
+  --alert-important: var(--dark-alert-important);
+  --alert-warning: var(--dark-alert-warning);
+  --alert-caution: var(--dark-alert-caution);
 
   color-scheme: dark;
 }
@@ -699,6 +729,72 @@ mark {
   background: var(--mark);
   color: inherit;
   padding: 0 0.1em;
+}
+
+/* Alerts ------------------------------------------------------------------ */
+
+/*
+ * GitHub's `> [!NOTE]` blockquotes, from plugins/alerts.ts.
+ *
+ * One rule set and five hues rather than five rule sets: everything an alert
+ * does with its colour goes through --alert-accent, and a modifier class sets
+ * that and nothing else. The tint is mixed from the accent against the page's
+ * own background, so it follows light and dark without a second set of values
+ * and never arrives as a colour the rest of the page has not got.
+ */
+.alert {
+  background: color-mix(in srgb, var(--alert-accent) 7%, var(--bg));
+  border-left: 3px solid var(--alert-accent);
+  border-radius: 0 3px 3px 0;
+  margin: 1.6rem 0;
+  padding: 0.9rem 1.15rem;
+}
+
+/* The label supplies the space above, and the last line supplies none below. */
+.alert > :first-child {
+  margin-top: 0;
+}
+
+.alert > :last-child {
+  margin-bottom: 0;
+}
+
+.alert__label {
+  align-items: center;
+  color: var(--alert-accent);
+  display: flex;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  gap: 0.45rem;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+/* Without this the icon is squeezed by a long label on a narrow screen. */
+.alert__icon {
+  flex: none;
+}
+
+.alert--note {
+  --alert-accent: var(--alert-note);
+}
+
+.alert--tip {
+  --alert-accent: var(--alert-tip);
+}
+
+.alert--important {
+  --alert-accent: var(--alert-important);
+}
+
+.alert--warning {
+  --alert-accent: var(--alert-warning);
+}
+
+.alert--caution {
+  --alert-accent: var(--alert-caution);
 }
 
 /* Post page --------------------------------------------------------------- */
@@ -1983,6 +2079,18 @@ mark {
   blockquote {
     orphans: 2;
     widows: 2;
+  }
+
+  /*
+   * Printers drop background colours by default, which is most of what tells
+   * one alert from another on screen. The rule down the side is a border and
+   * survives, so on paper it carries the whole job and gets the width to do it.
+   */
+  .alert {
+    background: none;
+    border-left-width: 2pt;
+    break-inside: avoid;
+    padding-left: 0.8rem;
   }
 
   /*
