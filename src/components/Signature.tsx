@@ -14,14 +14,18 @@ const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusab
  * The name, a lift, and then the swash under it.
  *
  * At this size the drawing is close to life size on a desktop screen — 176px is
- * about 4.7cm — and the pen travels 2616 user units through it, 788px or 20.9cm
- * of path, because script doubles back on itself and the width is not the
+ * about 4.7cm — and the pen lays down 2347 user units of ink, 693px or 18.3cm
+ * of it, because script doubles back on itself and the width is not the
  * distance. Handwriting runs at a few centimetres a second and a signature
- * someone is taking care over is at the slow end of that, so 5.4s puts the hand
- * at 3.9cm/s. The swash, where the drawing has one, is quicker because a
- * flourish is a flick, and the pause before it is the hand lifting.
+ * someone is taking care over is at the slow end of that, so 3.9cm/s is 4.7s of
+ * writing. On top of that the pen covers 1181 units going back over strokes
+ * already down to reach parts of a letter it has not written yet; at the
+ * TRAVEL rate below that is another 0.8s. Hence 5.5s.
+ *
+ * The swash, where the drawing has one, is quicker because a flourish is a
+ * flick, and the pause before it is the hand lifting.
  */
-const NAME_MS = 4400;
+const NAME_MS = 5500;
 const LIFT_MS = 200;
 const FLOURISH_MS = 800;
 
@@ -67,20 +71,34 @@ export function Signature() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     /**
-     * One stroke per element, rather than one path of nineteen subpaths.
+     * One run per element, rather than one path of many subpaths.
      *
      * A dash pattern restarts at the beginning of every subpath, so a single
-     * path holding all of them counts the same offset down in all nineteen
-     * places at once and the whole name surfaces together — which is the wipe
-     * this exists to replace, only less honest about it. Separate elements,
-     * each waiting for the ink before it, put the pen in one place at a time.
+     * path holding all of them counts the same offset down in every one of
+     * those places at once and the whole name surfaces together — which is the
+     * wipe this exists to replace, only less honest about it. Separate
+     * elements, each waiting for the ink before it, put the pen in one place at
+     * a time.
+     *
+     * Consecutive runs in a letter share an endpoint, so the reveal hands over
+     * without moving and the letter is one unbroken journey. Runs are split
+     * only where the pen's errand changes: a `data-retrace` run is one the
+     * tracer had to take back over a stroke already on the page to reach a part
+     * of the letter it had not written yet. Nothing is uncovered while it does
+     * that, so at writing speed it would read as a stall. Weighting it down
+     * spends a third of the time on it, which is also what a hand does — it
+     * moves faster over a line already laid down than over one it is drawing.
      */
+    const TRAVEL = 1 / 3;
     const lengths = pens.map((pen) => pen.getTotalLength());
-    const total = lengths.reduce((sum, length) => sum + length, 0) || 1;
+    const weights = pens.map(
+      (pen, index) => lengths[index] * (pen.dataset.retrace === 'true' ? TRAVEL : 1),
+    );
+    const total = weights.reduce((sum, weight) => sum + weight, 0) || 1;
     const starts: number[] = [];
-    lengths.reduce((run, length, index) => {
+    weights.reduce((run, weight, index) => {
       starts[index] = (run / total) * NAME_MS;
-      return run + length;
+      return run + weight;
     }, 0);
 
     let timer = 0;
@@ -107,7 +125,7 @@ export function Signature() {
       hide();
 
       pens.forEach((pen, index) => {
-        const duration = (lengths[index] / total) * NAME_MS;
+        const duration = (weights[index] / total) * NAME_MS;
         pen.style.transition = `stroke-dashoffset ${duration}ms linear ${starts[index]}ms`;
         pen.style.strokeDashoffset = '0';
       });

@@ -104,7 +104,8 @@ for (const [index, d] of glyphs.entries()) {
   const result = await trace(page, d, view);
   for (const stroke of result.strokes) strokes.push(stroke);
   console.log(
-    `glyph ${index}: ${result.pixelCount} skeleton pixels → ${result.strokes.length} stroke(s)`,
+    `glyph ${index}: ${result.pixelCount} skeleton pixels → ${result.strokes.length} run(s), ` +
+      `${result.strokes.filter((stroke) => stroke.retrace).length} of them retracing`,
   );
 }
 await browser.close();
@@ -114,20 +115,28 @@ const parts = strokes.map((stroke) => {
   // to a single point, and a path of no length is drawn instantly and so is on
   // screen before the pen reaches it. Anything it empties out is decimated
   // evenly instead, which keeps a length to travel.
-  let thinned = simplify(stroke, TOLERANCE);
-  if (thinned.length < 4 && stroke.length >= 8) {
-    const step = Math.max(1, Math.floor(stroke.length / 8));
-    thinned = stroke.filter((_, i) => i % step === 0);
+  let thinned = simplify(stroke.points, TOLERANCE);
+  if (thinned.length < 4 && stroke.points.length >= 8) {
+    const step = Math.max(1, Math.floor(stroke.points.length / 8));
+    thinned = stroke.points.filter((_, i) => i % step === 0);
   }
-  return toBezier(thinned);
+  return { d: toBezier(thinned), retrace: stroke.retrace };
 });
 
-// One element per stroke, not one path of many subpaths: an SVG dash pattern
-// restarts at every subpath, so a single path would uncover all of them at once.
+/*
+ * One element per run, not one path of many subpaths: an SVG dash pattern
+ * restarts at every subpath, so a single path would uncover all of them at once.
+ *
+ * Consecutive runs share an endpoint, so the reveal hands over from one to the
+ * next without moving — the whole letter is one journey, split only so that the
+ * retraces can be spent faster than the writing. `data-retrace` is how
+ * `Signature.tsx` tells them apart.
+ */
 const pens = parts
   .map(
-    (d) =>
-      `<path class="ks-pen" fill="none" stroke="#fff" stroke-width="${MASK_WIDTH}" ` +
+    ({ d, retrace }) =>
+      `<path class="ks-pen"${retrace ? ' data-retrace="true"' : ''} fill="none" ` +
+      `stroke="#fff" stroke-width="${MASK_WIDTH}" ` +
       `stroke-linecap="round" stroke-linejoin="round" d="${d}"></path>`,
   )
   .join('');
@@ -154,7 +163,10 @@ next = next.replace(/\smask="url\(#ks-write\)"/g, '');
 next = next.replace(/(<path class="ks-glyph")/g, '$1 mask="url(#ks-write)"');
 await writeFile(FILE, next);
 
-console.log(`\n${parts.length} strokes written to ${FILE}`);
+const writing = parts.filter((part) => !part.retrace).length;
+console.log(
+  `\n${parts.length} runs written to ${FILE}: ${writing} writing, ${parts.length - writing} retracing`,
+);
 
 /** Rasterises one glyph, thins it, and returns its strokes in user units. */
 function trace(page, d, view) {
@@ -300,90 +312,187 @@ function trace(page, d, view) {
         return seen;
       };
 
-      /** How far the skeleton runs beyond this step, for ordering branches. */
-      const depth = (node, from, within, budget = 400) => {
+      /** A skeleton key back to its x,y. */
+      const pixel = (k) => [k % W, (k - (k % W)) / W];
+
+      /** How far ahead to look when judging a direction, in skeleton pixels. */
+      const LOOK = Math.round(5 * SCALE);
+
+      /**
+       * The direction the skeleton takes if the pen steps from `from` to `node`
+       * and keeps going, as a unit vector.
+       *
+       * Judged LOOK pixels out rather than from the step itself: a step to one
+       * of eight neighbours can only point eight ways, which is far too coarse
+       * to tell two branches of a crossing apart. The frontier is averaged
+       * because a branch that itself forks within the lookahead should read as
+       * the direction of the fan, not of whichever twig was found first.
+       */
+      const heading = (from, node, within) => {
         const seen = new Set([from, node]);
-        const queue = [node];
-        let count = 0;
-        for (let i = 0; i < queue.length && count < budget; i += 1) {
-          count += 1;
-          for (const n of neighbours(queue[i])) {
-            if (!within.has(n) || seen.has(n)) continue;
-            seen.add(n);
-            queue.push(n);
-          }
+        let frontier = [node];
+        for (let step = 0; step < LOOK && frontier.length > 0; step += 1) {
+          const next = [];
+          for (const k of frontier)
+            for (const n of neighbours(k)) {
+              if (!within.has(n) || seen.has(n)) continue;
+              seen.add(n);
+              next.push(n);
+            }
+          if (next.length > 0) frontier = next;
+          else break;
         }
-        return count;
+        const [ox, oy] = pixel(from);
+        let sx = 0;
+        let sy = 0;
+        for (const k of frontier) {
+          const [x, y] = pixel(k);
+          sx += x - ox;
+          sy += y - oy;
+        }
+        const length = Math.hypot(sx, sy) || 1;
+        return [sx / length, sy / length];
       };
 
       /**
-       * Every edge of the piece, once each, as a list of forward runs.
+       * Every edge of the piece, once each, as one unbroken journey.
        *
-       * The longest path through the skeleton is not enough: the K is a tree
-       * with several long limbs, and taking the two farthest apart left its
-       * descender and its upper swash untraced — which for a mask means those
-       * parts of the letter are never revealed at all.
+       * The pen is never picked up and put down somewhere else. That is the
+       * whole point: a letter is a hand moving, and a mask that jumps to a
+       * fresh place mid-letter reads as a letter assembling out of parts rather
+       * than being written. The previous walk dropped its backtracks, which is
+       * exactly such a jump — a capital came out as four pieces landing in four
+       * places.
        *
-       * Walking every edge covers the letter but retraces, and a pen that
-       * retraces reveals nothing while it does, which reads as a stall. So each
-       * forward run becomes a subpath of its own and the backtracks are simply
-       * dropped: a dash animation crossing from one subpath to the next uncovers
-       * nothing in between, which is exactly what a jump should look like.
+       * So the backtracks are kept and marked. Going back over a stroke already
+       * on the page uncovers nothing, so it is travel rather than writing, and
+       * `Signature.tsx` spends proportionally less time on it — which is also
+       * what a hand does, moving faster over a line it has already laid down
+       * than over one it is drawing.
        *
+       * At a junction the walk carries straight on rather than turning. Where a
+       * letter crosses itself the two strokes are separate motions of the hand,
+       * and turning the corner there is what a pen never does.
        */
-      const cover = (from, within) => {
+      const tour = (from, within) => {
         const used = new Set();
         const edge = (a, b) => (a < b ? `${a}:${b}` : `${b}:${a}`);
-        const runs = [];
-        let run = [from];
 
-        /*
-         * The depth-first walk, with its own stack rather than the engine's.
-         *
-         * Written as a recursive function it goes one frame deep per skeleton
-         * pixel, and a glyph with a long swash is tens of thousands of pixels
-         * in a single component: a capital whose flourish sweeps under the
-         * whole word overflowed the stack outright. A frame here is a node, the
-         * edges leaving it in the order they will be taken, and how far through
-         * them the walk is.
-         */
-        const step = (start) => {
-          const stack = [{ node: start, edges: null, taken: 0, first: true }];
-          while (stack.length > 0) {
-            const frame = stack[stack.length - 1];
-            if (frame.edges === null) {
-              // Short limbs before long ones, so the walk ends at the far end
-              // of the longest, which in a signature is where the next letter
-              // starts. Measured when the node is reached, not before.
-              frame.edges = neighbours(frame.node)
-                .filter((n) => within.has(n) && !used.has(edge(frame.node, n)))
-                .map((n) => ({ n, d: depth(n, frame.node, within) }))
-                .sort((a, b) => a.d - b.d)
-                .map((entry) => entry.n);
-            }
-            if (frame.taken >= frame.edges.length) {
-              stack.pop();
-              continue;
-            }
-            const n = frame.edges[frame.taken];
-            frame.taken += 1;
-            if (used.has(edge(frame.node, n))) continue;
-            used.add(edge(frame.node, n));
-            // Carrying on from where the pen is continues the run; anything
-            // else is a fresh stroke starting at this junction.
-            if (!frame.first) {
-              runs.push(run);
-              run = [frame.node];
-            }
-            frame.first = false;
-            run.push(n);
-            stack.push({ node: n, edges: null, taken: 0, first: true });
+        const runs = [];
+        let run = { points: [from], retrace: false };
+        const emit = (node, retrace) => {
+          if (retrace !== run.retrace) {
+            if (run.points.length > 1) runs.push(run);
+            run = { points: [run.points[run.points.length - 1]], retrace };
           }
+          run.points.push(node);
         };
 
-        step(from);
-        runs.push(run);
-        return runs.filter((r) => r.length > 1);
+        // The pen's recent trail, which is where its current direction comes
+        // from. The DFS stack is the route back to the start, not the route the
+        // pen took, so it is the wrong thing to measure a direction against
+        // once the walk has backtracked even once.
+        const trail = [from];
+        const direction = () => {
+          if (trail.length < 2) return null;
+          const [ax, ay] = pixel(trail[0]);
+          const [bx, by] = pixel(trail[trail.length - 1]);
+          const dx = bx - ax;
+          const dy = by - ay;
+          const length = Math.hypot(dx, dy);
+          return length > 0 ? [dx / length, dy / length] : null;
+        };
+        const advance = (node) => {
+          trail.push(node);
+          if (trail.length > LOOK) trail.shift();
+        };
+
+        const stack = [from];
+        while (stack.length > 0) {
+          const node = stack[stack.length - 1];
+          const open = neighbours(node).filter((n) => within.has(n) && !used.has(edge(node, n)));
+
+          if (open.length === 0) {
+            stack.pop();
+            if (stack.length === 0) break;
+            const back = stack[stack.length - 1];
+            advance(back);
+            emit(back, true);
+            continue;
+          }
+
+          let next = open[0];
+          const came = direction();
+          if (open.length > 1 && came) {
+            let best = -Infinity;
+            for (const candidate of open) {
+              const [dx, dy] = heading(node, candidate, within);
+              const score = dx * came[0] + dy * came[1];
+              if (score > best) {
+                best = score;
+                next = candidate;
+              }
+            }
+          }
+
+          used.add(edge(node, next));
+          advance(next);
+          emit(next, false);
+          stack.push(next);
+        }
+
+        if (run.points.length > 1) runs.push(run);
+        return runs;
+      };
+
+      /**
+       * Runs too short to see, folded into the one after them.
+       *
+       * A backtrack of two pixels between two branches of the same junction is
+       * a run of its own out of the walk above, and as an element of its own it
+       * would be handed a few milliseconds and flash. Runs are contiguous — each
+       * begins where the last ended — so folding one forward is just dropping
+       * the boundary.
+       */
+      const MIN_RUN = Math.round(14 * SCALE);
+      const settle = (runs) => {
+        const out = [];
+        for (const current of runs) {
+          const previous = out[out.length - 1];
+          if (previous && previous.points.length < MIN_RUN) {
+            previous.points.push(...current.points.slice(1));
+            /*
+             * A merged run counts as retracing only if both halves did, so that
+             * no edge the pen actually wrote ever ends up inside a run marked
+             * as a retrace. The trim below drops trailing retraces outright,
+             * and it may only do that safely because every retraced edge is
+             * guaranteed to appear in some earlier writing run. Labelling a
+             * short write as a retrace because it was folded into one broke
+             * that: the trim took the ink with it, and 3,201 pixels of the name
+             * stopped being revealed at all.
+             */
+            previous.retrace = previous.retrace && current.retrace;
+            continue;
+          }
+          out.push({ points: [...current.points], retrace: current.retrace });
+        }
+        // A short tail has nothing after it to fold into, so it folds backwards.
+        if (out.length > 1 && out[out.length - 1].points.length < MIN_RUN) {
+          const tail = out.pop();
+          out[out.length - 1].points.push(...tail.points.slice(1));
+        }
+
+        /*
+         * Nothing after the last of the writing.
+         *
+         * A depth-first walk ends by unwinding its stack all the way back to
+         * where it started, and every one of those steps is a retrace over
+         * finished work. Left in, each letter spends its last moments walking
+         * home — and the word as a whole finishes writing and then carries on
+         * running with nothing to show. The pen stops where it stopped writing.
+         */
+        while (out.length > 0 && out[out.length - 1].retrace) out.pop();
+        return out;
       };
 
       const unvisited = new Set(set);
@@ -404,13 +513,13 @@ function trace(page, d, view) {
 
         pieces.push({
           size: component.size,
-          runs: cover(start, component).map((run) =>
-            run.map((k) => {
-              const x = k % W,
-                y = (k - (k % W)) / W;
+          runs: settle(tour(start, component)).map((run) => ({
+            retrace: run.retrace,
+            points: run.points.map((k) => {
+              const [x, y] = pixel(k);
               return [vx + x / SCALE, vy + y / SCALE];
             }),
-          ),
+          })),
         });
       }
 

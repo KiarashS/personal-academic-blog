@@ -855,14 +855,18 @@ header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
 The signature writes itself. It is the name set in a handwriting font, revealed
-one stroke at a time along the line a pen would take through it, over 4.4s.
+along the line a pen would take through it, over 5.5s, and the pen is never
+picked up and put down anywhere except between letters.
 
 Those durations are a hand's, not a designer's. At this size the drawing is
 close to life size on a desktop screen — 176px is about 4.7cm — and the pen
-travels 2212 user units through it, 653px or 17.3cm of path, because script
-doubles back on itself and the width is not the distance. Handwriting runs at a
-few centimetres a second and a signature someone is taking care over is at the
-slow end of that, so 4.4s puts the hand at 3.9cm/s.
+lays down 2347 user units of ink, 693px or 18.3cm of it, because script doubles
+back on itself and the width is not the distance. Handwriting runs at a few
+centimetres a second and a signature someone is taking care over is at the slow
+end of that, so 3.9cm/s is 4.7s of writing. On top of that the pen covers 1181
+units going back over strokes already down to reach parts of a letter it has not
+written yet, at three times the speed, which is another 0.8s. Hence 5.5s, of
+which 14% is the hand travelling rather than writing.
 
 **The font is not in this repo, and must not be.** `src/content/signature-typeset.svg`
 is the name set in Amsterdam Handwriting by Mayofont, whose free release says
@@ -909,8 +913,8 @@ around the letter's contour rather than through it. `scripts/trace-signature.mjs
 derives a centreline and writes it into the file as `<mask id="ks-write">`,
 which is what the letters are revealed through. It rasterises each glyph, thins
 it to a one-pixel skeleton, and walks every branch of it, emitting one
-`<path class="ks-pen">` per stroke — 15 for this name, 19 for the traced
-signature below. Run it whenever the artwork changes; nothing in `npm run build`
+`<path class="ks-pen">` per run — 21 for this name, of which 15 are writing and
+6 are the pen going back over its own work. Run it whenever the artwork changes; nothing in `npm run build`
 calls it, since the result is committed and deriving it needs a browser.
 
 The trailing number is the mask width, and it belongs to the artwork rather than
@@ -918,16 +922,48 @@ to the script: the right value is the narrowest that leaves no ink behind, and a
 face with thicker strokes needs more. 19 leaves 0 of 282,025 ink pixels
 uncovered here; 18 leaves 42.
 
-Five things in there were each a bug first. An eight-connected skeleton makes
-every diagonal run a chain of little triangles, and the walk read each one as a
-junction: one letter came out as 561 strokes until the redundant diagonals were
-dropped, after which the K is 7. Taking only the longest path through the
-skeleton left the K's descender and upper swash untraced, which for a mask means
-those parts are never revealed at all — so the walk covers every branch, and
-each forward run becomes its own stroke rather than retracing, because a pen
-that retraces uncovers nothing while it does. An SVG dash pattern restarts at
-every subpath, so nineteen subpaths in one path uncover the whole name at once;
-nineteen elements, each waiting for the ink before it, do not.
+### Why the walk is one unbroken journey
+
+A skeleton is a shape, and a shape does not know the order it was written in.
+Everything below is about getting an order out of it that a hand would
+recognise.
+
+The walk never jumps. It used to: it covered every branch of a letter and simply
+dropped the backtracks between them, on the reasoning that a pen going back over
+finished work uncovers nothing and so reads as a stall. What it actually read as
+was worse. The capital here has four limbs meeting at one junction, and dropping
+the backtracks made it four separate pieces that landed in four different places
+— the letter assembled rather than being written. The backtracks are kept now
+and marked `data-retrace`, and `Signature.tsx` spends a third of the time on
+them that it spends on writing. That is both the fix and the truth about
+handwriting: a hand does move faster over a line it has already laid down.
+
+At a junction the walk carries straight on rather than turning. Where a letter
+crosses itself, the two strokes through the crossing are separate motions of the
+hand and a pen does not turn the corner there. Straightness is judged five user
+units out rather than from the step itself, because a step to one of eight
+neighbours can only point eight ways — far too coarse to tell two branches of a
+crossing apart.
+
+Four more things in there were each a bug first. An eight-connected skeleton
+makes every diagonal run a chain of little triangles, and the walk read each one
+as a junction: one letter came out as 561 strokes until the redundant diagonals
+were dropped, after which the K is 7. Taking only the longest path through the
+skeleton left a capital's descender and upper swash untraced, which for a mask
+means those parts are never revealed at all — so the walk covers every branch.
+An SVG dash pattern restarts at every subpath, so twenty-one subpaths in one
+path uncover the whole name at once; twenty-one elements, each waiting for the
+ink before it, do not.
+
+And a depth-first walk ends by unwinding its stack all the way home, which is a
+long retrace over finished work: left in, every letter spent its last moments
+walking back to where it began, and the word as a whole finished writing with a
+second still to run. Trailing retraces are dropped — the pen stops where it
+stopped writing. That is only safe because every retraced edge is guaranteed to
+appear in some earlier writing run, which in turn is only true if no written
+edge is ever folded into a run labelled a retrace. Getting that backwards took
+3,201 pixels of the name out of the mask and stopped them being revealed at
+all.
 
 The walk carries its own stack rather than the engine's. Written as a recursive
 function it goes one frame deep per skeleton pixel, and this capital's swash is
