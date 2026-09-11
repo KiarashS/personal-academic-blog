@@ -1761,8 +1761,8 @@ mark {
      and it is why this is not plain `vertical-align: baseline`: it is the box
      bottom that sits on the line of type, so without the offset the name floats
      above the line by the depth of its own descenders. */
-  --signature-ratio: 0.6003;
-  --signature-descent: 0.2431;
+  --signature-ratio: 0.6328;
+  --signature-descent: 0.399;
 
   cursor: pointer;
   display: inline-block;

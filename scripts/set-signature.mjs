@@ -66,12 +66,21 @@ const top = Math.min(...boxes.map((b) => b.y1)) - PAD;
 const width = Math.max(...boxes.map((b) => b.x2)) + PAD - left;
 const height = Math.max(...boxes.map((b) => b.y2)) + PAD - top;
 
-// The 1.4 stroke is what the tracer rasterises the glyph with, so it is carried
-// on the element rather than left to the tracer to assume.
+/*
+ * One decimal. The drawing is some 580 units wide and is shown at 176px, so a
+ * tenth of a unit is three hundredths of a pixel — below anything a screen can
+ * show, and the path data is a sixth smaller for it. This matters because the
+ * file is inlined into the front page rather than fetched: an ornate capital is
+ * tens of kilobytes of outline whatever you do, and there is no reason to spend
+ * a digit of it on nothing.
+ *
+ * The 1.4 stroke is what the tracer rasterises the glyph with, so it is carried
+ * on the element rather than left to the tracer to assume.
+ */
 const glyphs = paths
   .map(
     (path) =>
-      `<path class="ks-glyph" d="${path.toPathData(2)}" ` +
+      `<path class="ks-glyph" d="${path.toPathData(1)}" ` +
       `fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"></path>`,
   )
   .join('');

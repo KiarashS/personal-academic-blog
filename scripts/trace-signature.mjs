@@ -330,9 +330,6 @@ function trace(page, d, view) {
        * dropped: a dash animation crossing from one subpath to the next uncovers
        * nothing in between, which is exactly what a jump should look like.
        *
-       * Short limbs are taken before long ones at each junction, so the walk
-       * ends at the far end of the longest, which in a signature is where the
-       * next letter starts.
        */
       const cover = (from, within) => {
         const used = new Set();
@@ -340,25 +337,47 @@ function trace(page, d, view) {
         const runs = [];
         let run = [from];
 
-        const step = (node) => {
-          const next = neighbours(node)
-            .filter((n) => within.has(n) && !used.has(edge(node, n)))
-            .map((n) => ({ n, d: depth(n, node, within) }))
-            .sort((a, b) => a.d - b.d);
-
-          let first = true;
-          for (const { n } of next) {
-            if (used.has(edge(node, n))) continue;
-            used.add(edge(node, n));
+        /*
+         * The depth-first walk, with its own stack rather than the engine's.
+         *
+         * Written as a recursive function it goes one frame deep per skeleton
+         * pixel, and a glyph with a long swash is tens of thousands of pixels
+         * in a single component: a capital whose flourish sweeps under the
+         * whole word overflowed the stack outright. A frame here is a node, the
+         * edges leaving it in the order they will be taken, and how far through
+         * them the walk is.
+         */
+        const step = (start) => {
+          const stack = [{ node: start, edges: null, taken: 0, first: true }];
+          while (stack.length > 0) {
+            const frame = stack[stack.length - 1];
+            if (frame.edges === null) {
+              // Short limbs before long ones, so the walk ends at the far end
+              // of the longest, which in a signature is where the next letter
+              // starts. Measured when the node is reached, not before.
+              frame.edges = neighbours(frame.node)
+                .filter((n) => within.has(n) && !used.has(edge(frame.node, n)))
+                .map((n) => ({ n, d: depth(n, frame.node, within) }))
+                .sort((a, b) => a.d - b.d)
+                .map((entry) => entry.n);
+            }
+            if (frame.taken >= frame.edges.length) {
+              stack.pop();
+              continue;
+            }
+            const n = frame.edges[frame.taken];
+            frame.taken += 1;
+            if (used.has(edge(frame.node, n))) continue;
+            used.add(edge(frame.node, n));
             // Carrying on from where the pen is continues the run; anything
             // else is a fresh stroke starting at this junction.
-            if (!first) {
+            if (!frame.first) {
               runs.push(run);
-              run = [node];
+              run = [frame.node];
             }
-            first = false;
+            frame.first = false;
             run.push(n);
-            step(n);
+            stack.push({ node: n, edges: null, taken: 0, first: true });
           }
         };
 
