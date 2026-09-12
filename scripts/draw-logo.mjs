@@ -138,7 +138,7 @@ const place =
   `translate(${n(SIZE / 2 - ((ink.x1 + ink.x2) / 2) * scale)} ` +
   `${n(SIZE / 2 - ((ink.y1 + ink.y2) / 2) * scale)}) scale(${n(scale * 1000) / 1000})`;
 
-const OUT_MARK = 'public/logo-mark.svg';
+const OUT_MARK = 'src/content/logo-mark.svg';
 await writeFile(
   OUT_MARK,
   `<svg viewBox="${n(ink.x1 - (ROOM - (ink.x2 - ink.x1)) / 2)} ${n(ink.y1)} ` +
@@ -173,7 +173,7 @@ const rect = (inset, radius) =>
 const face = rect(0, TILE.radius);
 const [sx, sy] = [n(TILE.x + 52), n(TILE.y + 38)];
 
-const OUT = 'public/logo.svg';
+const OUT = 'src/content/logo.svg';
 const file = `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kiarash Soleimanzadeh">
   <defs>
     <filter id="ks-frost" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
@@ -242,7 +242,7 @@ await writeFile(OUT, file);
  * as a brown blob with something pale in it. Two flat colours survive, and a
  * browser tab is the one place the drawing has no room to be a drawing.
  */
-const OUT_ICON = 'public/logo-icon.svg';
+const OUT_ICON = 'src/content/logo-icon.svg';
 const icon = `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kiarash Soleimanzadeh">
   <rect ${face} fill="#8d3e2e"/>
   <path fill="#fdf4ee" fill-rule="nonzero" transform="${place}" d="${K}"/>
@@ -250,4 +250,25 @@ const icon = `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/s
 `;
 await writeFile(OUT_ICON, icon);
 
-console.log(`wrote ${OUT} (${file.length} bytes), ${OUT_MARK} and ${OUT_ICON}`);
+/*
+ * The maskable icon, which Android may crop to a circle, a squircle or a
+ * teardrop depending on the launcher. Only the middle 80% is guaranteed to
+ * survive, so the tile goes and the colour runs to the edges, with the letter
+ * small enough to sit inside that circle whatever shape is cut around it.
+ */
+const SAFE = 0.44;
+const maskScale = (SIZE * SAFE) / (ink.y2 - ink.y1);
+const OUT_MASKABLE = 'src/content/logo-maskable.svg';
+await writeFile(
+  OUT_MASKABLE,
+  `<svg viewBox="0 0 ${SIZE} ${SIZE}" xmlns="http://www.w3.org/2000/svg" role="img" ` +
+    `aria-label="Kiarash Soleimanzadeh">` +
+    `<rect width="${SIZE}" height="${SIZE}" fill="#8d3e2e"/>` +
+    `<path fill="#fdf4ee" fill-rule="nonzero" transform="translate(` +
+    `${n(SIZE / 2 - ((ink.x1 + ink.x2) / 2) * maskScale)} ` +
+    `${n(SIZE / 2 - ((ink.y1 + ink.y2) / 2) * maskScale)}) ` +
+    `scale(${n(maskScale * 1000) / 1000})" d="${K}"></path>` +
+    `</svg>\n`,
+);
+
+console.log(`wrote ${OUT}, ${OUT_ICON}, ${OUT_MARK} and ${OUT_MASKABLE}`);

@@ -685,16 +685,24 @@ page.
 
 ## Logo
 
-Three files, all from `scripts/draw-logo.mjs`:
+Four files in `src/content/`, all from `scripts/draw-logo.mjs`:
 
 ```
 node scripts/draw-logo.mjs
+node scripts/render-icons.mjs
 ```
 
-`public/logo.svg` is the mark: a K on a frosted pane. `public/logo-icon.svg` is
-the same drawing with the glass taken off, two flat colours, for a favicon.
-`public/logo-mark.svg` is the letter alone in `currentColor`, cropped to the
-ink, for a header or a one-colour stamp.
+`logo.svg` is the mark: a K on a frosted pane. `logo-icon.svg` is the same
+drawing with the glass taken off, two flat colours. `logo-mark.svg` is the
+letter alone in `currentColor`, cropped to the ink. `logo-maskable.svg` drops
+the tile and runs the colour to the edges, for Android launchers that crop.
+
+They sit in `src/content/` rather than `public/` because nothing links to them:
+every place they are used inlines them. The header takes `logo-mark.svg` in
+`currentColor`, so the mark follows a manual light or dark choice rather than
+keeping whatever colour the file was drawn in — the same reason the signature is
+inlined. The social card takes `logo.svg` at 104px, which is one of the few
+surfaces here with room for the glass to be seen.
 
 The letter is one path of three subpaths under `nonzero`, not three shapes.
 Three overlapping shapes each at 80% stack to nearly opaque where they meet and
@@ -722,8 +730,17 @@ through frost rather than a gradient painted on. The blur is done in the file
 rather than left to `backdrop-filter` because a logo has to be one drawing that
 is the same on a page, in a favicon, in a README and on somebody else's slide.
 
-None of this is wired into the site yet: the favicons in `public/favicons/` are
-still the old ones.
+`scripts/render-icons.mjs` writes `public/favicons/` and picks a drawing per
+size, which is the point of it: frost is a blur and a blur at sixteen pixels is
+a smudge, so 16, 32 and 76 take the flat version and 180 upward take the glass.
+An icon set is meant to be redrawn per size and this is the cheap way of doing
+it. Each PNG is rasterised at its own pixel size rather than resampled down from
+a big one, which is what left the old set soft.
+
+`favicon.ico` is built in the same pass. It is a container rather than a format,
+and modern readers accept whole PNGs inside it, so the 16, 32 and 48 renders go
+in as they are. Neither script runs during `npm run build`: the output is
+committed, and making it needs a browser.
 
 ## Favicon
 

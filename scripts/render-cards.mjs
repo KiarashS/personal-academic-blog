@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
@@ -6,6 +6,14 @@ import { chromium } from 'playwright';
 const dist = resolve('dist');
 const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href;
 const { posts, siteConfig } = await import(serverEntry);
+
+/*
+ * The logo, inlined rather than linked. The card is rendered from a string with
+ * no server behind it, so a `src` would have nothing to resolve against; and at
+ * 104px the frosted version is one of the few places on the site with room to
+ * be seen properly.
+ */
+const logo = await readFile(resolve('src/content/logo.svg'), 'utf8');
 
 const escapeHtml = (value) =>
   String(value).replace(
@@ -24,10 +32,12 @@ function card({ eyebrow, title, footer }) {
     background: #fdfdfc; color: #1b1b18;
     font-family: 'Iowan Old Style', Charter, Georgia, Cambria, 'Times New Roman', serif;
   }
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; }
   .eyebrow {
     font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-size: 24px; letter-spacing: 0.12em; text-transform: uppercase; color: #6a6a62;
   }
+  .logo { width: 104px; height: 104px; flex: none; margin-top: -14px; }
   h1 { font-size: 68px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 600; }
   .rule { height: 3px; width: 120px; background: #7a3b2e; }
   footer {
@@ -36,7 +46,10 @@ function card({ eyebrow, title, footer }) {
   }
 </style></head>
 <body>
-  <div class="eyebrow">${escapeHtml(eyebrow)}</div>
+  <div class="top">
+    <div class="eyebrow">${escapeHtml(eyebrow)}</div>
+    <div class="logo">${logo}</div>
+  </div>
   <h1>${escapeHtml(title)}</h1>
   <div>
     <div class="rule"></div>

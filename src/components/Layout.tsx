@@ -6,6 +6,7 @@ import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
+import { SiteMark } from './SiteMark';
 import { NavGroup } from './NavGroup';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
@@ -53,6 +54,7 @@ export function Layout() {
           <div className="site-header__inner">
             {bare ? null : (
               <Link className="site-title" to="/">
+                <SiteMark />
                 {siteConfig.title}
               </Link>
             )}
