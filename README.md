@@ -683,6 +683,48 @@ forced light whatever the reader chose, external links print their target after
 the text, and figures, tables and code blocks are not allowed to break across a
 page.
 
+## Logo
+
+Three files, all from `scripts/draw-logo.mjs`:
+
+```
+node scripts/draw-logo.mjs
+```
+
+`public/logo.svg` is the mark: a K on a frosted pane. `public/logo-icon.svg` is
+the same drawing with the glass taken off, two flat colours, for a favicon.
+`public/logo-mark.svg` is the letter alone in `currentColor`, cropped to the
+ink, for a header or a one-colour stamp.
+
+The letter is one path of three subpaths under `nonzero`, not three shapes.
+Three overlapping shapes each at 80% stack to nearly opaque where they meet and
+leave two seams across the junction; one path unions them into a single pane of
+one thickness. It is written as a skeleton — a stem, a join, two arm tips — and
+given width afterwards, so the proportions are five numbers rather than twelve
+polygon corners, and the size and centring are measured off the result rather
+than typed twice.
+
+Two things in there were each a mistake first. Both arms used to leave the
+stem's centre, where they spend half their width buried and what shows at the
+junction is a lump as wide as both arms at once; they leave the right edge now.
+And an upright cut across a sloping bar is longer than the bar is wide, so arms
+that ended on the cap line put half that cut past it — eleven units of spike at
+the top and the bottom, which is most of why the first draft read as a spider.
+`armEnd` solves for where the skeleton has to stop for the finished arm to land
+on the line.
+
+The glass went through two wrong versions before this one, both of which came
+out as a gel button. The lighting was not the problem: a solid tile with a shine
+on it is plastic however the shine is drawn. What reads as glass is seeing
+something through it, so there is something behind — a few saturated blobs —
+blurred hard, with a white wash over them, and what survives is colour diffusing
+through frost rather than a gradient painted on. The blur is done in the file
+rather than left to `backdrop-filter` because a logo has to be one drawing that
+is the same on a page, in a favicon, in a README and on somebody else's slide.
+
+None of this is wired into the site yet: the favicons in `public/favicons/` are
+still the old ones.
+
 ## Favicon
 
 `public/favicons/` holds the icon set, taken byte-for-byte from

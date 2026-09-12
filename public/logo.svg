@@ -1,0 +1,58 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kiarash Soleimanzadeh">
+  <defs>
+    <filter id="ks-frost" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="ks-cast" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <linearGradient id="ks-letter" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#fffefd" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#ffe7d9" stop-opacity="0.84"/>
+    </linearGradient>
+    <linearGradient id="ks-rim" x1="0.05" y1="0" x2="0.95" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.4" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="ks-edge" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0.45" stop-color="#ffb392" stop-opacity="0"/>
+      <stop offset="1" stop-color="#ffcdb4" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="ks-spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="0.65" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="ks-clip"><rect x="18" y="18" width="220" height="220" rx="50"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#ks-clip)">
+    <!-- What the glass has behind it. Blurred to nothing recognisable: the job
+         is colour arriving from somewhere, not a picture. -->
+    <rect x="18" y="18" width="220" height="220" rx="50" fill="#4a1d15"/>
+    <g filter="url(#ks-frost)">
+      <circle cx="52" cy="46" r="76" fill="#f0a06d"/>
+      <circle cx="206" cy="84" r="66" fill="#c2412c"/>
+      <circle cx="168" cy="226" r="82" fill="#571a2e"/>
+      <circle cx="44" cy="204" r="58" fill="#8e3524"/>
+    </g>
+
+    <!-- The frost itself. -->
+    <rect x="18" y="18" width="220" height="220" rx="50" fill="#ffffff" fill-opacity="0.1"/>
+    <ellipse cx="70" cy="56" rx="84" ry="42" fill="url(#ks-spec)" transform="rotate(-24 70 56)"/>
+
+    <!-- The letter sits above the frost rather than in it, which is the only
+         thing keeping it off the bright corner: white on peach has almost no
+         contrast, and the shadow gives the edge back without darkening the
+         letter or the tile. -->
+    <g transform="translate(6 8)" filter="url(#ks-cast)" opacity="0.38">
+      <path fill="#41130c" fill-rule="nonzero" transform="translate(-15.4 -23.4) scale(1.1829)" d="M78.5 76L97.5 76L97.5 180L78.5 180ZM89.3 121.1L158 75.9L158 98.6L99.7 136.9ZM99.2 120.8L164 158.1L164 180.1L89.8 137.2Z"/>
+    </g>
+    <path fill="url(#ks-letter)" fill-rule="nonzero" transform="translate(-15.4 -23.4) scale(1.1829)" d="M78.5 76L97.5 76L97.5 180L78.5 180ZM89.3 121.1L158 75.9L158 98.6L99.7 136.9ZM99.2 120.8L164 158.1L164 180.1L89.8 137.2Z"/>
+
+    <rect x="21.5" y="21.5" width="213" height="213" rx="46.5" fill="none" stroke="url(#ks-edge)" stroke-width="3"/>
+  </g>
+
+  <rect x="19.3" y="19.3" width="217.5" height="217.5" rx="48.8" fill="none" stroke="url(#ks-rim)" stroke-width="2.5"/>
+</svg>
