@@ -266,17 +266,29 @@ video {
   padding: 1.5rem 0 1.1rem;
 }
 
+/*
+ * The name on the left, everything else against the right edge.
+ *
+ * `space-between` put the nav wherever the arithmetic left it, which happened
+ * to be the middle. That is not a position, it is a remainder: it is half of
+ * whatever is left after the title and the controls, so it moves when either
+ * of them does. Renaming the site from "K. S." to "Kiarash Soleimanzadeh, PhD"
+ * slid the nav a hundred pixels. Anchored right it starts in the same place
+ * whatever the title says, and the navigation sits with the controls it
+ * belongs with rather than stranded between two gaps.
+ */
 .site-header__inner {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.75rem;
 }
 
 .site-title {
   align-items: center;
   display: inline-flex;
+  margin-right: auto;
   font-size: 1.05rem;
   font-weight: 600;
   gap: 0.45rem;
@@ -1713,10 +1725,6 @@ mark {
    lets it sit where the eye already is on the way down. */
 .site-header--bare {
   border-bottom: 0;
-}
-
-.site-header--bare .site-header__inner {
-  justify-content: flex-end;
 }
 
 /* The front page used to end exactly at the window, footer rule included, so a
