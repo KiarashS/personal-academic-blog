@@ -2,6 +2,7 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
+import { SiteMark } from './SiteMark';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
@@ -53,6 +54,7 @@ export function Layout() {
           <div className="site-header__inner">
             {bare ? null : (
               <Link className="site-title" to="/">
+                {siteConfig.headerLogo ? <SiteMark /> : null}
                 {siteConfig.title}
               </Link>
             )}

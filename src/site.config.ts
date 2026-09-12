@@ -124,6 +124,19 @@ export interface SiteConfig {
   title: string;
   /** Under a home-screen icon, where a full name will not fit. */
   shortName: string;
+  /**
+   * Draw `src/content/logo-mark.svg` beside the site's name in the header.
+   *
+   * The flat mark rather than the frosted logo, and inlined rather than loaded
+   * as an image, so it takes the ink of the title next to it and follows a
+   * manual light or dark choice — the same reason the signature is inlined.
+   *
+   * Off by default. The name is already set there in type, and on a site whose
+   * front page opens with a signature the geometric K and the script one invite
+   * a comparison neither wins. It is also a row that fits about seven entries:
+   * with the mark in it, the nav wraps onto a second line sooner.
+   */
+  headerLogo: boolean;
   tagline: string;
   description: string;
   url: string;
@@ -177,6 +190,7 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   title: 'Kiarash Soleimanzadeh',
+  headerLogo: false,
   shortName: 'Kiarash S.',
   tagline: 'Working notes, drafts, and summaries of what I have been reading.',
   description: 'A personal research notebook: working notes, drafts and reading summaries.',

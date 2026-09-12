@@ -701,10 +701,17 @@ They sit in `src/content/` rather than `public/` because nothing links to them:
 every place they are used inlines them. The social card takes `logo.svg` at
 104px, which is one of the few surfaces here with room for the glass to be seen.
 
-The header does not use the mark. The site's name is already set there in type,
-and `logo-mark.svg` beside it was one K too many on a site whose front page
-opens with a signature — the two letterforms, a geometric monogram and a script
-capital, invited a comparison neither won.
+`headerLogo` in `src/site.config.ts` puts `logo-mark.svg` beside the site's name
+in the header. It is off by default. The name is already set there in type, and
+the mark beside it was one K too many on a site whose front page opens with a
+signature — a geometric monogram and a script capital, close enough to invite a
+comparison neither won. It also costs a slot: the header row fits about seven
+entries, and with the mark in it the nav wraps a breakpoint sooner.
+
+Turn it on and the mark is inlined in `currentColor`, so it takes the ink of the
+title beside it and follows a manual light or dark choice, which an `img` could
+not. It is sized in `em` against the name, so the two keep their relationship
+when the type scales.
 
 The letter is one path of three subpaths under `nonzero`, not three shapes.
 Three overlapping shapes each at 80% stack to nearly opaque where they meet and
@@ -823,7 +830,9 @@ The two questions are worth keeping apart. `feature` decides whether the page,
 its route, its feed and its place in the sitemap exist at all; `place` only
 moves the link, so an entry sent to the footer keeps everything else it had.
 Archive ships there by default: it is a page worth being able to reach and not
-one worth a slot in the top row, which by then had eight entries in it.
+one worth a slot in the top row, which by then had eight entries in it. About
+ships as `'both'` — the page answers "who is this", which is worth a slot up top
+and worth repeating at the foot of a page somebody has read to the end of.
 
 Both places read the same list. Tags, Search and About were previously written
 out once in the nav and again by hand in the footer, which is the kind of
