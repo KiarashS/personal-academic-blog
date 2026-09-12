@@ -171,6 +171,14 @@ a:hover {
   outline-offset: 3px;
 }
 
+/* Where `j` and `k` have left the cursor. The same ring, drawn because the
+   component said so rather than because the browser guessed right — see the
+   note beside CURSOR in KeyboardShortcuts.tsx. */
+.post-cursor {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 h1,
 h2,
 h3,

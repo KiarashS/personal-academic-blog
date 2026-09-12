@@ -18,6 +18,22 @@ const POST_LINKS = '.post-list .post-card__title a, .archive-list a';
 const RELATION = { followPrev: 'a[rel~="prev"]', followNext: 'a[rel~="next"]' } as const;
 
 /**
+ * The class the cursor leaves on the post it is sitting on.
+ *
+ * `j` and `k` move focus themselves, and the site's focus ring is drawn on
+ * `:focus-visible` — which is not a state but a guess, made independently by
+ * each browser, about whether the reader is navigating by keyboard. Browsers
+ * disagree about programmatic focus in particular, and Safari generally decides
+ * it does not count, so there the cursor moved with nothing to show for it.
+ *
+ * Saying it outright costs one class and settles it everywhere. The ring is
+ * still the same ring: a reader who tabs through the list gets it from
+ * `:focus-visible` as before, and this only guarantees it for the keys that
+ * move focus without being asked to.
+ */
+const CURSOR = 'post-cursor';
+
+/**
  * Keyboard shortcuts, and the dialog that documents them. The button is part of
  * the component so that the list has a way in that does not require knowing the
  * shortcut first.
@@ -53,6 +69,14 @@ export function KeyboardShortcuts() {
     const links = [...document.querySelectorAll<HTMLAnchorElement>(POST_LINKS)];
     const next = links[step(links, links.indexOf(document.activeElement as HTMLAnchorElement), by)];
     if (!next) return false;
+
+    for (const marked of document.querySelectorAll(`.${CURSOR}`)) marked.classList.remove(CURSOR);
+    next.classList.add(CURSOR);
+    // Focus can leave by routes this component never hears about — a click
+    // elsewhere, a tab, the page being navigated away from — so the mark is
+    // cleaned up by the element that carries it rather than from here.
+    next.addEventListener('blur', () => next.classList.remove(CURSOR), { once: true });
+
     next.focus();
     next.scrollIntoView({ block: 'center', behavior: 'instant' });
     return true;

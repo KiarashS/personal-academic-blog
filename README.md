@@ -574,6 +574,17 @@ markup rather than by knowing what page they are on, so a new kind of
 previous/next link is picked up by saying so in its HTML. `b` goes to the blog
 index from anywhere, and from page four of it to page one.
 
+The post `j` and `k` land on is marked with a `post-cursor` class, and that is
+what draws the ring around it rather than the site's `:focus-visible` rule.
+`:focus-visible` is not a state but a guess, made independently by each browser,
+about whether the reader is navigating by keyboard, and browsers disagree about
+programmatic focus in particular — Safari generally decides it does not count,
+so there the cursor moved with nothing to show for it. The ring is the same
+ring; a reader tabbing through the list still gets it from `:focus-visible` as
+before, and the class only guarantees it for the keys that move focus without
+being asked to. It is cleared by the element that carries it, on blur, so focus
+leaving by any route takes the mark with it.
+
 Escape leaves the search box for the results. The search page focuses its box
 on arrival, which is what a reader who came to type wants, but it also meant
 `j` and `k` typed letters and Tab was the only way out; now the keyboard route
