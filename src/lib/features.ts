@@ -1,5 +1,5 @@
 import { BLOG_INDEX, siteConfig } from '../site.config';
-import type { FeatureName, NavItem } from '../site.config';
+import type { FeatureName, NavItem, NavPlace } from '../site.config';
 
 export function isEnabled(feature: FeatureName): boolean {
   return siteConfig.features[feature] === true;
@@ -37,14 +37,26 @@ export function categoriesEnabled(): boolean {
   return isEnabled('categories') && siteConfig.categories.length > 0;
 }
 
+/** Whether an entry belongs in `place`. Unset means the header. */
+export function shownIn(item: NavItem, place: NavPlace): boolean {
+  const where = item.place ?? 'header';
+  return where === place || where === 'both';
+}
+
 /**
- * The nav as rendered: gated entries dropped, and the blog entry pointed at
- * wherever the blog index currently is. The config names it symbolically
- * because the `home` feature is what decides between `/` and `/blog`.
+ * The nav as rendered, for one place: gated entries dropped, and the blog entry
+ * pointed at wherever the blog index currently is. The config names that one
+ * symbolically because the `home` feature is what decides between `/` and
+ * `/blog`.
+ *
+ * Groups are header-only. A group is a label with a popover under it, and a
+ * footer line has nowhere to put one, so asking for the footer drops them
+ * rather than flattening them — flattened, the label that explained the links
+ * is the one thing that goes missing.
  */
-export function visibleNav(): NavItem[] {
+export function navFor(place: NavPlace): NavItem[] {
   const blog = isEnabled('home') ? '/blog' : '/';
-  return filterNav(siteConfig.nav, siteConfig.features).map((item) =>
-    item.to === BLOG_INDEX ? { ...item, to: blog } : item,
-  );
+  return filterNav(siteConfig.nav, siteConfig.features)
+    .filter((item) => shownIn(item, place) && (place === 'header' || !isNavGroup(item)))
+    .map((item) => (item.to === BLOG_INDEX ? { ...item, to: blog } : item));
 }

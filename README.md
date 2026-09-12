@@ -698,11 +698,13 @@ letter alone in `currentColor`, cropped to the ink. `logo-maskable.svg` drops
 the tile and runs the colour to the edges, for Android launchers that crop.
 
 They sit in `src/content/` rather than `public/` because nothing links to them:
-every place they are used inlines them. The header takes `logo-mark.svg` in
-`currentColor`, so the mark follows a manual light or dark choice rather than
-keeping whatever colour the file was drawn in — the same reason the signature is
-inlined. The social card takes `logo.svg` at 104px, which is one of the few
-surfaces here with room for the glass to be seen.
+every place they are used inlines them. The social card takes `logo.svg` at
+104px, which is one of the few surfaces here with room for the glass to be seen.
+
+The header does not use the mark. The site's name is already set there in type,
+and `logo-mark.svg` beside it was one K too many on a site whose front page
+opens with a signature — the two letterforms, a geometric monogram and a script
+capital, invited a comparison neither won.
 
 The letter is one path of three subpaths under `nonzero`, not three shapes.
 Three overlapping shapes each at 80% stack to nearly opaque where they meet and
@@ -803,11 +805,35 @@ does not appear in the sitemap. The page is absent from the built site rather
 than hidden with CSS. Nav visibility, routing and the prerendered route list all
 read the same flag, so they cannot fall out of step.
 
-Two reach further than the rest. `about` is linked from the footer as well as
-the nav, so that link goes with the page. Categories also mark up individual
-posts: with the flag off the chip above each title goes as well, the
-per-category feeds are not written, and related posts fall back to ranking on
-shared tags alone.
+Categories reach further than the rest, marking up individual posts: with the
+flag off the chip above each title goes as well, the per-category feeds are not
+written, and related posts fall back to ranking on shared tags alone.
+
+### Where a nav entry appears
+
+Separately from whether a page exists, `place` on a nav entry says where its
+link is shown — `'header'`, `'footer'` or `'both'`, and the header if unset:
+
+```ts
+{ label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
+{ label: 'Tags', to: '/tags', place: 'both' },
+```
+
+The two questions are worth keeping apart. `feature` decides whether the page,
+its route, its feed and its place in the sitemap exist at all; `place` only
+moves the link, so an entry sent to the footer keeps everything else it had.
+Archive ships there by default: it is a page worth being able to reach and not
+one worth a slot in the top row, which by then had eight entries in it.
+
+Both places read the same list. Tags, Search and About were previously written
+out once in the nav and again by hand in the footer, which is the kind of
+duplication that survives until someone edits one of them; they are now
+`place: 'both'` and the footer renders whatever the config says.
+
+A group cannot go in the footer. It is a label with a popover under it, and a
+line of footer links has nowhere to open one, so `navFor('footer')` drops groups
+rather than flattening them — flattened, the label that explained the links is
+the one thing that goes missing.
 
 Prose is written once and the flags move under it, so a link in a post or on the
 front page that points at a page a flag has taken away is unwrapped by

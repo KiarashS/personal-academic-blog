@@ -20,6 +20,13 @@ export interface GiscusConfig {
 export type FeatureName =
   'home' | 'about' | 'publications' | 'archive' | 'categories' | 'projects' | 'slides' | 'contact';
 
+/**
+ * Where a nav entry is shown. The header is the default because that is what a
+ * nav is; the footer is for the ones worth reaching but not worth a slot in the
+ * top row, and `both` for the few that earn a place in each.
+ */
+export type NavPlace = 'header' | 'footer' | 'both';
+
 export interface NavItem {
   label: string;
   /**
@@ -29,6 +36,15 @@ export interface NavItem {
   to?: string;
   /** When set, the entry and its route only exist if that feature is on. */
   feature?: FeatureName;
+  /**
+   * Where it is shown; the header if unset. Placement is not the same question
+   * as whether the page exists — that is `feature` — so moving an entry to the
+   * footer leaves its route, its feed and every link to it alone.
+   *
+   * A group cannot go in the footer. It is a label with a popover under it, and
+   * a line of footer links has nowhere to put one.
+   */
+  place?: NavPlace;
   /**
    * Entries shown under this one — a popover on a wide screen, an indented list
    * in the menu on a narrow one. A group whose entries have all been gated away
@@ -227,7 +243,7 @@ export const siteConfig: SiteConfig = {
     { label: 'Blog', to: BLOG_INDEX },
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Slides', to: '/slides', feature: 'slides' },
-    { label: 'Archive', to: '/archive', feature: 'archive' },
+    { label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
     {
       // A label with a list under it rather than a link: standalone pages of
@@ -240,9 +256,9 @@ export const siteConfig: SiteConfig = {
         { label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
       ],
     },
-    { label: 'Tags', to: '/tags' },
-    { label: 'Search', to: '/search' },
-    { label: 'About', to: '/about', feature: 'about' },
+    { label: 'Tags', to: '/tags', place: 'both' },
+    { label: 'Search', to: '/search', place: 'both' },
+    { label: 'About', to: '/about', feature: 'about', place: 'both' },
     { label: 'Contact', to: '/contact', feature: 'contact' },
   ],
   giscus: {

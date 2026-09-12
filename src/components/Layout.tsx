@@ -1,12 +1,11 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { siteConfig } from '../site.config';
-import { isEnabled, isNavGroup, visibleNav } from '../lib/features';
+import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
-import { SiteMark } from './SiteMark';
 import { NavGroup } from './NavGroup';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
@@ -54,12 +53,11 @@ export function Layout() {
           <div className="site-header__inner">
             {bare ? null : (
               <Link className="site-title" to="/">
-                <SiteMark />
                 {siteConfig.title}
               </Link>
             )}
             <nav className="site-nav" aria-label="Main">
-              {visibleNav().map((item) =>
+              {navFor('header').map((item) =>
                 isNavGroup(item) ? (
                   <NavGroup item={item} key={item.label} />
                 ) : (
@@ -97,12 +95,19 @@ export function Layout() {
               closes before one, which puts the browser's DOM at odds with
               React's and fails hydration on every page. */}
           <div className="site-footer__links">
-            <Link to="/tags">Tags</Link> · <Link to="/search">Search</Link> ·{' '}
-            {isEnabled('about') ? (
-              <>
-                <Link to="/about">About</Link> ·{' '}
-              </>
-            ) : null}
+            {/* From the same list the header reads, rather than a second copy
+                of it kept by hand: Tags, Search and About were written out
+                twice, and Archive would have made four. */}
+            {navFor('footer').map((item) => (
+              <span key={item.to}>
+                {isExternal(item.to ?? '') ? (
+                  <a href={item.to}>{item.label}</a>
+                ) : (
+                  <Link to={item.to ?? '/'}>{item.label}</Link>
+                )}{' '}
+                ·{' '}
+              </span>
+            ))}
             <FeedLink /> · <KeyboardShortcuts />
           </div>
         </div>

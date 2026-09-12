@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { isNavGroup, visibleNav } from '../lib/features';
+import { isNavGroup, navFor } from '../lib/features';
 import { NavCaret, NavGroupLink } from './NavGroup';
 
 /** The two icons the one button shows, taken from the reference implementation. */
@@ -92,7 +92,7 @@ export function MobileNav() {
         ref={panel}
       >
         <nav aria-label="Main">
-          {visibleNav().map((item) =>
+          {navFor('header').map((item) =>
             isNavGroup(item) ? (
               // Closed until the reader asks for it. `details` again, for the
               // same reason as on a wide screen: the browser opens and closes

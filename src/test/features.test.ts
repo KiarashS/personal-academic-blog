@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterNav, isExternal, isNavGroup } from '../lib/features';
+import { filterNav, isExternal, isNavGroup, shownIn } from '../lib/features';
 import { siteConfig } from '../site.config';
 import type { NavItem } from '../site.config';
 
@@ -60,13 +60,49 @@ describe('siteConfig.nav', () => {
   });
 });
 
-describe('visibleNav', () => {
+describe('navFor', () => {
   it('points the blog entry at wherever the blog index is', async () => {
     const { BLOG_INDEX } = await import('../site.config');
-    const { visibleNav } = await import('../lib/features');
-    const blog = visibleNav().find((item) => item.label === 'Blog');
+    const { navFor } = await import('../lib/features');
+    const blog = navFor('header').find((item) => item.label === 'Blog');
     expect(blog?.to).not.toBe(BLOG_INDEX);
     expect(['/', '/blog']).toContain(blog?.to);
+  });
+
+  it('puts an entry where its place says, and nowhere else', async () => {
+    const { navFor } = await import('../lib/features');
+    const header = navFor('header').map((item) => item.to);
+    const footer = navFor('footer').map((item) => item.to);
+    // Archive is configured as footer-only, Tags as both, Blog as neither.
+    expect(header).not.toContain('/archive');
+    expect(footer).toContain('/archive');
+    expect(header).toContain('/tags');
+    expect(footer).toContain('/tags');
+    expect(footer).not.toContain('/blog');
+  });
+
+  it('keeps groups out of the footer, where a popover has nowhere to open', async () => {
+    const { navFor } = await import('../lib/features');
+    expect(navFor('footer').every((item) => !item.items)).toBe(true);
+  });
+});
+
+describe('shownIn', () => {
+  it('treats an unset place as the header', () => {
+    expect(shownIn({ label: 'x', to: '/x' }, 'header')).toBe(true);
+    expect(shownIn({ label: 'x', to: '/x' }, 'footer')).toBe(false);
+  });
+
+  it('puts both in both', () => {
+    const item: NavItem = { label: 'x', to: '/x', place: 'both' };
+    expect(shownIn(item, 'header')).toBe(true);
+    expect(shownIn(item, 'footer')).toBe(true);
+  });
+
+  it('keeps a footer entry out of the header', () => {
+    const item: NavItem = { label: 'x', to: '/x', place: 'footer' };
+    expect(shownIn(item, 'header')).toBe(false);
+    expect(shownIn(item, 'footer')).toBe(true);
   });
 });
 
