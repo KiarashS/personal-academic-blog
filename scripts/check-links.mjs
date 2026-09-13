@@ -58,10 +58,22 @@ const internal = new Map();
 const missingBase = new Map();
 const external = new Set();
 const fragments = [];
+const duplicates = [];
 
 for (const file of files) {
   const html = await readFile(file, 'utf8');
-  const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+  const ids = new Set();
+  // A page is the post's own HTML inside the app's, and both assign ids. Where
+  // one is assigned twice a fragment link reaches whichever comes first, which
+  // is not something a reader can see and not something the fragment check
+  // below would notice — the id does exist.
+  //
+  // The leading space is load-bearing: a word boundary would match the `id="`
+  // inside `data-id="edge0"`, which every Mermaid edge carries.
+  for (const [, id] of html.matchAll(/\sid="([^"]+)"/g)) {
+    if (ids.has(id)) duplicates.push(`${file}: id "${id}" is used more than once`);
+    ids.add(id);
+  }
 
   for (const [, url] of html.matchAll(ATTR)) {
     if (/^(https?:)?\/\//.test(url)) {
@@ -94,6 +106,7 @@ const unprefixed = [...missingBase.keys()];
 for (const problem of broken) console.error(`broken internal link: ${problem}`);
 for (const problem of unprefixed) console.error(`link missing the base prefix: ${problem}`);
 for (const problem of fragments) console.error(`broken fragment: ${problem}`);
+for (const problem of duplicates) console.error(`duplicate id: ${problem}`);
 
 let externalFailures = 0;
 if (checkExternal) {
@@ -116,9 +129,11 @@ if (checkExternal) {
 console.log(
   `links: ${files.length} pages${base ? ` under ${base}` : ''}, ${broken.length} broken internal, ` +
     `${unprefixed.length} missing the base prefix, ${fragments.length} broken fragments, ` +
+    `${duplicates.length} duplicate ids, ` +
     `${external.size} external${checkExternal ? ` (${externalFailures} failing)` : ' (not checked)'}`,
 );
 
 // External links rot for reasons outside this repository, so they are reported
 // but do not fail the build; anything internal is ours and should never break.
-if (broken.length > 0 || unprefixed.length > 0 || fragments.length > 0) process.exit(1);
+if (broken.length > 0 || unprefixed.length > 0 || fragments.length > 0 || duplicates.length > 0)
+  process.exit(1);

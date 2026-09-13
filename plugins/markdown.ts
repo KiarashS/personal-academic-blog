@@ -28,6 +28,7 @@ import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
+import { rehypeReservedIds } from './reserved-ids';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -118,6 +119,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       .use(rehypeSlug)
+      // Between the two: rehype-slug has just made the ids, and the
+      // contents list should record the one the reader will land on.
+      .use(rehypeReservedIds)
       .use(collectHeadings)
       // Before anything that reads the tree for meaning: an alert is a
       // blockquote until this runs, and the citation and caption passes below
