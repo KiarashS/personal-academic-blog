@@ -43,16 +43,17 @@ function Target({
 /**
  * One entry's sentence.
  *
- * Two ways to link, and they compose rather than collide. `[words](where)` in
- * the text links those words; `href` on the entry points the whole thing
- * somewhere. Given both, the sentence keeps its own links and the entry's
- * target moves after it, because an anchor inside an anchor is not a thing a
- * browser will render.
+ * Two ways to link, and they never collide. `[words](where)` in the text links
+ * those words. `href` on the entry follows the sentence as "more", whether the
+ * text has links of its own or not: the sentence is what the entry says, and
+ * turning the whole of it into a link makes the words themselves the
+ * affordance, which leaves a reader nothing to aim at and no way to tell one
+ * entry's target from another's.
  *
- * It goes there as the word "more" rather than as a bare arrow. An arrow alone
- * is about ten pixels of tappable link at this size, a third of what a finger
- * needs, and it says nothing about itself; the arrow stays beside the word as
- * decoration, hidden from the accessibility tree.
+ * "more" rather than a bare arrow, because an arrow alone is about ten pixels
+ * of tappable link at this size — a third of what a finger needs — and says
+ * nothing about itself. The arrow stays beside the word as decoration, hidden
+ * from the accessibility tree.
  *
  * The accessible name opens with that same word and then the sentence. A list
  * where every link is called "more" is the oldest complaint screen-reader
@@ -60,16 +61,10 @@ function Target({
  * voice control cannot act on.
  */
 function Sentence({ item }: { item: NewsItem }) {
+  // The segments, not `item.text`: a sentence can have had markup in it whose
+  // target the page will not link, and the words are what survives, not the
+  // brackets around them.
   const segments = parseInlineLinks(item.text);
-  const linked = segments.some((segment) => segment.href);
-
-  if (!linked) {
-    // `plainText`, not `item.text`: a sentence can reach here having had markup
-    // in it, when the target was one the page will not link. The words are what
-    // survives, not the brackets around them.
-    const plain = plainText(item.text);
-    return item.href ? <Target href={item.href}>{plain}</Target> : <>{plain}</>;
-  }
 
   return (
     <>

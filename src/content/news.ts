@@ -10,12 +10,11 @@ import type { NewsItem } from '../lib/types';
  * Keep each entry to a sentence. The front page gives it one line, and a line
  * that wraps three times is a post pretending to be news.
  *
- * There are two ways to link, and they compose. `[words](where)` inside the
- * text links those words, as many times as the sentence needs. `href` on the
- * entry points the whole thing somewhere: with no links in the text the
- * sentence itself becomes the link, and with them it follows the sentence as
- * the word "more", because an anchor inside an anchor is not a thing a browser
- * renders.
+ * There are two ways to link. `[words](where)` inside the text links those
+ * words, as many times as the sentence needs. `href` points the entry as a
+ * whole somewhere and is read as "more" after the sentence, whether the text
+ * has links of its own or not — the sentence is never turned into a link
+ * itself, so the words stay words and the handle stays a handle.
  *
  * Either takes an app route (`/blog/writing-a-post`), a file under `public/`
  * (`/cv.pdf`), a URL, or a `mailto:`. An entry with nowhere to point is still

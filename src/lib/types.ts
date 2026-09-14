@@ -70,8 +70,8 @@ export interface NewsItem {
   text: string;
   /**
    * Where the entry as a whole points: an app route, a file under `public/`,
-   * or a URL. With no links in the text the sentence itself is the link; with
-   * them, this follows the sentence as "more", since anchors cannot nest.
+   * or a URL. It follows the sentence as "more", whether the text carries
+   * links of its own or not; the sentence itself is never made into one.
    */
   href?: string;
 }

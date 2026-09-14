@@ -1293,13 +1293,17 @@ links those words, as many times as the sentence needs:
 { date: '2026-01-14', text: 'Wrote up [why it is calibrated](/blog/a-post) and [the data](/data.csv)' },
 ```
 
-`href` points the entry as a whole somewhere. With no links in the text the
-sentence itself becomes the link; with them it follows the sentence as the word
-`more`, since an anchor inside an anchor is not something a browser renders. A
-word rather than a bare arrow: an arrow alone is about ten pixels of tappable
-link, and a link's accessible name has to open with whatever is written on it,
-so this one is "more: Wrote up why it is calibrated" rather than one of a list
-of links all called the same thing.
+`href` points the entry as a whole somewhere, and always reads as `more →`
+after the sentence — whether the text has links of its own or not. The sentence
+is never turned into a link itself: a reader gets one thing to aim at per
+entry, in the same place every time, rather than a line whose own words are the
+affordance.
+
+A word rather than a bare arrow, because an arrow alone is about ten pixels of
+tappable link. Its accessible name opens with the visible word and then the
+sentence — "more: Wrote up why it is calibrated" — so it is neither one of a
+list of links all called the same thing nor a name voice control cannot act
+on.
 
 Either form takes an app route, a file under `public/`, a URL or a `mailto:`.
 A target that is none of those — `doi.org/10.0000/x`, with the scheme left off
