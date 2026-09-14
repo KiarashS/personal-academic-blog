@@ -985,6 +985,26 @@ record, so an ORCID that changes changes once. Plain links rather than the
 bordered chips the author cards use: those sit under a post as one more block of
 furniture, and this row sits under two lines of light type at display size.
 
+Each carries a small mark beside its name. A service with a logo of its own gets
+that logo, from [simple-icons](https://simpleicons.org) (CC0-1.0, a
+devDependency): ORCID's ring and GitHub's cat are what a reader recognises
+without reading, and a hand-drawn approximation would be both worse and wronger.
+The rest — a CV, a website, an email address, and LinkedIn, whose mark simple-
+icons removed at LinkedIn's own request — get a stroked glyph on the same
+24-unit grid as the feed link and the heading anchors.
+
+The marks are checked into `src/lib/profile-icons.ts`, so the package is needed
+only to regenerate them:
+
+```bash
+npm run icons     # rewrites src/lib/profile-icons.ts
+```
+
+Never instead of the words. ORCID's ring is recognisable; Semantic Scholar's is
+not, and a row of eight marks with nothing written under them is a puzzle. The
+icon is there to be found quickly by a reader who already knows which one they
+came for.
+
 The front page is also the one page that carries structured data: a schema.org
 `Person` with `sameAs` pointing at those same profiles, which is what connects a
 name in a search result to an ORCID iD. It is built in

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Avatar } from '../components/Avatar';
 import { HomeNews } from '../components/HomeNews';
+import { ProfileIcon } from '../components/ProfileIcon';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { resource, useResource } from '../lib/resource';
 import { Signature } from '../components/Signature';
@@ -54,7 +55,8 @@ export function HomePage() {
                     ? {}
                     : { rel: 'me noopener noreferrer', target: '_blank' })}
                 >
-                  {link.label}
+                  <ProfileIcon of={link.key} />
+                  <span>{link.label}</span>
                 </a>
               </li>
             ))}

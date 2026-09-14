@@ -2092,8 +2092,10 @@ mark {
 }
 
 .banner__links a {
+  align-items: center;
   color: var(--text-muted);
-  display: inline-block;
+  display: inline-flex;
+  gap: 0.42rem;
   padding-block: 0.2rem;
   text-decoration-color: var(--rule-strong);
   text-underline-offset: 0.2em;
@@ -2102,6 +2104,17 @@ mark {
 .banner__links a:hover {
   color: var(--text);
   text-decoration-color: currentcolor;
+}
+
+/* The mark sits on the word's centre rather than its baseline, and takes the
+   link's colour with it — including the darkening on hover, which is what
+   keeps the pair reading as one thing rather than a picture and a label. */
+.profile-icon {
+  flex: 0 0 auto;
+
+  /* Optically level with lowercase type: the marks fill their box, where the
+     stroked glyphs leave a little air at the top and bottom of theirs. */
+  margin-top: -0.05em;
 }
 
 /* Footnotes and equation references --------------------------------------- */

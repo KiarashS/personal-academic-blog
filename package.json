@@ -16,7 +16,8 @@
     "audit:a11y": "node scripts/audit.mjs",
     "verify": "npm run links && npm run audit:a11y",
     "lint": "eslint . && stylelint \"src/**/*.css\" && prettier --check .",
-    "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" --fix && prettier --write ."
+    "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" --fix && prettier --write .",
+    "icons": "node scripts/build-profile-icons.mjs"
   },
   "dependencies": {
     "fuse.js": "7.1.0",
@@ -54,6 +55,7 @@
     "remark-math": "6.0.0",
     "remark-parse": "11.0.0",
     "remark-rehype": "11.1.2",
+    "simple-icons": "^16.31.0",
     "stylelint": "17.14.1",
     "stylelint-config-standard": "40.0.0",
     "typescript": "6.0.3",
