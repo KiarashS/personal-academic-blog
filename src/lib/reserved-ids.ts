@@ -17,6 +17,7 @@
 export const RESERVED_IDS = [
   'comments',
   'main',
+  'news-heading',
   'revisions',
   'revisions-heading',
   'search-input',

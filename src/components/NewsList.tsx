@@ -26,14 +26,25 @@ function Target({ href, children }: { href: string; children: string }) {
  * beside it. The column is what makes the list read as a list without bullets
  * or rules, and it gives a sentence that wraps a hanging indent.
  *
- * `label` names the list for a screen reader. The front page carries no
- * heading above it — the dates are what say what this is, and a heading would
- * be the only one on the page — so without a label the block would arrive as
- * three unexplained lines.
+ * The list is named either by a heading that is already on the page
+ * (`labelledBy`) or, where there is none, by `label`: unnamed, a bare list of
+ * dates is as opaque to a screen reader as it would be to anyone else.
  */
-export function NewsList({ items, label }: { items: NewsItem[]; label?: string }) {
+export function NewsList({
+  items,
+  label,
+  labelledBy,
+}: {
+  items: NewsItem[];
+  label?: string;
+  labelledBy?: string;
+}) {
   return (
-    <ul className="news__list" aria-label={label}>
+    <ul
+      className="news__list"
+      aria-label={labelledBy ? undefined : label}
+      aria-labelledby={labelledBy}
+    >
       {items.map((item) => (
         <li className="news__item" key={`${item.date}-${item.text}`}>
           <time className="news__date" dateTime={isoDate(item.date)}>

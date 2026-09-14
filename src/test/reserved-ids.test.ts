@@ -58,6 +58,7 @@ describe('rehypeReservedIds', () => {
     const sources = [
       'src/components/Layout.tsx',
       'src/components/Comments.tsx',
+      'src/components/HomeNews.tsx',
       'src/components/Revisions.tsx',
       'src/components/SeriesNav.tsx',
       'src/components/ShareLinks.tsx',

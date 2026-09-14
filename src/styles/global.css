@@ -1470,6 +1470,13 @@ mark {
   margin-top: 1.8rem;
 }
 
+/* Tighter than a section heading on a page of its own: this one labels three
+   lines rather than opening a section, and the banner has no room to spare. */
+.news__heading {
+  font-size: 0.72rem;
+  margin-bottom: 0.7rem;
+}
+
 .news__list {
   font-family: var(--sans);
   font-size: 0.9rem;
