@@ -20,13 +20,40 @@ import type { NewsItem } from '../lib/types';
  * (`/cv.pdf`), a URL, or a `mailto:`. An entry with nowhere to point is still
  * worth listing.
  *
- * Nothing is seeded here on purpose: news is about you, and an invented
- * accepted paper is not a placeholder anyone should have to notice and delete.
+ * The six below are examples, and they say so in their own words rather than
+ * impersonating news — an invented accepted paper is a claim about you, on
+ * your site, and the one person who would never think to check it is you.
+ * Delete them as the real ones arrive. What they should look like:
  *
- *   export const news: NewsItem[] = [
- *     { date: '2026-03-12', text: 'Paper accepted at MICCAI 2026', href: 'https://doi.org/…' },
- *     { date: '2026-02-02', text: 'Talk at the [Zurich ML meetup](https://example.org/)' },
- *     { date: '2026-01-14', text: 'Wrote up [how the model is calibrated](/blog/a-post)' },
- *   ];
+ *   { date: '2026-03-12', text: 'Paper accepted at MICCAI 2026', href: 'https://doi.org/…' },
+ *   { date: '2026-02-02', text: 'Talk at the [Zurich ML meetup](https://example.org/)' },
+ *   { date: '2026-01-14', text: 'Wrote up [how the model is calibrated](/blog/a-post)' },
  */
-export const news: NewsItem[] = [];
+export const news: NewsItem[] = [
+  // Dated ahead, so it sorts above everything: how an announcement is made.
+  {
+    date: '2026-11-20',
+    text: 'Example: an entry dated ahead sits at the top until the day passes',
+  },
+  // Nothing to point at, which is a complete entry.
+  { date: '2026-09-08', text: 'Example: a line on its own, pointing nowhere' },
+  // Words inside the sentence carrying the link.
+  {
+    date: '2026-08-19',
+    text: 'Example: a line that links [some of its own words](/blog/writing-a-post)',
+  },
+  // A target for the entry as a whole, which reads as "more" at the end.
+  { date: '2026-07-02', text: 'Example: a line whose target sits after it', href: '/about' },
+  // Both at once: the sentence keeps its links and the entry keeps its handle.
+  {
+    date: '2026-05-15',
+    text: 'Example: [inline links](/tags) and [a second one](/archive) beside a target of its own',
+    href: '/blog',
+  },
+  // The fourth newest, which is where the front page stops and the link out appears.
+  {
+    date: '2026-03-04',
+    text: 'Example: the front page shows three, and leaves the rest to the news page',
+    href: '/news',
+  },
+];
