@@ -1517,6 +1517,19 @@ mark {
   text-underline-offset: 0.2em;
 }
 
+/* The entry's own target, on a line whose sentence already has links of its
+   own. Muted and set slightly apart, so it reads as a handle on the line
+   rather than as its last two words; the padding is what makes it a target a
+   thumb can hit, which words this size are not tall enough to be. */
+.news__out a {
+  color: var(--text-muted);
+  display: inline-block;
+  padding-block: 0.2rem;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+  white-space: nowrap;
+}
+
 .news__more {
   color: var(--text-muted);
   display: inline-block;

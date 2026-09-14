@@ -46,9 +46,18 @@ function Target({
  * Two ways to link, and they compose rather than collide. `[words](where)` in
  * the text links those words; `href` on the entry points the whole thing
  * somewhere. Given both, the sentence keeps its own links and the entry's
- * target moves to an arrow after it, because an anchor inside an anchor is not
- * a thing a browser will render — and the arrow is given the sentence as its
- * accessible name, since "→" names nothing.
+ * target moves after it, because an anchor inside an anchor is not a thing a
+ * browser will render.
+ *
+ * It goes there as the word "more" rather than as a bare arrow. An arrow alone
+ * is about ten pixels of tappable link at this size, a third of what a finger
+ * needs, and it says nothing about itself; the arrow stays beside the word as
+ * decoration, hidden from the accessibility tree.
+ *
+ * The accessible name opens with that same word and then the sentence. A list
+ * where every link is called "more" is the oldest complaint screen-reader
+ * users have, and a name that does not start with the visible label is one
+ * voice control cannot act on.
  */
 function Sentence({ item }: { item: NewsItem }) {
   const segments = parseInlineLinks(item.text);
@@ -76,9 +85,11 @@ function Sentence({ item }: { item: NewsItem }) {
       {item.href ? (
         <>
           {' '}
-          <Target href={item.href} label={plainText(item.text)}>
-            <span aria-hidden="true">→</span>
-          </Target>
+          <span className="news__out">
+            <Target href={item.href} label={`more: ${plainText(item.text)}`}>
+              more <span aria-hidden="true">→</span>
+            </Target>
+          </span>
         </>
       ) : null}
     </>

@@ -71,7 +71,7 @@ export interface NewsItem {
   /**
    * Where the entry as a whole points: an app route, a file under `public/`,
    * or a URL. With no links in the text the sentence itself is the link; with
-   * them, this becomes an arrow after it, since anchors cannot nest.
+   * them, this follows the sentence as "more", since anchors cannot nest.
    */
   href?: string;
 }

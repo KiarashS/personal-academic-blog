@@ -1294,9 +1294,12 @@ links those words, as many times as the sentence needs:
 ```
 
 `href` points the entry as a whole somewhere. With no links in the text the
-sentence itself becomes the link; with them it becomes an arrow after the
-sentence, since an anchor inside an anchor is not something a browser renders.
-The arrow takes the sentence as its accessible name.
+sentence itself becomes the link; with them it follows the sentence as the word
+`more`, since an anchor inside an anchor is not something a browser renders. A
+word rather than a bare arrow: an arrow alone is about ten pixels of tappable
+link, and a link's accessible name has to open with whatever is written on it,
+so this one is "more: Wrote up why it is calibrated" rather than one of a list
+of links all called the same thing.
 
 Either form takes an app route, a file under `public/`, a URL or a `mailto:`.
 A target that is none of those — `doi.org/10.0000/x`, with the scheme left off

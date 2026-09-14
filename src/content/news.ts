@@ -13,8 +13,9 @@ import type { NewsItem } from '../lib/types';
  * There are two ways to link, and they compose. `[words](where)` inside the
  * text links those words, as many times as the sentence needs. `href` on the
  * entry points the whole thing somewhere: with no links in the text the
- * sentence itself becomes the link, and with them it becomes an arrow after
- * it, because an anchor inside an anchor is not a thing a browser renders.
+ * sentence itself becomes the link, and with them it follows the sentence as
+ * the word "more", because an anchor inside an anchor is not a thing a browser
+ * renders.
  *
  * Either takes an app route (`/blog/writing-a-post`), a file under `public/`
  * (`/cv.pdf`), a URL, or a `mailto:`. An entry with nowhere to point is still
