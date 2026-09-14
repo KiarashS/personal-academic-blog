@@ -1,6 +1,7 @@
 import { news } from '../content/news';
 import { siteConfig } from '../site.config';
 import { isEnabled } from './features';
+import { unsafeHrefs } from './inline-links';
 import { todayUtc } from './post-builder';
 import type { NewsItem } from './types';
 
@@ -73,6 +74,23 @@ export function newsWarning(items: NewsItem[], options: NewsOptions): string | u
   );
 }
 
+/**
+ * Links in an entry's text whose target the renderer will not make a link of.
+ *
+ * `[the paper](doi.org/10.0000/x)` has no scheme and is not a path, so it
+ * renders as the words alone — the link is silently gone, and the one person
+ * who will never notice is the one who wrote it. Hence a line at build time.
+ */
+export function newsLinkProblems(items: NewsItem[]): string[] {
+  return items.flatMap((item) =>
+    unsafeHrefs(item.text).map(
+      (href) =>
+        `news: “${href}” in the entry dated ${item.date} is not a link the page will make. ` +
+        'Give it a scheme (https://, mailto:) or write it as a path (/blog/…).',
+    ),
+  );
+}
+
 const options = (): NewsOptions => ({
   limit: siteConfig.home.news,
   freshMonths: siteConfig.home.newsFreshMonths,
@@ -99,5 +117,8 @@ export const homeNews = (): FrontPageNews => frontPageNews(news, options());
  */
 export const newsPageEnabled = (): boolean => isEnabled('news');
 
-/** The build-time warning for the configured list, if it has gone quiet. */
-export const configuredNewsWarning = (): string | undefined => newsWarning(news, options());
+/** Everything the build should say about the configured list. */
+export function configuredNewsWarnings(): string[] {
+  const quiet = newsWarning(news, options());
+  return [...(quiet ? [quiet] : []), ...newsLinkProblems(news)];
+}

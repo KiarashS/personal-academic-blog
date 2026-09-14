@@ -63,9 +63,16 @@ export interface SlideDeck {
 export interface NewsItem {
   /** ISO date, `2026-03-12`. Entries may be dated ahead for an announcement. */
   date: string;
-  /** What happened, in one sentence. Plain text. */
+  /**
+   * What happened, in one sentence. Plain text, except for `[words](where)`,
+   * which links those words and is the only markup an entry understands.
+   */
   text: string;
-  /** Where it points: an app route, a file under `public/`, or a URL. */
+  /**
+   * Where the entry as a whole points: an app route, a file under `public/`,
+   * or a URL. With no links in the text the sentence itself is the link; with
+   * them, this becomes an arrow after it, since anchors cannot nest.
+   */
   href?: string;
 }
 

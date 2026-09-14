@@ -239,9 +239,9 @@ export const siteConfig: SiteConfig = {
     projects: true,
     slides: false,
     contact: false,
-    // On once `src/content/news.ts` has entries. The front page lists the
-    // newest few whatever this says; the flag is about the page at /news.
-    news: false,
+    // The page at /news and its nav entry. The front page lists the newest few
+    // whatever this says; with no entries yet the page says there are none.
+    news: true,
   },
   owner: 'you',
   home: {

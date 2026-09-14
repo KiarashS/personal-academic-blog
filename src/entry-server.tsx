@@ -38,7 +38,7 @@ export { posts, postsByTag, tagCounts } from './lib/posts';
 export { categoryCounts, postsInCategory } from './lib/categories';
 export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
-export { configuredNewsWarning } from './lib/news';
+export { configuredNewsWarnings } from './lib/news';
 export { canonicalUrl, withBase } from './lib/urls';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';

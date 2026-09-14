@@ -26,7 +26,7 @@ const {
   blogIndexPath,
   structuredDataFor,
   serialiseJsonLd,
-  configuredNewsWarning,
+  configuredNewsWarnings,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -375,11 +375,11 @@ await write(
   ['User-agent: *', 'Allow: /', `Sitemap: ${canonicalUrl('/sitemap.xml')}`, ''].join('\n'),
 );
 
-// The front page drops a news list that has gone quiet rather than advertising
-// it. That is a decision the build makes on its owner's behalf, so the build
-// says it out loud; nobody notices the decay from inside their own site.
-const quiet = configuredNewsWarning();
-if (quiet) console.warn(quiet);
+// A news list that has gone quiet is dropped from the front page, and a link
+// the renderer cannot make is dropped from an entry. Both are decisions taken
+// on the author's behalf, so the build says them out loud; nobody notices
+// either from inside their own site.
+for (const message of configuredNewsWarnings()) console.warn(message);
 
 console.log(
   `prerendered ${allRoutes().length} routes, 404.html, feeds, sitemap.xml, robots.txt, ` +

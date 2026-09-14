@@ -1285,10 +1285,34 @@ and no body of its own:
 }
 ```
 
-`href` takes an app route, a file under `public/`, or a URL, and an entry with
-nowhere to point is still worth listing. Order does not matter; entries are
-sorted by date, and one dated ahead sorts to the top, where an announcement
-belongs.
+There are two ways to link, and they compose. `[words](where)` inside `text`
+links those words, as many times as the sentence needs:
+
+```ts
+{ date: '2026-02-02', text: 'Talk at the [Zurich ML meetup](https://example.org/)' },
+{ date: '2026-01-14', text: 'Wrote up [why it is calibrated](/blog/a-post) and [the data](/data.csv)' },
+```
+
+`href` points the entry as a whole somewhere. With no links in the text the
+sentence itself becomes the link; with them it becomes an arrow after the
+sentence, since an anchor inside an anchor is not something a browser renders.
+The arrow takes the sentence as its accessible name.
+
+Either form takes an app route, a file under `public/`, a URL or a `mailto:`.
+A target that is none of those — `doi.org/10.0000/x`, with the scheme left off
+— is not made into a link, and the build says which entry it is in:
+
+```
+news: “doi.org/10.0000/x” in the entry dated 2026-03-12 is not a link the page
+will make. Give it a scheme (https://, mailto:) or write it as a path (/blog/…).
+```
+
+`[words]` with no `(target)` after it is left alone, so a bracketed aside in a
+sentence stays a bracketed aside. Nothing else in markdown is understood: an
+entry is a sentence, and a sentence with a heading in it is a post.
+
+Order does not matter; entries are sorted by date, and one dated ahead sorts to
+the top, where an announcement belongs.
 
 The newest `home.news` entries appear on the front page under the lines, in the
 same small muted sans as the profile links: a date column and a sentence, no
