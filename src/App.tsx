@@ -5,6 +5,7 @@ import { getPage } from './lib/page-registry';
 import { Layout } from './components/Layout';
 import { categoriesEnabled } from './lib/categories';
 import { isEnabled } from './lib/features';
+import { newsPageEnabled } from './lib/news';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { CategoryPage } from './pages/CategoryPage';
 import { BlogPage } from './pages/BlogPage';
@@ -38,6 +39,7 @@ const SlidesPage = lazy(() =>
 const ContactPage = lazy(() =>
   import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })),
 );
+const NewsPage = lazy(() => import('./pages/NewsPage').then((m) => ({ default: m.NewsPage })));
 
 /**
  * One route's page, with its boundary. The lazy component is the reader's path
@@ -80,6 +82,9 @@ export function App() {
         ) : null}
         {isEnabled('contact') ? (
           <Route path="contact" element={<Lazily name="ContactPage" of={ContactPage} />} />
+        ) : null}
+        {newsPageEnabled() ? (
+          <Route path="news" element={<Lazily name="NewsPage" of={NewsPage} />} />
         ) : null}
         {isEnabled('publications') ? (
           <Route

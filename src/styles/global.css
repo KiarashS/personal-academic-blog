@@ -1458,6 +1458,80 @@ mark {
   color: var(--text);
 }
 
+/* News --------------------------------------------------------------------- */
+
+/*
+ * Dated one-liners: the front page's newest few, and every one of them at
+ * /news. No bullets, no rules, no card. The date column is what makes it read
+ * as a list, and it gives a sentence that wraps a hanging indent instead of a
+ * ragged second line.
+ */
+.news {
+  margin-top: 1.8rem;
+}
+
+.news__list {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.news__item {
+  display: flex;
+  gap: 1rem;
+  padding: 0.26rem 0;
+}
+
+.news__date {
+  color: var(--text-muted);
+  flex: 0 0 5.2rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.news__text {
+  text-wrap: pretty;
+}
+
+/* Underlined, three of them stacked, the entries were the loudest thing on a
+   page whose display type is the quietest. The link is the sentence; the rule
+   arrives when a reader goes looking for it. */
+.news__text a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.news__text a:hover,
+.news__text a:focus-visible {
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+}
+
+.news__more {
+  color: var(--text-muted);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  margin-top: 0.8rem;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+}
+
+/* The column costs a third of the width on a phone, where the sentence needs
+   it more than the alignment does. */
+@media (width <= 26rem) {
+  .news__item {
+    gap: 0.8rem;
+  }
+
+  .news__date {
+    flex-basis: 4.6rem;
+  }
+}
+
 /* Reading progress --------------------------------------------------------- */
 
 /*

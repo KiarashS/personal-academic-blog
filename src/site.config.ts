@@ -18,7 +18,15 @@ export interface GiscusConfig {
 
 /** Optional parts of the site that can be switched off wholesale. */
 export type FeatureName =
-  'home' | 'about' | 'publications' | 'archive' | 'categories' | 'projects' | 'slides' | 'contact';
+  | 'home'
+  | 'about'
+  | 'publications'
+  | 'archive'
+  | 'categories'
+  | 'projects'
+  | 'slides'
+  | 'contact'
+  | 'news';
 
 /**
  * Where a nav entry is shown. The header is the default because that is what a
@@ -118,6 +126,24 @@ export interface HomeConfig {
    * rim. Empty leaves the front page as words alone.
    */
   avatar: string;
+  /**
+   * How many entries from `src/content/news.ts` the front page lists under the
+   * lines, newest first. 0 leaves the page as words alone.
+   *
+   * Three is the number that fits: the block is the page's quietest register
+   * and the banner is centred in the window, so at three nothing else moves.
+   * At six you have rebuilt the blog index on the page that was a greeting.
+   */
+  news: number;
+  /**
+   * Months of silence after which the front page stops showing the list, and
+   * the build says so. 0 shows it however old it is.
+   *
+   * A news list that stopped two years ago says something worse about a site
+   * than no news list does, and it is the decay nobody catches on their own
+   * site, because they are not the one arriving at it.
+   */
+  newsFreshMonths: number;
 }
 
 export interface SiteConfig {
@@ -213,6 +239,9 @@ export const siteConfig: SiteConfig = {
     projects: true,
     slides: false,
     contact: false,
+    // On once `src/content/news.ts` has entries. The front page lists the
+    // newest few whatever this says; the flag is about the page at /news.
+    news: false,
   },
   owner: 'you',
   home: {
@@ -223,6 +252,8 @@ export const siteConfig: SiteConfig = {
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
+    news: 3,
+    newsFreshMonths: 12,
   },
   cv: '',
   categories: [
@@ -257,6 +288,7 @@ export const siteConfig: SiteConfig = {
     { label: 'Blog', to: BLOG_INDEX },
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Slides', to: '/slides', feature: 'slides' },
+    { label: 'News', to: '/news', feature: 'news' },
     { label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
     {

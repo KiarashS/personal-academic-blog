@@ -5,6 +5,7 @@ import { allCategories, categoriesEnabled, getCategory, postsInCategory } from '
 import { displayTag, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
 import { isEnabled } from './features';
+import { newsPageEnabled } from './news';
 import { blogIndexPath, blogPagePath, postPath, postSlugFromPath } from './routes';
 
 export interface RouteMeta {
@@ -56,6 +57,13 @@ export function metaFor(pathname: string): RouteMeta {
 
   if (path === '/slides' && isEnabled('slides')) {
     return { title: withSuffix('Slides'), description: 'Talks, lectures and their materials.' };
+  }
+
+  if (path === '/news' && newsPageEnabled()) {
+    return {
+      title: withSuffix('News'),
+      description: `Talks, papers and other recent news from ${siteConfig.title}.`,
+    };
   }
 
   if (path === '/contact' && isEnabled('contact')) {
@@ -147,6 +155,7 @@ export function allRoutes(): string[] {
   if (isEnabled('archive')) routes.add('/archive');
   if (isEnabled('slides')) routes.add('/slides');
   if (isEnabled('contact')) routes.add('/contact');
+  if (newsPageEnabled()) routes.add('/news');
 
   if (categoriesEnabled()) {
     routes.add('/categories');

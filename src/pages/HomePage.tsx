@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { Avatar } from '../components/Avatar';
+import { HomeNews } from '../components/HomeNews';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { resource, useResource } from '../lib/resource';
 import { Signature } from '../components/Signature';
@@ -17,6 +18,10 @@ function HomeBody() {
  * three sentences in `home.md` that point at everything else. It fills the
  * window and stops there — no list of posts, because the blog has its own index
  * and the nav is one click away.
+ *
+ * The exception is the news block, which is three dated lines rather than a
+ * list of writing: what a visitor wants from a page like this is to know
+ * whether anything is happening, and that is not a question the nav answers.
  */
 export function HomePage() {
   const { greeting, signature: signed, avatar } = siteConfig.home;
@@ -38,6 +43,7 @@ export function HomePage() {
         <Suspense fallback={<p className="empty">Loading…</p>}>
           <HomeBody />
         </Suspense>
+        <HomeNews />
         {links.length > 0 ? (
           <ul className="banner__links" aria-label={`${siteConfig.title}: profiles and contact`}>
             {links.map((link) => (

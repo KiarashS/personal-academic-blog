@@ -26,6 +26,7 @@ const {
   blogIndexPath,
   structuredDataFor,
   serialiseJsonLd,
+  configuredNewsWarning,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -373,6 +374,12 @@ await write(
   'robots.txt',
   ['User-agent: *', 'Allow: /', `Sitemap: ${canonicalUrl('/sitemap.xml')}`, ''].join('\n'),
 );
+
+// The front page drops a news list that has gone quiet rather than advertising
+// it. That is a decision the build makes on its owner's behalf, so the build
+// says it out loud; nobody notices the decay from inside their own site.
+const quiet = configuredNewsWarning();
+if (quiet) console.warn(quiet);
 
 console.log(
   `prerendered ${allRoutes().length} routes, 404.html, feeds, sitemap.xml, robots.txt, ` +

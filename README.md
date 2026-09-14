@@ -804,6 +804,7 @@ features: {
   projects: false,       // the Projects group in nav; see above
   slides: false,         // /slides, talks and their materials
   contact: false,        // /contact, from contact.md plus your profile links
+  news: false,           // /news, every entry in news.ts grouped by year
 },
 ```
 
@@ -962,6 +963,8 @@ home: {
   signature: true,        // write the name rather than set it as type
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
+  news: 3,                // dated one-liners under the lines; 0 for none
+  newsFreshMonths: 12,    // months of silence before the block retires itself
 },
 ```
 
@@ -1267,6 +1270,50 @@ dropped with them.
 
 The `projects` flag ships off, because the two entries above are examples.
 Replace them and turn it on.
+
+## News
+
+`src/content/news.ts` is a list of dated one-liners — a paper accepted, a talk
+given, a move, a release. An entry is a sentence, so it has no slug, no route
+and no body of its own:
+
+```ts
+{
+  date: '2026-03-12',
+  text: 'Paper accepted at MICCAI 2026',
+  href: 'https://doi.org/10.0000/example',   // optional
+}
+```
+
+`href` takes an app route, a file under `public/`, or a URL, and an entry with
+nowhere to point is still worth listing. Order does not matter; entries are
+sorted by date, and one dated ahead sorts to the top, where an announcement
+belongs.
+
+The newest `home.news` entries appear on the front page under the lines, in the
+same small muted sans as the profile links: a date column and a sentence, no
+heading and no rule, because the page has neither of those anywhere else. The
+whole list lives at `/news`, grouped by year like the archive, when the `news`
+feature is on; the front page links to it only when there is more to see than
+it is showing.
+
+News is deliberately not in `feed.xml`. People subscribed to that for the
+writing, and a one-line "gave a talk" arriving beside the essays is how a feed
+loses its readers.
+
+`home.newsFreshMonths` is the part worth keeping. When the newest entry is
+older than that many months the front page stops showing the block, and the
+build prints why:
+
+```
+news: the newest entry is 2026-03-12, more than 12 months old, so the front page
+is leaving the list off. Add an entry, or set `home.newsFreshMonths` to 0 to
+show it however old it is.
+```
+
+A news list that stopped two years ago tells a visitor something worse than no
+news list does, and it is the kind of decay nobody catches on their own site,
+because they are not the one arriving at it. Set it to 0 to switch the rule off.
 
 ## Slides and contact
 

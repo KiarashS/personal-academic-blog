@@ -53,6 +53,22 @@ export interface SlideDeck {
   paper?: string;
 }
 
+/**
+ * One line of news: something that happened, with the date it happened on.
+ *
+ * Deliberately not a post. An entry is a sentence, so it has no slug, no route
+ * and no body — where it points is somewhere that already exists, which is
+ * usually a post of yours, a DOI or a venue's page.
+ */
+export interface NewsItem {
+  /** ISO date, `2026-03-12`. Entries may be dated ahead for an announcement. */
+  date: string;
+  /** What happened, in one sentence. Plain text. */
+  text: string;
+  /** Where it points: an app route, a file under `public/`, or a URL. */
+  href?: string;
+}
+
 /** One dated change to a published post. */
 export interface Revision {
   date: string;
