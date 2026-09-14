@@ -25,7 +25,7 @@ function HomeBody() {
  * whether anything is happening, and that is not a question the nav answers.
  */
 export function HomePage() {
-  const { greeting, signature: signed, avatar } = siteConfig.home;
+  const { greeting, signature: signed, avatar, profileLinkStyle: style } = siteConfig.home;
   // The same links the contact page and every author card show, from the same
   // record: an ORCID that changes changes in one place.
   const links = siteConfig.home.profileLinks ? profileLinks(siteOwner()) : [];
@@ -46,7 +46,10 @@ export function HomePage() {
         </Suspense>
         <HomeNews />
         {links.length > 0 ? (
-          <ul className="banner__links" aria-label={`${siteConfig.title}: profiles and contact`}>
+          <ul
+            className={`banner__links banner__links--${style}`}
+            aria-label={`${siteConfig.title}: profiles and contact`}
+          >
             {links.map((link) => (
               <li key={link.key}>
                 <a
@@ -54,9 +57,15 @@ export function HomePage() {
                   {...(link.key === 'email'
                     ? {}
                     : { rel: 'me noopener noreferrer', target: '_blank' })}
+                  {...(style === 'icon' ? { title: link.label } : {})}
                 >
-                  <ProfileIcon of={link.key} />
-                  <span>{link.label}</span>
+                  {style === 'label' ? null : <ProfileIcon of={link.key} />}
+                  {/* Kept in the markup when the mark stands alone: the name is
+                      what a screen reader reads out, and what a tooltip shows
+                      a reader who cannot place the mark. */}
+                  <span className={style === 'icon' ? 'visually-hidden' : undefined}>
+                    {link.label}
+                  </span>
                 </a>
               </li>
             ))}

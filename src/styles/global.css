@@ -2106,6 +2106,24 @@ mark {
   text-decoration-color: currentcolor;
 }
 
+/* Marks alone. They lose the words' width, so each gets padding of its own
+   instead: 15px of glyph is a third of the 24px a finger needs, and in this
+   row nothing else is there to be hit. The gap closes to match, or eleven
+   marks read as one long dotted line rather than as separate links. */
+.banner__links--icon {
+  gap: 0.2rem 0.35rem;
+}
+
+.banner__links--icon a {
+  padding: 0.3rem;
+  text-decoration: none;
+}
+
+.banner__links--icon .profile-icon {
+  height: 18px;
+  width: 18px;
+}
+
 /* The mark sits on the word's centre rather than its baseline, and takes the
    link's colour with it — including the darkening on hover, which is what
    keeps the pair reading as one thing rather than a picture and a label. */

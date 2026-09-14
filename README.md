@@ -1000,10 +1000,26 @@ only to regenerate them:
 npm run icons     # rewrites src/lib/profile-icons.ts
 ```
 
-Never instead of the words. ORCID's ring is recognisable; Semantic Scholar's is
-not, and a row of eight marks with nothing written under them is a puzzle. The
-icon is there to be found quickly by a reader who already knows which one they
-came for.
+`home.profileLinkStyle` decides what each link is made of:
+
+```ts
+profileLinkStyle: 'both',   // the mark beside the name (the default)
+profileLinkStyle: 'icon',   // the mark alone, the name kept as a tooltip
+profileLinkStyle: 'label',  // the name alone, as the row was before the marks
+```
+
+`icon` is the quieter row — eleven marks fit on one line where eleven marks and
+their names take three — and it is the right answer for a short set of marks
+everyone knows: GitHub, ORCID, LinkedIn, an envelope. It stops being the right
+answer further down the record. Semantic Scholar's mark is not one a reader can
+place, arXiv's is a stylised X, a globe standing for "website" could be a
+language switcher, and LinkedIn's stand-in is a contact card rather than their
+own mark. A reader hunting for one of those has to hover each one to read its
+tooltip, which is slower than the word would have been.
+
+Under `icon` the name stays in the markup for screen readers and becomes the
+link's tooltip, and each mark grows its own padding — 15px of glyph is a third
+of the 24px a finger needs, and in that row there is nothing else to hit.
 
 The front page is also the one page that carries structured data: a schema.org
 `Person` with `sameAs` pointing at those same profiles, which is what connects a

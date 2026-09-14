@@ -35,6 +35,14 @@ export type FeatureName =
  */
 export type NavPlace = 'header' | 'footer' | 'both';
 
+/**
+ * How the front page's row of profile links is written: the service's mark and
+ * its name, the mark alone, or the name alone. Marks alone are a row of eleven
+ * small pictures if the record is full, so what this really controls is
+ * whether a reader can tell arXiv from Semantic Scholar at a glance.
+ */
+export type ProfileLinkStyle = 'both' | 'icon' | 'label';
+
 export interface NavItem {
   label: string;
   /**
@@ -111,6 +119,17 @@ export interface HomeConfig {
    * order `profileLinks` puts them. Off leaves the front page as words alone.
    */
   profileLinks: boolean;
+  /**
+   * What each of those links looks like. `both` is the mark beside the name,
+   * `label` the name alone, `icon` the mark alone with the name kept for
+   * screen readers and as a tooltip.
+   *
+   * `icon` is the quieter row and the right answer for a short set of marks
+   * everyone knows — GitHub, ORCID, LinkedIn, an envelope. It stops being the
+   * right answer somewhere around arXiv and Semantic Scholar, whose marks a
+   * reader has to hover to identify, and at a globe standing for "website".
+   */
+  profileLinkStyle: ProfileLinkStyle;
   /**
    * Draw `src/content/signature.svg` in place of the name. It is inlined
    * rather than loaded as an image so its ink follows the site's theme,
@@ -249,6 +268,7 @@ export const siteConfig: SiteConfig = {
     tagline: 'A curious mind working on AI for health',
     description: 'Kiarash Soleimanzadeh: a curious mind working on AI for health.',
     profileLinks: true,
+    profileLinkStyle: 'both',
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
