@@ -1422,6 +1422,15 @@ mark {
   padding-top: 1rem;
 }
 
+/* The byline's update date links here, and so does anyone who copies the URL.
+   Without this the section arrives with its rule clipped by the window edge
+   and the heading against it; the same 1.5rem a linked heading gets puts the
+   whole block, rule included, on screen. */
+.revisions,
+.comments {
+  scroll-margin-top: 1.5rem;
+}
+
 .revisions__list {
   font-family: var(--sans);
   font-size: 0.85rem;
