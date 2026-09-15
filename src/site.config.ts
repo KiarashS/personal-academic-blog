@@ -281,7 +281,7 @@ export const siteConfig: SiteConfig = {
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
-    news: 3,
+    news: 5,
     newsRows: 3,
     newsFreshMonths: 12,
   },
