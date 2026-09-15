@@ -1502,20 +1502,11 @@ mark {
   text-wrap: pretty;
 }
 
-/* Underlined, three of them stacked, the entries were the loudest thing on a
-   page whose display type is the quietest. The link is the sentence; the rule
-   arrives when a reader goes looking for it. */
-.news__text a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.news__text a:hover,
-.news__text a:focus-visible {
-  text-decoration: underline;
-  text-decoration-color: var(--rule-strong);
-  text-underline-offset: 0.2em;
-}
+/* Nothing here: the words inside an entry are links like any other on the
+   site, so they take the underline every link takes. `--link` is the same
+   colour as `--text`, which makes the rule the only thing that says a link is
+   a link — without it these were undiscoverable, and unlike the rest of the
+   site besides. */
 
 /* The entry's own target, on a line whose sentence already has links of its
    own. Muted and set slightly apart, so it reads as a handle on the line
@@ -2087,7 +2078,12 @@ mark {
   font-size: 0.9rem;
   gap: 0.35rem 1.1rem;
   list-style: none;
-  margin: 1.3rem 0 0;
+
+  /* Far enough below what comes before it to be a separate thing. The news
+     block ends in "All news →", which is the same small muted sans as this
+     row; at the 1.3rem this used to have, the two ran together into one block
+     of links, and the eye read the profiles as part of the news. */
+  margin: 2.2rem 0 0;
   padding: 0;
 }
 
