@@ -293,7 +293,14 @@ video {
 .site-header__inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+
+  /* Centre, not baseline. A control whose only content is an SVG has no
+     baseline, so the browser invents one — and invents a different one for a
+     `button` than for an `a`, which had the theme switch riding 4.7px above
+     the feed mark beside it. The title is a hair off its own baseline this way
+     and exactly level with the nav instead, which is the trade a row of mixed
+     sizes wants. */
+  align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
 }
@@ -1897,9 +1904,15 @@ mark {
 }
 
 /* On the front page the name is the page, so the header keeps only the nav and
-   lets it sit where the eye already is on the way down. */
+   lets it sit where the eye already is on the way down.
+
+   Its padding is symmetric, where a header carrying a title and a tagline is
+   1.5rem over 1.1rem. With a row of words alone in the band and no rule under
+   it to close it, 6.4px more above than below reads as the nav having slipped
+   down the page rather than as a margin. */
 .site-header--bare {
   border-bottom: 0;
+  padding-block: 1.25rem;
 }
 
 /* The front page used to end exactly at the window, footer rule included, so a
