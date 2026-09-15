@@ -43,7 +43,7 @@ export class RouteBoundary extends Component<Props, State> {
         </p>
         <p>
           <button
-            className="icon-chip theme-toggle"
+            className="header-icon theme-toggle"
             onClick={() => {
               void recoverFromMissingChunk({ force: true });
             }}

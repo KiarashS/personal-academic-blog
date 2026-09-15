@@ -7,16 +7,15 @@ import { useTheme } from './ThemeProvider';
  * on the server and on first render, and already correct before hydration.
  * Only the visible span is announced, since the others are `display: none`.
  *
- * The chip around it is the one the profile links and the author cards use.
- * This is the only control in the header that changes anything, and it used to
- * be the faintest thing in it: a 12px character in a lot of padding, inside a
- * border at 1.28:1 against the page, beside a solid black menu button.
+ * No box around it. It sits in a row of words, where a border would make it
+ * the loudest thing in the line; what it needed was not an edge but a mark
+ * worth looking at and a target worth aiming at, and it has both now.
  */
 export function ThemeToggle() {
   const { cycle } = useTheme();
 
   return (
-    <button type="button" className="icon-chip theme-toggle" onClick={cycle}>
+    <button type="button" className="header-icon theme-toggle" onClick={cycle}>
       <span className="theme-toggle__auto">
         <ThemeIcon of="auto" />
         <span className="visually-hidden">Theme follows your system. Switch to light.</span>

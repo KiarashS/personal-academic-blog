@@ -588,17 +588,17 @@ video {
 }
 
 /*
- * The chip: one shape for a control that is a mark rather than a word.
- *
- * It was three shapes for one idea — a bare 18×18 feed glyph, a 29×27 pill
- * around the theme switch (an ellipse, since 999px on a box that is not square
- * cannot be a circle), and the 4px chips under the news. Four sizes between
- * them, for four controls a reader meets on one screen.
+/*
+ * The chip: a mark that stands on its own, with an edge to say it is a control.
  *
  * `--surface` behind, `--rule-strong` at 4px around, warming to `--link-rule`
- * on hover: the author cards' chip, which the profile row already borrowed.
- * The box is square and at least 33px, which clears the 24px a finger needs —
- * the feed mark did not.
+ * on hover: the author cards' chip. Square and at least 33px, which clears the
+ * 24px a finger needs.
+ *
+ * For the profile row, where the marks stand alone under the news with nothing
+ * around them to borrow context from. Not for the header: see `.header-icon`
+ * below, where a mark sits in a line of words and a box around it is the
+ * loudest thing in the row.
  */
 .icon-chip {
   align-items: center;
@@ -618,6 +618,37 @@ video {
 .icon-chip:hover {
   border-color: var(--link-rule);
   color: var(--text);
+}
+
+/*
+ * The header's marks take no chip. They sit in a row of words — Home, Blog,
+ * News — and a box around the last two makes them the loudest thing in a line
+ * whose whole job is to be quiet. The padding is still there, so the target is
+ * a finger's and not the glyph's; it is simply not drawn.
+ *
+ * The colour is the nav's: muted at rest, `--text` on hover, like the words
+ * beside them.
+ */
+.header-icon {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  padding: 0.45rem;
+}
+
+.header-icon:hover {
+  color: var(--text);
+}
+
+/* One size for both, set here rather than on each component: side by side, a
+   15px feed mark beside a 17px sun reads as a mistake. */
+.header-icon svg {
+  height: 17px;
+  width: 17px;
 }
 
 .theme-toggle {
