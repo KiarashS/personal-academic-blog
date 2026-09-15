@@ -44,11 +44,12 @@ export const news: NewsItem[] = [
     text: 'Example: an entry dated ahead sits at the top until the day passes. This is a multi-line news. Check it!',
   },
   // Nothing to point at, which is a complete entry.
-  { date: '2026-09-08', text: 'Example: a line on its own, pointing nowhere' },
+  { date: '2026-09-08', text: 'Example: a line on its own, pointing nowhere',},
   // Words inside the sentence carrying the link.
   {
     date: '2026-08-19',
     text: 'Example: a line that links [some of its own words](/blog/writing-a-post)',
+    href: 'https://www.example.com',
   },
   // A target for the entry as a whole, which reads as "more" at the end.
   { date: '2026-07-02', text: 'Example: a line whose target sits after it', href: '/about' },
