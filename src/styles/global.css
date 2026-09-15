@@ -587,20 +587,41 @@ video {
   color: var(--text);
 }
 
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
+/*
+ * The chip: one shape for a control that is a mark rather than a word.
+ *
+ * It was three shapes for one idea — a bare 18×18 feed glyph, a 29×27 pill
+ * around the theme switch (an ellipse, since 999px on a box that is not square
+ * cannot be a circle), and the 4px chips under the news. Four sizes between
+ * them, for four controls a reader meets on one screen.
+ *
+ * `--surface` behind, `--rule-strong` at 4px around, warming to `--link-rule`
+ * on hover: the author cards' chip, which the profile row already borrowed.
+ * The box is square and at least 33px, which clears the 24px a finger needs —
+ * the feed mark did not.
+ */
+.icon-chip {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  font: inherit;
-  font-size: 0.78rem;
-  padding: 0.15rem 0.6rem;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 33px;
+  min-width: 33px;
+  padding: 0.42rem;
+  text-decoration: none;
 }
 
-.theme-toggle:hover {
-  border-color: var(--rule-strong);
+.icon-chip:hover {
+  border-color: var(--link-rule);
   color: var(--text);
+}
+
+.theme-toggle {
+  font: inherit;
 }
 
 .site-footer {
@@ -1275,14 +1296,11 @@ mark {
   color: var(--text-muted);
 }
 
+/* Chipped in the header, where it is a control beside the theme switch. The
+   footer's copy keeps its words and stays a plain link. */
 .feed-link--icon {
   display: inline-flex;
   align-items: center;
-  padding: 0.1rem;
-}
-
-.feed-link--icon:hover {
-  color: var(--accent);
 }
 
 /* A plain link in the footer's row, not a button that looks pressed. */
@@ -1692,8 +1710,11 @@ mark {
   display: none;
 }
 
+/* `inline-flex`, not `inline`: the icon inside would otherwise sit in a line
+   box built from the button's font metrics, which made the button 43px tall
+   against the 33 of the chips beside it. */
 .theme-toggle__auto {
-  display: inline;
+  display: inline-flex;
 }
 
 :root[data-theme='light'] .theme-toggle__auto,
@@ -1702,11 +1723,11 @@ mark {
 }
 
 :root[data-theme='light'] .theme-toggle__light {
-  display: inline;
+  display: inline-flex;
 }
 
 :root[data-theme='dark'] .theme-toggle__dark {
-  display: inline;
+  display: inline-flex;
 }
 
 /* Publications, archive, related posts ------------------------------------ */
@@ -2125,31 +2146,11 @@ mark {
 
 /* A mark with nothing written under it has no edge and no weight: on a page
    this quiet it reads as a picture that happens to be there, and the only
-   thing that says otherwise is the cursor. The chip is the author cards'
-   — `--rule` at 4px, darkening on hover — so the site keeps one answer for
-   "a link that looks like a control" rather than two.
+   thing that says otherwise is the cursor. `icon-chip` above is the edge, and
+   it is the same one the header's controls and the author cards use.
 
    Only under `icon`. Beside a word the underline already says it is a link,
    and a box around both would be the furniture this row exists to avoid. */
-.banner__links--icon a {
-  background: var(--surface);
-
-  /* `--rule-strong`, not `--rule`: the edge is what makes a chip read as a
-     control, and the fill cannot do that job — `--surface` is 1.06:1 against
-     the page in light, where this border is 1.64:1. Deepening the fill instead
-     would only take these toward the grey a disabled control is drawn in. */
-  border: 1px solid var(--rule-strong);
-  border-radius: 4px;
-  padding: 0.42rem;
-  text-decoration: none;
-}
-
-/* The border has nowhere stronger to go, so hover takes the warm rule links
-   use and darkens the mark with it. */
-.banner__links--icon a:hover {
-  border-color: var(--link-rule);
-  color: var(--text);
-}
 
 .banner__links--icon .profile-icon {
   height: 18px;

@@ -53,6 +53,7 @@ export function HomePage() {
             {links.map((link) => (
               <li key={link.key}>
                 <a
+                  className={style === 'icon' ? 'icon-chip' : undefined}
                   href={link.href}
                   {...(link.key === 'email'
                     ? {}

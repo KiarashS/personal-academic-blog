@@ -7,7 +7,7 @@ import { withBase } from '../lib/urls';
  */
 export function FeedLink({ path = '/feed.xml', label = 'Atom feed', icon = false }) {
   return (
-    <a className={icon ? 'feed-link feed-link--icon' : 'feed-link'} href={withBase(path)}>
+    <a className={icon ? 'feed-link feed-link--icon icon-chip' : 'feed-link'} href={withBase(path)}>
       {icon ? (
         <svg
           aria-hidden="true"
