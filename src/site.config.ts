@@ -268,7 +268,7 @@ export const siteConfig: SiteConfig = {
     tagline: 'A curious mind working on AI for health',
     description: 'Kiarash Soleimanzadeh: a curious mind working on AI for health.',
     profileLinks: true,
-    profileLinkStyle: 'both',
+    profileLinkStyle: 'icon', //both, icon, label
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
