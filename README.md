@@ -1018,8 +1018,15 @@ own mark. A reader hunting for one of those has to hover each one to read its
 tooltip, which is slower than the word would have been.
 
 Under `icon` the name stays in the markup for screen readers and becomes the
-link's tooltip, and each mark grows its own padding — 15px of glyph is a third
-of the 24px a finger needs, and in that row there is nothing else to hit.
+link's tooltip, and each mark sits in a chip: `--surface` behind it, a 1px
+`--rule` border at 4px, darkening to `--rule-strong` on hover. That is the
+author cards' chip, so the site keeps one answer for "a link that looks like a
+control" rather than two. A mark alone has no edge and no weight, and on a page
+this quiet it reads as a picture that happens to be there; the chip also takes
+the target from 28×27 to 33×33, where 24×24 is the minimum a finger wants.
+
+No chip under `both` or `label`. Beside a word the underline already says it is
+a link, and a box around both would be the furniture this row exists to avoid.
 
 The front page is also the one page that carries structured data: a schema.org
 `Person` with `sameAs` pointing at those same profiles, which is what connects a
