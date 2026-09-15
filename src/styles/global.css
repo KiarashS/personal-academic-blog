@@ -60,6 +60,7 @@
   --text-muted: var(--light-text-muted);
   --rule: var(--light-rule);
   --rule-strong: var(--light-rule-strong);
+  --link-rule: color-mix(in srgb, var(--light-accent) 55%, var(--light-rule-strong));
   --link: var(--light-text);
   --accent: var(--light-accent);
   --code-bg: var(--light-code-bg);
@@ -85,6 +86,7 @@
     --text-muted: var(--dark-text-muted);
     --rule: var(--dark-rule);
     --rule-strong: var(--dark-rule-strong);
+    --link-rule: color-mix(in srgb, var(--dark-accent) 55%, var(--dark-rule-strong));
     --link: var(--dark-text);
     --accent: var(--dark-accent);
     --code-bg: var(--dark-code-bg);
@@ -113,6 +115,7 @@
   --text-muted: var(--dark-text-muted);
   --rule: var(--dark-rule);
   --rule-strong: var(--dark-rule-strong);
+  --link-rule: color-mix(in srgb, var(--dark-accent) 55%, var(--dark-rule-strong));
   --link: var(--dark-text);
   --accent: var(--dark-accent);
   --code-bg: var(--dark-code-bg);
@@ -155,9 +158,14 @@ body {
   text-rendering: optimizelegibility;
 }
 
+/* The words are the text's own colour — `--link` and `--text` are the same
+   value in both themes — so the rule under them is the whole of what says a
+   link is a link. A warm one carries some of the site's accent without
+   colouring the sentence it sits in; grey said "link" only to a reader who
+   already suspected it. Hover takes it the rest of the way to the accent. */
 a {
   color: var(--link);
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--link-rule);
   text-underline-offset: 0.18em;
   text-decoration-thickness: 1px;
 }
@@ -1281,7 +1289,7 @@ mark {
   font: inherit;
   padding: 0;
   text-decoration: underline;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--link-rule);
   text-underline-offset: 2px;
 }
 
@@ -1516,7 +1524,7 @@ mark {
   color: var(--text-muted);
   display: inline-block;
   padding-block: 0.2rem;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--link-rule);
   text-underline-offset: 0.2em;
   white-space: nowrap;
 }
@@ -1527,7 +1535,7 @@ mark {
   font-family: var(--sans);
   font-size: 0.85rem;
   margin-top: 0.8rem;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--link-rule);
   text-underline-offset: 0.2em;
 }
 
@@ -2093,7 +2101,7 @@ mark {
   display: inline-flex;
   gap: 0.42rem;
   padding-block: 0.2rem;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--link-rule);
   text-underline-offset: 0.2em;
 }
 

@@ -20,6 +20,14 @@ import type { NewsItem } from '../lib/types';
  * (`/cv.pdf`), a URL, or a `mailto:`. An entry with nowhere to point is still
  * worth listing.
  *
+ * Emoji are ordinary text here and need no markup — 🎓, flags and the joined
+ * ones all render. Two things to know before using them. A screen reader says
+ * the emoji's name out loud, so one at the front of a line is a word the
+ * reader hears before the news ("graduation cap, paper accepted at…"), and it
+ * lands in the accessible name of the entry's "more" link too. And a line
+ * carrying one is about six pixels taller than its neighbours, because an
+ * emoji is drawn on taller metrics than the type around it.
+ *
  * The six below are examples, and they say so in their own words rather than
  * impersonating news — an invented accepted paper is a claim about you, on
  * your site, and the one person who would never think to check it is you.
