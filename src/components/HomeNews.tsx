@@ -4,11 +4,14 @@ import { homeNews, newsPageEnabled } from '../lib/news';
 import { siteConfig } from '../site.config';
 
 /**
- * The newest few entries, under the front page's lines.
+ * The newest few entries, under the front page's introduction.
  *
- * It is the page's third register and not a fourth: the display name, the
- * 300-weight prose, and then the small muted sans this shares with the profile
- * links below it. No rule, no box.
+ * Last on the page, and outside the column the words are in: the name, the
+ * tagline, the two lines and the profile links are all about the person, and
+ * the news is the one thing on the page that changes. It is the page's third
+ * register and not a fourth — the display name, the 300-weight prose, and then
+ * the small muted sans this shares with the profile links above it. No rule,
+ * no box.
  *
  * The heading is `section-heading`, the same micro-label the revisions block
  * and the archive's years use — small, letterspaced, muted, nothing like the

@@ -23,6 +23,13 @@ function HomeBody() {
  * The exception is the news block, which is three dated lines rather than a
  * list of writing: what a visitor wants from a page like this is to know
  * whether anything is happening, and that is not a question the nav answers.
+ * It comes last, after the links, because everything above it is the person
+ * and it is the only part that changes.
+ *
+ * The three blocks are grid items rather than a column beside a picture. The
+ * stylesheet puts the portrait beside the introduction and the news on a row
+ * of its own under it, which is why the news is a sibling here and not inside
+ * `banner__text`.
  */
 export function HomePage() {
   const { greeting, signature: signed, avatar, profileLinkStyle: style } = siteConfig.home;
@@ -44,7 +51,6 @@ export function HomePage() {
         <Suspense fallback={<p className="empty">Loading…</p>}>
           <HomeBody />
         </Suspense>
-        <HomeNews />
         {links.length > 0 ? (
           <ul
             className={`banner__links banner__links--${style}`}
@@ -74,6 +80,7 @@ export function HomePage() {
         ) : null}
       </div>
       {avatar ? <Avatar src={avatar} /> : null}
+      <HomeNews />
     </div>
   );
 }

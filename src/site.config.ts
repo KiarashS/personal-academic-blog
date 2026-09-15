@@ -140,14 +140,18 @@ export interface HomeConfig {
   /** Degrees to tilt the signature, the way a signed page is never quite square. */
   signatureTilt: number;
   /**
-   * A portrait beside the text, as a path under `public/` — `/avatar.jpg` — or
-   * a URL. It is cropped to a circle with a highlight that travels around the
-   * rim. Empty leaves the front page as words alone.
+   * A portrait beside the introduction, as a path under `public/` —
+   * `/avatar.jpg` — or a URL. It is cropped to a circle with a highlight that
+   * travels around the rim. Empty leaves the front page as words alone.
+   *
+   * It centres against the name, the tagline, the lines and the profile links,
+   * and not against the news under them, so a busy month does not drag it down
+   * the page.
    */
   avatar: string;
   /**
    * How many entries from `src/content/news.ts` the front page lists under the
-   * lines, newest first. 0 leaves the page as words alone.
+   * profile links, newest first. 0 leaves the page as words alone.
    *
    * Three is the number that fits: the block is the page's quietest register
    * and the banner is centred in the window, so at three nothing else moves.

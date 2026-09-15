@@ -1368,9 +1368,11 @@ entry is a sentence, and a sentence with a heading in it is a post.
 Order does not matter; entries are sorted by date, and one dated ahead sorts to
 the top, where an announcement belongs.
 
-The newest `home.news` entries appear on the front page under the lines, in the
-same small muted sans as the profile links: a date column and a sentence under
-a `News` label. The whole list lives at `/news`, grouped by year like the
+The newest `home.news` entries appear last on the front page, under the profile
+links and in the same small muted sans: a date column and a sentence under a
+`News` label. Everything above them is the person and they are the only part
+that changes, which is also why the portrait centres against the introduction
+alone rather than against the whole column. The whole list lives at `/news`, grouped by year like the
 archive, when the `news` feature is on; the front page links to it only when
 there is more to see than it is showing.
 

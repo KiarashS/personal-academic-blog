@@ -1536,7 +1536,7 @@ mark {
  * ragged second line.
  */
 .news {
-  margin-top: 1.8rem;
+  margin-top: 2rem;
 }
 
 /* Tighter than a section heading on a page of its own: this one labels three
@@ -2007,17 +2007,25 @@ mark {
   flex-direction: column;
 }
 
-/* `margin-block: auto` rather than `flex: 1`: the box is only as tall as what
-   is in it and the leftover height splits above and below, so the pair sits in
-   the middle of the screen while `align-items: flex-start` still lines the
-   portrait up with the top of the words rather than with their middle. */
+/* Two columns and two rows, not a flex row, because the portrait belongs to
+   the introduction and the news does not.
+
+   As flex, the three blocks were one column of words with the picture beside
+   all of it, so the portrait centred against a column that ended in a list of
+   dates and hung down level with them. Here row 1 is the introduction and the
+   picture, row 2 is the news under the introduction alone, and the news keeps
+   the column's width rather than the row's: `minmax(0, 1fr)` is the same track
+   the words had, so the sentences are set to the same measure they were.
+
+   `margin-block: auto` rather than `flex: 1`: the box is only as tall as what
+   is in it and the leftover height splits above and below, so the whole thing
+   sits in the middle of the screen. */
 .banner {
-  align-items: center;
+  align-items: start;
   animation: banner-in 0.5s ease 1 forwards;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: space-between;
+  column-gap: 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   margin-block: auto;
   padding: 1rem 0;
   width: 100%;
@@ -2026,37 +2034,31 @@ mark {
 /* The words take the room they need and the portrait takes what is left, so a
    long tagline does not squeeze the picture into a coin. */
 .banner__text {
-  flex: 1 1 22rem;
+  grid-area: 1 / 1;
   min-width: 0;
 }
 
-/* Below the point where both fit side by side, the portrait leads and the
-   words follow, which is the order a profile reads in. */
-@media (width <= 46rem) {
-  .banner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .banner__avatar {
-    order: -1;
-  }
+.banner .news {
+  grid-area: 2 / 1;
 }
 
 /* The rim is the container's own padding; the highlight below travels around
    it, and the picture sits on top covering everything inside. */
 
-/* Centred against the words, not against the whole screen: the two blocks are
-   within a few pixels of the same height, so this reads as one row that starts
-   and ends together. Aligning the picture's top to the name's cap line instead
-   left it hanging 22px past the last line, because the picture is the taller
-   of the two. */
+/* Centred against the introduction — the name, the tagline, the two lines and
+   the profile links — and not against the news under them. At 1440 that puts
+   its middle on the tagline rather than 106px lower, beside the dated lines,
+   which is where the old full-column centring left it.
+
+   Centred rather than ranged to either end: its top against the name's cap
+   line left it hanging past the last line, because the picture is the taller
+   of the two, and its bottom against the links left a hole at the top right. */
 .banner__avatar {
+  align-self: center;
   aspect-ratio: 1;
   background: var(--rule);
   border-radius: 50%;
-  flex: 0 0 auto;
+  grid-area: 1 / 2;
   isolation: isolate;
   padding: 3px;
   position: relative;
@@ -2103,6 +2105,37 @@ mark {
   height: auto;
   object-fit: cover;
   width: 100%;
+}
+
+/* Below the point where both fit side by side, the portrait leads and the
+   words follow, which is the order a profile reads in.
+
+   After `.banner__avatar` rather than up with the rest of the layout: both
+   rules place the picture, they have the same specificity, and the later one
+   wins. Put this first and the picture stays in a second column that no longer
+   exists, holding the words to 236px of a 380px screen.
+
+   The gap between the picture and the words is a margin rather than `row-gap`,
+   or the news would inherit it and sit closer to the links above it than its
+   own 2rem. */
+@media (width <= 46rem) {
+  .banner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .banner__avatar {
+    align-self: start;
+    grid-area: 1 / 1;
+  }
+
+  .banner__text {
+    grid-area: 2 / 1;
+    margin-top: 1.5rem;
+  }
+
+  .banner .news {
+    grid-area: 3 / 1;
+  }
 }
 
 @keyframes banner-in {
@@ -2229,11 +2262,11 @@ mark {
   gap: 0.35rem 1.1rem;
   list-style: none;
 
-  /* Far enough below what comes before it to be a separate thing. The news
-     block ends in "All news →", which is the same small muted sans as this
-     row; at the 1.3rem this used to have, the two ran together into one block
-     of links, and the eye read the profiles as part of the news. */
-  margin: 2.2rem 0 0;
+  /* Close enough to the lines above to read as part of the introduction, which
+     is what it is: these are the person's links, and the page used to put the
+     news between the two. Under the news it needed 2.2rem to keep clear of
+     "All news →", which is the same small muted sans as this row. */
+  margin: 1.6rem 0 0;
   padding: 0;
 }
 
