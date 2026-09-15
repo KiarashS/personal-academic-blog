@@ -2133,14 +2133,21 @@ mark {
    and a box around both would be the furniture this row exists to avoid. */
 .banner__links--icon a {
   background: var(--surface);
-  border: 1px solid var(--rule);
+
+  /* `--rule-strong`, not `--rule`: the edge is what makes a chip read as a
+     control, and the fill cannot do that job — `--surface` is 1.06:1 against
+     the page in light, where this border is 1.64:1. Deepening the fill instead
+     would only take these toward the grey a disabled control is drawn in. */
+  border: 1px solid var(--rule-strong);
   border-radius: 4px;
   padding: 0.42rem;
   text-decoration: none;
 }
 
+/* The border has nowhere stronger to go, so hover takes the warm rule links
+   use and darkens the mark with it. */
 .banner__links--icon a:hover {
-  border-color: var(--rule-strong);
+  border-color: var(--link-rule);
   color: var(--text);
 }
 

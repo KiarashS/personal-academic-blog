@@ -963,7 +963,7 @@ home: {
   signature: true,        // write the name rather than set it as type
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
-  news: 3,                // dated one-liners under the lines; 0 for none
+  news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
   newsFreshMonths: 12,    // months of silence before the block retires itself
 },
 ```
@@ -1019,7 +1019,10 @@ tooltip, which is slower than the word would have been.
 
 Under `icon` the name stays in the markup for screen readers and becomes the
 link's tooltip, and each mark sits in a chip: `--surface` behind it, a 1px
-`--rule` border at 4px, darkening to `--rule-strong` on hover. That is the
+`--rule-strong` border at 4px, warming to `--link-rule` on hover. The edge is
+what carries it — `--surface` is 1.06:1 against the page in light where the
+border is 1.64:1, so the fill is nearly inert there and does its work in dark,
+on a ground where a lift shows. That is the
 author cards' chip, so the site keeps one answer for "a link that looks like a
 control" rather than two. A mark alone has no edge and no weight, and on a page
 this quiet it reads as a picture that happens to be there; the chip also takes
@@ -1365,11 +1368,17 @@ Order does not matter; entries are sorted by date, and one dated ahead sorts to
 the top, where an announcement belongs.
 
 The newest `home.news` entries appear on the front page under the lines, in the
-same small muted sans as the profile links: a date column and a sentence, no
-heading and no rule, because the page has neither of those anywhere else. The
-whole list lives at `/news`, grouped by year like the archive, when the `news`
-feature is on; the front page links to it only when there is more to see than
-it is showing.
+same small muted sans as the profile links: a date column and a sentence under
+a `News` label. The whole list lives at `/news`, grouped by year like the
+archive, when the `news` feature is on; the front page links to it only when
+there is more to see than it is showing.
+
+The two are separate switches and any combination works. `home.news: 0` with
+`features.news: true` keeps the page, the nav entry and the sitemap and leaves
+the front page as words alone — which is what you want if the front page is a
+greeting and the news belongs a click away. The reverse, `home.news: 3` with
+the feature off, puts the newest three on the front page and nowhere else; the
+front page then shows no link out, since there is nothing to link to.
 
 News is deliberately not in `feed.xml`. People subscribed to that for the
 writing, and a one-line "gave a talk" arriving beside the essays is how a feed
