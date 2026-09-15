@@ -1539,23 +1539,41 @@ mark {
   margin-bottom: 0.7rem;
 }
 
+/*
+ * A grid, not a row of flex boxes, because the date column has to be one
+ * column and not one per line.
+ *
+ * As flex, each date sat in its own 5.2rem box — and a flex item's automatic
+ * minimum size is its content, so any date wider than the basis grew its own
+ * box and pushed that line's sentence right. Wide windows hid it: the basis
+ * was generous enough for every date the formatter produces. Under 26rem,
+ * where it narrowed to 4.6rem, one list had its text starting at five
+ * different places.
+ *
+ * `max-content` here measures the widest date in the list and every row takes
+ * that same column through `subgrid`, so the sentences line up by
+ * construction, at any width and whatever the dates are.
+ */
 .news__list {
+  display: grid;
   font-family: var(--sans);
   font-size: 0.9rem;
+  grid-template-columns: max-content minmax(0, 1fr);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .news__item {
-  display: flex;
-  gap: 1rem;
+  column-gap: 1rem;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   padding: 0.26rem 0;
 }
 
 .news__date {
   color: var(--text-muted);
-  flex: 0 0 5.2rem;
   font-variant-numeric: lining-nums tabular-nums;
   white-space: nowrap;
 }
@@ -1593,15 +1611,11 @@ mark {
   text-underline-offset: 0.2em;
 }
 
-/* The column costs a third of the width on a phone, where the sentence needs
-   it more than the alignment does. */
+/* The column sizes itself now, so all a phone needs is a tighter gutter
+   between it and the sentence. */
 @media (width <= 26rem) {
   .news__item {
-    gap: 0.8rem;
-  }
-
-  .news__date {
-    flex-basis: 4.6rem;
+    column-gap: 0.8rem;
   }
 }
 
