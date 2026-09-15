@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { dateParts, formatDate, isoDate } from '../lib/format';
 import { isExternal } from '../lib/features';
@@ -143,11 +143,62 @@ function NewsDate({ date }: { date: string }) {
  * (`labelledBy`) or, where there is none, by `label`: unnamed, a bare list of
  * dates is as opaque to a screen reader as it would be to anyone else.
  *
- * `rows` holds the list to a height and scrolls the rest, which is what keeps
- * the front page the same page whether the month was busy or quiet. The news
- * page passes nothing: there the list is the content, and a scrollbar inside a
- * page that already scrolls is a box inside a box.
+ * `rows` holds the list to the height of that many entries and scrolls the
+ * rest, which is what keeps the front page the same page whether the month was
+ * busy or quiet. The news page passes nothing: there the list is the content,
+ * and a scrollbar inside a page that already scrolls is a box inside a box.
  */
+/**
+ * Sets the window to the height of the first `rows` entries, once they are on
+ * a screen and have taken their shape.
+ *
+ * It has to be measured. An entry is one line or several depending on how long
+ * the sentence is and how wide the column is, so "the height of three entries"
+ * is not a sum CSS can do — the stylesheet can only count rows, and a row is
+ * not an entry. The value is written to the element rather than rendered into
+ * it, so the server's markup and the browser's first pass stay identical and
+ * nothing about hydration changes.
+ *
+ * Until then the stylesheet's own `--news-rows` fallback stands, which is that
+ * many single-line rows: right whenever nothing wraps, and a little short for a
+ * moment when something does. With JavaScript off it stands for good, which is
+ * a window slightly too small rather than a page with no news in it.
+ *
+ * Re-measured on resize, since a narrower column wraps more sentences.
+ */
+function useWindowHeight(rows: number | undefined) {
+  const ref = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    const list = ref.current;
+    if (!list || !rows) return;
+
+    const measure = () => {
+      // The first entry past the window: where it starts is how tall the ones
+      // before it are.
+      const next = list.children[rows] as HTMLElement | undefined;
+      if (!next) return;
+      const top = next.getBoundingClientRect().top - list.getBoundingClientRect().top;
+      const height = `${Math.round(top + list.scrollTop)}px`;
+      if (list.style.getPropertyValue('--news-height') !== height) {
+        list.style.setProperty('--news-height', height);
+      }
+    };
+
+    measure();
+
+    // The parent, not the list: the list's own height is what this sets, and
+    // watching it would be watching itself.
+    const watched = list.parentElement;
+    if (!watched) return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(watched);
+    return () => observer.disconnect();
+  }, [rows]);
+
+  return ref;
+}
+
 export function NewsList({
   items,
   label,
@@ -157,11 +208,14 @@ export function NewsList({
   items: NewsItem[];
   label?: string;
   labelledBy?: string;
-  /** Rows to stand at before scrolling. Unset lets the list grow to fit. */
+  /** Entries to stand at before scrolling. Unset lets the list grow to fit. */
   rows?: number;
 }) {
+  const ref = useWindowHeight(rows);
+
   return (
     <ul
+      ref={ref}
       className={rows ? 'news__list news__list--windowed' : 'news__list'}
       aria-label={labelledBy ? undefined : label}
       aria-labelledby={labelledBy}

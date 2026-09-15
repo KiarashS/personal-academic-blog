@@ -155,12 +155,12 @@ export interface HomeConfig {
    */
   news: number;
   /**
-   * How many of those entries stand in the block at once. Past this the list
-   * keeps its height and scrolls, so a front page with ten entries on it is
-   * the same height as one with three. 0 lets the block grow to fit.
+   * How many of those entries stand in the block at once, whole. Past this the
+   * list keeps its height and scrolls, so a front page with ten entries on it
+   * is the same height as one with three. 0 lets the block grow to fit.
    *
-   * Measured in rows rather than entries, since that is what a height can be:
-   * an entry whose sentence wraps takes two of them.
+   * The height is measured rather than counted in lines, so an entry whose
+   * sentence wraps still counts as one and is shown in full.
    */
   newsRows: number;
   /**

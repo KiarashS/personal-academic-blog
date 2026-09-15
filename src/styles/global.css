@@ -1591,13 +1591,12 @@ mark {
  * all.
  */
 .news__list--windowed {
-  /* `--news-rows` rows and then half a line, which is the cue. Three rows that
-     end cleanly look like the whole list, and overlay scrollbars — the default
-     on a Mac and on a phone — stay invisible until something moves, so without
-     the sliver of a fourth line showing there is nothing to say the list goes
-     on. A fade would say it too, but a fade dims the last entry once a reader
-     reaches the bottom, and this dims nothing. */
-  max-height: calc(var(--news-rows) * (1.65em + 0.52rem) + 0.5em);
+  /* `--news-height` is the measured height of the first `--news-rows` entries,
+     written to the element by the component once they have taken their shape
+     on a real screen. The fallback is that many single-line rows, which is what
+     the prerendered page carries and what a reader without JavaScript keeps:
+     exact while nothing wraps, a little short when something does. */
+  max-height: var(--news-height, calc(var(--news-rows) * (1.65em + 0.52rem)));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-color: var(--rule-strong) transparent;

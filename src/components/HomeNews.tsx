@@ -22,10 +22,10 @@ import { siteConfig } from '../site.config';
  * when `/news` exists to see them on. A windowed list has somewhere to send a
  * reader who would rather read than scroll.
  *
- * `home.newsRows` is the height, in rows, that the block holds to. Past it the
- * list scrolls rather than growing, so the page under a busy month is the same
- * page as under a quiet one — which is the point of a banner that fills the
- * window and stops.
+ * `home.newsRows` is how many entries the block stands at. Past that the list
+ * scrolls rather than growing, so the page under a busy month is the same page
+ * as under a quiet one — which is the point of a banner that fills the window
+ * and stops.
  */
 export function HomeNews() {
   const { items, more } = homeNews();

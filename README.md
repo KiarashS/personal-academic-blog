@@ -964,7 +964,7 @@ home: {
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
   news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
-  newsRows: 3,            // rows the block stands at before it scrolls; 0 to grow
+  newsRows: 3,            // entries the block stands at before it scrolls; 0 to grow
   newsFreshMonths: 12,    // months of silence before the block retires itself
 },
 ```
@@ -1375,14 +1375,18 @@ archive, when the `news` feature is on; the front page links to it only when
 there is more to see than it is showing.
 
 `home.newsRows` is what keeps the front page the same page in a busy month as
-in a quiet one. Past that many rows the list holds its height and scrolls
-instead of growing, so `home.news: 10` costs the page nothing. It is counted in
-rows rather than entries, because that is what a height can be: an entry whose
-sentence wraps takes two of them. The window stands half a line over the count,
-so a sliver of the next row shows — three rows that end cleanly look like the
-whole list, and the overlay scrollbars a Mac and a phone draw stay invisible
-until something moves. Set it to 0 and the block grows to fit, as it did
-before.
+in a quiet one. Past that many entries the list holds its height and scrolls
+instead of growing, so `home.news: 10` costs the page nothing. Set it to 0 and
+the block grows to fit, as it did before.
+
+Those entries are shown whole, wrapped sentences included, which means the
+height has to be measured: an entry is one line or three depending on what it
+says and how wide the column is, and a stylesheet can only count lines. The
+component measures where the first entry past the window begins, once the page
+is on a screen, and writes that height to the element. Until then — and for a
+reader with JavaScript off — the stylesheet's fallback stands, which is that
+many single-line rows: exact while nothing wraps, a little short when something
+does.
 
 A windowed list is focusable, so it can be scrolled from the keyboard, and it
 shows the `All news →` link whether or not there are entries beyond the ones it
