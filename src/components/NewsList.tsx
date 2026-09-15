@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { formatDate, isoDate } from '../lib/format';
+import { dateParts, formatDate, isoDate } from '../lib/format';
 import { isExternal } from '../lib/features';
 import { parseInlineLinks, plainText } from '../lib/inline-links';
 import { withBase } from '../lib/urls';
@@ -92,6 +92,40 @@ function Sentence({ item }: { item: NewsItem }) {
 }
 
 /**
+ * One entry's date, as three cells rather than one.
+ *
+ * The day is one digit or two and month names are proportional, so set as a
+ * single string the pieces stagger: ranged left the years wander, ranged right
+ * the months do. Given a column each — the day ranged right against them, the
+ * month and the year ranged left — every piece sits under the same piece of
+ * the date above it. The columns come from the list through `subgrid`, so they
+ * are as wide as the widest day, month and year in that list and no wider.
+ *
+ * The machine-readable date stays on the `time` element, whole.
+ */
+function NewsDate({ date }: { date: string }) {
+  const parts = dateParts(date);
+
+  return (
+    <time className="news__date" dateTime={isoDate(date)}>
+      {parts ? (
+        <>
+          {/* The spaces are for everything that reads the text rather than
+              looks at it — a screen reader, a copy and paste — which would
+              otherwise get "20Nov2026". A whitespace-only text node is not a
+              grid item, so the columns are unmoved by them. */}
+          <span className="news__day">{parts.day}</span>{' '}
+          <span className="news__month">{parts.month}</span>{' '}
+          <span className="news__year">{parts.year}</span>
+        </>
+      ) : (
+        formatDate(date, 'short')
+      )}
+    </time>
+  );
+}
+
+/**
  * Dated one-liners, newest first: a date in its own column and a sentence
  * beside it. The column is what makes the list read as a list without bullets
  * or rules, and it gives a sentence that wraps a hanging indent.
@@ -117,9 +151,7 @@ export function NewsList({
     >
       {items.map((item) => (
         <li className="news__item" key={`${item.date}-${item.text}`}>
-          <time className="news__date" dateTime={isoDate(item.date)}>
-            {formatDate(item.date, 'short')}
-          </time>
+          <NewsDate date={item.date} />
           <span className="news__text">
             <Sentence item={item} />
           </span>

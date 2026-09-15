@@ -1565,27 +1565,46 @@ mark {
   display: grid;
   font-family: var(--sans);
   font-size: 0.9rem;
-  grid-template-columns: max-content minmax(0, 1fr);
+
+  /* Day, month, year, sentence. Three columns for the date rather than one,
+     each `max-content` and so as wide as the widest of its kind in the list:
+     that is what puts every month under the month above it, where a date set
+     as one string staggers — the day is a digit or two, and month names are
+     proportional, so ranging the string left leaves the years wandering and
+     ranging it right leaves the months doing it. */
+  grid-template-columns: max-content max-content max-content minmax(0, 1fr);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .news__item {
-  column-gap: 1rem;
+  /* A word space between the pieces of the date; the gutter before the
+     sentence is padding on the sentence, since one gap has to serve both. */
+  column-gap: 0.3em;
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
   padding: 0.26rem 0;
 }
 
+/* The date spans its three columns and hands them to its pieces. */
 .news__date {
   color: var(--text-muted);
+  display: grid;
   font-variant-numeric: lining-nums tabular-nums;
+  grid-column: span 3;
+  grid-template-columns: subgrid;
   white-space: nowrap;
 }
 
+/* Ranged right against the month, the way a column of numbers is always set. */
+.news__day {
+  text-align: right;
+}
+
 .news__text {
+  padding-left: 0.7rem;
   text-wrap: pretty;
 }
 
@@ -1634,8 +1653,8 @@ mark {
 /* The column sizes itself now, so all a phone needs is a tighter gutter
    between it and the sentence. */
 @media (width <= 26rem) {
-  .news__item {
-    column-gap: 0.8rem;
+  .news__text {
+    padding-left: 0.5rem;
   }
 }
 
