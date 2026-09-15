@@ -1578,6 +1578,32 @@ mark {
   padding: 0;
 }
 
+/*
+ * Held to `--news-rows` rows, the rest reached by scrolling.
+ *
+ * A row is its line plus the padding above and below it, so the window is
+ * exact for entries of one line and shows a little of the fourth when one
+ * wraps — which is the truthful thing for a fixed height to do, and the hint
+ * that there is more under it.
+ *
+ * `contain` so reaching the end scrolls the list and not the page behind it,
+ * and a thin scrollbar in the site's own greys where the platform draws one at
+ * all.
+ */
+.news__list--windowed {
+  /* `--news-rows` rows and then half a line, which is the cue. Three rows that
+     end cleanly look like the whole list, and overlay scrollbars — the default
+     on a Mac and on a phone — stay invisible until something moves, so without
+     the sliver of a fourth line showing there is nothing to say the list goes
+     on. A fade would say it too, but a fade dims the last entry once a reader
+     reaches the bottom, and this dims nothing. */
+  max-height: calc(var(--news-rows) * (1.65em + 0.52rem) + 0.5em);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--rule-strong) transparent;
+  scrollbar-width: thin;
+}
+
 .news__item {
   /* A word space between the pieces of the date; the gutter before the
      sentence is padding on the sentence, since one gap has to serve both. */

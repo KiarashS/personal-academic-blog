@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { dateParts, formatDate, isoDate } from '../lib/format';
 import { isExternal } from '../lib/features';
@@ -141,21 +142,34 @@ function NewsDate({ date }: { date: string }) {
  * The list is named either by a heading that is already on the page
  * (`labelledBy`) or, where there is none, by `label`: unnamed, a bare list of
  * dates is as opaque to a screen reader as it would be to anyone else.
+ *
+ * `rows` holds the list to a height and scrolls the rest, which is what keeps
+ * the front page the same page whether the month was busy or quiet. The news
+ * page passes nothing: there the list is the content, and a scrollbar inside a
+ * page that already scrolls is a box inside a box.
  */
 export function NewsList({
   items,
   label,
   labelledBy,
+  rows,
 }: {
   items: NewsItem[];
   label?: string;
   labelledBy?: string;
+  /** Rows to stand at before scrolling. Unset lets the list grow to fit. */
+  rows?: number;
 }) {
   return (
     <ul
-      className="news__list"
+      className={rows ? 'news__list news__list--windowed' : 'news__list'}
       aria-label={labelledBy ? undefined : label}
       aria-labelledby={labelledBy}
+      // A scrollable box has to be reachable by keyboard, or the entries past
+      // the fold belong to the mouse alone. The list already has a name, so
+      // focusing it announces one.
+      tabIndex={rows ? 0 : undefined}
+      style={rows ? ({ '--news-rows': rows } as CSSProperties) : undefined}
     >
       {items.map((item) => (
         <li className="news__item" key={`${item.date}-${item.text}`}>

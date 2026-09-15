@@ -964,6 +964,7 @@ home: {
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
   news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
+  newsRows: 3,            // rows the block stands at before it scrolls; 0 to grow
   newsFreshMonths: 12,    // months of silence before the block retires itself
 },
 ```
@@ -1372,6 +1373,20 @@ same small muted sans as the profile links: a date column and a sentence under
 a `News` label. The whole list lives at `/news`, grouped by year like the
 archive, when the `news` feature is on; the front page links to it only when
 there is more to see than it is showing.
+
+`home.newsRows` is what keeps the front page the same page in a busy month as
+in a quiet one. Past that many rows the list holds its height and scrolls
+instead of growing, so `home.news: 10` costs the page nothing. It is counted in
+rows rather than entries, because that is what a height can be: an entry whose
+sentence wraps takes two of them. The window stands half a line over the count,
+so a sliver of the next row shows — three rows that end cleanly look like the
+whole list, and the overlay scrollbars a Mac and a phone draw stay invisible
+until something moves. Set it to 0 and the block grows to fit, as it did
+before.
+
+A windowed list is focusable, so it can be scrolled from the keyboard, and it
+shows the `All news →` link whether or not there are entries beyond the ones it
+holds — a reader who would rather read than scroll has somewhere to go.
 
 The two are separate switches and any combination works. `home.news: 0` with
 `features.news: true` keeps the page, the nav entry and the sitemap and leaves

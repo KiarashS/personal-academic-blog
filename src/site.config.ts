@@ -155,6 +155,15 @@ export interface HomeConfig {
    */
   news: number;
   /**
+   * How many of those entries stand in the block at once. Past this the list
+   * keeps its height and scrolls, so a front page with ten entries on it is
+   * the same height as one with three. 0 lets the block grow to fit.
+   *
+   * Measured in rows rather than entries, since that is what a height can be:
+   * an entry whose sentence wraps takes two of them.
+   */
+  newsRows: number;
+  /**
    * Months of silence after which the front page stops showing the list, and
    * the build says so. 0 shows it however old it is.
    *
@@ -273,6 +282,7 @@ export const siteConfig: SiteConfig = {
     signatureTilt: -3,
     avatar: '/avatar.jpg',
     news: 3,
+    newsRows: 3,
     newsFreshMonths: 12,
   },
   cv: '',
