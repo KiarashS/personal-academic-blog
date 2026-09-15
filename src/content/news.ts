@@ -41,7 +41,7 @@ export const news: NewsItem[] = [
   // Dated ahead, so it sorts above everything: how an announcement is made.
   {
     date: '2026-11-20',
-    text: 'Example: an entry dated ahead sits at the top until the day passes',
+    text: 'Example: an entry dated ahead sits at the top until the day passes. This is a multi-line news. Check it!',
   },
   // Nothing to point at, which is a complete entry.
   { date: '2026-09-08', text: 'Example: a line on its own, pointing nowhere' },
