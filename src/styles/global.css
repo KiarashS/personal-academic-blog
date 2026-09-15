@@ -1601,11 +1601,24 @@ mark {
    thumb can hit, which words this size are not tall enough to be. */
 .news__out a {
   color: var(--text-muted);
-  display: inline-block;
-  padding-block: 0.2rem;
+
+  /* The hit area is the pseudo-element below, not padding on this. As an
+     inline-block with vertical padding it was the tallest box in its line, and
+     an inline line box is sized by its tallest box — so every entry carrying a
+     "more" sat 3.2px lower than its own date, while entries without one sat
+     level. The padding bought a target and paid for it in the baseline. */
+  position: relative;
   text-decoration-color: var(--link-rule);
   text-underline-offset: 0.2em;
   white-space: nowrap;
+}
+
+/* The target a finger needs, laid over the line instead of inside it: absolute,
+   so it adds nothing to the line box it hangs off. */
+.news__out a::after {
+  content: '';
+  inset: -0.45rem -0.3rem;
+  position: absolute;
 }
 
 .news__more {

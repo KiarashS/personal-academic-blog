@@ -10,6 +10,11 @@ export function FeedLink({ path = '/feed.xml', label = 'Atom feed', icon = false
     <a
       className={icon ? 'feed-link feed-link--icon header-icon' : 'feed-link'}
       href={withBase(path)}
+      /* The same string the label carries, not a second one: a `title` that
+         differs from a link's name gets read out after it, and "Atom feed, RSS
+         for this blog" is worse than silence. Matching, it is a tooltip for a
+         mouse and nothing extra for a screen reader. */
+      title={icon ? label : undefined}
     >
       {icon ? (
         <svg
