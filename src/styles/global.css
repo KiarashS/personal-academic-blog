@@ -1598,7 +1598,8 @@ mark {
   white-space: nowrap;
 }
 
-/* Ranged right against the month, the way a column of numbers is always set. */
+/* Ranged right, which with a two-digit day is belt and braces — it matters
+   only if a locale ever hands back a single character. */
 .news__day {
   text-align: right;
 }

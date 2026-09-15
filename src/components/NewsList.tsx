@@ -96,10 +96,18 @@ function Sentence({ item }: { item: NewsItem }) {
  *
  * The day is one digit or two and month names are proportional, so set as a
  * single string the pieces stagger: ranged left the years wander, ranged right
- * the months do. Given a column each — the day ranged right against them, the
- * month and the year ranged left — every piece sits under the same piece of
- * the date above it. The columns come from the list through `subgrid`, so they
- * are as wide as the widest day, month and year in that list and no wider.
+ * the months do. Given a column each — day, month, year — every piece sits
+ * under the same piece of the date above it. The columns come from the list
+ * through `subgrid`, so they are as wide as the widest day, month and year in
+ * that list and no wider.
+ *
+ * The day is padded to two digits, which is the part that looks like a
+ * concession and is not. This column is the left edge of the block, flush with
+ * the prose above it on the front page; ranged right, a single-digit day left
+ * that edge notched on its own row, and ranged left it opened a hole between
+ * the day and its month. A leading zero is the quietest of the three. It stays
+ * out of `formatDate`, which sets dates inside sentences — "08 Sep 2026 ·
+ * Kiarash" under a post title would read as a log line.
  *
  * The machine-readable date stays on the `time` element, whole.
  */
@@ -114,7 +122,7 @@ function NewsDate({ date }: { date: string }) {
               looks at it — a screen reader, a copy and paste — which would
               otherwise get "20Nov2026". A whitespace-only text node is not a
               grid item, so the columns are unmoved by them. */}
-          <span className="news__day">{parts.day}</span>{' '}
+          <span className="news__day">{parts.day.padStart(2, '0')}</span>{' '}
           <span className="news__month">{parts.month}</span>{' '}
           <span className="news__year">{parts.year}</span>
         </>
