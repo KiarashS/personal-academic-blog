@@ -2055,7 +2055,14 @@ mark {
 }
 
 /* The rim is the container's own padding; the highlight below travels around
-   it, and the picture sits on top covering everything inside. */
+   it, and the picture sits on top covering everything inside.
+
+   `--rule-strong` rather than `--rule`, which put the ring at 1.28:1 against
+   the page in light and 1.35:1 in dark — a whisper in both, and for most of
+   the six seconds the highlight is somewhere else and the whisper is all there
+   is. This takes it to 1.64:1 and 1.90:1. A shadow cannot do this job: on the
+   near-white page the yellow disc already has a hard edge, and on the dark one
+   a black shadow contributes nothing at all. */
 
 /* Centred against the introduction — the name, the tagline, the two lines and
    the profile links — and not against the news under them. At 1440 that puts
@@ -2068,7 +2075,7 @@ mark {
 .banner__avatar {
   align-self: center;
   aspect-ratio: 1;
-  background: var(--rule);
+  background: var(--rule-strong);
   border-radius: 50%;
   grid-area: 1 / 2;
   isolation: isolate;
