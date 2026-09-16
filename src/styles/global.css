@@ -595,30 +595,38 @@ video {
 }
 
 /*
-/*
  * The chip: a mark that stands on its own, with an edge to say it is a control.
  *
  * `--surface` behind, `--rule-strong` at 4px around, warming to `--link-rule`
- * on hover: the author cards' chip. Square and at least 33px, which clears the
- * 24px a finger needs.
+ * on hover, which is the author cards' chip at the same radius. Square, 29px,
+ * clearing the 24px a finger needs with 5px to spare.
  *
- * For the profile row, where the marks stand alone under the news with nothing
- * around them to borrow context from. Not for the header: see `.header-icon`
- * below, where a mark sits in a line of words and a box around it is the
- * loudest thing in the row.
+ * It was 33px, and on a page whose largest body type is 19px that is a
+ * toolbar: the row of marks was the heaviest thing under the name. 29 with a
+ * 16px glyph keeps the mark at the same 55% of its box and stops it competing.
+ *
+ * The box is `block-size`/`inline-size` and not padding around the mark, so it
+ * stays the size it says. As padding it did not: `.banner__links a` sets
+ * `padding-block` and is the more specific of the two, so the chip's own
+ * padding only ever applied left and right, and `min-height` was propping the
+ * square open from underneath.
+ *
+ * For the profile row, where the marks stand alone with nothing around them to
+ * borrow context from. Not for the header: see `.header-icon` below, where a
+ * mark sits in a line of words and a box around it is the loudest thing in the
+ * row.
  */
 .icon-chip {
   align-items: center;
   background: var(--surface);
+  block-size: 29px;
   border: 1px solid var(--rule-strong);
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
+  inline-size: 29px;
   justify-content: center;
-  min-height: 33px;
-  min-width: 33px;
-  padding: 0.42rem;
   text-decoration: none;
 }
 
@@ -2285,8 +2293,8 @@ mark {
   text-decoration-color: currentcolor;
 }
 
-/* Marks alone. They lose the words' width, so each gets padding of its own
-   instead: 15px of glyph is a third of the 24px a finger needs, and in this
+/* Marks alone. They lose the words' width, so each gets a box of its own
+   instead: a 16px glyph is two thirds of the 24px a finger needs, and in this
    row nothing else is there to be hit. The gap closes to match, or eleven
    marks read as one long dotted line rather than as separate links. */
 .banner__links--icon {
@@ -2295,15 +2303,14 @@ mark {
 
 /* A mark with nothing written under it has no edge and no weight: on a page
    this quiet it reads as a picture that happens to be there, and the only
-   thing that says otherwise is the cursor. `icon-chip` above is the edge, and
-   it is the same one the header's controls and the author cards use.
+   thing that says otherwise is the cursor. `icon-chip` above is the edge.
 
    Only under `icon`. Beside a word the underline already says it is a link,
    and a box around both would be the furniture this row exists to avoid. */
 
 .banner__links--icon .profile-icon {
-  height: 18px;
-  width: 18px;
+  height: 16px;
+  width: 16px;
 }
 
 /* The mark sits on the word's centre rather than its baseline, and takes the
