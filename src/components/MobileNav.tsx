@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isNavGroup, navFor } from '../lib/features';
+import { CvLink } from './CvLink';
 import { NavCaret, NavGroupLink } from './NavGroup';
 
 /** The two icons the one button shows, taken from the reference implementation. */
@@ -112,6 +113,10 @@ export function MobileNav() {
               </Link>
             ),
           )}
+          {/* Last, as it is in the header: the nav entries are the site, and
+              this is a file. `navFor` does not know about it, so the sheet has
+              to ask for it by name. */}
+          <CvLink onClick={close} />
         </nav>
       </div>
     </>

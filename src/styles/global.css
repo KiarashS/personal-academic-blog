@@ -1718,12 +1718,16 @@ mark {
 
 /* Featured posts ----------------------------------------------------------- */
 
+/* 0.68rem, which is the smallest type anywhere else on the site — the prose
+   captions, the footnote markers and the figure labels all sit there. At the
+   0.62rem this had it was the one thing set smaller than the floor, and at
+   9.9px a tracked-out uppercase word is being asked to do a lot. */
 .post-card__pin {
   border: 1px solid var(--rule-strong);
   border-radius: 999px;
   color: var(--text-muted);
   font-family: var(--sans);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   letter-spacing: 0.08em;
   margin-left: 0.6rem;
   padding: 0.1rem 0.45rem;
@@ -2068,6 +2072,16 @@ mark {
   border-radius: 50%;
   grid-area: 1 / 2;
   isolation: isolate;
+
+  /* The rim below turns, and a rotated box is wider than the box it was: the
+     highlight is a circle and never moves a painted pixel outside this
+     element, but the scrollable overflow area is computed from the square's
+     corners, which swing past the window between 737px and 960px, where the
+     picture sits at the right edge with only the gutter beside it. The page
+     gained up to 10px of horizontal scroll that came and went with the
+     animation. `clip` and not `hidden`: nothing here should ever be a scroll
+     container. */
+  overflow: clip;
   padding: 3px;
   position: relative;
   width: clamp(7rem, 17vw, 13rem);

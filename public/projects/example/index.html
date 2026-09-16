@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <title>An example project</title>
+
+    <!-- The site's icons. A plain file under `public/` gets none of the head
+         the React pages are given, so without these the browser asks for
+         /favicon.ico, which is not where this site keeps it, and every visit
+         to the page logs a 404. -->
+    <link rel="icon" href="/favicons/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon-180x180.png" />
     <style>
       :root {
         color-scheme: light dark;
