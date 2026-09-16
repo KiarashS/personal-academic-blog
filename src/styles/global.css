@@ -2182,18 +2182,30 @@ mark {
   font-weight: 400;
 }
 
-/* Sized in pixels per breakpoint, as the original is: the drawing has to keep
-   its own proportions, and a signature that scaled with the surrounding type
-   would wobble against it. The tilt is set inline, from the config.
+/* Sized against the type it stands in, at 3.667em — the 176px the drawing was
+   drawn for, over the 48px the name reaches at its largest. The tilt is set
+   inline, from the config.
+
+   It was four fixed pixel widths on three breakpoints, and the name beside it
+   is `clamp(1.875rem, 1.1rem + 3.4vw, 3rem)`, which is fluid below 894px and
+   pinned at 48px above it. The two did not line up anywhere but the top:
+   from 894px the type stops growing, yet the drawing still stepped 134 → 141
+   → 176, so the same headline carried a signature 31% bigger at 1280 than at
+   900, jumping at each breakpoint while nothing around it moved. Below 894 it
+   drifted the other way, 128px against type that kept shrinking: 4.3 times the
+   cap height at 360px where 1440 had 2.9.
+
+   One multiplier tracks the clamp exactly and has no steps in it.
 
    The height is the box's own baseline rather than the drawing's full height:
    0.2901 puts the glyphs on it, measured in the browser against the baseline of
-   the words beside them rather than derived from the viewBox alone. An inline-block with no line box of its own puts its
-   bottom margin edge on the text baseline, so with that height the signature
-   lands on the same line as "Hi, I am" at every size, and the flourish, which
-   the SVG draws past the box, hangs below it. */
+   the words beside them rather than derived from the viewBox alone. An
+   inline-block with no line box of its own puts its bottom margin edge on the
+   text baseline, so with that height the signature lands on the same line as
+   "Hi, I am" at every size, and the flourish, which the SVG draws past the box,
+   hangs below it. */
 .banner__signature {
-  --signature-width: 128px;
+  --signature-width: 3.667em;
 
   /* The drawing's proportions, both printed by scripts/set-signature.mjs.
      The descent is the share of the box hanging below the letters' baseline,
@@ -2206,29 +2218,15 @@ mark {
   cursor: pointer;
   display: inline-block;
   height: calc(var(--signature-width) * var(--signature-ratio));
-  margin-left: -4px;
+
+  /* The gap the script's own entry stroke already leaves, closed so the name
+     starts where the words do. In `em` with the rest, or it is a wide gap on a
+     phone and a tight one on a desktop. */
+  margin-left: -0.083em;
   vertical-align: calc(
     var(--signature-width) * var(--signature-ratio) * var(--signature-descent) * -1
   );
   width: var(--signature-width);
-}
-
-@media (width >= 768px) {
-  .banner__signature {
-    --signature-width: 134px;
-  }
-}
-
-@media (width >= 1024px) {
-  .banner__signature {
-    --signature-width: 141px;
-  }
-}
-
-@media (width >= 1280px) {
-  .banner__signature {
-    --signature-width: 176px;
-  }
 }
 
 .banner__signature svg {
