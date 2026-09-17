@@ -21,6 +21,13 @@ export interface Author {
   links?: Partial<Record<ProfileKey, string>>;
 }
 
+/**
+ * Everything the profile row can carry: a service below, plus the two that come
+ * from fields of their own rather than from `links` — the CV and the email.
+ * This is what `profileLinkKeys` in the config names.
+ */
+export type ProfileLinkKey = ProfileKey | 'cv' | 'email';
+
 /** The profiles an academic reader looks for, in the order they are shown. */
 export type ProfileKey =
   | 'orcid'

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { profileLinks, siteOwner } from '../lib/profiles';
+import { profileLinksFor, siteOwner } from '../lib/profiles';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { resource, useResource } from '../lib/resource';
 
@@ -14,11 +14,13 @@ function ContactBody() {
 /**
  * Whatever `contact.md` says, followed by the owner's profile row. The links
  * come from the same author record the posts use, so an address changes in one
- * place rather than three.
+ * place rather than three, and `profileLinkKeys.contact` chooses which of them
+ * this page lists — the page a reader opens to get in touch is the one with
+ * the least reason to leave anything out.
  */
 export function ContactPage() {
   const person = siteOwner();
-  const links = person ? profileLinks(person) : [];
+  const links = person ? profileLinksFor('contact', person) : [];
 
   return (
     <>

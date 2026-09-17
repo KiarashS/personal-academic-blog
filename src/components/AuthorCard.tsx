@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { profileLinks, researchInterests } from '../lib/profiles';
+import { profileLinksFor, researchInterests } from '../lib/profiles';
 import type { Author } from '../lib/types';
 
 interface AuthorCardProps {
@@ -11,7 +11,9 @@ interface AuthorCardProps {
 
 export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: AuthorCardProps) {
   const Heading = headingLevel;
-  const links = profileLinks(author);
+  // `profileLinkKeys.authorCard`, and the same list for every author: a
+  // co-author with no ORCID simply has one fewer chip.
+  const links = profileLinksFor('authorCard', author);
   const interests = researchInterests(author);
 
   return (

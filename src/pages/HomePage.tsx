@@ -5,7 +5,7 @@ import { ProfileIcon } from '../components/ProfileIcon';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { resource, useResource } from '../lib/resource';
 import { Signature } from '../components/Signature';
-import { profileLinks, siteOwner } from '../lib/profiles';
+import { profileLinksFor, siteOwner } from '../lib/profiles';
 import { siteConfig } from '../site.config';
 
 export const homeBody = resource(() => import('../content/home.md') as Promise<{ html: string }>);
@@ -33,9 +33,10 @@ function HomeBody() {
  */
 export function HomePage() {
   const { greeting, signature: signed, avatar, profileLinkStyle: style } = siteConfig.home;
-  // The same links the contact page and every author card show, from the same
-  // record: an ORCID that changes changes in one place.
-  const links = siteConfig.home.profileLinks ? profileLinks(siteOwner()) : [];
+  // The same record the contact page and every author card read, so an ORCID
+  // that changes changes in one place; `profileLinkKeys.home` is which of them
+  // this row shows, and in what order.
+  const links = siteConfig.home.profileLinks ? profileLinksFor('home', siteOwner()) : [];
   // The front page speaks for the person; the header's tagline speaks for the
   // writing. They are the same line until this one is filled in.
   const tagline = siteConfig.home.tagline || siteConfig.tagline;

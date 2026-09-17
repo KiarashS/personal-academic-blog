@@ -980,11 +980,36 @@ anywhere previews a page about a person. Empty falls back to the site's.
 
 `home.profileLinks` puts a row of links under those sentences — ORCID, Google
 Scholar, GitHub, a CV, an email address, whatever the owner's record in
-`src/content/authors.ts` fills in, in the order `profileLinks` gives them. They
-are the same links the contact page and every author card show, from the same
-record, so an ORCID that changes changes once. Plain links rather than the
-bordered chips the author cards use: those sit under a post as one more block of
-furniture, and this row sits under two lines of light type at display size.
+`src/content/authors.ts` fills in. They come from the same record the contact
+page and every author card read, so an ORCID that changes changes once. Plain
+links rather than the bordered chips the author cards use: those sit under a
+post as one more block of furniture, and this row sits under two lines of light
+type at display size.
+
+One record, three rows, and `profileLinkKeys` says what each row shows:
+
+```ts
+profileLinkKeys: {
+  home: ['github', 'orcid', 'email'],
+  contact: [],
+  authorCard: ['orcid', 'scholar'],
+},
+```
+
+An empty list is every link the record holds, in the order `profileLinks` gives
+them, which is what an unconfigured site gets. Name keys and those are the row,
+read in the order you wrote — choosing what appears and choosing what comes
+first are the same decision. The keys are the services in `authors.ts` plus `cv`
+and `email`, which come from fields of their own, and a key an author has no
+value for is skipped, so one `authorCard` list covers a co-author who has half
+your profiles.
+
+It is a display setting and stops there. The `sameAs` array in each page's
+JSON-LD still names every profile in the record, because that array is what
+tells a search engine your ORCID, your Scholar page and your GitHub account are
+one person. A front page kept to two marks should not quietly cost you that, so
+`structured-data.ts` reads the record directly and never goes through the
+filter.
 
 Each carries a small mark beside its name. A service with a logo of its own gets
 that logo, from [simple-icons](https://simpleicons.org) (CC0-1.0, a

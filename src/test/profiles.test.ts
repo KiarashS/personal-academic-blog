@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { profileLinks, researchInterests } from '../lib/profiles';
-import type { Author } from '../lib/types';
+import { profileLinks, researchInterests, selectProfileLinks } from '../lib/profiles';
+import type { Author, ProfileLinkKey } from '../lib/types';
+import { siteConfig } from '../site.config';
 
 const author = (overrides: Partial<Author> = {}): Author => ({
   id: 'a',
@@ -116,5 +117,92 @@ describe('researchInterests', () => {
   it('is empty for an author who lists none', () => {
     expect(researchInterests(author())).toEqual([]);
     expect(researchInterests(author({ interests: [] }))).toEqual([]);
+  });
+});
+
+describe('selectProfileLinks', () => {
+  const full = profileLinks(
+    author({
+      cv: '/cv.pdf',
+      email: 'ada@example.edu',
+      links: { orcid: '0000-0002-1825-0097', github: 'ada', website: 'example.edu' },
+    }),
+  );
+
+  it('keeps every link when no keys are named', () => {
+    expect(selectProfileLinks(full, []).map((link) => link.key)).toEqual([
+      'cv',
+      'orcid',
+      'github',
+      'website',
+      'email',
+    ]);
+  });
+
+  it('keeps only the keys named', () => {
+    expect(selectProfileLinks(full, ['github', 'email']).map((link) => link.key)).toEqual([
+      'github',
+      'email',
+    ]);
+  });
+
+  it('reads them in the order written, not the order the record gives', () => {
+    expect(selectProfileLinks(full, ['email', 'cv', 'orcid']).map((link) => link.key)).toEqual([
+      'email',
+      'cv',
+      'orcid',
+    ]);
+  });
+
+  it('skips a key this author has nothing for, rather than leaving a hole', () => {
+    const sparse = profileLinks(author({ links: { github: 'ada' } }));
+    expect(
+      selectProfileLinks(sparse, ['orcid', 'github', 'email']).map((link) => link.key),
+    ).toEqual(['github']);
+  });
+
+  it('hands back nothing when none of the keys match', () => {
+    expect(selectProfileLinks(full, ['scholar', 'bluesky'])).toEqual([]);
+  });
+
+  it('never repeats a link, however often it is named', () => {
+    expect(selectProfileLinks(full, ['github', 'github']).length).toBe(2);
+  });
+});
+
+describe('siteConfig.profileLinkKeys', () => {
+  it('covers all three surfaces', () => {
+    expect(Object.keys(siteConfig.profileLinkKeys).sort()).toEqual([
+      'authorCard',
+      'contact',
+      'home',
+    ]);
+  });
+
+  it('names only keys the row can actually build', () => {
+    // Derived rather than written out: a service added to `SERVICES` is covered
+    // here the day it lands, and a key the config names that no record could
+    // ever produce fails.
+    const everything = profileLinks(
+      author({
+        cv: '/cv.pdf',
+        email: 'ada@example.edu',
+        links: {
+          orcid: 'x',
+          scholar: 'x',
+          semanticScholar: 'x',
+          arxiv: 'x',
+          github: 'x',
+          linkedin: 'x',
+          mastodon: '@a@b.c',
+          bluesky: 'x',
+          website: 'example.edu',
+        },
+      }),
+    );
+    const known = new Set<ProfileLinkKey>(everything.map((link) => link.key));
+    for (const keys of Object.values(siteConfig.profileLinkKeys)) {
+      for (const key of keys) expect(known).toContain(key);
+    }
   });
 });

@@ -1,3 +1,5 @@
+import type { ProfileLinkKey } from './lib/types';
+
 /**
  * Where a nav entry writes "the blog index" without knowing where that is:
  * `visibleNav` resolves it, because the answer depends on the `home` feature.
@@ -42,6 +44,12 @@ export type NavPlace = 'header' | 'footer' | 'both';
  * whether a reader can tell arXiv from Semantic Scholar at a glance.
  */
 export type ProfileLinkStyle = 'both' | 'icon' | 'label';
+
+/**
+ * The three places an author's profile links are rendered: the front page's
+ * row, the contact page's list, and the card under every post the author wrote.
+ */
+export type ProfileSurface = 'home' | 'contact' | 'authorCard';
 
 export interface NavItem {
   label: string;
@@ -219,6 +227,29 @@ export interface SiteConfig {
   categories: Category[];
   nav: NavItem[];
   /**
+   * Which of an author's profile links each surface shows, and in what order.
+   *
+   * Empty means all of them, in the order `profileLinks` gives them, which is
+   * what an unconfigured site gets. Name keys and those are the row, written in
+   * the order you want them read:
+   *
+   *     profileLinkKeys: {
+   *       home: ['github', 'orcid', 'email'],
+   *       contact: [],
+   *       authorCard: ['orcid', 'scholar'],
+   *     }
+   *
+   * The keys are the services in `src/content/authors.ts` plus `cv` and
+   * `email`, which come from fields of their own. A key an author has no value
+   * for is skipped, so one list can cover a co-author with half your profiles.
+   *
+   * This is display, not identity. The record stays whole: the `sameAs` array
+   * in the page's structured data still names every profile, because that is
+   * what ties the accounts to one person for a search engine, and a front page
+   * kept to two marks should not cost you that.
+   */
+  profileLinkKeys: Record<ProfileSurface, ProfileLinkKey[]>;
+  /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
    */
@@ -317,6 +348,12 @@ export const siteConfig: SiteConfig = {
       description: 'Derivations, proofs and the notation they need.',
     },
   ],
+  profileLinkKeys: {
+    // Every link the record has, everywhere. Name keys to narrow a row.
+    home: [],
+    contact: [],
+    authorCard: [],
+  },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },
     { label: 'Blog', to: BLOG_INDEX },

@@ -1,7 +1,8 @@
 import { authors } from '../content/authors';
 import { siteConfig } from '../site.config';
+import type { ProfileSurface } from '../site.config';
 import { withBase } from './urls';
-import type { Author, ProfileKey } from './types';
+import type { Author, ProfileKey, ProfileLinkKey } from './types';
 
 /**
  * The author the site belongs to. `owner` naming a record that has since been
@@ -21,7 +22,7 @@ export function researchInterests(author: Author): string[] {
 }
 
 export interface ProfileLink {
-  key: ProfileKey | 'cv' | 'email';
+  key: ProfileLinkKey;
   label: string;
   href: string;
 }
@@ -98,4 +99,45 @@ export function profileLinks(author: Author): ProfileLink[] {
   }
 
   return links;
+}
+
+/**
+ * `links` narrowed to `keys`, in the order `keys` gives them.
+ *
+ * Empty keeps everything, which is what an unconfigured site gets: a row that
+ * shows whatever the record holds, in the order above. Name any keys and they
+ * are the row, in the order written — choosing what appears and choosing what
+ * comes first are the same decision, and a surface that wants its GitHub first
+ * should not have to reorder `SERVICES` to get it.
+ *
+ * A key the author has no value for is skipped rather than rendered empty. The
+ * same list covers every author on the site, and a co-author with no ORCID
+ * should not leave a hole where the owner has one.
+ */
+export function selectProfileLinks(
+  links: ProfileLink[],
+  keys: readonly ProfileLinkKey[],
+): ProfileLink[] {
+  if (keys.length === 0) return links;
+  const byKey = new Map(links.map((link) => [link.key, link]));
+  return keys
+    .map((key) => byKey.get(key))
+    .filter((link): link is ProfileLink => link !== undefined);
+}
+
+/**
+ * The links one surface shows for one author.
+ *
+ * Three surfaces render this row — the front page, the contact page and the
+ * author card under every post — and each has its own list in the config, so a
+ * front page can carry two marks while the contact page carries all eleven.
+ *
+ * `structured-data.ts` deliberately does not go through here. Its `sameAs` is
+ * the record itself, not a view of it: the point of that array is to tell a
+ * search engine which accounts are the same person, and a profile left out of
+ * it stops being tied to the others. Trimming a row of icons is a layout
+ * decision and should not quietly become a claim about who you are.
+ */
+export function profileLinksFor(surface: ProfileSurface, author: Author): ProfileLink[] {
+  return selectProfileLinks(profileLinks(author), siteConfig.profileLinkKeys[surface]);
 }
