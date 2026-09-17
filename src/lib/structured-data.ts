@@ -8,12 +8,17 @@ const isUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 /**
  * The front page as a `Person`, in the shape schema.org describes.
  *
- * `sameAs` is the point of it: ORCID, Google Scholar and the rest are the same
- * links the page already shows, and saying they are the same person is what
- * connects a name in a search result to an identifier. Everything is drawn from
- * the owner's record in `src/content/authors.ts`, so a field that record does
- * not fill in is absent rather than empty — a `jobTitle: ""` is worse than no
- * `jobTitle` at all.
+ * `sameAs` is the point of it: ORCID, Google Scholar and the rest, and saying
+ * they are the same person is what connects a name in a search result to an
+ * identifier. Everything is drawn from the owner's record in
+ * `src/content/authors.ts`, so a field that record does not fill in is absent
+ * rather than empty — a `jobTitle: ""` is worse than no `jobTitle` at all.
+ *
+ * The record, not what any page shows: `profileLinkKeys` narrows the three
+ * rendered rows and is deliberately not applied here. Every other field in this
+ * block describes, and leaving one out only says less; `sameAs` asserts, and
+ * dropping a URL from it says the account is not yours. A profile you want off
+ * the site entirely comes out of the record, which takes it out of here too.
  */
 export function personSchema(): Record<string, unknown> {
   const owner = siteOwner();
