@@ -33,6 +33,12 @@ export function BlogPage() {
 
   return (
     <>
+      {/* The index had no heading at all: the cards under it are `h2`, so the
+          outline of the site's second most important page started a level down
+          and the page never named itself. "Blog" whichever address it lives at
+          — with the home feature off this is the front page, where the header
+          carries the site's name and this still says what the page is. */}
+      <h1>Blog</h1>
       <PostList posts={items} />
       <Pagination page={page} totalPages={totalPages} hrefFor={blogPagePath} />
     </>

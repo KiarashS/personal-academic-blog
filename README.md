@@ -1057,12 +1057,28 @@ the target from 28×27 to 33×33, where 24×24 is the minimum a finger wants.
 No chip under `both` or `label`. Beside a word the underline already says it is
 a link, and a box around both would be the furniture this row exists to avoid.
 
-The front page is also the one page that carries structured data: a schema.org
-`Person` with `sameAs` pointing at those same profiles, which is what connects a
-name in a search result to an ORCID iD. It is built in
-`src/lib/structured-data.ts` from the owner's record, so a field the record does
-not fill in is left out rather than published empty, and it appears on `/` only
-— a `Person` block on every route would claim each of them is one.
+The front page carries structured data: a schema.org `Person` with `sameAs`
+pointing at those same profiles, which is what connects a name in a search
+result to an ORCID iD. It is built in `src/lib/structured-data.ts` from the
+owner's record, so a field the record does not fill in is left out rather than
+published empty.
+
+Each post carries a `BlogPosting` of its own — headline, summary,
+`datePublished`, `dateModified`, its social card, its tags as `keywords`, its
+category as `articleSection`, and the blog it belongs to. `dateModified` falls
+back to the publication date, so a post that has never been revised says so
+rather than leaving the question open.
+
+The bylines are the join between the two. Every author is written as an `@id`
+built from their author page, and the front page's `Person` carries the same
+one, so a consumer merges them: the Kiarash who wrote a post and the Kiarash
+with six profiles are one person rather than two who share a name. A co-author
+with a page but no profiles resolves the same way.
+
+Nothing else gets a block. An index of posts is a list, and a `Person` on every
+route would claim each of them is one. A post's `doi` stays out too: it
+identifies the paper the post accompanies, not the post, so `identifier` would
+name the wrong thing.
 
 `avatar` takes a path under `public/` or a URL. Put the file in `public/` and
 name it here, and it is cropped to a circle beside the words, with one bright
