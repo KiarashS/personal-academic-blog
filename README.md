@@ -205,6 +205,31 @@ The icons are drawn in `alerts.ts` in the same hand as the permalink icon —
 24 units, stroked in `currentColor`, nothing filled — rather than imported, so
 an alert does not arrive looking like it came from somebody else's site.
 
+### Emoji
+
+GitHub's shortcodes: `:rocket:` for 🚀, `:+1:` for 👍, `:tada:` for 🎉. The
+names are [gemoji](https://github.com/wooorm/gemoji)'s, which is the list GitHub
+itself publishes — 1,913 of them, aliases included — and it is a devDependency,
+so the 36KB table is read by the build and never shipped to a reader. What lands
+in the HTML is the character.
+
+`plugins/emoji.ts` runs on the parsed tree rather than over the file, which is
+what leaves a shortcode inside `code`, a fence, a math span or a link target
+exactly as written: each of those is its own node type in markdown, so a post
+explaining the syntax can print it without the build eating the example. It also
+runs over the frontmatter's `title` and `summary`, which never reach the
+pipeline and are the strings that end up in the tab, the card, the feed and the
+`headline` in the structured data.
+
+A pair of colons around a name nothing recognises is left alone, so `12:30:45`,
+a `Note:` at the start of a line and a Windows path all survive. The very short
+names are real ones, so `:x:` is ❌ — that is GitHub's behaviour, and a minimum
+length invented here would surprise the first person to write `:ok:`.
+
+Shortcodes are a markdown feature and stop at markdown. `src/content/news.ts`
+and `slides.ts` are TypeScript, never go through the pipeline, and take the
+emoji character directly.
+
 ### Citations
 
 Write `[@key]` and it resolves against `src/content/references.bib` at build

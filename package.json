@@ -38,6 +38,7 @@
     "eslint": "10.9.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-react-hooks": "7.1.1",
+    "gemoji": "^8.1.0",
     "globals": "17.11.0",
     "hast-util-to-string": "3.0.1",
     "highlight.js": "11.12.0",

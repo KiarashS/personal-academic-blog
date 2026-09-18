@@ -29,6 +29,7 @@ import { rehypeEquations } from './equations';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
 import { rehypeReservedIds } from './reserved-ids';
+import { emojify, remarkEmoji } from './emoji';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
 
@@ -96,6 +97,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const cellProcessor = unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkEmoji)
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
@@ -115,6 +117,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     const processor = unified()
       .use(remarkParse)
       .use(remarkGfm)
+      // On the parsed tree, so a shortcode inside a fence or a `code` span is
+      // left as written and a post can explain the syntax it is using.
+      .use(remarkEmoji)
       .use(remarkMath)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
@@ -194,6 +199,14 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
       const raw = readFileSync(path, 'utf8');
       const built = buildPost({ path, raw });
+
+      // The frontmatter is YAML rather than markdown, so it never reaches the
+      // pipeline above. These two are the strings a reader sees outside the
+      // post — the tab, the card, the feed, the social image, the `headline` in
+      // the structured data — and a title reading ":rocket: Shipping it" in a
+      // search result is the one place a shortcode must not survive.
+      built.meta.title = emojify(built.meta.title);
+      built.meta.summary = emojify(built.meta.summary);
 
       // A category the site does not define is a typo, and a silent one: the
       // post would simply file itself nowhere. With no shelves configured at

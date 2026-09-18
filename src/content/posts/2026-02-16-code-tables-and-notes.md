@@ -116,6 +116,20 @@ referenced.[^pipeline] Task lists render as checkboxes:
     diagrams are expanded before the highlighter sees them, and captions are
     numbered last, once every block that can take one exists.
 
+## Emoji
+
+GitHub's shortcodes work, in prose and in the frontmatter both: `:rocket:` is
+🚀, `:+1:` is 👍, and the names are the ones GitHub publishes, all 1,913 of
+them. They are resolved when the post is compiled, so the table of names never
+reaches a reader's browser and the character in the HTML is the character they
+get.
+
+A shortcode inside `code` or a fence is left alone, which is why this paragraph
+can print one. Two things worth knowing: a pair of colons around a name nothing
+recognises stays exactly as written, so `12:30:45` and a `Note:` at the start of
+a line are safe; and the very short names are real, so `:x:` is ❌ rather than a
+letter between colons.
+
 ## Alerts
 
 GitHub's alert syntax works here. A blockquote whose first line is one of five

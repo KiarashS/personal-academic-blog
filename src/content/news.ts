@@ -21,7 +21,10 @@ import type { NewsItem } from '../lib/types';
  * worth listing.
  *
  * Emoji are ordinary text here and need no markup — 🎓, flags and the joined
- * ones all render. Two things to know before using them. A screen reader says
+ * ones all render. Paste the character rather than a `:shortcode:`: those are
+ * read when markdown is compiled, and this is a TypeScript file that never goes
+ * through it. Resolving them here would mean shipping 36KB of names to every
+ * reader so that a line could say 🎓 without you typing 🎓. Two things to know before using them. A screen reader says
  * the emoji's name out loud, so one at the front of a line is a word the
  * reader hears before the news ("graduation cap, paper accepted at…"), and it
  * lands in the accessible name of the entry's "more" link too. And a line
