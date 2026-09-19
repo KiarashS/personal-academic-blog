@@ -241,9 +241,25 @@ a `Note:` at the start of a line and a Windows path all survive. The very short
 names are real ones, so `:x:` is ❌ — that is GitHub's behaviour, and a minimum
 length invented here would surprise the first person to write `:ok:`.
 
-Shortcodes are a markdown feature and stop at markdown. `src/content/news.ts`
-and `slides.ts` are TypeScript, never go through the pipeline, and take the
-emoji character directly.
+News entries take shortcodes too, by a different route. `src/content/news.ts` is
+TypeScript that the browser receives and React re-renders on hydration, so
+whatever resolves a code has to exist on both sides of that line — and shipping
+gemoji whole would be 36KB of names to draw four characters, on a site that
+moved its search index out of the main bundle to save less.
+
+So `plugins/emoji-content.ts` reads the content at build time, keeps the codes
+it finds, and serves them as `virtual:emoji-map`. Four emoji in the file means
+four entries in the bundle, about sixty bytes. The scan is deliberately loose —
+any `:name:` in the file, filtered by whether gemoji knows it — because the
+alternative is parsing TypeScript to decide which string is prose, and getting
+that wrong would drop an emoji from the page without saying so. A name written
+in a comment costs one entry.
+
+`src/lib/news.ts` applies it once, where the entries are read, so a line says
+the same thing to the front page, to `/news`, to a screen reader and to the
+warning the build prints about it.
+
+`slides.ts` is not scanned and takes the character directly.
 
 ### Citations
 

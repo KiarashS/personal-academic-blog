@@ -16,3 +16,12 @@ declare module '*.svg?raw' {
   const source: string;
   export default source;
 }
+
+declare module 'virtual:emoji-map' {
+  /**
+   * The emoji shortcodes `src/content/news.ts` uses, built by
+   * `plugins/emoji-content.ts`. Only the ones that file names, so the browser
+   * is never sent the 1,913 gemoji knows to render the four you wrote.
+   */
+  export const EMOJI: Record<string, string>;
+}

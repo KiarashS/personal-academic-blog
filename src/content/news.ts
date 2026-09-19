@@ -20,16 +20,20 @@ import type { NewsItem } from '../lib/types';
  * (`/cv.pdf`), a URL, or a `mailto:`. An entry with nowhere to point is still
  * worth listing.
  *
- * Emoji are ordinary text here and need no markup — 🎓, flags and the joined
- * ones all render. Paste the character rather than a `:shortcode:`: those are
- * read when markdown is compiled, and this is a TypeScript file that never goes
- * through it. Resolving them here would mean shipping 36KB of names to every
- * reader so that a line could say 🎓 without you typing 🎓. Two things to know before using them. A screen reader says
- * the emoji's name out loud, so one at the front of a line is a word the
- * reader hears before the news ("graduation cap, paper accepted at…"), and it
- * lands in the accessible name of the entry's "more" link too. And a line
- * carrying one is about six pixels taller than its neighbours, because an
- * emoji is drawn on taller metrics than the type around it.
+ * Emoji work two ways. Paste the character — 🎓, flags and the joined ones all
+ * render — or write GitHub's shortcode, `:mortar_board:`, and the build reads
+ * it. Those are the names `npm run emoji` searches; anything it does not
+ * recognise is left on the page as you typed it, which is how `12:30:45` and a
+ * `Note:` opening a line survive.
+ *
+ * Only the codes this file uses are sent to a reader, so the convenience costs
+ * a few bytes rather than the 36KB of names gemoji holds. It is also why the
+ * scan is of this file alone: a shortcode in `slides.ts` is still just text.
+ *
+ * One thing to know before using them. A screen reader says the emoji's name
+ * out loud, so one at the front of a line is a word the reader hears before the
+ * news ("graduation cap, paper accepted at…"), and it lands in the accessible
+ * name of the entry's "more" link too, which is built from the sentence.
  *
  * The six below are examples, and they say so in their own words rather than
  * impersonating news — an invented accepted paper is a claim about you, on

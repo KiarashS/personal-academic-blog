@@ -1,9 +1,21 @@
-import { news } from '../content/news';
+import { news as written } from '../content/news';
 import { siteConfig } from '../site.config';
+import { emojify } from './emoji';
 import { isEnabled } from './features';
 import { unsafeHrefs } from './inline-links';
 import { todayUtc } from './post-builder';
 import type { NewsItem } from './types';
+
+/**
+ * The entries as written, with their shortcodes read.
+ *
+ * Once, here, rather than in the component: everything below reads `news`, and
+ * so do the build's warnings, so an entry says the same thing to the front
+ * page, to `/news`, to a screen reader and to the line the build prints about
+ * it. Doing it at render time would have left the warnings quoting the version
+ * nobody sees.
+ */
+const news: NewsItem[] = written.map((item) => ({ ...item, text: emojify(item.text) }));
 
 /** Newest first. Entries dated ahead sort to the top, where an announcement belongs. */
 export function sortNews(items: NewsItem[]): NewsItem[] {
