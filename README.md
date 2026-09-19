@@ -288,6 +288,21 @@ browser hands it to another application, nothing navigates, and a new tab would
 be opened only to sit there empty. Emoji shortcodes are read,
 so `:mortar_board:` is 🎓 — `npm run emoji <term>` searches the names.
 
+`place` says which end of each surface it stands at, per surface, because the
+right answer differs by page:
+
+```ts
+place: { home: 'top', blog: 'bottom', post: 'bottom' },
+```
+
+`bottom` on the front page reads well on a desktop — it closes the page instead
+of interrupting the greeting — but that page is built to fill the window, so
+anything after the banner starts below the fold on a phone. Measured at 380×820,
+a bottom notice there begins 40px past it. For something that has to be read,
+`home: 'top'` is the safe answer; `blog` and `post` have no centred banner and
+are fine either way. Both slots are in the layout and only one ever holds the
+notice, so it is never in the document twice.
+
 `kind` is one of the five alert types and decides the colour and the icon.
 `important` is the one whose mark is a speech bubble, which the alerts plugin
 describes as the author talking directly to the reader; that is what a call for

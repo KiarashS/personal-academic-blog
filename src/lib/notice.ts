@@ -4,7 +4,7 @@ import { isEnabled } from './features';
 import { unsafeHrefs } from './inline-links';
 import { blogIndexPath, blogPagePath, postSlugFromPath } from './routes';
 import { todayUtc } from './post-builder';
-import type { NoticeConfig, NoticeSurface } from '../site.config';
+import type { NoticeConfig, NoticePlace, NoticeSurface } from '../site.config';
 
 /**
  * Which of the three places a path is, or nothing if it is none of them.
@@ -28,22 +28,32 @@ export function expired(notice: NoticeConfig, today: string): boolean {
   return notice.until.trim().length > 0 && today >= notice.until;
 }
 
+/** A notice that is showing, and which end of the page it stands at. */
+export interface ShownNotice {
+  notice: NoticeConfig;
+  place: NoticePlace;
+}
+
 /**
- * The notice a path should show, if any.
+ * The notice a path should show, if any, and where on the page it goes.
  *
  * Empty text is off, which is how the setting ships. `on` naming no surface is
  * also off, and the build says so rather than leaving a written notice
  * rendering nowhere.
+ *
+ * The place comes back with it rather than being asked for separately: the
+ * surface has already been worked out here, and two callers deriving it apart
+ * is how a notice ends up rendering in both slots or neither.
  */
 export function noticeFor(
   pathname: string,
   notice: NoticeConfig = siteConfig.notice,
   today: string = todayUtc(),
-): NoticeConfig | undefined {
+): ShownNotice | undefined {
   if (!notice.text.trim() || expired(notice, today)) return undefined;
   const surface = surfaceOf(pathname);
   if (!surface || !notice.on.includes(surface)) return undefined;
-  return { ...notice, text: emojify(notice.text) };
+  return { notice: { ...notice, text: emojify(notice.text) }, place: notice.place[surface] };
 }
 
 /**

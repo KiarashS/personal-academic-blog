@@ -8,6 +8,7 @@ const notice = (overrides: Partial<NoticeConfig> = {}): NoticeConfig => ({
   text: ':mortar_board: Recruiting PhD students. [How to apply](/about)',
   kind: 'important',
   on: ['home'],
+  place: { home: 'top', blog: 'bottom', post: 'bottom' },
   until: '',
   ...overrides,
 });
@@ -64,8 +65,24 @@ describe('noticeFor', () => {
 
   it('reads the emoji shortcodes in it', () => {
     const shown = noticeFor('/', notice(), '2026-01-01');
-    expect(shown?.text.startsWith('🎓')).toBe(true);
-    expect(shown?.text).not.toContain(':mortar_board:');
+    expect(shown?.notice.text.startsWith('🎓')).toBe(true);
+    expect(shown?.notice.text).not.toContain(':mortar_board:');
+  });
+
+  it('says which end of this surface it stands at', () => {
+    const both = notice({ on: ['home', 'blog', 'post'] });
+    expect(noticeFor('/', both, '2026-01-01')?.place).toBe('top');
+    expect(noticeFor(blogIndexPath(), both, '2026-01-01')?.place).toBe('bottom');
+    expect(noticeFor(postPath('writing-a-post'), both, '2026-01-01')?.place).toBe('bottom');
+  });
+
+  it("reads each surface's place independently of the others", () => {
+    const flipped = notice({
+      on: ['home', 'blog'],
+      place: { home: 'bottom', blog: 'top', post: 'top' },
+    });
+    expect(noticeFor('/', flipped, '2026-01-01')?.place).toBe('bottom');
+    expect(noticeFor(blogIndexPath(), flipped, '2026-01-01')?.place).toBe('top');
   });
 });
 

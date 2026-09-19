@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { AlertIcon } from './AlertIcon';
 import { Target } from './Target';
 import { noticeFor } from '../lib/notice';
+import type { NoticePlace } from '../site.config';
 import { parseInlineLinks } from '../lib/inline-links';
 
 /** The kind's own name, which is also what the label reads. */
@@ -20,17 +21,23 @@ const label = (kind: string): string => kind.charAt(0).toUpperCase() + kind.slic
  * else. Announcing it over whatever they were doing would be a misuse of the
  * one role that can do that.
  *
+ * Rendered in both slots and showing itself in one: `notice.place` says which
+ * end of each surface it stands at, so the front page can keep it above the
+ * greeting while a post closes with it. The slot it is not in returns nothing,
+ * so only one copy is ever in the document — two would be read twice.
+ *
  * The sentence takes the same markup a news entry does — `[words](target)`,
  * with emoji shortcodes read by the build — so there is one thing to learn and
  * `Target` decides what each link is: a page navigates, a file under `public/`
  * gets the base path, a URL somewhere else opens in its own tab.
  */
-export function NoticeBanner() {
-  const notice = noticeFor(useLocation().pathname);
-  if (!notice) return null;
+export function NoticeBanner({ slot }: { slot: NoticePlace }) {
+  const shown = noticeFor(useLocation().pathname);
+  if (!shown || shown.place !== slot) return null;
+  const { notice } = shown;
 
   return (
-    <aside className={`alert alert--${notice.kind} site-notice`}>
+    <aside className={`alert alert--${notice.kind} site-notice site-notice--${slot}`}>
       <p className="alert__label">
         <AlertIcon of={notice.kind} />
         {label(notice.kind)}

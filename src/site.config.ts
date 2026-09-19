@@ -55,6 +55,9 @@ export type ProfileSurface = 'home' | 'contact' | 'authorCard';
 /** Where the site notice can appear. `blog` is the index and its numbered pages. */
 export type NoticeSurface = 'home' | 'blog' | 'post';
 
+/** Which end of a page's content the notice stands at. */
+export type NoticePlace = 'top' | 'bottom';
+
 /**
  * One message the site wants every visitor to see — a call for students, a
  * move, a deadline — set apart from the page in the same box a
@@ -79,6 +82,18 @@ export interface NoticeConfig {
   kind: AlertType;
   /** Where it appears. Empty shows it nowhere, and the build says so. */
   on: NoticeSurface[];
+  /**
+   * Which end of each surface it stands at. Per surface, because the right
+   * answer differs by page.
+   *
+   * `bottom` on the front page reads well on a desktop — it closes the page
+   * rather than interrupting the greeting — but that page is built to fill the
+   * window, so on a phone anything after the banner starts below the fold.
+   * Measured at 380x820, a bottom notice begins 40px past it. For something
+   * that has to be read, `home: 'top'` is the safe answer; `blog` and `post`
+   * have no centred banner and are fine either way.
+   */
+  place: Record<NoticeSurface, NoticePlace>;
   /**
    * The day it stops showing itself, `YYYY-MM-DD`, read in UTC. Empty never
    * retires it.
@@ -412,6 +427,7 @@ export const siteConfig: SiteConfig = {
      *     'the [call](https://example.org/phd).',
      *   kind: 'important',
      *   on: ['home', 'blog', 'post'],
+     *   place: { home: 'top', blog: 'bottom', post: 'bottom' },
      *   until: '2027-03-01',
      */
     text:
@@ -420,6 +436,7 @@ export const siteConfig: SiteConfig = {
       'and it takes itself down on the day the until field names.',
     kind: 'important',
     on: ['home'],
+    place: { home: 'top', blog: 'bottom', post: 'bottom' },
     until: '2027-03-01',
   },
   nav: [

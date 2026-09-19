@@ -83,13 +83,15 @@ export function Layout() {
 
       <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main">
         <div className="shell">
-          {/* Above the page's own content and inside `main`, so it is read in
-              its turn rather than announced over whatever the reader is doing.
-              It shows itself only where `notice.on` says. */}
-          <NoticeBanner />
+          {/* Inside `main`, so it is read in its turn rather than announced
+              over whatever the reader is doing. Both slots are rendered and
+              `notice.place` decides which one has it, per surface; the other
+              returns nothing, so the document only ever holds one. */}
+          <NoticeBanner slot="top" />
           <RouteBoundary>
             <Outlet />
           </RouteBoundary>
+          <NoticeBanner slot="bottom" />
         </div>
       </main>
 
