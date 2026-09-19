@@ -398,16 +398,29 @@ export const siteConfig: SiteConfig = {
     authorCard: [],
   },
   notice: {
-    // Empty is off. What one looks like when it is not:
-    //   text: ':mortar_board: I am recruiting PhD students for 2027. ' +
-    //     '[How to apply](/about) or [email me](mailto:you@example.edu).',
-    //   kind: 'important',
-    //   on: ['home', 'blog'],
-    //   until: '2027-03-01',
-    text: '',
+    /*
+     * An example, and it says so in its own words rather than impersonating a
+     * call for students — an invented recruitment notice is a claim about you,
+     * on your site, and the one person who would never think to check it is
+     * you. Replace the text with yours, or empty it to turn the notice off.
+     *
+     * What a real one looks like:
+     *
+     *   text:
+     *     ':mortar_board: I am recruiting PhD students for 2027. ' +
+     *     '[How to apply](/about), [email me](mailto:you@example.edu), or see ' +
+     *     'the [call](https://example.org/phd).',
+     *   kind: 'important',
+     *   on: ['home', 'blog', 'post'],
+     *   until: '2027-03-01',
+     */
+    text:
+      ':mortar_board: Example: this is the site notice. It takes [links of its own](/about), ' +
+      'an [address](mailto:you@example.edu) or [one somewhere else](https://example.org), ' +
+      'and it takes itself down on the day the until field names.',
     kind: 'important',
     on: ['home'],
-    until: '',
+    until: '2027-03-01',
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },

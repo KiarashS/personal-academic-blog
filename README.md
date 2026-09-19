@@ -264,8 +264,9 @@ warning the build prints about it.
 ### The site notice
 
 One message set apart from the page — a call for students, a move, a deadline —
-in the same box a `> [!IMPORTANT]` makes inside a post. It is off until
-`notice.text` says something:
+in the same box a `> [!IMPORTANT]` makes inside a post. It ships carrying an example that
+says so in its own words; replace the text with yours, or empty it to turn the
+notice off:
 
 ```ts
 notice: {
@@ -281,8 +282,10 @@ notice: {
 The sentence takes the same markup a news entry does. `[words](target)` links
 those words as often as the sentence needs, and the target decides what kind of
 link it is without your saying: a page of the site navigates client-side, a file
-under `public/` gets the deployment's base path, and an address or a URL
-somewhere else opens in its own tab with `noopener`. Emoji shortcodes are read,
+under `public/` gets the deployment's base path, and a URL somewhere else opens
+in its own tab with `noopener`. A `mailto:` or a `tel:` stays in this tab: the
+browser hands it to another application, nothing navigates, and a new tab would
+be opened only to sit there empty. Emoji shortcodes are read,
 so `:mortar_board:` is 🎓 — `npm run emoji <term>` searches the names.
 
 `kind` is one of the five alert types and decides the colour and the icon.
