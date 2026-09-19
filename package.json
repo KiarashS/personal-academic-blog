@@ -17,7 +17,8 @@
     "verify": "npm run links && npm run audit:a11y",
     "lint": "eslint . && stylelint \"src/**/*.css\" && prettier --check .",
     "lint:fix": "eslint . --fix && stylelint \"src/**/*.css\" --fix && prettier --write .",
-    "icons": "node scripts/build-profile-icons.mjs"
+    "icons": "node scripts/build-profile-icons.mjs",
+    "emoji": "node scripts/emoji.mjs"
   },
   "dependencies": {
     "fuse.js": "7.1.0",

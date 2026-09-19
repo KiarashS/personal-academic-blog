@@ -213,6 +213,21 @@ itself publishes — 1,913 of them, aliases included — and it is a devDependen
 so the 36KB table is read by the build and never shipped to a reader. What lands
 in the HTML is the character.
 
+Nobody remembers 1,913 names, so there is a lookup:
+
+```bash
+npm run emoji chart       # every name, tag and description matching "chart"
+npm run emoji 🔬          # the other way: the shortcode for a character
+npm run emoji             # what there is, by category
+```
+
+It searches tags as well as names, which is what finds the ones GitHub calls
+something unexpected — `npm run emoji science` reaches `:microscope:`, and
+`:pencil2:` is the pencil while `:pencil:` is a note. An exact name sorts first,
+then names beginning with the term, then the rest. `scripts/emoji.mjs` reads the
+same table `plugins/emoji.ts` reads when it compiles a post, so what it prints
+and what the build renders cannot drift apart.
+
 `plugins/emoji.ts` runs on the parsed tree rather than over the file, which is
 what leaves a shortcode inside `code`, a fence, a math span or a link target
 exactly as written: each of those is its own node type in markdown, so a post
