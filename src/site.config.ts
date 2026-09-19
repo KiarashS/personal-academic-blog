@@ -414,30 +414,33 @@ export const siteConfig: SiteConfig = {
   },
   notice: {
     /*
-     * An example, and it says so in its own words rather than impersonating a
-     * call for students — an invented recruitment notice is a claim about you,
-     * on your site, and the one person who would never think to check it is
-     * you. Replace the text with yours, or empty it to turn the notice off.
+     * Off: empty text shows nothing, wherever the rest of this says.
      *
-     * What a real one looks like:
+     * A real one, which is what the fields below are set up for:
      *
      *   text:
      *     ':mortar_board: I am recruiting PhD students for 2027. ' +
      *     '[How to apply](/about), [email me](mailto:you@example.edu), or see ' +
      *     'the [call](https://example.org/phd).',
-     *   kind: 'important',
-     *   on: ['home', 'blog', 'post'],
-     *   place: { home: 'top', blog: 'bottom', post: 'bottom' },
-     *   until: '2027-03-01',
+     *
+     * Write it as you would a news entry. `[words](target)` links those words,
+     * and the target decides the rest: a page of the site navigates, a file
+     * under `public/` gets the base path, an address stays in this tab and a
+     * URL somewhere else opens in its own. Emoji shortcodes are read, and
+     * `npm run emoji <term>` searches the names.
+     *
+     * Say nothing here that is not true. A notice is the loudest thing on the
+     * page and it is a claim about its owner — the one person who would never
+     * think to check it is the one it is about.
      */
-    text:
-      ':mortar_board: Example: this is the site notice. It takes [links of its own](/about), ' +
-      'an [address](mailto:you@example.edu) or [one somewhere else](https://example.org), ' +
-      'and it takes itself down on the day the until field names.',
+    text: '',
     kind: 'important',
     on: ['home'],
     place: { home: 'top', blog: 'bottom', post: 'bottom' },
-    until: '2027-03-01',
+    // Worth setting whenever the message has an end: the page drops it that
+    // day and the build says why, rather than leaving a closed call up for a
+    // year. Empty never retires it.
+    until: '',
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },
