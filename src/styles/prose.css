@@ -24,6 +24,67 @@
   margin-bottom: 0.35rem;
 }
 
+/*
+ * A task list marks its items with a checkbox, so those items drop the bullet
+ * the rest of the list styling would give them. Both were being drawn: the disc
+ * held the indent, the box sat after it, and the words started after that,
+ * which is what left the boxes looking adrift between a marker and their own
+ * text. Worse, a line long enough to wrap came back to the item's own content
+ * edge — to the left of the box it belonged to.
+ *
+ * The marker goes per item rather than per list, and the list keeps its
+ * padding, so a plain bullet written in among the tasks still reads as one and
+ * still lines up. The negative margin is that padding given back: the checkbox
+ * stands where the disc would have, and the words of both kinds of item begin
+ * within a pixel of each other.
+ *
+ * Flex rather than a hanging indent, because the alternative is arithmetic
+ * against a checkbox whose width is the browser's to decide: Chromium draws it
+ * 13px and ignores a `width` given in `em`, so any padding chosen to match is
+ * right on one platform and out by a pixel or two on the next. As flex items
+ * the box takes what it needs, the words take the rest, and a wrapped line sits
+ * under the line above it by construction.
+ *
+ * Two shapes, because remark gives a loose list a paragraph the tight one has
+ * not got, and the checkbox goes inside it. Whichever element holds the box is
+ * the row.
+ *
+ * `baseline` and not `center`: on an item of three lines, centring puts the box
+ * beside the middle one. This keeps it on the first, half a pixel off the
+ * centre of that line's text.
+ */
+.prose .task-list-item {
+  list-style: none;
+
+  /* The list keeps its padding, so a plain bullet written in among the tasks
+     still reads as one; this gives that padding back to the task item, which
+     then holds its own so the box stands where the disc would have. */
+  margin-left: -1.4rem;
+  padding-left: 1.4rem;
+  position: relative;
+}
+
+/*
+ * Taken out of the flow rather than laid out beside the words.
+ *
+ * Flex was the obvious answer and the wrong one: a flex container makes a flex
+ * item of every element inside it, so an item carrying a link or a `code` span
+ * had each of them torn out of the sentence into a box of its own, spaced by
+ * the row's gap and unable to wrap with the text around it. Absolute leaves the
+ * sentence as one run of inline content, which is what it is.
+ *
+ * `0.6em` is measured, not derived. It would be `(1lh - box) / 2` if the box's
+ * height were ours to know, but Chromium draws a checkbox at 13px and ignores a
+ * `width` given in `em`, so the figure that centres it on the line was found by
+ * stepping the value and reading the offset back off the page.
+ */
+.prose .task-list-item input[type='checkbox'] {
+  left: 0;
+  margin: 0;
+  position: absolute;
+  top: 0.6em;
+}
+
 .prose blockquote {
   border-left: 2px solid var(--rule-strong);
   color: var(--text-muted);
