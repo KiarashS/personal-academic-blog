@@ -173,10 +173,29 @@ a {
   text-decoration-color: var(--link-rule);
   text-underline-offset: 0.18em;
   text-decoration-thickness: 1px;
+
+  /* The hover below was the one interactive state on the site that snapped.
+     Everything else that changes under a pointer is eased — the nav caret and
+     the reading bar at 150ms, the popover and the mobile sheet, the copy
+     buttons and heading anchors at 120ms — so this is not a new effect but the
+     end of an old omission, at the shorter of the two durations already in use.
+
+     Only the rule's colour. A faked underline could be wiped in from the left
+     instead, and it would cost `text-decoration-skip-ink`: the native rule
+     breaks around a descender and a background gradient runs straight through
+     it, which on the front page means cutting the tail of the y in "my blog"
+     and the bowl of its g. */
+  transition: text-decoration-color 120ms ease-in-out;
 }
 
 a:hover {
   text-decoration-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a {
+    transition: none;
+  }
 }
 
 :focus-visible {
