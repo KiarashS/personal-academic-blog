@@ -1668,9 +1668,24 @@ mark {
    site besides. */
 
 /* The entry's own target, on a line whose sentence already has links of its
-   own. Muted and set slightly apart, so it reads as a handle on the line
-   rather than as its last two words; the padding is what makes it a target a
-   thumb can hit, which words this size are not tall enough to be. */
+   own. Muted, so it reads as a handle on the line rather than as its last two
+   words; the padding is what makes it a target a thumb can hit, which words
+   this size are not tall enough to be. */
+
+/* The space that says the handle is not part of the sentence.
+   A word space was not enough: on an entry whose own last words are a link,
+   4px separated the end of one underline from the start of the next, and two
+   underlined runs that close together read as a single link — or as the
+   sentence carrying on into "more". 0.35em takes it to 9px, which is a break
+   rather than a gap in a phrase.
+   A mark instead of a space was the other option and each kind says something
+   untrue: a comma makes the handle the next clause, an em dash makes it an
+   aside the author wrote, and the middot the post meta uses separates peers —
+   a date from an author — not a sentence from a control. */
+.news__out {
+  margin-left: 0.35em;
+}
+
 .news__out a {
   color: var(--text-muted);
 
