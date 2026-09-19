@@ -27,6 +27,7 @@ const {
   structuredDataFor,
   serialiseJsonLd,
   configuredNewsWarnings,
+  noticeWarnings,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -379,7 +380,7 @@ await write(
 // the renderer cannot make is dropped from an entry. Both are decisions taken
 // on the author's behalf, so the build says them out loud; nobody notices
 // either from inside their own site.
-for (const message of configuredNewsWarnings()) console.warn(message);
+for (const message of [...configuredNewsWarnings(), ...noticeWarnings()]) console.warn(message);
 
 console.log(
   `prerendered ${allRoutes().length} routes, 404.html, feeds, sitemap.xml, robots.txt, ` +

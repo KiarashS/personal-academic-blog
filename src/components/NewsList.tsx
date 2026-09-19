@@ -1,45 +1,8 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { Link } from 'react-router-dom';
 import { dateParts, formatDate, isoDate } from '../lib/format';
-import { isExternal } from '../lib/features';
 import { parseInlineLinks, plainText } from '../lib/inline-links';
-import { withBase } from '../lib/urls';
+import { Target } from './Target';
 import type { NewsItem } from '../lib/types';
-
-/** A path with an extension is a file under `public/`, not a route of the app. */
-const FILE = /\.[a-z0-9]{2,5}$/i;
-
-function Target({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label?: string;
-  children: React.ReactNode;
-}) {
-  if (isExternal(href)) {
-    return (
-      <a href={href} rel="noopener noreferrer" target="_blank" aria-label={label}>
-        {children}
-      </a>
-    );
-  }
-  // A file needs the deployment's base path and a plain anchor; a page of the
-  // site gets client-side navigation like every other internal link.
-  if (FILE.test(href)) {
-    return (
-      <a href={withBase(href)} aria-label={label}>
-        {children}
-      </a>
-    );
-  }
-  return (
-    <Link to={href} aria-label={label}>
-      {children}
-    </Link>
-  );
-}
 
 /**
  * One entry's sentence.

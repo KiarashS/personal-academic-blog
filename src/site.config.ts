@@ -1,4 +1,5 @@
 import type { ProfileLinkKey } from './lib/types';
+import type { AlertType } from './lib/alerts';
 
 /**
  * Where a nav entry writes "the blog index" without knowing where that is:
@@ -50,6 +51,46 @@ export type ProfileLinkStyle = 'both' | 'icon' | 'label';
  * row, the contact page's list, and the card under every post the author wrote.
  */
 export type ProfileSurface = 'home' | 'contact' | 'authorCard';
+
+/** Where the site notice can appear. `blog` is the index and its numbered pages. */
+export type NoticeSurface = 'home' | 'blog' | 'post';
+
+/**
+ * One message the site wants every visitor to see — a call for students, a
+ * move, a deadline — set apart from the page in the same box a
+ * `> [!IMPORTANT]` makes inside a post.
+ */
+export interface NoticeConfig {
+  /**
+   * The sentence. Empty is off, which is how this ships.
+   *
+   * `[words](target)` links those words, as many times as the sentence needs,
+   * and a target can be a page of the site (`/about`), a file under `public/`
+   * (`/cv.pdf`), an address (`mailto:`) or a URL somewhere else — an external
+   * one opens in its own tab. Emoji shortcodes are read: `:mortar_board:` is
+   * 🎓, and `npm run emoji <term>` searches the names.
+   */
+  text: string;
+  /**
+   * Which of the five alert kinds it is drawn as, which decides its colour and
+   * its icon. `important` is the one whose mark is a speech bubble — the author
+   * talking directly to the reader — and is what a call for students wants.
+   */
+  kind: AlertType;
+  /** Where it appears. Empty shows it nowhere, and the build says so. */
+  on: NoticeSurface[];
+  /**
+   * The day it stops showing itself, `YYYY-MM-DD`, read in UTC. Empty never
+   * retires it.
+   *
+   * Worth setting on anything with an end. A call for students that closed in
+   * March is the kind of decay nobody catches on their own site, because they
+   * are not the one arriving at it — so this is the same bargain
+   * `home.newsFreshMonths` makes: the page drops it and the build explains why,
+   * at the moment its owner is looking.
+   */
+  until: string;
+}
 
 export interface NavItem {
   label: string;
@@ -249,6 +290,8 @@ export interface SiteConfig {
    * kept to two marks should not cost you that.
    */
   profileLinkKeys: Record<ProfileSurface, ProfileLinkKey[]>;
+  /** One message set apart from the page; see `NoticeConfig`. Empty text is off. */
+  notice: NoticeConfig;
   /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
@@ -353,6 +396,18 @@ export const siteConfig: SiteConfig = {
     home: [],
     contact: [],
     authorCard: [],
+  },
+  notice: {
+    // Empty is off. What one looks like when it is not:
+    //   text: ':mortar_board: I am recruiting PhD students for 2027. ' +
+    //     '[How to apply](/about) or [email me](mailto:you@example.edu).',
+    //   kind: 'important',
+    //   on: ['home', 'blog'],
+    //   until: '2027-03-01',
+    text: '',
+    kind: 'important',
+    on: ['home'],
+    until: '',
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },

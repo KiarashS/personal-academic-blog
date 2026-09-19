@@ -7,6 +7,7 @@ import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
+import { NoticeBanner } from './NoticeBanner';
 import { NavGroup } from './NavGroup';
 import { PageMeta } from './PageMeta';
 import { RouteBoundary } from './RouteBoundary';
@@ -82,6 +83,10 @@ export function Layout() {
 
       <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main">
         <div className="shell">
+          {/* Above the page's own content and inside `main`, so it is read in
+              its turn rather than announced over whatever the reader is doing.
+              It shows itself only where `notice.on` says. */}
+          <NoticeBanner />
           <RouteBoundary>
             <Outlet />
           </RouteBoundary>

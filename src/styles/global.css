@@ -942,6 +942,35 @@ mark {
   --alert-accent: var(--alert-caution);
 }
 
+/*
+ * The site notice, which is the box above with somewhere else to stand.
+ * `site-notice`, because `.notice` is already the muted box the comments
+ * placeholder uses and two unrelated things should not share a name.
+ *
+ * Only placement here: `.alert` is not scoped to `.prose`, so the border, the
+ * tint, the label and the five accents all apply already, in both themes and
+ * at the contrast they were checked at. A second set of values for a second
+ * box is how two things that should match stop matching.
+ *
+ * It sits above the page's content rather than inside it, so the margin is the
+ * one an alert takes between paragraphs, reduced at the top where there is a
+ * header above it instead.
+ */
+.site-notice {
+  margin: 0.4rem 0 2rem;
+}
+
+/* The front page centres its banner in the window, so a notice pushed in above
+   it must not push the name off-centre with it. */
+.page--banner .site-notice {
+  margin-bottom: 0;
+}
+
+.site-notice__text {
+  margin: 0;
+  text-wrap: pretty;
+}
+
 /* Post page --------------------------------------------------------------- */
 
 .post-header {

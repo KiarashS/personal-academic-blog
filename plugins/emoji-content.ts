@@ -5,7 +5,7 @@ import { nameToEmoji } from 'gemoji';
 import { SHORTCODE } from '../src/lib/shortcode';
 
 /*
- * The shortcodes `src/content/news.ts` actually uses, and only those.
+ * The shortcodes the content actually uses, and only those.
  *
  * Markdown is compiled at build time, so a post's shortcodes never cost a
  * reader anything. News is different: it is a TypeScript module the browser
@@ -22,6 +22,8 @@ import { SHORTCODE } from '../src/lib/shortcode';
  * by whether gemoji knows it. A name in a comment costs one entry; the
  * alternative is parsing TypeScript to find out which string is prose, and
  * getting that wrong would silently drop an emoji from the page.
+ *
+ * Two files: the news entries, and the config, which holds the site notice.
  */
 
 const VIRTUAL = 'virtual:emoji-map';
@@ -38,9 +40,13 @@ export function emojiTable(source: string): Record<string, string> {
   return found;
 }
 
-export function emojiContent(file = 'src/content/news.ts'): Plugin {
-  const path = resolve(process.cwd(), file);
-  const table = () => emojiTable(readFileSync(path, 'utf8'));
+export function emojiContent(files = ['src/content/news.ts', 'src/site.config.ts']): Plugin {
+  const paths = files.map((file) => resolve(process.cwd(), file));
+  const table = () =>
+    Object.assign({}, ...paths.map((path) => emojiTable(readFileSync(path, 'utf8')))) as Record<
+      string,
+      string
+    >;
 
   return {
     name: 'academic-emoji-content',
@@ -58,9 +64,9 @@ export function emojiContent(file = 'src/content/news.ts'): Plugin {
     // The map is read from a file this module does not import, so nothing
     // would otherwise tell the dev server that editing an entry changed it.
     configureServer(server) {
-      server.watcher.add(path);
+      server.watcher.add(paths);
       server.watcher.on('change', (changed) => {
-        if (changed !== path) return;
+        if (!paths.includes(changed)) return;
         const module = server.moduleGraph.getModuleById(RESOLVED);
         if (module) void server.reloadModule(module);
       });

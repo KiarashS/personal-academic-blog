@@ -261,6 +261,53 @@ warning the build prints about it.
 
 `slides.ts` is not scanned and takes the character directly.
 
+### The site notice
+
+One message set apart from the page — a call for students, a move, a deadline —
+in the same box a `> [!IMPORTANT]` makes inside a post. It is off until
+`notice.text` says something:
+
+```ts
+notice: {
+  text:
+    ':mortar_board: I am recruiting PhD students for 2027. [How to apply](/about), ' +
+    '[email me](mailto:you@example.edu), or see the [call](https://example.org/phd).',
+  kind: 'important',
+  on: ['home', 'blog', 'post'],
+  until: '2027-03-01',
+},
+```
+
+The sentence takes the same markup a news entry does. `[words](target)` links
+those words as often as the sentence needs, and the target decides what kind of
+link it is without your saying: a page of the site navigates client-side, a file
+under `public/` gets the deployment's base path, and an address or a URL
+somewhere else opens in its own tab with `noopener`. Emoji shortcodes are read,
+so `:mortar_board:` is 🎓 — `npm run emoji <term>` searches the names.
+
+`kind` is one of the five alert types and decides the colour and the icon.
+`important` is the one whose mark is a speech bubble, which the alerts plugin
+describes as the author talking directly to the reader; that is what a call for
+students is. `on` names the surfaces: `home`, `blog` (the index and its numbered
+pages) and `post`. It asks the path which surface it is rather than matching
+routes, so nothing breaks when the home feature is off and the blog moves to `/`.
+
+`until` is the field worth setting. A call that closed in March is the kind of
+decay nobody catches on their own site, because they are not the one arriving at
+it — so the page drops the notice on that date and the build prints why, at the
+moment its owner is looking. The same bargain `home.newsFreshMonths` makes for
+the news block. The build also says so if `on` names no surface, or if a target
+in the text is one the page cannot link.
+
+No dismiss button. Dismissed state lives in `localStorage`, which the
+prerendered HTML does not know about, so it buys either a flash of a banner that
+then vanishes or a hydration mismatch — and a notice most visitors see once is a
+poor way to reach anyone across several visits.
+
+It renders as an `aside`, not `role="alert"`. That role is for something that
+appears while a reader is already on the page and interrupts them to say so;
+this is part of the page from the first paint and should be read in its turn.
+
 ### Citations
 
 Write `[@key]` and it resolves against `src/content/references.bib` at build
