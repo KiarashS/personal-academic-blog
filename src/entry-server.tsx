@@ -40,6 +40,8 @@ export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
 export { configuredNewsWarnings } from './lib/news';
 export { noticeWarnings } from './lib/notice';
+export { pwaEnabled, pwaWarnings, webManifest } from './lib/pwa';
+export { CACHE_PREFIX } from './lib/cache-name';
 export { canonicalUrl, withBase } from './lib/urls';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';

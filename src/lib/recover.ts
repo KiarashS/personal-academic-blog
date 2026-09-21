@@ -24,6 +24,23 @@ export function shouldAttempt(last: string | null, now: number): boolean {
 }
 
 /**
+ * Whether recovery can help at all.
+ *
+ * Offline it cannot, and it does real damage: a chunk that will not load
+ * because there is no network looks exactly like one a deploy replaced, and
+ * the cure below — drop the worker, empty the cache, reload — takes away the
+ * only copy of the site the reader still has. It leaves them on the browser's
+ * own error page with nothing cached to go back to.
+ *
+ * `navigator.onLine` is a poor answer to "is the network any good", but a
+ * reliable one to "is there a network at all", which is the question here. It
+ * binds the button too: nothing about pressing it offline makes it work.
+ */
+export function canRecover(online: boolean): boolean {
+  return online;
+}
+
+/**
  * A deploy replaces every hashed chunk, so a tab open across one asks for files
  * that are gone. GitHub Pages answers those with `404.html`, and the browser
  * refuses it: an HTML body where a module was expected.
@@ -34,6 +51,8 @@ export function shouldAttempt(last: string | null, now: number): boolean {
  * first, which costs a returning reader one cold load and gets them a page.
  */
 export async function recoverFromMissingChunk({ force = false } = {}): Promise<boolean> {
+  if (!canRecover(navigator.onLine)) return false;
+
   let storage: Storage | undefined;
   try {
     storage = window.sessionStorage;

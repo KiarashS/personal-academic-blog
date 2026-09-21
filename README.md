@@ -577,7 +577,8 @@ that happens to contain the right page.
 Alongside them: `feed.xml` (Atom, full text, linked from every page's head), a
 per-tag feed at `/tags/<tag>/feed.xml` advertised on that tag's page,
 `sitemap.xml`, `robots.txt`, and a 1200x630 social card per post under `/og/`
-referenced by `og:image`.
+referenced by `og:image`. With `pwa.enabled` on, also `site.webmanifest` and
+`sw.js`; see Install to home screen.
 
 ## Themes
 
@@ -886,8 +887,44 @@ path.
 The build emits a `site.webmanifest` and a service worker, which together let a
 browser offer to install the site. On Android and desktop Chrome that means an
 install button; on iOS, Share → Add to Home Screen. The manifest is generated
-from `src/site.config.ts` (`title`, `shortName`, `description`) with relative
-`start_url` and `scope`, so a subdirectory deployment needs no edit.
+from `src/site.config.ts` with relative `id`, `start_url`, `scope` and icon
+paths, so a subdirectory deployment needs no edit.
+
+```ts
+pwa: {
+  enabled: true,        // off writes no manifest and no worker, and retires
+                        // the one a returning reader already has
+  display: 'minimal-ui',// or 'standalone', which drops the back button
+  theme: 'light',       // which theme the installed window is dressed in
+  shortcuts: [],        // empty takes the first three header links
+},
+```
+
+`display` decides what the installed window looks like. `standalone` is its own
+window with no browser chrome; `minimal-ui`, the default here, keeps back,
+forward and reload, which on a site made mostly of links to its own pages is
+the more useful of the two. A manifest's third value, `browser`, is not offered
+because it tells the browser not to bother installing anything.
+
+`theme` is one value rather than two because a manifest has no media query. A
+browser reads `theme_color` and `background_color` when the app is installed
+and dresses the window in them from then on, whatever the reader's system is
+set to; the pages inside still follow it. The two hex values live in
+`THEME_COLORS` in `src/site.config.ts`, alongside the `theme-color` tags in
+`index.html` that do the same job for a tab.
+
+`shortcuts` is the menu a long press on the installed icon opens. Left empty it
+takes the first three links of the header nav, which costs nothing to maintain
+and cannot name a page that is switched off. A written list replaces them, in
+the order given:
+
+```ts
+shortcuts: ['/blog', '/news', '/about'],
+```
+
+Each has to be a page the site renders. One that is not gets a warning at the
+end of the build, because a shortcut is only ever seen after the site is
+installed and its author is the least likely person to find it broken.
 
 Icons live in `public/favicons/`: 192 and 512 for launchers, a 512 maskable
 version on a black ground for Android's adaptive shapes, and a 180 apple-touch
@@ -900,16 +937,40 @@ cache and one that changes nothing does not. Navigations go to the network
 first: a reader who is online never sees a stale page. Everything else is
 cache-first, which is safe because the build gives assets hashed names.
 
-Offline, a page the reader has already visited loads completely, styles and
-text included. One they have not cannot — its route code and text were never
-fetched — and they get a short explanation rather than a blank screen. The
-worker is registered only in a build; in development it would serve yesterday's
-bundle back to you.
+### Offline
 
-To drop the feature: delete the manifest and worker blocks from
-`scripts/prerender.mjs` and the registration from `src/main.tsx`. Readers with
-the old worker installed keep it until it fails to update, so leave a build
-that unregisters it if you ever need them off it quickly.
+Measured against a real build with the network cut, a page the reader has
+already visited comes back complete and styled. A page they have not visited
+gets the cached front page as its shell, and the router draws the rest on the
+spot — which works as far as the route's own chunk, since the build splits
+every page and every post body into one. `/blog` renders that way; a post
+nobody has opened cannot, and gets the site's own "This page could not be
+loaded" under the right URL rather than a blank screen.
+
+Getting that far took a fix worth knowing about if you touch either half. A
+chunk that will not load because there is no network is indistinguishable from
+one a deploy replaced, and the cure for the second — unregister the worker,
+empty the cache, reload — is the worst possible answer to the first: it throws
+away the only copy of the site the reader still has and leaves them on the
+browser's own error page. `canRecover` in `src/lib/recover.ts` holds it back
+while `navigator.onLine` is false, and `RouteBoundary` hides its Try again
+button until the connection is back.
+
+The worker is registered only in a build; in development it would serve
+yesterday's bundle back to you.
+
+### Turning it off
+
+Set `pwa.enabled` to `false`. The build then writes no manifest and no worker,
+and leaves the install tags out of every page.
+
+That alone would not retire an installed copy, which is why there is more to
+it. A worker that is already running keeps running: it checks for an update
+about once a day, and an update that answers 404 leaves the old worker in
+place rather than removing it. So the page says so itself. `syncServiceWorker`
+in `src/lib/pwa-client.ts` runs on every load, and with the feature off it
+unregisters every worker and deletes every cache named with the worker's
+prefix. One visit is enough; the visit after that has nothing left to do.
 
 ## Optional pages
 
@@ -928,6 +989,10 @@ features: {
   news: false,           // /news, every entry in news.ts grouped by year
 },
 ```
+
+These are pages, so this is where pages are switched. Installing the site is
+not a page and has a switch of its own, `pwa.enabled`; so do comments, the
+notice and analytics.
 
 A feature that is off has no nav entry, no route and no prerendered page, and
 does not appear in the sitemap. The page is absent from the built site rather

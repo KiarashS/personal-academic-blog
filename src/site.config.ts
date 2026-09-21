@@ -107,6 +107,57 @@ export interface NoticeConfig {
   until: string;
 }
 
+/**
+ * How an installed copy of the site opens. `standalone` is its own window with
+ * no browser chrome; `minimal-ui` keeps back, forward and reload, which on a
+ * site that is mostly links between its own pages is the more honest of the
+ * two. Both are installable — `browser`, the third value a manifest allows,
+ * is not offered because it tells the browser not to bother.
+ */
+export type PwaDisplay = 'standalone' | 'minimal-ui';
+
+/**
+ * The two page colours, as the manifest needs them: outside CSS, where
+ * `--light-bg` and `--dark-bg` cannot be read. Keep them in step with
+ * `src/styles/global.css` and with the `theme-color` tags in `index.html`.
+ */
+export const THEME_COLORS = { light: '#fdfdfc', dark: '#14140f' } as const;
+
+/**
+ * Installing the site: a web app manifest, a service worker that keeps visited
+ * pages readable offline, and the browser's offer to add it to a home screen
+ * or a launcher.
+ */
+export interface PwaConfig {
+  /**
+   * On ships the manifest, the worker and the registration. Off writes none of
+   * them and, on the next visit, tears down the worker and caches a reader
+   * already has — a site that stops serving `sw.js` does not stop being a PWA
+   * on its own, because a worker that fails to update keeps running.
+   */
+  enabled: boolean;
+  /** Its own window, or one that keeps the back button. */
+  display: PwaDisplay;
+  /**
+   * Which theme the installed window is dressed in: its title bar, and the
+   * colour held on screen while it starts.
+   *
+   * One value, not two. A manifest has no media query and browsers read these
+   * once at install, so a reader who installs the app gets this regardless of
+   * what their system is set to. The pages inside still follow the system.
+   */
+  theme: 'light' | 'dark';
+  /**
+   * The menu a long press on the installed icon opens, as paths of the site.
+   *
+   * Empty takes the first three links of the header nav, which is zero-config
+   * and cannot name a page that is switched off. A written list replaces them,
+   * in the order given; the build says so if one names a route the site does
+   * not have. Android shows four at most, and other platforms fewer.
+   */
+  shortcuts: string[];
+}
+
 export interface NavItem {
   label: string;
   /**
@@ -333,6 +384,8 @@ export interface SiteConfig {
    * page load reports an access-control error in the console.
    */
   analytics: AnalyticsConfig;
+  /** Installing the site to a home screen or a launcher; see `PwaConfig`. */
+  pwa: PwaConfig;
 }
 
 export const siteConfig: SiteConfig = {
@@ -480,5 +533,20 @@ export const siteConfig: SiteConfig = {
     // the zone's to inject. Enable Web Analytics for the zone rather than
     // pasting a token here.
     cloudflareToken: '',
+  },
+  pwa: {
+    // On: the build writes site.webmanifest and sw.js, and a browser offers to
+    // install the site. Off writes neither and retires the worker a returning
+    // reader still has. See the README.
+    enabled: true,
+    // The back button is worth keeping on a site made of links to its own
+    // pages; 'standalone' drops it for a plain window.
+    display: 'minimal-ui',
+    // Light, because that is the theme the signature and the avatar were drawn
+    // against and what most readers arrive in.
+    theme: 'light',
+    // Empty: the first three header links. Name paths to choose your own,
+    // e.g. ['/blog', '/news', '/about'].
+    shortcuts: [],
   },
 };

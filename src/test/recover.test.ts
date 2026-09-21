@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { looksLikeMissingChunk, shouldAttempt } from '../lib/recover';
+import { canRecover, looksLikeMissingChunk, shouldAttempt } from '../lib/recover';
 
 describe('looksLikeMissingChunk', () => {
   it('recognises what each engine says when a chunk has gone', () => {
@@ -37,5 +37,15 @@ describe('shouldAttempt', () => {
 
   it('treats an unreadable value as never tried', () => {
     expect(shouldAttempt('not-a-number', now)).toBe(true);
+  });
+});
+
+describe('canRecover', () => {
+  it('will not clear the cache out from under a reader with no network', () => {
+    expect(canRecover(false)).toBe(false);
+  });
+
+  it('lets a stale tab become the current build once there is a network', () => {
+    expect(canRecover(true)).toBe(true);
   });
 });

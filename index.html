@@ -11,12 +11,14 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/favicons/apple-touch-icon.png" />
 
     <!-- The browser chrome matches the page, in whichever theme the reader is
-         actually seeing. -->
+         actually seeing. A tab can do that; an installed app cannot, because a
+         manifest has one colour and no media query. Keep these in step with
+         `THEME_COLORS` in src/site.config.ts. -->
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fdfdfc" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14140f" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Kiarash S." />
+    <!-- The manifest link and the install tags are written per route by
+         scripts/prerender.mjs, which only writes them when `pwa.enabled` is on
+         in src/site.config.ts. A dev-server tab has no worker anyway. -->
     <!-- Replaced per route by scripts/prerender.mjs; this is only what a
          dev-server tab shows before the app mounts. Keep it in step with
          `title` in src/site.config.ts. -->

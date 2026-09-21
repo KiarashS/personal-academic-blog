@@ -3,6 +3,8 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { looksLikeMissingChunk, recoverFromMissingChunk } from './lib/recover';
+import { syncServiceWorker } from './lib/pwa-client';
+import { siteConfig } from './site.config';
 import { ThemeProvider } from './components/ThemeProvider';
 import 'katex/dist/katex.min.css';
 import './styles/fonts.css';
@@ -39,14 +41,17 @@ window.addEventListener('unhandledrejection', (event) => {
 
 /*
  * The service worker is what lets a browser offer "install" and what keeps the
- * site readable offline. It is registered only in a build: in development it
- * would serve yesterday's bundle back to you. Registration failing is not worth
- * bothering the reader about — the site works without it.
+ * site readable offline. Only in a build: in development it would serve
+ * yesterday's bundle back to you.
+ *
+ * This runs whether or not the feature is on, because both answers need doing.
+ * With `pwa.enabled` off it unregisters the worker and clears the caches a
+ * returning reader still has, which is the only thing that actually retires an
+ * installed copy of the site.
  */
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    const base = import.meta.env.BASE_URL;
-    navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => undefined);
+    void syncServiceWorker(siteConfig.pwa.enabled, import.meta.env.BASE_URL);
   });
 }
 
