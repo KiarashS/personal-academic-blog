@@ -980,6 +980,88 @@ mark {
 
 /* Post page --------------------------------------------------------------- */
 
+/*
+ * A picture or video in a fixed frame, used by a post's banner and by media in
+ * its prose, so both open the same way whatever shape the artwork is.
+ * `--media-ratio` is set per instance from the frontmatter — 3/1 for a picture, which is the widest crop that leaves the
+ * first sentence on a 1280x800 screen, and 16/9 for a video, which cannot be
+ * cropped without losing the picture.
+ */
+.media-frame {
+  aspect-ratio: var(--media-ratio, 16 / 9);
+  background: var(--rule);
+  border-radius: 4px;
+  margin: 0;
+  overflow: clip;
+  position: relative;
+}
+
+/* The banner instance: the only one that sits above the title. */
+.media-frame--banner {
+  margin-bottom: 1.75rem;
+}
+
+.media-frame img,
+.media-frame video,
+.media-frame iframe {
+  block-size: 100%;
+  border: 0;
+  display: block;
+  inline-size: 100%;
+  object-fit: cover;
+}
+
+/* A video the reader controls is watched, not glanced at, so it is shown whole
+   rather than cropped to the banner's shape. */
+.media-frame video {
+  background: #000;
+  object-fit: contain;
+}
+
+.media-frame__play {
+  display: block;
+  block-size: 100%;
+  inline-size: 100%;
+  text-decoration: none;
+}
+
+/*
+ * The play badge: YouTube's shape, drawn rather than fetched, in the site's own
+ * accent instead of their red — the post is not pretending to be YouTube.
+ */
+.media-frame__badge {
+  background: color-mix(in srgb, var(--accent) 88%, #000);
+  block-size: 2.6rem;
+  border-radius: 0.65rem;
+  inline-size: 3.8rem;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  position: absolute;
+  transition: background 120ms ease-in-out;
+  translate: -50% -50%;
+}
+
+.media-frame__badge::after {
+  border-block: 0.55rem solid transparent;
+  border-inline-start: 0.9rem solid #fff;
+  content: '';
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  position: absolute;
+  translate: -35% -50%;
+}
+
+.media-frame__play:hover .media-frame__badge,
+.media-frame__play:focus-visible .media-frame__badge {
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-frame__badge {
+    transition: none;
+  }
+}
+
 .post-header {
   border-bottom: 1px solid var(--rule);
   margin-bottom: 2rem;
@@ -2502,8 +2584,24 @@ mark {
   .code-block__copy,
   .heading-anchor,
   .toc__count,
-  .skip-link {
+  .skip-link,
+  /* A banner is decoration above the title, and on paper it costs a third of
+     the first page. A player prints as a black rectangle. */
+  .media-frame--banner,
+  .media-frame video,
+  .media-frame iframe,
+  .media-frame__badge {
     display: none;
+  }
+
+  /*
+   * What is left of a player in the prose: the still, if there is one, and the
+   * caption, so a post that says "see Figure 3" still has a Figure 3 on paper.
+   */
+  .media-frame {
+    aspect-ratio: auto;
+    background: none;
+    min-height: 0;
   }
 
   /* Written for paper only: the URL of the page being read. */

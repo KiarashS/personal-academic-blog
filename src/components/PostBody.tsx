@@ -43,6 +43,28 @@ export function PostBody({ slug }: { slug: string }) {
         return;
       }
 
+      /*
+       * A YouTube still in the prose. The build draws it as a link to the
+       * video on YouTube, which is what a reader without JavaScript gets;
+       * here the click is answered with the player in place instead, which is
+       * also the first moment anything is asked of Google.
+       */
+      const play = target.closest<HTMLAnchorElement>('.media-frame__play');
+      if (play && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        const embed = play.dataset.embed;
+        if (embed) {
+          event.preventDefault();
+          const frame = document.createElement('iframe');
+          frame.src = embed;
+          frame.title = play.dataset.title ?? 'YouTube video';
+          frame.allow =
+            'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture';
+          frame.allowFullscreen = true;
+          play.replaceWith(frame);
+          return;
+        }
+      }
+
       // A link to a section, or to Figure 2, is worth more on the clipboard
       // than in the address bar: it is what someone pastes into a mail or a
       // citation. The hash is still set, so the page behaves as the link says

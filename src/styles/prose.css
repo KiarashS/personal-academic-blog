@@ -623,6 +623,15 @@
   font-weight: 600;
 }
 
+/* A player in the prose: the frame carries the shape, so the video inside it
+   fills the frame rather than being sized by the rule below. */
+.prose .media-frame video {
+  block-size: 100%;
+  inline-size: 100%;
+  margin-inline: 0;
+  max-width: none;
+}
+
 /* Centre the blocks themselves, captioned or not. */
 .prose video {
   display: block;

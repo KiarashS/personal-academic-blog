@@ -119,6 +119,39 @@ export interface Publication {
   data?: string;
 }
 
+/**
+ * The picture or video a post opens with, above its title.
+ *
+ * Normalised by `buildPost`, so everything that renders one reads the same
+ * shape rather than working out its own defaults: an author writes
+ * `banner: /figures/rig.jpg` and gets the rest.
+ */
+export interface Banner {
+  /** A path under `public/`, a URL, or a YouTube link. */
+  src: string;
+  /** What it shows. Empty says it is decoration and a screen reader skips it. */
+  alt: string;
+  /** A still to hold before a video plays. Also the card a shared link shows. */
+  poster?: string;
+  /**
+   * Start a video on load, muted and looping. Held back from a reader who has
+   * asked their system for less motion, who gets the first frame and the
+   * controls instead.
+   */
+  autoplay: boolean;
+  /**
+   * The crop, as a CSS `aspect-ratio`.
+   *
+   * A picture defaults to `3 / 1`, which is the widest thing that leaves the
+   * opening sentence on a 1280x800 screen: the column is fixed at 46rem, so a
+   * banner's height follows the column rather than the window, and a 16:9 crop
+   * comes out 414px tall and pushes the first paragraph past the fold. A video
+   * defaults to `16 / 9` instead, because cropping a picture costs nothing and
+   * cropping a video costs the picture.
+   */
+  ratio: string;
+}
+
 export interface PostFrontmatter {
   title: string;
   date: string;
@@ -141,6 +174,11 @@ export interface PostFrontmatter {
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
+  /**
+   * The opening picture or video. `banner: /figures/rig.jpg` is the whole of
+   * it for most posts; see `Banner` for the longer form.
+   */
+  banner?: string | Partial<Banner>;
 }
 
 export interface Heading {
@@ -169,6 +207,7 @@ export interface PostMeta {
   summary: string;
   readingMinutes: number;
   doi?: string;
+  banner?: Banner;
   draft: boolean;
   featured: boolean;
   headings: Heading[];

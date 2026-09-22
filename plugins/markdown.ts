@@ -14,15 +14,17 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
-import { buildPost, todayUtc } from '../src/lib/post-builder';
+import { bannerWarnings, buildPost, todayUtc } from '../src/lib/post-builder';
 import { siteConfig } from '../src/site.config';
 import type { FeatureName } from '../src/site.config';
-import type { Heading } from '../src/lib/types';
+import { parseFrontmatter } from '../src/lib/frontmatter';
+import type { Heading, PostFrontmatter } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
 import { rehypeContentTweaks } from './content-tweaks';
 import { FOOTNOTE_HEADING, rehypeHeadingAnchors } from './heading-anchors';
 import { rehypeFigures } from './figures';
+import { rehypeVideo } from './video';
 import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
@@ -79,6 +81,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
   const featureLinkWarnings = new Set<string>();
+  const bannerProblems = new Set<string>();
 
   // The pages a flag can take away. Prose that points at one of them degrades
   // to plain words rather than shipping a link to a 404.
@@ -156,6 +159,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       })
       .use(rehypeContentTweaks, { base })
       .use(rehypeHeadingAnchors)
+      // Before the image pass: a `src` that turns out to be a video is a
+      // player, not a picture, and the image pass would measure a file it
+      // cannot read and wrap the poster in a link to itself.
+      .use(rehypeVideo, { base })
       .use(rehypeFigures, {
         publicDir: resolve(root, 'public'),
         base,
@@ -191,6 +198,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       missingImages.clear();
       equationWarnings.clear();
       featureLinkWarnings.clear();
+      bannerProblems.clear();
     },
 
     async transform(_code, id) {
@@ -199,6 +207,14 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
       const raw = readFileSync(path, 'utf8');
       const built = buildPost({ path, raw });
+
+      // A banner is the part of a post its author sees least — it is above
+      // the fold, so they scroll past it — and a `src` with a typo leaves a
+      // gap rather than an error.
+      const { data: frontmatter } = parseFrontmatter<PostFrontmatter>(raw);
+      for (const message of bannerWarnings(built.meta.slug, frontmatter.banner)) {
+        bannerProblems.add(message);
+      }
 
       // The frontmatter is YAML rather than markdown, so it never reaches the
       // pipeline above. These two are the strings a reader sees outside the
@@ -275,6 +291,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       for (const message of missingImages) this.warn(message);
       for (const message of equationWarnings) this.warn(message);
       for (const message of featureLinkWarnings) this.warn(message);
+      for (const message of bannerProblems) this.warn(message);
 
       if (missingDiagrams.size > 0) {
         this.warn(

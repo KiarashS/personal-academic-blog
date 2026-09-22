@@ -521,15 +521,10 @@ every permalink on the site landed at the top of the post.
 The block and its caption are centred in the measure; the caption is set in the
 sans face at a smaller size, with its label in the text colour.
 
-Video is plain HTML, on its own line:
-
-```markdown
-<video src="/posts/my-post/clip.mp4" controls></video>
-
-Caption: The sampler running.
-```
-
-The `src` picks up the deployment's base path the way image and link paths do.
+Video is written the way an image is, and a YouTube link works too; see
+Banners and video. Raw `<video>` HTML on its own line still works if you want
+the attributes, and its `src` picks up the deployment's base path the way image
+and link paths do.
 
 ### Notebooks
 
@@ -881,6 +876,109 @@ PNG, a 76x76 apple-touch-icon, and a multi-resolution `.ico` (16, 32 and 48).
 They are declared in `index.html`, which the prerenderer leaves alone apart
 from the title, so every page carries them. Vite adds the deployment's base
 path.
+
+## Banners and video
+
+A post can open with a picture or a video. `banner:` in its frontmatter is the
+whole of it for most posts:
+
+```yaml
+banner: /figures/rig.jpg
+```
+
+The crop is fixed rather than taken from the file, so a run of posts opens the
+same way whatever shape their artwork is. A picture is cropped to 3:1 and a
+video is shown at 16:9. The difference is measured rather than chosen: the
+column is fixed at `--wide: 46rem`, so a banner's height follows the column and
+not the window, and on a 1280x800 screen a 16:9 banner puts the opening
+sentence at 911px — past the fold, along with the series box and the contents.
+At 3:1 it lands at 751px and stays on screen. Cropping a picture to get there
+costs nothing; cropping a video costs the picture, so a video keeps its shape
+and its cost.
+
+The longer form sets the rest:
+
+```yaml
+banner:
+  src: https://youtu.be/dQw4w9WgXcQ
+  alt: Ten seconds of the sampler running
+  poster: /figures/rig-still.jpg
+  autoplay: false
+  ratio: 21 / 9
+```
+
+`src` is an image, a video file, or a YouTube link — a watch link, a share
+link, an embed or a short, with a `?t=` kept if the link was copied at a
+particular moment. `alt` is what a reader who cannot see it is told; left out,
+the banner is decoration and a screen reader skips it. `autoplay` applies to
+video only, plays muted and looping, and is held back from anyone whose system
+asks for less motion, who gets the first frame and the controls instead.
+`ratio` overrides the crop.
+
+The banner renders above `.post-reading` rather than inside it, so scrolling
+past a photograph does not count as progress on the reading bar. A `src` that
+is not a picture, a video file or a YouTube link is dropped and the build says
+so, as are `autoplay` and `poster` written on a picture.
+
+### Video in a post
+
+An image whose path is a video is a player, numbered and captioned like any
+other figure:
+
+```markdown
+![A run of the sampler](/posts/my-post/clip.mp4)
+
+Caption: Ten seconds at the start, sped up.
+```
+
+A YouTube link works the same way:
+
+```markdown
+![The talk](https://youtu.be/dQw4w9WgXcQ)
+```
+
+Markdown has no syntax of its own for video, and a bare link on its own line
+cannot tell one you want embedded from one you want to link to. An image
+pointing at an `.mp4` used to produce a broken `<img>`, so nothing that worked
+before means something else now. An image inside a sentence is left alone, and
+raw `<video>` HTML on its own line still works if you want the attributes.
+
+### What YouTube is told
+
+Nothing, until the reader clicks. The build draws the video's own still with a
+play badge over it; `PostBody` answers the click by swapping in the player, and
+that is the first request the page makes to Google. With JavaScript off the
+still is a link to the video on YouTube. The embed goes to
+`youtube-nocookie.com`, which holds off on the advertising cookie until the
+video plays, and `rel=0` keeps the suggestions at the end to the same channel.
+
+The still itself is the exception: it comes from `i.ytimg.com`, so a page with
+a YouTube video on it makes that one request before anyone clicks. A `poster:`
+of your own avoids it. It also covers the other gap — `maxresdefault` is the
+only size worth putting across a text column and the one YouTube does not
+always have, since a video uploaded below 720p has none.
+
+`autoplay: true` on a YouTube banner is the other exception: it loads the
+player on arrival, which means the request happens whether or not the reader
+wanted the video. It is muted, because every current browser blocks an unmuted
+autoplay outright.
+
+### The social card
+
+A post with a picture for a banner gets it as a band across the top of its
+1200x630 card, with the title below on the site's own background; posts without
+one keep the drawn card unchanged. The banner is read from `public/` and
+inlined, so the card renderer needs no network — a banner hosted elsewhere, or
+a YouTube still, is skipped rather than fetched.
+
+It went behind the type first, under a black scrim. That cannot promise
+contrast it does not know the artwork of: measured against a white pixel of the
+banner, white title text reaches 3.7:1 even at 72% black, and the byline 3.0:1,
+both below what the plain card gets by simply not sitting on top of a picture.
+The band keeps the artwork and keeps the type at 10.7:1.
+
+On paper the banner is dropped and a player prints as its still, if it has one,
+with the caption kept so a post that says "see Figure 3" still has one.
 
 ## Install to home screen
 

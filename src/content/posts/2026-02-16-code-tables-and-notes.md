@@ -52,6 +52,31 @@ added at build time. If a `name.dark.ext` sibling exists — as it does here —
 it is used when the reader is on the dark theme, which saves white-background
 plots from glaring out of a dark page.
 
+## Video
+
+An image whose path is a video is a player instead, numbered and captioned like
+any other figure:
+
+```markdown
+![A run of the sampler](/posts/my-post/clip.mp4)
+
+Caption: Ten seconds at the start, sped up.
+```
+
+A YouTube link works the same way:
+
+```markdown
+![The talk](https://youtu.be/dQw4w9WgXcQ)
+```
+
+Nothing is asked of YouTube until the reader clicks: the build draws the
+video's own still with a play badge over it, and the player replaces it on the
+click. With JavaScript off the still is a link to the video on YouTube. The
+embed goes to `youtube-nocookie.com`, and a `?t=` in the link you paste is kept,
+so a link copied at a particular moment starts there.
+
+Raw `<video>` HTML on its own line still works if you want the attributes.
+
 ## Captions
 
 Any block can be captioned by following it with a paragraph that starts with

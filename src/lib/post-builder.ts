@@ -1,7 +1,9 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
 import { RESERVED_SLUGS } from './routes';
+import { mediaKind } from './media';
 import type {
+  Banner,
   Heading,
   PostFrontmatter,
   PostMeta,
@@ -103,6 +105,73 @@ function publicationFrom(value: unknown): Publication | undefined {
   return entries.length > 0 ? { ...known, ...Object.fromEntries(entries) } : undefined;
 }
 
+/** The crop a banner falls back to, by what it turns out to be. */
+const BANNER_RATIO = { image: '3 / 1', video: '16 / 9', youtube: '16 / 9' } as const;
+
+/**
+ * The banner, from either form an author can write it in: a bare path, or a
+ * block with the fields that only some banners need. Defaults are filled in
+ * here so no component has to guess, and a `src` nobody can render is dropped
+ * rather than turned into a broken image at the top of the post.
+ */
+export function bannerFrom(value: unknown): Banner | undefined {
+  const raw: Partial<Banner> =
+    typeof value === 'string' ? { src: value } : !!value && typeof value === 'object' ? value : {};
+
+  const src = typeof raw.src === 'string' ? raw.src.trim() : '';
+  const kind = src ? mediaKind(src) : undefined;
+  if (!kind) return undefined;
+
+  const text = (field: unknown): string | undefined =>
+    typeof field === 'string' && field.trim() ? field.trim() : undefined;
+
+  return {
+    src,
+    alt: typeof raw.alt === 'string' ? raw.alt : '',
+    poster: text(raw.poster),
+    autoplay: kind !== 'image' && raw.autoplay === true,
+    ratio: text(raw.ratio) ?? BANNER_RATIO[kind],
+  };
+}
+
+/**
+ * What the build should say about a post's banner. A banner is the one thing
+ * on a post its author sees least: it is above the fold, so they scroll past
+ * it, and a `src` with a typo leaves a gap rather than an error.
+ */
+export function bannerWarnings(slug: string, value: unknown): string[] {
+  if (value === undefined || value === null) return [];
+
+  const src =
+    typeof value === 'string'
+      ? value
+      : typeof (value as { src?: unknown }).src === 'string'
+        ? ((value as { src: string }).src ?? '')
+        : '';
+
+  if (!src.trim()) {
+    return [`${slug}: \`banner\` has no \`src\`, so nothing is shown.`];
+  }
+  if (!mediaKind(src)) {
+    return [
+      `${slug}: banner “${src.trim()}” is not a picture, a video file or a YouTube ` +
+        'link, so nothing is shown. Give it a file extension, or check the URL.',
+    ];
+  }
+
+  const options = typeof value === 'object' ? (value as Partial<Banner>) : {};
+  const problems: string[] = [];
+  if (mediaKind(src) === 'image') {
+    if (options.autoplay !== undefined) {
+      problems.push(`${slug}: \`banner.autoplay\` does nothing to a picture.`);
+    }
+    if (options.poster !== undefined) {
+      problems.push(`${slug}: \`banner.poster\` does nothing to a picture.`);
+    }
+  }
+  return problems;
+}
+
 export interface RawPost {
   path: string;
   raw: string;
@@ -145,6 +214,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       summary: data.summary ?? excerpt(plainText),
       readingMinutes: readingMinutes(plainText),
       doi: data.doi,
+      banner: bannerFrom(data.banner),
       draft: data.draft === true,
       featured: data.featured === true,
     },

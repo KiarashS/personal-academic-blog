@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, extname, dirname, basename } from 'node:path';
 import { imageSize } from '../src/lib/image-size';
+import { MEDIA_FRAME } from './video';
 import type { Element, Root } from 'hast';
 
 export interface FigureOptions {
@@ -36,6 +37,15 @@ function measure(file: string): Dimensions | undefined {
  * the page scales it losslessly, so linking it to itself buys nothing.
  */
 const isVector = (src: string): boolean => /\.svg$/i.test(src);
+
+/**
+ * A block `rehypeVideo` has already built. Walking into one would find the
+ * YouTube still inside it and rewrap that poster as a figure of its own.
+ */
+function isMediaFrame(node: Element): boolean {
+  const classes = node.properties?.className;
+  return Array.isArray(classes) && classes.includes(MEDIA_FRAME);
+}
 
 /** `plot.png` -> `plot.dark.png`, the convention for a dark-theme variant. */
 function darkSibling(src: string): string {
@@ -91,6 +101,7 @@ export function rehypeFigures(options: FigureOptions) {
       const children = 'children' in node ? node.children : [];
       children.forEach((child, index) => {
         if (child.type !== 'element') return;
+        if (isMediaFrame(child)) return;
         if (child.tagName !== 'p' && child.tagName !== 'img') {
           walk(child);
           return;

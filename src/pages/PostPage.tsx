@@ -5,6 +5,7 @@ import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
 import { PublicationNote } from '../components/PublicationNote';
+import { PostBanner } from '../components/PostBanner';
 import { ReadingProgress } from '../components/ReadingProgress';
 import { Revisions } from '../components/Revisions';
 import { SeriesHeader, SeriesLinks } from '../components/SeriesNav';
@@ -34,6 +35,10 @@ export function PostPage() {
   return (
     <article>
       <ReadingProgress target={article} />
+      {/* Above the reading matter on purpose. A banner is looked at, not read,
+          and inside the measured block it would make the progress bar count
+          scrolling past a photograph as progress through the post. */}
+      {post.banner ? <PostBanner banner={post.banner} /> : null}
       {/* The reading matter, which is what the progress bar measures: the tags,
           share row, citation, comments and related posts below are not reading. */}
       <div className="post-reading" ref={article}>

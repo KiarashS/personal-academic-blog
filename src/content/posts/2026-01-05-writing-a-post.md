@@ -6,6 +6,7 @@ category: Tutorials
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
+banner: /figures/example-banner.svg
 series: Running this blog
 part: 1
 revisions:
@@ -39,8 +40,40 @@ series: Running this blog # optional; groups multi-part posts
 part: 1                   # optional; position within the series
 slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
+banner: /figures/rig.jpg  # optional; see below
 ---
 ```
+
+### Banners
+
+`banner:` puts a picture or a video above the title. A path under `public/` is
+all most posts need:
+
+```yaml
+banner: /figures/rig.jpg
+```
+
+The crop is fixed rather than taken from the file, so a run of posts opens the
+same way whatever shape their artwork is: 3:1 for a picture, which is the
+widest thing that leaves the opening sentence on a 1280x800 screen, and 16:9
+for a video, which cannot be cropped without losing the picture. The longer
+form sets the rest:
+
+```yaml
+banner:
+  src: https://youtu.be/dQw4w9WgXcQ
+  alt: Ten seconds of the sampler running
+  poster: /figures/rig-still.jpg
+  autoplay: false
+  ratio: 21 / 9
+```
+
+`src` can be an image, a video file, or a YouTube link. `alt` is what a reader
+who cannot see it is told; left out, the banner is treated as decoration and
+skipped. `autoplay` applies to video only, plays muted and looping, and is
+ignored for anyone whose system asks for less motion. A YouTube banner is drawn
+as its still until someone clicks it, so the post asks Google for nothing until
+then — `poster` avoids even the still, and is also what a shared link shows.
 
 Leave `summary` out and the opening prose is used instead. Leave `date` out and
 the filename supplies it. An author id with no record in `authors.ts` still
