@@ -1,4 +1,4 @@
-# Personal academic blog
+# An academic blog
 
 A small React site for publishing academic writing: Markdown posts with math,
 diagrams, code and citations, plus the machinery a blog needs — pagination,
