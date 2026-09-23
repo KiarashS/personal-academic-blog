@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postBody } from '../lib/post-content';
 import { useResource } from '../lib/resource';
+import { uniqueIds } from '../lib/svg-ids';
 import { useTheme } from './ThemeProvider';
 
 /**
@@ -119,12 +120,16 @@ export function PostBody({ slug }: { slug: string }) {
         fontFamily: 'var(--sans)',
       });
 
+      // Shared across the blocks, for the same reason the build shares one per
+      // post: a render id keeps two diagrams apart, but not two copies of one.
+      const seen = new Set<string>();
+
       for (const [index, block] of blocks.entries()) {
         const source = block.querySelector('script')?.textContent ?? '';
         try {
           const { svg } = await mermaid.render(`mermaid-live-${index}`, source);
           if (cancelled) return;
-          block.innerHTML = `<figure class="mermaid-figure">${svg}</figure>`;
+          block.innerHTML = `<figure class="mermaid-figure">${uniqueIds(svg, seen)}</figure>`;
         } catch (cause) {
           if (cancelled) return;
           const message = cause instanceof Error ? cause.message : String(cause);

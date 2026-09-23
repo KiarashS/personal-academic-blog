@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { uniqueIds } from '../../plugins/mermaid';
+import { uniqueIds } from '../lib/svg-ids';
 
 const ids = (svg: string): string[] => [...svg.matchAll(/\sid="([^"]*)"/g)].map((m) => m[1]);
 

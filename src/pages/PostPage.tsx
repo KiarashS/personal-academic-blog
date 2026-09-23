@@ -5,8 +5,10 @@ import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
 import { PostBody } from '../components/PostBody';
 import { PublicationNote } from '../components/PublicationNote';
+import { ContentsRail } from '../components/ContentsRail';
 import { PostBanner } from '../components/PostBanner';
 import { ReadingProgress } from '../components/ReadingProgress';
+import { railShown } from '../lib/contents';
 import { Revisions } from '../components/Revisions';
 import { SeriesHeader, SeriesLinks } from '../components/SeriesNav';
 import { ShareLinks } from '../components/ShareLinks';
@@ -35,6 +37,9 @@ export function PostPage() {
   return (
     <article>
       <ReadingProgress target={article} />
+      {/* Fixed in the margin, so it sits outside the measured block for the
+          same reason the banner does: it is not reading matter. */}
+      {railShown() ? <ContentsRail headings={post.headings} /> : null}
       {/* Above the reading matter on purpose. A banner is looked at, not read,
           and inside the measured block it would make the progress bar count
           scrolling past a photograph as progress through the post. */}

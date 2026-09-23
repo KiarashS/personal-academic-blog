@@ -159,6 +159,39 @@ export interface PwaConfig {
   shortcuts: string[];
 }
 
+/**
+ * What a post's contents look like on a screen wide enough for a rail beside
+ * the column — 80rem and up, measured below.
+ *
+ * `inline` is the collapsed list at the top of the post and nothing else,
+ * which is how the site worked before this setting existed. `rail` moves it
+ * into the margin and takes the collapsed one away. `both` keeps the collapsed
+ * list where it is and puts the rail beside it, which is two navigations of
+ * the same nine headings; it is offered because on a long post the one at the
+ * top is a map and the one in the margin is a position, and some people want
+ * both.
+ *
+ * Below 80rem there is no choice to make: the column is fixed at 46rem, so the
+ * margin is whatever the window has spare. Measured against the built site,
+ * 1280px leaves 272px each side, which holds a 13rem rail and a gap; 1194px
+ * leaves 229px and is tight; 1024px leaves 144px and has no room at all. So a
+ * narrow window always gets the collapsed list, whatever this says.
+ */
+export type ContentsStyle = 'inline' | 'rail' | 'both';
+
+/** Which margin the rail stands in. */
+export type ContentsSide = 'left' | 'right';
+
+export interface ContentsConfig {
+  wide: ContentsStyle;
+  /**
+   * `left` by default. The rail is a map of the page and a page is read from
+   * the left, so the margin the eye returns to is the left one; a right rail
+   * reads as a sidebar of extras, which is what it is not.
+   */
+  side: ContentsSide;
+}
+
 export interface NavItem {
   label: string;
   /**
@@ -359,6 +392,8 @@ export interface SiteConfig {
   profileLinkKeys: Record<ProfileSurface, ProfileLinkKey[]>;
   /** One message set apart from the page; see `NoticeConfig`. Empty text is off. */
   notice: NoticeConfig;
+  /** How a post shows its contents on a wide screen; see `ContentsConfig`. */
+  contents: ContentsConfig;
   /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
@@ -498,6 +533,12 @@ export const siteConfig: SiteConfig = {
     // day and the build says why, rather than leaving a closed call up for a
     // year. Empty never retires it.
     until: '',
+  },
+  contents: {
+    // The collapsed list at the top, plus the rail in the margin from 80rem up.
+    // 'inline' is the collapsed list alone; 'rail' is the margin alone.
+    wide: 'both',
+    side: 'left',
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },

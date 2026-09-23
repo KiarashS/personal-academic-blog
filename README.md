@@ -800,6 +800,60 @@ forced light whatever the reader chose, external links print their target after
 the text, and figures, tables and code blocks are not allowed to break across a
 page.
 
+## The contents of a post
+
+Every post gets a contents list built from its `##` and `###` headings. Where
+it stands is `contents` in `src/site.config.ts`:
+
+```ts
+contents: {
+  wide: 'both',   // 'inline' | 'rail' | 'both'
+  side: 'left',   // which margin the rail stands in
+},
+```
+
+`inline` is the collapsed list at the top of the post and nothing else, which
+is how the site worked before this setting existed. `rail` moves it into the
+margin beside the column and takes the collapsed one away. `both` keeps the
+collapsed list where it is and puts the rail beside it: two navigations of the
+same headings, which is offered because on a long post the one at the top is a
+map and the one in the margin is a position.
+
+The setting only applies from 80rem up, because that is where there is a margin
+to stand in. The column is fixed at 46rem, so the space beside it is whatever
+the window has spare: measured against the built site, 1280px leaves 272px each
+side, 1194px leaves 229px, and 1024px leaves 144px. A 13rem rail and a 1.5rem
+gap need the first of those. Below 80rem the collapsed list is the whole of the
+contents whatever `wide` says, and the rail is hidden in CSS — which is also
+why the collapsed list stays in the document in every mode. It is what a narrow
+window shows, and what a reader with no JavaScript gets.
+
+`side` defaults to `left`. The rail is a map of the page and a page is read
+from the left, so the margin the eye returns to is the left one; on the right
+it reads as a sidebar of extras, which is what it is not. The rail's position
+is measured from the centre of the window rather than from an edge, so it keeps
+its distance from the text at any width instead of drifting towards it as the
+window narrows.
+
+### Marking the reader's place
+
+The rail marks the section the reader is in, measured once per animation frame
+on scroll and resize, the way the reading progress bar is. `currentHeading` in
+`src/lib/contents.ts` does the arithmetic, which is where the two edges are.
+
+Nothing is marked while the reader is above the first heading. A post that runs
+six hundred pixels of prose before its first `##` is not in that section, and
+lighting it there tells a reader they have missed something.
+
+The last heading is the case every scroll-spy gets wrong. A heading near the
+end of a document can never reach the marker — there is not enough page left
+below it to scroll it that far — so it stays unlit however far the reader
+reads. Reaching the bottom of the document counts as being in the last section,
+whatever the arithmetic says.
+
+A post with no headings renders no rail. On paper there is no margin to float
+in, so the rail is dropped and the collapsed list prints as it always did.
+
 ## Logo
 
 Four files in `src/content/`, all from `scripts/draw-logo.mjs`:

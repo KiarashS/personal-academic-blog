@@ -1456,6 +1456,113 @@ mark {
   text-decoration: underline;
 }
 
+/*
+ * The contents in the margin.
+ *
+ * Only from 80rem up, which is where there is a margin to stand in: the column
+ * is fixed at 46rem, so the space beside it is whatever the window has spare —
+ * 272px each side at 1280px, 229px at 1194px, 144px at 1024px. A 13rem rail
+ * and a 1.5rem gap need the first of those and not the second.
+ *
+ * `--contents-gap` is measured from the centre of the window rather than from
+ * an edge, so the rail keeps its distance from the text at any width instead
+ * of drifting towards it as the window narrows.
+ */
+.contents-rail {
+  display: none;
+}
+
+@media (width >= 80rem) {
+  .contents-rail {
+    --contents-gap: calc(50% + 23rem + 1.5rem);
+
+    display: block;
+    inline-size: 13rem;
+    inset-block-start: 7rem;
+    max-block-size: calc(100vh - 10rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    position: fixed;
+  }
+
+  .contents-rail--left {
+    inset-inline-end: var(--contents-gap);
+  }
+
+  .contents-rail--right {
+    inset-inline-start: var(--contents-gap);
+  }
+
+  /* With the rail standing in for it, the collapsed list goes; with `both`,
+     this class is never set and the two stand together. */
+  .toc--narrow-only {
+    display: none;
+  }
+}
+
+.contents-rail__label {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.contents-rail ol {
+  border-inline-start: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contents-rail li {
+  margin: 0;
+}
+
+/*
+ * The marker sits on the same edge as the rule, covering it, so the rail reads
+ * as one line with the reader's place thickened rather than as a list with a
+ * tick beside it. The spine is on the inline start whichever margin the rail
+ * stands in, which is where the collapsed list already keeps its own.
+ */
+.contents-rail a {
+  border-inline-start: 2px solid transparent;
+  color: var(--text-muted);
+  display: block;
+  margin-inline-start: -1px;
+  padding: 0.3rem 0.7rem;
+  text-decoration: none;
+  transition: color 120ms ease-in-out;
+}
+
+.contents-rail__sub a {
+  padding-inline-start: 1.5rem;
+}
+
+.contents-rail a:hover {
+  color: var(--text);
+}
+
+.contents-rail a[aria-current] {
+  border-inline-start-color: var(--accent);
+  color: var(--text);
+}
+
+.contents-rail a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contents-rail a {
+    transition: none;
+  }
+}
+
 .print-only {
   display: none;
 }
@@ -2633,6 +2740,7 @@ mark {
   .skip-link,
   /* A banner is decoration above the title, and on paper it costs a third of
      the first page. A player prints as a black rectangle. */
+  .contents-rail,
   .media-frame--banner,
   .media-frame video,
   .media-frame iframe,
