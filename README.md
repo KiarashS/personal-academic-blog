@@ -859,6 +859,27 @@ forced light whatever the reader chose, external links print their target after
 the text, and figures, tables and code blocks are not allowed to break across a
 page.
 
+## Leaving a post
+
+Two ways out appear in the corner once the reader reaches the end of the
+reading matter: back to the top of the post, and back to the index. They use
+the same block and the same measure as the progress bar, so the pair arrives
+exactly as the bar fills, and they stay for the tags, the citation, the
+comments and the related posts below.
+
+Before that they are not rendered at all. A control floating over a paragraph
+someone is reading is chrome, and the only thing floating buys over a row of
+links at the end of the post is being reachable earlier — which is the part
+that was not wanted.
+
+They stand in the corner opposite the contents rail, which is the one other
+fixed thing on a wide screen they could reach. Top scrolls and moves focus to
+`main`, which already carries `tabindex="-1"` for the skip link: scrolling
+alone would leave a keyboard at the bottom of the document looking at the top
+of it. The scroll is smooth unless the reader has asked for less motion, and
+the pair is hidden on a window shorter than 26rem, where it would sit on the
+words. On paper it is dropped.
+
 ## The contents of a post
 
 Every post gets a contents list built from its `##` and `###` headings. Where
@@ -1015,6 +1036,7 @@ The longer form sets the rest:
 banner:
   src: https://youtu.be/dQw4w9WgXcQ
   alt: Ten seconds of the sampler running
+  title: Recorded in the lab, March 2026
   poster: /figures/rig-still.jpg
   autoplay: false
   ratio: 21 / 9
@@ -1023,8 +1045,13 @@ banner:
 `src` is an image, a video file, or a YouTube link — a watch link, a share
 link, an embed or a short, with a `?t=` kept if the link was copied at a
 particular moment. `alt` is what a reader who cannot see it is told; left out,
-the banner is decoration and a screen reader skips it. `autoplay` applies to
-video only, plays muted and looping, and is held back from anyone whose system
+the banner is decoration and a screen reader skips it. `title` is the tooltip a
+pointer gets on hover, on all three kinds, and it is deliberately not filled in
+from `alt`: a tooltip cannot be reached by keyboard, never appears on a touch
+screen, and is read on top of the name the element already has by some screen
+readers. It is the place for an aside — a credit, a date, where the picture was
+taken — and not for anything the reader needs. `autoplay` applies to video
+only, plays muted and looping, and is held back from anyone whose system
 asks for less motion, who gets the first frame and the controls instead.
 `ratio` overrides the crop.
 

@@ -6,7 +6,10 @@ category: Tutorials
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
-banner: /figures/example-banner.svg
+banner:
+  src: /figures/example-banner.svg
+  alt: ''
+  title: An example banner — replace it with your own
 series: Running this blog
 part: 1
 revisions:
@@ -63,6 +66,7 @@ form sets the rest:
 banner:
   src: https://youtu.be/dQw4w9WgXcQ
   alt: Ten seconds of the sampler running
+  title: Recorded in the lab, March 2026
   poster: /figures/rig-still.jpg
   autoplay: false
   ratio: 21 / 9
@@ -70,7 +74,12 @@ banner:
 
 `src` can be an image, a video file, or a YouTube link. `alt` is what a reader
 who cannot see it is told; left out, the banner is treated as decoration and
-skipped. `autoplay` applies to video only, plays muted and looping, and is
+skipped. `title` is the tooltip a pointer gets on hover, and it is not a second
+`alt`: a tooltip cannot be reached by keyboard, never appears on a touch
+screen, and is read on top of the name the element already has by some screen
+readers, so it is the place for an aside — a credit, a date, where the picture
+was taken — and not for anything the reader needs. Both are empty unless you
+write them. `autoplay` applies to video only, plays muted and looping, and is
 ignored for anyone whose system asks for less motion. A YouTube banner is drawn
 as its still until someone clicks it, so the post asks Google for nothing until
 then — `poster` avoids even the still, and is also what a shared link shows.

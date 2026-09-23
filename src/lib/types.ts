@@ -171,6 +171,17 @@ export interface Banner {
   src: string;
   /** What it shows. Empty says it is decoration and a screen reader skips it. */
   alt: string;
+  /**
+   * The tooltip a pointer gets on hover. Empty is no tooltip, which is how
+   * this ships.
+   *
+   * Not a second `alt`, and not a copy of it. A tooltip is the one label on a
+   * page that a keyboard cannot reach, a touch screen never shows and some
+   * screen readers read on top of the name the element already has, so
+   * anything written here has to be an aside — a credit, a date, where the
+   * picture was taken — rather than something the reader needs.
+   */
+  title: string;
   /** A still to hold before a video plays. Also the card a shared link shows. */
   poster?: string;
   /**

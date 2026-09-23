@@ -128,6 +128,7 @@ export function bannerFrom(value: unknown): Banner | undefined {
   return {
     src,
     alt: typeof raw.alt === 'string' ? raw.alt : '',
+    title: typeof raw.title === 'string' ? raw.title : '',
     poster: text(raw.poster),
     autoplay: kind !== 'image' && raw.autoplay === true,
     ratio: text(raw.ratio) ?? BANNER_RATIO[kind],

@@ -91,6 +91,7 @@ describe('bannerFrom', () => {
     expect(bannerFrom('/figures/rig.jpg')).toEqual({
       src: '/figures/rig.jpg',
       alt: '',
+      title: '',
       poster: undefined,
       autoplay: false,
       ratio: '3 / 1',
@@ -104,15 +105,22 @@ describe('bannerFrom', () => {
   });
 
   it('honours the longer form', () => {
-    expect(bannerFrom({ src: '/clip.mp4', alt: 'A run', autoplay: true, ratio: '21 / 9' })).toEqual(
-      {
+    expect(
+      bannerFrom({
         src: '/clip.mp4',
         alt: 'A run',
-        poster: undefined,
+        title: 'Recorded in the lab, March 2026',
         autoplay: true,
         ratio: '21 / 9',
-      },
-    );
+      }),
+    ).toEqual({
+      src: '/clip.mp4',
+      alt: 'A run',
+      title: 'Recorded in the lab, March 2026',
+      poster: undefined,
+      autoplay: true,
+      ratio: '21 / 9',
+    });
   });
 
   it('will not autoplay a picture, whatever the frontmatter says', () => {
@@ -152,5 +160,23 @@ describe('bannerWarnings', () => {
     expect(problems).toHaveLength(2);
     expect(problems.join(' ')).toContain('autoplay');
     expect(problems.join(' ')).toContain('poster');
+  });
+});
+
+describe('the banner’s two labels', () => {
+  it('keeps alt and title apart, and leaves both empty by default', () => {
+    // A tooltip that repeats the alt is read twice by some screen readers and
+    // never shown at all on a touch screen, so it is never filled in for you.
+    const banner = bannerFrom({ src: '/figures/rig.jpg', alt: 'The rig, side on' });
+    expect(banner?.alt).toBe('The rig, side on');
+    expect(banner?.title).toBe('');
+  });
+
+  it('takes a title on any of the three kinds', () => {
+    for (const src of ['/figures/rig.jpg', '/clip.mp4', 'https://youtu.be/dQw4w9WgXcQ']) {
+      expect(bannerFrom({ src, title: 'Photo: someone else' })?.title, src).toBe(
+        'Photo: someone else',
+      );
+    }
   });
 });

@@ -40,10 +40,22 @@ export function PostBanner({ banner }: { banner: Banner }) {
   if (!kind) return null;
 
   const style = { '--media-ratio': banner.ratio } as React.CSSProperties;
+  /*
+   * The tooltip goes on the figure rather than on the picture or the player,
+   * so one attribute covers all three kinds and both states of a YouTube
+   * banner — the still and the frame that replaces it. The accessible name is
+   * separate and stays where it belongs: `alt` on the image, `aria-label` on
+   * the video and the play link.
+   */
+  const frame = {
+    className: 'media-frame media-frame--banner',
+    style,
+    ...(banner.title ? { title: banner.title } : {}),
+  };
 
   if (kind === 'image') {
     return (
-      <figure className="media-frame media-frame--banner" style={style}>
+      <figure {...frame}>
         <img alt={banner.alt} fetchPriority="high" src={resolve(banner.src)} />
       </figure>
     );
@@ -51,8 +63,9 @@ export function PostBanner({ banner }: { banner: Banner }) {
 
   if (kind === 'video') {
     return (
-      <figure className="media-frame media-frame--banner" style={style}>
+      <figure {...frame}>
         <video
+          aria-label={banner.alt || undefined}
           controls
           loop={banner.autoplay}
           playsInline
@@ -60,9 +73,7 @@ export function PostBanner({ banner }: { banner: Banner }) {
           preload="metadata"
           ref={video}
           src={resolve(banner.src)}
-        >
-          {banner.alt}
-        </video>
+        />
       </figure>
     );
   }
@@ -70,7 +81,7 @@ export function PostBanner({ banner }: { banner: Banner }) {
   const label = banner.alt || 'the video';
 
   return (
-    <figure className="media-frame media-frame--banner" style={style}>
+    <figure {...frame}>
       {playing ? (
         <iframe
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"

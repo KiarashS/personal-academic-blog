@@ -84,7 +84,7 @@ export function rehypeFigures(options: FigureOptions) {
    * itself, so whichever one the reader can see is the one that opens, and it
    * opens in its own tab rather than replacing the page being read.
    */
-  const zoomable = (image: Element, href: string): Element => ({
+  const zoomable = (image: Element, href: string, alt: string): Element => ({
     type: 'element',
     tagName: 'a',
     properties: {
@@ -92,6 +92,10 @@ export function rehypeFigures(options: FigureOptions) {
       href,
       target: '_blank',
       rel: ['noopener', 'noreferrer'],
+      // The link takes its name from the image it wraps. A decorative image
+      // has no alt to give it one, and a link with no name is a link a screen
+      // reader announces as its URL.
+      ...(alt ? {} : { 'aria-label': 'Open this image at full size' }),
     },
     children: [image],
   });
@@ -136,17 +140,33 @@ export function rehypeFigures(options: FigureOptions) {
         // Only worth offering when the file holds detail the column cannot
         // show: a picture displayed at its own size has nothing more to give.
         const zoom = !isVector(src) && (size?.width ?? 0) >= fullSizeFrom;
-        const link = (image: Element, path: string) => (zoom ? zoomable(image, href(path)) : image);
+
+        /*
+         * One variant of the picture, wrapped in its zoom link if it has one.
+         *
+         * The theme class goes on whichever element ends up outermost, not
+         * always on the image. With it on the image, the `display: none` that
+         * hides the wrong theme left the link around it in the page with
+         * nothing inside it a screen reader could name — a `link-name`
+         * violation on every zoomable figure that has a dark sibling, on
+         * whichever theme was not showing.
+         */
+        const variant = (path: string, theme?: 'light' | 'dark'): Element => {
+          const classes = ['figure-image', ...(theme ? [`figure-image--${theme}`] : [])];
+          if (!zoom) return img(href(path), alt, size, classes.join(' '));
+
+          const wrapped = zoomable(img(href(path), alt, size, 'figure-image'), href(path), alt);
+          if (theme)
+            wrapped.properties = {
+              ...wrapped.properties,
+              className: ['figure-zoom', `figure-image--${theme}`],
+            };
+          return wrapped;
+        };
 
         const pictures: Element[] = dark
-          ? [
-              link(img(href(src), alt, size, 'figure-image figure-image--light'), src),
-              link(
-                img(href(darkSibling(src)), alt, size, 'figure-image figure-image--dark'),
-                darkSibling(src),
-              ),
-            ]
-          : [link(img(href(src), alt, size, 'figure-image'), src)];
+          ? [variant(src, 'light'), variant(darkSibling(src), 'dark')]
+          : [variant(src)];
 
         children[index] = {
           type: 'element',

@@ -86,4 +86,11 @@ describe('rehypeVideo', () => {
     expect(html).not.toContain('figure-zoom');
     expect(html.match(/<figure/g)).toHaveLength(1);
   });
+
+  it('captions a video from the Markdown title, as it does a picture', () => {
+    const html = render('![A run](/posts/rig/clip.mp4 "Ten seconds, sped up.")');
+    expect(html).toContain('Figure 1.');
+    expect(html).toContain('Ten seconds, sped up.');
+    expect(html).toContain('</video></div><figcaption');
+  });
 });

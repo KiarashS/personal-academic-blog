@@ -1,5 +1,5 @@
 import { mediaKind, youtubeEmbedUrl, youtubeThumbUrl, youtubeWatchUrl } from '../src/lib/media';
-import type { Element, Properties, Root, RootContent } from 'hast';
+import type { Element, ElementContent, Properties, Root, RootContent } from 'hast';
 
 export interface VideoOptions {
   /** Deployment base path, prefixed onto root-relative sources. */
@@ -11,7 +11,11 @@ export interface VideoOptions {
 /** The class the figure pass uses to know this block is already finished. */
 export const MEDIA_FRAME = 'media-frame';
 
-const element = (tagName: string, properties: Properties, children: Element[] = []): Element => ({
+const element = (
+  tagName: string,
+  properties: Properties,
+  children: ElementContent[] = [],
+): Element => ({
   type: 'element',
   tagName,
   properties,
@@ -75,6 +79,10 @@ export function rehypeVideo(options: VideoOptions) {
 
         const src = String(image.properties?.src ?? '');
         const alt = String(image.properties?.alt ?? '');
+        // `![A run](/clip.mp4 "Ten seconds, sped up.")` — the same quoted
+        // title that captions a picture, rather than being dropped because
+        // this pass got to the image first.
+        const caption = String(image.properties?.title ?? '');
         const kind = src ? mediaKind(src) : undefined;
         if (kind !== 'video' && kind !== 'youtube') return;
 
@@ -84,9 +92,12 @@ export function rehypeVideo(options: VideoOptions) {
          * written under the video is a child of the figure, so on the figure
          * it would squeeze the caption into the player's box.
          */
+        // A bare `figcaption` inside the figure, which is the shape the image
+        // pass leaves for `rehypeCaptions` to find and number.
         const frame = (inner: Element[]): Element =>
           element('figure', {}, [
             element('div', { className: [MEDIA_FRAME], style: `--media-ratio: ${ratio}` }, inner),
+            ...(caption ? [element('figcaption', {}, [{ type: 'text', value: caption }])] : []),
           ]);
 
         if (kind === 'video') {

@@ -81,7 +81,7 @@ export function Layout() {
         </div>
       </header>
 
-      <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main">
+      <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main" tabIndex={-1}>
         <div className="shell">
           {/* Inside `main`, so it is read in its turn rather than announced
               over whatever the reader is doing. Both slots are rendered and

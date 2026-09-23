@@ -59,7 +59,11 @@ await new Promise((done) => server.listen(0, done));
 const base = `http://localhost:${server.address().port}`;
 
 // One page of each kind rather than all of them: the templates are shared, so
-// a violation on one post is a violation on every post.
+// a violation on one post is a violation on every post — with the exception of
+// what a post's own Markdown produces, which is why two posts are visited. The
+// second has a banner, a zoomable figure with a dark sibling, and a diagram,
+// and the first version of this list had none of them: the missing name on a
+// zoom link went unreported until it was looked for by hand.
 const { postPath, blogIndexPath } = await import(
   pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href
 );
@@ -71,6 +75,7 @@ const routes = [
     '/',
     `${blogIndexPath().replace(/\/$/, '')}/`,
     `${postPath('code-tables-and-notes')}/`,
+    `${postPath('writing-a-post')}/`,
     '/publications/',
     '/archive/',
     '/tags/',

@@ -23,6 +23,9 @@ function png(name: string, width: number, height: number): void {
 png('wide.png', 1600, 900);
 png('wide.dark.png', 1600, 900);
 png('narrow.png', 480, 320);
+// Narrow enough for no zoom link, but with a dark sibling to place the class on.
+png('small.png', 480, 320);
+png('small.dark.png', 480, 320);
 writeFileSync(join(publicDir, 'plot.svg'), '<svg width="2000" height="800"></svg>');
 
 const render = (markdown: string, base = ''): string =>
@@ -38,7 +41,7 @@ const render = (markdown: string, base = ''): string =>
 describe('rehypeFigures, full-size links', () => {
   it('links an image wider than the column to its own file', () => {
     const html = render('![A plot](/wide.png)');
-    expect(html).toContain('<a class="figure-zoom" href="/wide.png"');
+    expect(html).toContain('<a class="figure-zoom figure-image--light" href="/wide.png"');
     expect(html).toContain('target="_blank"');
     expect(html).toContain('rel="noopener noreferrer"');
   });
@@ -60,9 +63,31 @@ describe('rehypeFigures, full-size links', () => {
     expect(html.match(/figure-zoom/g)).toHaveLength(2);
   });
 
+  it('puts the theme class on the link, so the hidden variant takes it with it', () => {
+    // On the image instead, the `display: none` that hides the wrong theme
+    // left an empty link behind that no screen reader could name — a
+    // `link-name` violation on every zoomable figure with a dark sibling.
+    const html = render('![A plot](/wide.png)');
+    expect(html).toContain('class="figure-zoom figure-image--light"');
+    expect(html).toContain('class="figure-zoom figure-image--dark"');
+    expect(html).not.toContain('class="figure-image figure-image--light"');
+  });
+
+  it('keeps the theme class on the image when there is no link to carry it', () => {
+    const html = render('![A plot](/small.png)');
+    expect(html).toContain('class="figure-image figure-image--light"');
+    expect(html).toContain('class="figure-image figure-image--dark"');
+    expect(html).not.toContain('figure-zoom');
+  });
+
+  it('names a link whose image is decorative and has no alt to lend it', () => {
+    expect(render('![](/wide.png)')).toContain('aria-label="Open this image at full size"');
+    expect(render('![A plot](/wide.png)')).not.toContain('aria-label');
+  });
+
   it('carries the deployment base path into the link', () => {
     expect(render('![A plot](/wide.png)', '/blog')).toContain(
-      '<a class="figure-zoom" href="/blog/wide.png"',
+      '<a class="figure-zoom figure-image--light" href="/blog/wide.png"',
     );
   });
 
