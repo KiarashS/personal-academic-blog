@@ -1,0 +1,114 @@
+import { describe, expect, it } from 'vitest';
+import {
+  clampScale,
+  fitScale,
+  MAX_SCALE,
+  MIN_SCALE,
+  pan,
+  RESET,
+  STEP,
+  zoomAt,
+  zoomBy,
+} from '../lib/diagram-view';
+
+describe('clampScale', () => {
+  it('holds the range', () => {
+    expect(clampScale(0.01)).toBe(MIN_SCALE);
+    expect(clampScale(100)).toBe(MAX_SCALE);
+    expect(clampScale(2)).toBe(2);
+  });
+});
+
+describe('zoomBy', () => {
+  it('leaves a diagram centred when it started centred', () => {
+    expect(zoomBy(RESET, STEP)).toEqual({ scale: STEP, x: 0, y: 0 });
+  });
+
+  it('stops at the limits rather than drifting past them', () => {
+    let view = RESET;
+    for (let press = 0; press < 40; press += 1) view = zoomBy(view, STEP);
+    expect(view.scale).toBe(MAX_SCALE);
+    for (let press = 0; press < 40; press += 1) view = zoomBy(view, 1 / STEP);
+    expect(view.scale).toBe(MIN_SCALE);
+  });
+
+  it('does not move a diagram that is already at the limit', () => {
+    const edge = { scale: MAX_SCALE, x: 120, y: -40 };
+    expect(zoomBy(edge, STEP)).toBe(edge);
+  });
+});
+
+describe('zoomAt', () => {
+  it('keeps what is under the pointer under the pointer', () => {
+    const point = { x: 200, y: -80 };
+    const before = { scale: 1, x: 0, y: 0 };
+    const after = zoomAt(before, 2, point);
+
+    // The content coordinate under the point is the same before and after.
+    const content = (view: typeof before) => ({
+      x: (point.x - view.x) / view.scale,
+      y: (point.y - view.y) / view.scale,
+    });
+    expect(content(after).x).toBeCloseTo(content(before).x, 10);
+    expect(content(after).y).toBeCloseTo(content(before).y, 10);
+  });
+
+  it('is the same as zooming about the centre when the point is the centre', () => {
+    expect(zoomAt({ scale: 2, x: 30, y: 10 }, STEP, { x: 0, y: 0 })).toEqual(
+      zoomBy({ scale: 2, x: 30, y: 10 }, STEP),
+    );
+  });
+
+  it('zooming in and back out about one point returns where it started', () => {
+    const point = { x: -150, y: 90 };
+    const start = { scale: 1.5, x: 20, y: -10 };
+    const round = zoomAt(zoomAt(start, STEP, point), 1 / STEP, point);
+    expect(round.scale).toBeCloseTo(start.scale, 10);
+    expect(round.x).toBeCloseTo(start.x, 10);
+    expect(round.y).toBeCloseTo(start.y, 10);
+  });
+});
+
+describe('pan', () => {
+  it('adds the drag to the offset and leaves the scale alone', () => {
+    expect(pan({ scale: 2, x: 10, y: 10 }, -30, 5)).toEqual({ scale: 2, x: -20, y: 15 });
+  });
+});
+
+describe('fitScale', () => {
+  it('shrinks a drawing too big for the stage, leaving a little air', () => {
+    // 2000 wide into a 2000 stage: 0.92 of it, not the whole of it.
+    expect(fitScale({ width: 2000, height: 500 }, { width: 2000, height: 800 })).toBeCloseTo(
+      0.92,
+      10,
+    );
+  });
+
+  it('takes whichever side runs out first, and is the same either way round', () => {
+    const stage = { width: 2000, height: 2000 };
+    expect(fitScale({ width: 1000, height: 2000 }, stage)).toBeCloseTo(0.92, 10);
+    expect(fitScale({ width: 2000, height: 1000 }, stage)).toBeCloseTo(0.92, 10);
+  });
+
+  it('stops at the minimum rather than shrinking a huge diagram to a smear', () => {
+    expect(fitScale({ width: 6000, height: 4800 }, { width: 1000, height: 800 })).toBe(MIN_SCALE);
+  });
+
+  it('enlarges a small diagram, which is what opening it was for', () => {
+    // Held to the width of a text column in the post, it is small by the time
+    // it gets here; answering with the same picture in a bigger window is no
+    // answer. An SVG has no resolution to lose by growing.
+    expect(fitScale({ width: 400, height: 200 }, { width: 1600, height: 900 })).toBeCloseTo(
+      3.68,
+      10,
+    );
+  });
+
+  it('stops at the maximum rather than blowing a tiny diagram up to nothing', () => {
+    expect(fitScale({ width: 20, height: 10 }, { width: 1600, height: 900 })).toBe(MAX_SCALE);
+  });
+
+  it('answers for a drawing it could not measure', () => {
+    expect(fitScale({ width: 0, height: 0 }, { width: 800, height: 600 })).toBe(1);
+  });
+});

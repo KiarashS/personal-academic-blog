@@ -372,7 +372,50 @@
 .mermaid-figure {
   margin: 1.75rem 0;
   overflow-x: auto;
+  position: relative;
   text-align: center;
+}
+
+/* A diagram is a thing you open, which the cursor should say before the click. */
+.mermaid-figure[data-rendered] {
+  cursor: zoom-in;
+}
+
+/*
+ * The control a keyboard reaches. It follows the copy button on a code block:
+ * quiet until the block is hovered or it is focused, because on a page of
+ * diagrams a row of permanent buttons is a row of permanent buttons.
+ */
+.mermaid-figure__expand {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: zoom-in;
+  display: grid;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  opacity: 0;
+  padding: 0.25rem;
+  place-items: center;
+  position: absolute;
+  transition: opacity 120ms ease-in-out;
+}
+
+.mermaid-figure:hover .mermaid-figure__expand,
+.mermaid-figure__expand:focus-visible {
+  opacity: 1;
+}
+
+.mermaid-figure__expand:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-figure__expand {
+    transition: none;
+  }
 }
 
 .mermaid-figure svg {

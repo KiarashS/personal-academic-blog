@@ -394,6 +394,65 @@ Mermaid. In `npm run dev` diagrams render in the browser instead, which keeps
 the edit loop fast, and that same path is the fallback if a diagram fails to
 render at build time.
 
+### The diagram viewer
+
+A click on a diagram opens it full size, with zoom and drag. It is for the
+diagrams that do not fit a text column — a mindmap held to 46rem is a page of
+grey boxes — but every diagram gets it, since a small one opening large is
+harmless and a rule about which ones qualify is a rule nobody can predict.
+
+Zoom in and out step by 1.4, the wheel zooms about the pointer, a double click
+zooms in on the point clicked, and dragging moves the drawing. Fit goes back to
+the opening view. Escape closes it, as does the button and a click outside.
+`dialog.showModal()` does the focus trap, the Escape key, the backdrop and the
+stacking above the header and the contents rail, so none of that is this
+component's to get wrong.
+
+The arithmetic is in `src/lib/diagram-view.ts` rather than the component,
+because the component cannot be tested — the test environment has no DOM — and
+the edges are all in the numbers. Zooming is about a point, so what is under
+the cursor stays under it; without that, zooming into the corner of a large
+diagram walks the part you were looking at off the screen. Scale is held
+between 0.5 and 8.
+
+Opening fits the diagram to the window, enlarging it if there is room. A
+diagram in a post is held to the width of the text column, so its own size is
+usually small, and answering "show me this bigger" with the same picture in a
+larger window is no answer. An SVG has no resolution to lose by growing.
+
+Three things had to be got right for the copy to render at all, each of which
+failed quietly:
+
+The copy needs a namespace of its own or it puts a second element with every id
+into the document. `reprefix` in `src/lib/svg-ids.ts` does that, and not
+`uniqueIds`: an SVG styles itself through a selector on its own root id, so
+renaming the root and leaving the `<style>` block behind gives a copy that
+matches nothing, loses every fill Mermaid wrote, and renders as black shapes
+with black text on them.
+
+Mermaid writes `width="100%"` with a `max-width` of the drawing. Taking those
+off and leaving `width: auto` is worse than leaving them: an SVG with a viewBox
+and no size has no intrinsic size either, so it falls back to the 300x150 every
+replaced element gets, and a 1579px drawing renders 300px wide. The copy is
+given its viewBox's size in pixels instead.
+
+The stage carries `min-block-size: 0` and `min-inline-size: 0`, because a flex
+item's minimum size is its content and the drawing inside it is sized to its
+own content. Without them the stage grew to the diagram's full size — a 1352 by
+1227 stage inside a 900px window — and the zoom had nothing left to do.
+
+Measured on the built site at 1440x900: the fitted drawing fills 92% of the
+stage's height, which is the margin the fit leaves. Zoom, drag, Fit, Escape and
+the keyboard route all behave, no id on the page is duplicated while a copy is
+open, and axe reports no violations with the viewer open.
+
+The button in the corner of each figure is what a keyboard reaches; the build
+writes it into the static HTML, so it is there at first paint rather than
+appearing on hydration. A click anywhere on the figure does the same thing,
+except on a link — Mermaid can make a node into one, and following it is what
+clicking it is for. With no JavaScript there is no button and no viewer, and
+the diagram is the picture it always was. On paper the button is dropped.
+
 ### Code
 
 highlight.js at build time, with token colours defined against the site's CSS

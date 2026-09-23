@@ -22,6 +22,43 @@ export function loadDiagramCache(path: string): DiagramCache {
   }
 }
 
+/** The control that opens a diagram in the viewer. */
+function expand(): Element {
+  return {
+    type: 'element',
+    tagName: 'button',
+    properties: {
+      type: 'button',
+      className: ['mermaid-figure__expand'],
+      'aria-label': 'View this diagram full size',
+    },
+    children: [
+      {
+        type: 'element',
+        tagName: 'svg',
+        properties: {
+          viewBox: '0 0 24 24',
+          width: '14',
+          height: '14',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: '2',
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': 'true',
+          focusable: 'false',
+        },
+        children: [
+          { type: 'element', tagName: 'path', properties: { d: 'M15 3h6v6' }, children: [] },
+          { type: 'element', tagName: 'path', properties: { d: 'M9 21H3v-6' }, children: [] },
+          { type: 'element', tagName: 'path', properties: { d: 'M21 3l-7 7' }, children: [] },
+          { type: 'element', tagName: 'path', properties: { d: 'M3 21l7-7' }, children: [] },
+        ],
+      },
+    ],
+  };
+}
+
 function raw(value: string): Element {
   // `rehype-raw` has already run by this point, so the SVG is injected as a raw
   // node that rehype-stringify passes through untouched.
@@ -69,6 +106,11 @@ export function rehypeMermaid(options: {
           children: [
             raw(`<div class="mermaid-figure__light">${uniqueIds(rendered.light, seen)}</div>`),
             raw(`<div class="mermaid-figure__dark">${uniqueIds(rendered.dark, seen)}</div>`),
+            // Written by the build rather than added on hydration, so it is in
+            // the static HTML and a keyboard reaches it at first paint. The
+            // click is answered by `PostBody`; with no JavaScript the button is
+            // not there to press, which is why it is a button and not a link.
+            expand(),
           ],
         };
         return;

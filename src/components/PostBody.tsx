@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postBody } from '../lib/post-content';
 import { useResource } from '../lib/resource';
-import { uniqueIds } from '../lib/svg-ids';
+import { reprefix, uniqueIds } from '../lib/svg-ids';
+import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
 
 /**
@@ -16,6 +17,9 @@ export function PostBody({ slug }: { slug: string }) {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  // The diagram the viewer is showing, as markup. Null is closed.
+  const [viewing, setViewing] = useState<string | null>(null);
+  const viewed = useRef(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -41,6 +45,46 @@ export function PostBody({ slug }: { slug: string }) {
           },
           () => undefined,
         );
+        return;
+      }
+
+      /*
+       * A diagram, opened full size. The whole figure answers a click, since
+       * that is what a reader tries first; the button inside it is the one a
+       * keyboard can reach, and the build writes it into the static HTML.
+       *
+       * A link inside a diagram is left alone — Mermaid can make nodes into
+       * links, and following one is what a click on it is for.
+       */
+      const diagram = target.closest('.mermaid-figure');
+      if (diagram && !target.closest('a') && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
+        event.preventDefault();
+        const copy = diagram.cloneNode(true) as HTMLElement;
+        copy.querySelector('.mermaid-figure__expand')?.remove();
+        /*
+         * Mermaid writes `width="100%"` and caps it with a `max-width`, which
+         * is right in a text column and useless in a stage that sizes itself
+         * to its contents. Taking those off and leaving `width: auto` is worse
+         * still: an SVG with a viewBox and no size has no intrinsic size
+         * either, so it falls back to the 300x150 every replaced element gets,
+         * and a 1579px drawing renders 300px wide. The viewBox says how big it
+         * is; this writes that down, and the transform scales it from there.
+         */
+        for (const svg of copy.querySelectorAll('svg')) {
+          const drawn = svg.viewBox?.baseVal;
+          if (!drawn?.width) continue;
+          svg.style.width = `${drawn.width}px`;
+          svg.style.height = `${drawn.height}px`;
+          svg.style.maxWidth = 'none';
+        }
+        // The copy needs a namespace of its own, or it puts a second element
+        // with every id into the document. `reprefix` rather than `uniqueIds`
+        // because an SVG styles itself through a selector on its own root id:
+        // rename that and leave the style block behind, and the copy loses
+        // every fill Mermaid gave it. Counted per open, so two in one session
+        // cannot collide either.
+        viewed.current += 1;
+        setViewing(reprefix(copy.innerHTML, `v${viewed.current}`));
         return;
       }
 
@@ -146,5 +190,12 @@ export function PostBody({ slug }: { slug: string }) {
     };
   }, [html, theme]);
 
-  return <div className="prose" ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <>
+      <div className="prose" ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} />
+      {viewing === null ? null : (
+        <DiagramViewer markup={viewing} onClose={() => setViewing(null)} />
+      )}
+    </>
+  );
 }

@@ -1640,6 +1640,142 @@ mark {
 }
 
 /* A plain link in the footer's row, not a button that looks pressed. */
+
+/* The diagram viewer ------------------------------------------------------- */
+
+/*
+ * Nearly the whole window, because the diagrams this is for are the ones that
+ * do not fit the column. `dialog` puts it in the top layer, so it clears the
+ * fixed header, the progress bar and the contents rail without a z-index.
+ */
+.diagram-viewer {
+  background: var(--bg);
+  block-size: 92vh;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  inline-size: 94vw;
+  max-block-size: none;
+  max-inline-size: none;
+  padding: 0;
+}
+
+.diagram-viewer::backdrop {
+  backdrop-filter: blur(2px);
+  background: rgb(0 0 0 / 55%);
+}
+
+.diagram-viewer__bar {
+  align-items: center;
+  border-block-end: 1px solid var(--rule);
+  display: flex;
+  flex: none;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+}
+
+.diagram-viewer__zoom {
+  align-items: center;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.diagram-viewer button {
+  align-items: center;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.45rem;
+}
+
+.diagram-viewer button:hover:not(:disabled) {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+.diagram-viewer button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* The one number in the bar, held at a fixed width so the buttons either side
+   of it do not shuffle as it counts up. */
+.diagram-viewer__scale {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  inline-size: 3.2rem;
+  text-align: center;
+}
+
+/*
+ * `min-*: 0` is what keeps the stage inside the dialog. A flex item's minimum
+ * size is its content by default, and the drawing inside this one is sized to
+ * its own content, so without these the stage grows to the diagram's full
+ * size — a 1579px drawing made a 1352x1227 stage in a 900px window, and the
+ * zoom had nothing left to do.
+ */
+.diagram-viewer__stage {
+  align-items: center;
+  cursor: grab;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-block-size: 0;
+  min-inline-size: 0;
+
+  /* `clip` rather than `hidden`: a diagram dragged past the edge must not give
+     the dialog a scrollbar to fight the drag with. */
+  overflow: clip;
+  touch-action: none;
+}
+
+.diagram-viewer__stage--dragging {
+  cursor: grabbing;
+}
+
+/* `max-content` so the SVG inside it settles at its own size: Mermaid writes
+   `width: 100%` with a `max-width` of the drawing, which needs something
+   finite to be a percentage of. The transform does the scaling from there. */
+.diagram-viewer__drawing {
+  inline-size: max-content;
+  transform-origin: center;
+}
+
+/*
+ * Inside the viewer the drawing is sized by the transform, so the rules that
+ * fit it to a text column have nothing to say. The SVG itself is given a size
+ * in pixels when the copy is made — see `PostBody` — which is an inline style
+ * and beats anything here; these three only stop the boxes around it shrinking
+ * back to the column's width.
+ */
+.diagram-viewer__drawing .mermaid-figure,
+.diagram-viewer__drawing .mermaid-figure > div {
+  inline-size: max-content;
+  margin: 0;
+  overflow: visible;
+}
+
+.diagram-viewer__hint {
+  border-block-start: 1px solid var(--rule);
+  color: var(--text-muted);
+  flex: none;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  margin: 0;
+  padding: 0.4rem 0.7rem;
+  text-align: center;
+}
+
 .shortcuts__open {
   background: none;
   border: 0;
@@ -2741,6 +2877,7 @@ mark {
   /* A banner is decoration above the title, and on paper it costs a third of
      the first page. A player prints as a black rectangle. */
   .contents-rail,
+  .mermaid-figure__expand,
   .media-frame--banner,
   .media-frame video,
   .media-frame iframe,

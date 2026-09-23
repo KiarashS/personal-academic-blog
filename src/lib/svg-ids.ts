@@ -37,3 +37,29 @@ export function uniqueIds(svg: string, seen: Set<string>): string {
     return `${space}id="${unique}"`;
   });
 }
+
+/** The root `id` of each `<svg>` in a fragment, in the order they appear. */
+const SVG_ROOT = /<svg\b[^>]*?\sid="([^"]+)"/g;
+
+/**
+ * Give a copy of a rendered diagram a namespace of its own.
+ *
+ * `uniqueIds` is the wrong tool for a copy, and the failure is quiet: renaming
+ * the root `id` leaves the `<style>` block inside the SVG selecting on the old
+ * one, so the copy matches nothing, loses every fill and stroke Mermaid wrote
+ * for it, and renders as black shapes on black text.
+ *
+ * Mermaid derives every id in an SVG from the render id it was given, so one
+ * replacement fixes all of them at once: the root, the ids beneath it, the
+ * `url(#…)` references between them, and the CSS selectors that style them.
+ * The copy then depends on nothing outside itself, which is what a copy that
+ * may outlive its original wants.
+ */
+export function reprefix(markup: string, token: string): string {
+  const roots = [...markup.matchAll(SVG_ROOT)].map((match) => match[1]);
+  let out = markup;
+  for (const root of roots) {
+    out = out.split(root).join(`${root}-${token}`);
+  }
+  return out;
+}
