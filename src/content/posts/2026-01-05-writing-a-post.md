@@ -206,34 +206,40 @@ while part 2 is still a draft.
 
 ```mermaid
 ---
-title: Future Tenses
+title: Present Tenses
 config:
     theme: 'default'
     layout: elk
 ---
 mindmap
-    Future
+    Present
         Simple[Simple]
-            1{{"`Talk about a __decision made at the time of pseaking__: we made a decision just now and we are talking about it`"}}
-            2{{"`For __intentions__: pleanned future (i.e. for actions that have __already__ been decided on): we have already decided and now we are talking about it`"}}
-            3{{"`We use the _present continuous_ to describe an event in the future which has already been __arranged__ by the time of speaking`"}}
-                des1("`Note that we cannot use the present continuous with events which are __beyond human control__ (It is snowing tomorrow => incorrect)`")
-                des2("`Not only have we _decided_ about the future, but we have also made _a series of arrangements_. We have made the arrangements for it`")
-            4{{"`We can use the _present simple_ to talk about __time-tabled__ events`"}}
-            10{{"`The idiom __be about to do sth.__ expresses an activity that will happen _in the immediate future,_ usually within minutes or seconds`"}}
-        Willgoing["`Will<br/>vs.<br/>Be going to<br/>(predictions)`"]
-            5{{"`We use will/won't to talk about __predictions__ which are based on __guesswork, analysis or judgement__. (Similar events have happened in the past):<br/>Prediction is based on _our own knowledge, our own literacy and our own analysis_`"}}
-            6{{"`However, we use be going to + infinitive to make a __prediction__ when there is __evidence in the present__ to justify the prediction:<br/>Prediction based on _currently available evidence_`"}}
-                des3("`Note that it is also possible to use _will_ with present evidence, but we need an _adverb_:<br/>Look at the sky. It __will probably__ rain.`")
+            1{{"`-**Truths** (generally true)<br/>-**Facts**<br/>-**Permanent** situations`"}}
+            2{{"`Things that happen on a **regular basis** (often with adverbs of freq. such as always, usually, often, every..., sometimes and never)`"}}
+            3{{"`**A series of actions or events** (e.g. to give directions or instructions) often with impersonal *you*`"}}
+            4{{"`The events of a **past** narrative or an anecdote more immediacy: a short, interesting or funny story about a real person or event as if happening now`"}}
         Progressive["Progressive (continuous)"]
-            7{{"`For an action __in progress__ at a __particular point__ in the future`"}}
-                des4("`Note that we don't use the verb __be__ in the continu- ous: Shelley will be being in morocco this time tomorrow. (incorrect)`")
+            5{{"`An action that is **in progress** at the moment of speaking`"}}
+            6{{"`Describe things which are **changing**`"}}
+            7{{"`Talk about an action **around** the time of speaking`"}}
+            8{{"`Express our **annoyance** with actions or habits with adverbs such as always, forever or continually.`"}}
+                d1("`*If* these two conditions exist **concurrently**: 1- annoyance for **myself** 2- adverbs similar to always, forever, continually, etc exist in the sentence. Ex: My wife is always nagging.`")
         Perfect[Perfect]
-            8{{"`Make predictions about actions which we expect to be __completed__ _by a particular time in the future_: (figure)<br/>They __will have built__ this bridge by May.<br/>I'__ll have finished__ my report within(over) an hour.`"}}
-                des5("`In the future, when we __reach this point in time__, an action/state __is finished__`")
+            9("`To use the present perfect simple, you have to make sure:<br/>1- there is __no definite time__ (every phrase -excluding verbs- which carries a past tense; __whether the time is clear or not__) in your sentence. This week: IS NOT a definite time.<br/>2- there is __no past time__ (any past expressions) in your sentence `")
+                10("`A number of adverbs are commonly used with this tense:<br/>__recently__<br/>__yet__ (in negative and question sentences in the end of the sentence, Hanooz),<br/>__just__ (has/have+just+PP, Hamin chand lahze pish),<br/>__already__ (has/have+already+PP, Kari ke ghabl az zamane entezarash etefagh oftade ast vali tarjome nemishavad),<br/>__never(have not)/ever__ (Faghat takid ra bishtar mikonand, mani ra taghir nemidahand)`")
+                    11{{"`Talk about __states__ __started in the past and are still continuing in the present__ (the least used application, do it with perfect continuous form instead, and focus on its duration and continuity)`"}}
+                    12{{"`Talk about actions which __happened in the past but may happen again in the future__`"}}
+                        ex1("`Compare these two sentences:<br/>1- John __has written__ several successful books.<br/>2- Sara __wrote__ a huge numbers of books.`")
+                    13{{"`Talk about __our experience__ (express the events that happened in the past as experience)`"}}
+                    14{{"`Talk about an action __completed__ in the past, __the result of which is present__ or __can be seen now__`"}}
+                    15{{"`When we want to mention __the number of repetitions__ of things`"}}
+                    22{{"`An activity or situation that occured (or did not occur) __before now, at some unspecified or unknown time in the past__`"}}
         PerfectContinuous["Perfect Continuous"]
-            9{{"`Talk about an action which is __still ongoing__ at _a point in the future_, to focus on the __duration__ of the action:<br/>I'__ll have been teaching__ English for 12 years in(by) December.<br/>By July, they __will have been building__ the house for a year.`"}}
-                des6("`In the future, when we __reach this point in time__, __this is__ how long I have been doing an action (duration)`")
+            19("`Present perfect: completion/result/experience/repetition/happened but may happen again/unspecified or unknown time.<br/>Present perfect continuous (except state verbs): duration/continuation`")
+                16{{"`Talk about an __ongoing__ state or action which __began in the past__ and __still is going on__`"}}
+                17{{"`Focus on the __duration__ of the action, so we do not mention the number of times that we have done the action`"}}
+                18{{"`The use of present perfect continuous can suggest that the state or action __may change__, i.e. it is temporary.`"}}
+            20("`The simple form of the present perfect focuses on the fact that an action is completed, while the continuous form often focuses on the fact that action is still ongoing.`")
 ```
 
 ## Featured posts
