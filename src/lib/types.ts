@@ -40,6 +40,46 @@ export type ProfileKey =
   | 'bluesky'
   | 'website';
 
+/** One piece of material an area points at: a paper, a dataset, a repository. */
+export interface ResearchLink {
+  label: string;
+  /** A URL, or a path under `public/` such as `/papers/segmentation.pdf`. */
+  href: string;
+}
+
+/**
+ * A line of work, rendered at `/research` when the `research` feature is on.
+ *
+ * Only `title` and `summary` are required: an area you have just started has
+ * no papers to link and no posts tagged yet, and is still worth saying you
+ * work on.
+ */
+export interface ResearchArea {
+  title: string;
+  /** What the work is, in a paragraph. */
+  summary: string;
+  /**
+   * Where it is going: the open questions, one per line. This is the part a
+   * prospective student or collaborator is actually reading the page for, and
+   * the part a publication list cannot tell them.
+   */
+  questions?: string[];
+  /** Who works on it — ids from `src/content/authors.ts`. */
+  people?: string[];
+  /**
+   * Tags whose posts belong to this area. Rendered as links to the tag pages,
+   * which is the thing this page can do that a CV cannot: point at the writing.
+   */
+  tags?: string[];
+  links?: ResearchLink[];
+  /**
+   * `past` moves an area below the current ones under its own heading. Work
+   * you have moved on from still explains how you got here, so it is set aside
+   * rather than deleted.
+   */
+  status?: 'current' | 'past';
+}
+
 /**
  * A talk, lecture or seminar, with wherever its materials live. Everything but
  * the title and the date is optional: a deck with no video is still a deck.

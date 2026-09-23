@@ -26,6 +26,9 @@ const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default:
 const SearchPage = lazy(() =>
   import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })),
 );
+const ResearchPage = lazy(() =>
+  import('./pages/ResearchPage').then((m) => ({ default: m.ResearchPage })),
+);
 const PublicationsPage = lazy(() =>
   import('./pages/PublicationsPage').then((m) => ({ default: m.PublicationsPage })),
 );
@@ -77,6 +80,9 @@ export function App() {
             <Route path="posts/:slug" element={<Lazily name="PostPage" of={PostPage} />} />
           </>
         )}
+        {isEnabled('research') ? (
+          <Route path="research" element={<Lazily name="ResearchPage" of={ResearchPage} />} />
+        ) : null}
         {isEnabled('slides') ? (
           <Route path="slides" element={<Lazily name="SlidesPage" of={SlidesPage} />} />
         ) : null}

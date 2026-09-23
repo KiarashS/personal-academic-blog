@@ -1082,6 +1082,7 @@ features: {
   archive: true,         // /archive, every post grouped by year
   categories: true,      // /categories and the shelves in siteConfig.categories
   projects: false,       // the Projects group in nav; see above
+  research: false,       // /research, what you work on and where it is going
   slides: false,         // /slides, talks and their materials
   contact: false,        // /contact, from contact.md plus your profile links
   news: false,           // /news, every entry in news.ts grouped by year
@@ -1743,6 +1744,58 @@ show it however old it is.
 A news list that stopped two years ago tells a visitor something worse than no
 news list does, and it is the kind of decay nobody catches on their own site,
 because they are not the one arriving at it. Set it to 0 to switch the rule off.
+
+## Research
+
+`/research` is the page for what you work on, as opposed to what you have
+published. It is off by default; turn on `features.research` once the two
+files below say something of yours.
+
+`src/content/research.md` is the overview — plain Markdown with frontmatter,
+the same as any post, so math, diagrams, code and citations all work. If your
+work is one thing rather than three, that file on its own is a reasonable way
+to run the page.
+
+`src/content/research.ts` holds the areas beneath it:
+
+```ts
+export const researchAreas: ResearchArea[] = [
+  {
+    title: 'Segmentation under domain shift',
+    summary: 'What happens to a model when the scanner changes.',
+    questions: [
+      'How much of the drop is the scanner and how much is the population?',
+      'Can a held-out site stand in for a site you have never seen?',
+    ],
+    tags: ['segmentation', 'robustness'],
+    people: ['you', 'coauthor'],
+    links: [
+      { label: 'Paper', href: 'https://doi.org/10.0000/example' },
+      { label: 'Code', href: 'https://github.com/example/repo' },
+    ],
+    status: 'current',
+  },
+];
+```
+
+Only `title` and `summary` are required. An area you started last month has no
+papers to link and no posts tagged yet, and is still worth saying you work on.
+
+`questions` is the part a publication list cannot carry, and the part a
+prospective student is actually reading the page for. `tags` name tags your
+posts already use and render as links to those tag pages, which is the thing
+this page can do that a CV cannot — it points at the writing. `people` are ids
+from `src/content/authors.ts`. `links` take a URL or a path under `public/`
+such as `/papers/segmentation.pdf`.
+
+`status: 'past'` moves an area below the current ones under an Earlier work
+heading rather than deleting it: old work is how a line of work is explained,
+and it is what a reader trying to place a four-year-old paper is looking for.
+Current is the default.
+
+The build says so when an area has no summary, when `tags` names a tag no
+published post carries, when `people` names someone who is not in
+`authors.ts`, and when a link is neither a URL nor a path from the root.
 
 ## Slides and contact
 

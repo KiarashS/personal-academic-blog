@@ -28,6 +28,7 @@ const {
   serialiseJsonLd,
   configuredNewsWarnings,
   noticeWarnings,
+  researchWarnings,
   pwaEnabled,
   pwaWarnings,
   webManifest,
@@ -380,7 +381,12 @@ await write(
 // the renderer cannot make is dropped from an entry. Both are decisions taken
 // on the author's behalf, so the build says them out loud; nobody notices
 // either from inside their own site.
-for (const message of [...configuredNewsWarnings(), ...noticeWarnings(), ...pwaWarnings()])
+for (const message of [
+  ...configuredNewsWarnings(),
+  ...noticeWarnings(),
+  ...researchWarnings(),
+  ...pwaWarnings(),
+])
   console.warn(message);
 
 console.log(

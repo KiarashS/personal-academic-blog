@@ -1316,6 +1316,52 @@ mark {
   margin-bottom: 2rem;
 }
 
+/* Research ---------------------------------------------------------------- */
+
+/*
+ * An area is a short record rather than a section of prose: a title, what the
+ * work is, where it is going, and what to read. The rule on the left ties the
+ * parts together without a box, which on a page of three or four areas would
+ * be three or four boxes.
+ */
+.research-area {
+  border-inline-start: 2px solid var(--rule);
+  margin: 0 0 2.5rem;
+  padding-inline-start: 1.1rem;
+}
+
+.research-area h3 {
+  font-size: 1.15rem;
+  margin: 0 0 0.4rem;
+}
+
+.research-area__summary {
+  margin: 0;
+}
+
+.research-area__label {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  margin: 1rem 0 0.35rem;
+  text-transform: uppercase;
+}
+
+.research-area__questions {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}
+
+.research-area__questions li {
+  margin-bottom: 0.25rem;
+}
+
+.research-area .meta,
+.research-area .tag-list {
+  margin-top: 0.9rem;
+}
+
 .section-heading {
   font-family: var(--sans);
   font-size: 0.78rem;

@@ -55,6 +55,13 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
+  if (path === '/research' && isEnabled('research')) {
+    return {
+      title: withSuffix('Research'),
+      description: `What ${siteConfig.title} works on, and where it is going.`,
+    };
+  }
+
   if (path === '/slides' && isEnabled('slides')) {
     return { title: withSuffix('Slides'), description: 'Talks, lectures and their materials.' };
   }
@@ -153,6 +160,7 @@ export function allRoutes(): string[] {
   if (isEnabled('about')) routes.add('/about');
   if (isEnabled('publications')) routes.add('/publications');
   if (isEnabled('archive')) routes.add('/archive');
+  if (isEnabled('research')) routes.add('/research');
   if (isEnabled('slides')) routes.add('/slides');
   if (isEnabled('contact')) routes.add('/contact');
   if (newsPageEnabled()) routes.add('/news');

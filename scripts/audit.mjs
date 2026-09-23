@@ -76,6 +76,7 @@ const routes = [
     '/tags/',
     '/tags/guide/',
     '/authors/you/',
+    '/research/',
     '/slides/',
     '/contact/',
     '/search/',

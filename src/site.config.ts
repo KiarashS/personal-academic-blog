@@ -27,6 +27,7 @@ export type FeatureName =
   | 'archive'
   | 'categories'
   | 'projects'
+  | 'research'
   | 'slides'
   | 'contact'
   | 'news';
@@ -411,6 +412,9 @@ export const siteConfig: SiteConfig = {
     // On once `nav`'s Projects group lists work of yours rather than the
     // example that ships with it.
     projects: true,
+    // The page at /research: the overview in research.md, then the areas in
+    // research.ts. On once both say something of yours.
+    research: false,
     slides: false,
     contact: false,
     // The page at /news and its nav entry. The front page lists the newest few
@@ -498,6 +502,7 @@ export const siteConfig: SiteConfig = {
   nav: [
     { label: 'Home', to: '/', feature: 'home' },
     { label: 'Blog', to: BLOG_INDEX },
+    { label: 'Research', to: '/research', feature: 'research' },
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Slides', to: '/slides', feature: 'slides' },
     { label: 'News', to: '/news', feature: 'news' },

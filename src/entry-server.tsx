@@ -12,6 +12,7 @@ import { HomePage, homeBody } from './pages/HomePage';
 import { NewsPage } from './pages/NewsPage';
 import { PostPage } from './pages/PostPage';
 import { PublicationsPage } from './pages/PublicationsPage';
+import { ResearchPage, researchBody } from './pages/ResearchPage';
 import { SearchPage } from './pages/SearchPage';
 import { SlidesPage } from './pages/SlidesPage';
 
@@ -30,6 +31,7 @@ registerPage('HomePage', HomePage);
 registerPage('NewsPage', NewsPage);
 registerPage('PostPage', PostPage);
 registerPage('PublicationsPage', PublicationsPage);
+registerPage('ResearchPage', ResearchPage);
 registerPage('SearchPage', SearchPage);
 registerPage('SlidesPage', SlidesPage);
 
@@ -40,6 +42,7 @@ export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
 export { configuredNewsWarnings } from './lib/news';
 export { noticeWarnings } from './lib/notice';
+export { researchWarnings } from './lib/research';
 export { pwaEnabled, pwaWarnings, webManifest } from './lib/pwa';
 export { CACHE_PREFIX } from './lib/cache-name';
 export { canonicalUrl, withBase } from './lib/urls';
@@ -56,6 +59,7 @@ async function warmContent(): Promise<void> {
     homeBody.warm(),
     aboutBody.warm(),
     contactBody.warm(),
+    researchBody.warm(),
     ...allContentSlugs().map((slug) => postBody(slug).warm()),
   ]);
 }
