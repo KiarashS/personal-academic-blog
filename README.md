@@ -396,7 +396,7 @@ render at build time.
 
 #### Diagram themes
 
-The two renders use mermaid's `neutral` and `dark` themes, named in
+The two renders use mermaid's `default` and `dark` themes, named in
 `DIAGRAM_THEMES` in `scripts/diagram-source.mjs`. Changing the look of every
 diagram on the site is changing those two words; they live there rather than in
 `src/site.config.ts` because `npm run diagrams` runs before the build, so there

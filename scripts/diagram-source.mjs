@@ -6,7 +6,7 @@
  * Node script to read yet. Changing the look of every diagram on the site is
  * changing these two words.
  */
-export const DIAGRAM_THEMES = { light: 'neutral', dark: 'dark' };
+export const DIAGRAM_THEMES = { light: 'default', dark: 'dark' };
 
 /**
  * Every theme mermaid has. `neo`, `handDrawn` and `classic` are *looks*, which

@@ -6,7 +6,7 @@ import { useResource } from '../lib/resource';
 import { reprefix, uniqueIds } from '../lib/svg-ids';
 // The build's own stripper, so a diagram drawn in the browser during
 // development follows the page theme exactly as the built one does.
-import { withoutPinnedTheme } from '../../scripts/diagram-source.mjs';
+import { DIAGRAM_THEMES, withoutPinnedTheme } from '../../scripts/diagram-source.mjs';
 import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
 
@@ -203,7 +203,7 @@ export function PostBody({ slug }: { slug: string }) {
         startOnLoad: false,
         securityLevel: 'strict',
         suppressErrorRendering: true,
-        theme: theme === 'dark' ? 'dark' : 'neutral',
+        theme: theme === 'dark' ? DIAGRAM_THEMES.dark : DIAGRAM_THEMES.light,
         fontFamily: 'var(--sans)',
       });
 
