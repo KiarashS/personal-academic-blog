@@ -155,6 +155,25 @@ recognises stays exactly as written, so `12:30:45` and a `Note:` at the start of
 a line are safe; and the very short names are real, so `:x:` is ❌ rather than a
 letter between colons.
 
+## Mermaid
+
+```mermaid
+classDiagram
+Class01 <|-- AveryLongClass : Cool
+Class03 *-- Class04
+Class05 o-- Class06
+Class07 .. Class08
+Class09 --> C2 : Where am i?
+Class09 --* C3
+Class09 --|> Class07
+Class07 : equals()
+Class07 : Object[] elementData
+Class01 : size()
+Class01 : int chimp
+Class01 : int gorilla
+Class08 <--> C2: Cool label
+```
+
 ## Alerts
 
 GitHub's alert syntax works here. A blockquote whose first line is one of five
