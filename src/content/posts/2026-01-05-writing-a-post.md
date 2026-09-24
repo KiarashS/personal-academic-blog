@@ -226,6 +226,11 @@ while part 2 is still a draft.
 ## Mermaid
 
 ```mermaid
+---
+config:
+  theme: neo
+  look: neo
+---
 sequenceDiagram
     participant web as Web Browser
     participant blog as Blog Service
