@@ -396,8 +396,9 @@ render at build time.
 
 #### Diagram themes
 
-The two renders use mermaid's `default` and `dark` themes, named in
-`DIAGRAM_THEMES` in `scripts/diagram-source.mjs`. Changing the look of every
+The two renders use mermaid's `redux-color` and `redux-dark-color` themes, a
+matched pair that gives each participant its own hue over light fills and dark
+ones. They are named in `DIAGRAM_THEMES` in `scripts/diagram-source.mjs`. Changing the look of every
 diagram on the site is changing those two words; they live there rather than in
 `src/site.config.ts` because `npm run diagrams` runs before the build, so there
 is no compiled config for a plain Node script to read yet.
@@ -406,7 +407,12 @@ A `theme:` in a diagram's own frontmatter is taken out before it is rendered,
 and the build says so. It has to be: that setting outranks the one the renderer
 passes, so both renders come out identical and a dark page shows a light
 diagram. Measured on the sequence diagram that prompted this — the two SVGs
-shared all four of their fills, and the diagram followed neither theme.
+shared all four of their fills.
+
+`MERMAID_THEMES`, which that warning names, is checked against the `theme`
+union in `node_modules/mermaid/dist/config.type.d.ts` by
+`src/test/diagram-source.test.ts`. A hand-kept copy went stale across an
+upgrade and the build told an author that `neo`, a real theme, was not one.
 
 ```yaml
 ---

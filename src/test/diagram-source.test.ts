@@ -1,7 +1,12 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 // A plain script module, imported here so its one piece of string handling is
 // covered by the suite the rest of the site uses. Types in the `.d.mts` beside it.
-import { MERMAID_THEMES, withoutPinnedTheme as strip } from '../../scripts/diagram-source.mjs';
+import {
+  DIAGRAM_THEMES,
+  MERMAID_THEMES,
+  withoutPinnedTheme as strip,
+} from '../../scripts/diagram-source.mjs';
 
 describe('withoutPinnedTheme', () => {
   it('leaves a diagram with no frontmatter exactly as it was', () => {
@@ -57,8 +62,36 @@ describe('withoutPinnedTheme', () => {
 });
 
 describe('MERMAID_THEMES', () => {
-  it('is the set a warning can name, and does not include the looks', () => {
-    expect(MERMAID_THEMES).toEqual(['base', 'dark', 'default', 'forest', 'neutral']);
-    expect(MERMAID_THEMES).not.toContain('neo');
+  /*
+   * Read off mermaid rather than written down here. A hand-kept list went
+   * stale across an upgrade and the build told an author that `neo`, a real
+   * theme, was not one — so the list is now checked against the package that
+   * decides.
+   */
+  const declared = () => {
+    const types = readFileSync('node_modules/mermaid/dist/config.type.d.ts', 'utf8');
+    const union = /^\s*theme\?:\s*([^;]+);/m.exec(types);
+    if (!union) throw new Error('mermaid no longer declares `theme` as a union of names');
+    return [...union[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((name) => name !== 'null');
+  };
+
+  it('is every theme mermaid declares', () => {
+    expect([...MERMAID_THEMES].sort()).toEqual(declared().sort());
+  });
+
+  it('does not include a look', () => {
+    expect(MERMAID_THEMES).not.toContain('handDrawn');
+    expect(MERMAID_THEMES).not.toContain('classic');
+  });
+});
+
+describe('DIAGRAM_THEMES', () => {
+  it('draws each page theme in a theme mermaid has', () => {
+    expect(MERMAID_THEMES).toContain(DIAGRAM_THEMES.light);
+    expect(MERMAID_THEMES).toContain(DIAGRAM_THEMES.dark);
+  });
+
+  it('draws the two page themes differently', () => {
+    expect(DIAGRAM_THEMES.light).not.toBe(DIAGRAM_THEMES.dark);
   });
 });

@@ -1,20 +1,42 @@
 /**
  * The mermaid themes the site's two page themes are drawn in.
  *
+ * `redux-color` and `redux-dark-color` are a matched pair: the same hue per
+ * participant, over light fills and dark ones. They are what mermaid's own
+ * documentation draws its examples in, and they need mermaid 12 — in 11 both
+ * names resolve to a single flat actor background.
+ *
  * They live here rather than in `src/site.config.ts` because `npm run
  * diagrams` runs before the build, so there is no compiled config for a plain
  * Node script to read yet. Changing the look of every diagram on the site is
  * changing these two words.
  */
-export const DIAGRAM_THEMES = { light: 'default', dark: 'dark' };
+export const DIAGRAM_THEMES = { light: 'redux-color', dark: 'redux-dark-color' };
 
 /**
- * Every theme mermaid has. `neo`, `handDrawn` and `classic` are *looks*, which
- * is a different setting and a common thing to write here by mistake: mermaid
+ * Every theme mermaid has, copied from the `theme` union in
+ * `node_modules/mermaid/dist/config.type.d.ts`. Check it against that union
+ * when upgrading mermaid: a name missing from here is reported as a mistake
+ * when it is not one.
+ *
+ * `neo` is both a theme and a look. `handDrawn` and `classic` are looks only,
+ * and writing one of them here is the mistake this list catches — mermaid
  * takes an unknown theme without complaint and draws the diagram with no
  * palette at all.
  */
-export const MERMAID_THEMES = ['base', 'dark', 'default', 'forest', 'neutral'];
+export const MERMAID_THEMES = [
+  'base',
+  'dark',
+  'default',
+  'forest',
+  'neutral',
+  'neo',
+  'neo-dark',
+  'redux',
+  'redux-dark',
+  'redux-color',
+  'redux-dark-color',
+];
 
 const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$\r?\n?/m;
 

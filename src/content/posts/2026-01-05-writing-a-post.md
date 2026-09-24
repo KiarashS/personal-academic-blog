@@ -227,9 +227,13 @@ while part 2 is still a draft.
 
 Every diagram is drawn twice, light and dark, and the page shows whichever
 matches the reader's theme. A `theme:` in a diagram's own frontmatter is
-dropped for that reason — it would outrank the renderer's and give both copies
-the same colours. `look:` and `layout:` are kept. Note that `neo` is a look,
-not a theme.
+dropped for that reason: it would outrank the renderer's and give both copies
+the same colours, so a dark page would show a light diagram. `look:` and
+`layout:` are kept, and the build prints the name it dropped.
+
+The two themes are `redux-color` and `redux-dark-color`, set in
+`DIAGRAM_THEMES`. They give each participant its own hue, which is how the
+examples in mermaid's documentation are drawn.
 
 ```mermaid
 sequenceDiagram
