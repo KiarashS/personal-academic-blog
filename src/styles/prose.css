@@ -436,6 +436,17 @@
   max-width: 100%;
 }
 
+/*
+ * A label's box is cut at build time to fit that label in Source Sans 3. While
+ * that file is still in flight the fallback face draws wider, and a
+ * `foreignObject` clips to its bounds by default, which takes the end off the
+ * word. Letting it spill means a label is briefly too wide rather than briefly
+ * cut in half, and nothing is lost if the font never arrives at all.
+ */
+.mermaid-figure foreignObject {
+  overflow: visible;
+}
+
 .mermaid-error {
   border: 1px solid var(--rule-strong);
   border-radius: 6px;

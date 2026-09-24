@@ -31,3 +31,31 @@
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/*
+ * Source Sans 3, for prerendered diagrams only — the site's own sans is the
+ * system stack and stays that way.
+ *
+ * A diagram's labels sit in `foreignObject` boxes whose widths mermaid
+ * measures at build time and writes into the SVG. The build machine resolves
+ * `-apple-system, Segoe UI, Roboto, Helvetica Neue, Arial` to Liberation Sans,
+ * having none of the others; a reader on macOS or Windows gets a different
+ * face, and any label wider in that face than in Liberation Sans is clipped by
+ * its box. Measured on the class diagram in the code-and-tables post, drawn in
+ * a face the build had not measured: all 19 labels overflowed, "Where am i?"
+ * by 10px of its 79.
+ *
+ * Pinning one face that both the renderer and the reader use makes the
+ * measured width the displayed width. Roman only, ~29 kB: diagrams have no
+ * italics.
+ */
+@font-face {
+  font-family: 'Source Sans 3 Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('./fonts/source-sans-3-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

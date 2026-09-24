@@ -38,6 +38,20 @@ export const MERMAID_THEMES = [
   'redux-dark-color',
 ];
 
+/**
+ * The font every diagram is drawn and read in.
+ *
+ * Mermaid measures each label at render time and writes the width into the
+ * SVG, so the face the build resolves has to be the face the reader gets or
+ * the labels are clipped by boxes cut for someone else's metrics. Both sides
+ * name this one, `src/styles/fonts.css` serves it, and the file beside it is
+ * loaded into the renderer before anything is measured.
+ */
+export const DIAGRAM_FONT = "'Source Sans 3 Variable', sans-serif";
+
+/** The woff2 behind `DIAGRAM_FONT`, relative to the repository root. */
+export const DIAGRAM_FONT_FILE = 'src/styles/fonts/source-sans-3-latin-wght-normal.woff2';
+
 const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$\r?\n?/m;
 
 /**

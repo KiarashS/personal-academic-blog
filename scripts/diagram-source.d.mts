@@ -20,4 +20,6 @@ export type MermaidTheme =
 
 export declare const DIAGRAM_THEMES: { light: MermaidTheme; dark: MermaidTheme };
 export declare const MERMAID_THEMES: MermaidTheme[];
+export declare const DIAGRAM_FONT: string;
+export declare const DIAGRAM_FONT_FILE: string;
 export declare function withoutPinnedTheme(source: string): { source: string; theme?: string };

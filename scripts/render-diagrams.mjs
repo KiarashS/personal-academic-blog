@@ -3,7 +3,13 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { chromium } from 'playwright';
-import { DIAGRAM_THEMES, MERMAID_THEMES, withoutPinnedTheme } from './diagram-source.mjs';
+import {
+  DIAGRAM_FONT,
+  DIAGRAM_FONT_FILE,
+  DIAGRAM_THEMES,
+  MERMAID_THEMES,
+  withoutPinnedTheme,
+} from './diagram-source.mjs';
 
 const POSTS = resolve('src/content/posts');
 const EXTRA = [resolve('src/content/about.md')];
@@ -69,6 +75,44 @@ await page.setContent('<!doctype html><html><body></body></html>');
 await page.addScriptTag({ path: MERMAID });
 await page.waitForFunction(() => Boolean(window.mermaid), null, { timeout: 30000 });
 
+/*
+ * The face the reader will see, loaded from the same file the site serves and
+ * awaited before a single label is measured. Without it this page falls back
+ * to whatever sans the build machine happens to have — Liberation Sans on CI —
+ * and every label box is cut to the wrong width.
+ */
+let fontData;
+try {
+  fontData = (await readFile(resolve(DIAGRAM_FONT_FILE))).toString('base64');
+} catch (cause) {
+  console.error(
+    `diagrams: cannot read ${DIAGRAM_FONT_FILE} (${cause.code ?? cause.message}). Every label ` +
+      'would be measured in whatever sans this machine has and cut to that width, so no ' +
+      'diagram is written.',
+  );
+  await browser.close();
+  process.exit(1);
+}
+await page.evaluate(async (data) => {
+  const face = new FontFace(
+    'Source Sans 3 Variable',
+    `url(data:font/woff2;base64,${data}) format('woff2-variations')`,
+    { weight: '200 900' },
+  );
+  await face.load();
+  document.fonts.add(face);
+  await document.fonts.ready;
+}, fontData);
+const fontOk = await page.evaluate(() => document.fonts.check('16px "Source Sans 3 Variable"'));
+if (!fontOk) {
+  console.error(
+    `diagrams: ${DIAGRAM_FONT_FILE} loaded but the browser will not use it, so every label ` +
+      'would be cut to the wrong width. No diagram is written.',
+  );
+  await browser.close();
+  process.exit(1);
+}
+
 let failures = 0;
 
 const pinned = [];
@@ -88,15 +132,14 @@ for (const [key, { source: written, file }] of missing) {
     ['dark', DIAGRAM_THEMES.dark],
   ]) {
     const result = await page.evaluate(
-      async ([diagram, mermaidTheme, id]) => {
+      async ([diagram, mermaidTheme, id, font]) => {
         try {
           window.mermaid.initialize({
             startOnLoad: false,
             securityLevel: 'strict',
             suppressErrorRendering: true,
             theme: mermaidTheme,
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontFamily: font,
           });
           const { svg } = await window.mermaid.render(id, diagram);
           return { svg };
@@ -104,7 +147,7 @@ for (const [key, { source: written, file }] of missing) {
           return { error: String(cause && cause.message ? cause.message : cause) };
         }
       },
-      [source, theme, `d-${key}-${name}`],
+      [source, theme, `d-${key}-${name}`, DIAGRAM_FONT],
     );
 
     if (result.error) {
