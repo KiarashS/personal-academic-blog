@@ -8,10 +8,10 @@ import { siteConfig } from '../site.config';
 /**
  * Two ways out: back to the top of the post, and back to the index.
  *
- * They arrive when the header leaves. The header is not sticky, so scrolling
- * takes the site's name, its nav and the link back to the blog off the screen
- * together — while any of it is on screen the pair repeats what is already
- * there, and the moment it goes there is no way back that is not a scroll.
+ * They arrive when the header leaves and follow the direction of travel from
+ * there — away while the reader is going down the page, back the moment they
+ * come up, and there at the bottom whatever happened on the way. `exitShown`
+ * holds the reasoning.
  *
  * It stands in the corner opposite the contents rail, which is the one fixed
  * thing it could otherwise collide with on a wide screen.
@@ -19,6 +19,7 @@ import { siteConfig } from '../site.config';
 export function PostFooterLinks() {
   const [done, setDone] = useState(false);
   const frame = useRef(0);
+  const previous = useRef(0);
   const still = useReducedMotion();
 
   useEffect(() => {
@@ -27,7 +28,12 @@ export function PostFooterLinks() {
       const header = document.querySelector('.site-header');
       if (!header) return;
       const bottom = header.getBoundingClientRect().bottom + window.scrollY;
-      setDone((shown) => exitShown(shown, bottom, window.scrollY));
+      const scrollY = window.scrollY;
+      const atBottom = scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
+      setDone((shown) =>
+        exitShown(shown, { headerBottom: bottom, scrollY, previous: previous.current, atBottom }),
+      );
+      previous.current = scrollY;
     };
 
     const schedule = () => {

@@ -145,6 +145,46 @@ export function PostBody({ slug }: { slug: string }) {
     return () => container.removeEventListener('click', onClick);
   }, [html, navigate]);
 
+  /*
+   * A block that scrolls sideways needs to be reachable by keyboard, or the
+   * part of it past the edge can only be read with a mouse or a finger. A
+   * code block on a phone is the usual case — the same listing fits the column
+   * on a desktop and does not scroll at all, which is why this was invisible
+   * until the accessibility audit was pointed at a narrow window.
+   *
+   * Only the ones that actually overflow, and only the ones with nothing
+   * focusable inside them already, so a post full of listings does not become
+   * a post full of tab stops. Re-measured on resize, because whether a block
+   * overflows is a question about the window.
+   */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const candidates = [...container.querySelectorAll<HTMLElement>('*')].filter(
+      (el) => /auto|scroll/.test(getComputedStyle(el).overflowX) && !el.querySelector(FOCUSABLE),
+    );
+    if (candidates.length === 0) return;
+
+    const measure = () => {
+      for (const el of candidates) {
+        if (el.scrollWidth > el.clientWidth + 1) el.setAttribute('tabindex', '0');
+        else el.removeAttribute('tabindex');
+      }
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+      for (const el of candidates) el.removeAttribute('tabindex');
+    };
+  }, [html]);
+
   // Only reached in development, or if `npm run diagrams` was not run: the
   // build normally inlines both light and dark SVG for every diagram.
   useEffect(() => {

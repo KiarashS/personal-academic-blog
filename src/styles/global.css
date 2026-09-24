@@ -702,6 +702,19 @@ video {
   margin: 0 0 0.35rem;
 }
 
+/*
+ * The footer's links are 15px of text on a line of their own, which is under
+ * the 24px WCAG 2.5.8 asks of a target and — at 390px, where the row wraps
+ * tightest — too close to their neighbours to earn the spacing exemption.
+ * The padding is vertical only, so the row still reads as one line of small
+ * print rather than a set of buttons.
+ */
+.site-footer__links a,
+.site-footer__links button {
+  display: inline-block;
+  padding-block: 0.28rem;
+}
+
 /* Post list --------------------------------------------------------------- */
 
 .post-list {

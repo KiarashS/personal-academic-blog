@@ -90,31 +90,62 @@ const routes = [
   ]),
 ];
 
+/*
+ * Both widths, because half of these rules are about the window.
+ *
+ * This ran at Playwright's default 1280x720 alone until it was pointed at a
+ * phone by hand, and a code block that fits the column on a desktop scrolls
+ * on a 390px screen — where, with nothing focusable inside it, the part past
+ * the edge could only be reached with a finger. Target size is the same kind
+ * of question: a footer link that clears its neighbours on a wide screen can
+ * fail the spacing exemption once the row wraps.
+ */
+const VIEWPORTS = [
+  { name: 'phone', width: 390, height: 844 },
+  { name: 'desktop', width: 1280, height: 800 },
+];
+
+/*
+ * WCAG 2.2 as well as 2.1. `target-size` lives in 2.2, so without this the
+ * rule that catches a control too small to hit was never run at all.
+ */
+const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
+
 const browser = await chromium.launch(launchOptions);
-const page = await browser.newPage();
 const axe = await readFile(axeSource, 'utf8');
 let total = 0;
 
-for (const route of routes) {
-  await page.goto(base + route, { waitUntil: 'networkidle' });
-  await page.addScriptTag({ content: axe });
-  const results = await page.evaluate(async () =>
-    window.axe.run(document, {
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
-    }),
-  );
+for (const viewport of VIEWPORTS) {
+  const page = await browser.newPage({
+    viewport: { width: viewport.width, height: viewport.height },
+  });
 
-  for (const violation of results.violations) {
-    total += 1;
-    console.error(`${route} — ${violation.id} (${violation.impact}): ${violation.help}`);
-    for (const node of violation.nodes.slice(0, 3)) {
-      console.error(`    ${node.html.slice(0, 120)}`);
+  for (const route of routes) {
+    await page.goto(base + route, { waitUntil: 'networkidle' });
+    await page.addScriptTag({ content: axe });
+    const results = await page.evaluate(
+      async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
+      TAGS,
+    );
+
+    for (const violation of results.violations) {
+      total += 1;
+      console.error(
+        `${route} (${viewport.name}) — ${violation.id} (${violation.impact}): ${violation.help}`,
+      );
+      for (const node of violation.nodes.slice(0, 3)) {
+        console.error(`    ${node.html.slice(0, 120)}`);
+      }
     }
   }
+
+  await page.close();
 }
 
 await browser.close();
 server.close();
 
-console.log(`audit: ${routes.length} routes, ${total} accessibility violations`);
+console.log(
+  `audit: ${routes.length} routes x ${VIEWPORTS.length} widths, ${total} accessibility violations`,
+);
 if (total > 0) process.exit(1);

@@ -26,7 +26,7 @@ npm run lint:fix   # the same, applying what can be fixed
 npm run build      # diagrams, type-check, bundle, cards, prerender → dist/
 npm run preview    # serve the build locally
 npm run links      # every internal link in dist resolves (--external checks the rest)
-npm run audit:a11y # axe-core over one page of each kind
+npm run audit:a11y # axe-core over one page of each kind, phone and desktop
 npm run diagrams   # re-render diagrams only
 npm run cards      # re-render social images only
 ```
@@ -885,12 +885,21 @@ there, and the moment it goes there is no way back that is not a scroll.
 Measured on the built site, that is 130px in on a desktop and 155px on a phone,
 about 2% of a long post.
 
+Past the header they follow the direction of travel: away while the reader is
+going down the page, back the moment they come up, and there at the bottom
+whatever happened on the way. A fixed control over a column that fills the
+window covers words, and on a 390px screen the pair sat on the last line of
+every paragraph it passed. No corner avoids that when the column is the whole
+width, so the answer is to be absent while there is reading going on — which is
+also when nobody is looking for the way out.
+
 They waited for the end of the reading matter at first, which put them after
 the only stretch of the page they were for. `exitShown` in
-`src/lib/progress.ts` holds the decision in a 24px band either side of the
-header's edge, so a reader parked on the boundary does not flip them on and off
-— they animate as they arrive, and each flip would be a movement at the edge of
-the eye.
+`src/lib/progress.ts` holds all of this, with a 24px band either side of the
+header's edge and an 8px one either side of a standstill, so neither a reader
+parked on the boundary nor a jittery finger flips them on and off — they
+animate as they arrive, and each flip would be a movement at the edge of the
+eye.
 
 They stay in the corner rather than hanging off the bottom of the contents
 rail. The rail only exists above 80rem and only when it is switched on, so a
@@ -2027,7 +2036,18 @@ output rather than the source, because that is what readers get:
 - `npm run links` resolves every internal link and `#fragment` in `dist` and
   fails on a miss. External links are reported with `--external` but never fail
   a build; they rot for reasons outside this repository.
-- `npm run audit:a11y` runs axe-core over one page of each kind at WCAG 2.1 AA.
+- `npm run audit:a11y` runs axe-core over one page of each kind at WCAG 2.2 AA,
+  at 390px and at 1280px.
+
+  Both of those were widened after a sweep of the built site found what the
+  narrower settings could not. It ran at Playwright's default 1280x720 alone,
+  so nothing that only goes wrong on a phone was ever checked: a code block
+  that fits the column on a desktop scrolls on a 390px screen, and with nothing
+  focusable inside it the part past the edge could only be reached with a
+  finger. And the tag list stopped at WCAG 2.1, which meant `target-size` — the
+  rule that catches a control too small to hit — had never run at all; it found
+  the footer's links, 15px tall and, once the row wraps at 390px, too close
+  together to earn the spacing exemption.
 
 Both run in CI. `.github/workflows/checks.yml` runs the whole set on pull
 requests and on any branch that is not `main`; the deploy workflow runs them

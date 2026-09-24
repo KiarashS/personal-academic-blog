@@ -24,20 +24,43 @@ export function readingProgress({ top, height, scrollY, viewport }: ProgressInpu
 /** How far past the header's edge the decision is held, so it cannot flicker. */
 const EXIT_BAND = 24;
 
+/** Movement small enough to be a jitter rather than a change of mind. */
+const EXIT_STEP = 8;
+
+export interface ExitInput {
+  /** Distance from the top of the document to the bottom of the header. */
+  headerBottom: number;
+  scrollY: number;
+  /** Where the last measurement found it. */
+  previous: number;
+  /** Whether there is any page left below. */
+  atBottom: boolean;
+}
+
 /**
  * Whether the way out of a post is shown, given whether it was a moment ago.
  *
- * The header is not sticky, so scrolling takes the site's name, its nav and
- * the link back to the blog off the screen together. While any of that is
- * still visible the pair repeats what is already there; the moment it goes,
- * the reader has no way back that does not involve scrolling. That is the
- * moment, and it is early — waiting for the end of the reading matter meant
- * the two links arrived after the only stretch of the page they were for.
+ * Two rules, and the second is the one a phone needs. The header is not
+ * sticky, so scrolling takes the site's name, its nav and the link back to the
+ * blog off the screen together; while any of that is visible the pair repeats
+ * what is already there, so it stays away.
  *
- * The band is what keeps it from blinking. Without it a reader parked on the
- * boundary flips the pair on and off with every small scroll, and the pair
- * animates as it arrives, so each flip is a movement at the edge of the eye.
+ * Past that it follows the direction of travel: gone while the reader is going
+ * down the page, back as soon as they come up. A fixed control over a column
+ * that fills the window covers words, and on a 390px screen the pair sat on
+ * the last line of every paragraph it passed. There is no arrangement of a
+ * corner that avoids that — the column is the whole width — so the answer is
+ * to be absent while there is reading going on, which is also when nobody is
+ * looking for the way out. At the bottom it shows regardless: there is no more
+ * scrolling down to do, and that is where the decision to leave gets made.
  */
-export function exitShown(shown: boolean, headerBottom: number, scrollY: number): boolean {
-  return scrollY > headerBottom + (shown ? -EXIT_BAND : EXIT_BAND);
+export function exitShown(was: boolean, input: ExitInput): boolean {
+  const { headerBottom, scrollY, previous, atBottom } = input;
+  if (scrollY <= headerBottom + (was ? -EXIT_BAND : EXIT_BAND)) return false;
+  if (atBottom) return true;
+
+  const moved = scrollY - previous;
+  if (moved > EXIT_STEP) return false;
+  if (moved < -EXIT_STEP) return true;
+  return was;
 }
