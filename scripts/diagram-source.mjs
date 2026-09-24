@@ -52,6 +52,21 @@ export const DIAGRAM_FONT = "'Source Sans 3 Variable', sans-serif";
 /** The woff2 behind `DIAGRAM_FONT`, relative to the repository root. */
 export const DIAGRAM_FONT_FILE = 'src/styles/fonts/source-sans-3-latin-wght-normal.woff2';
 
+/**
+ * The layout engine every diagram is drawn with.
+ *
+ * This is already mermaid 12's default, and pinning it produced a byte-for-byte
+ * identical SVG when it was measured. It is written down because the default
+ * moved once without anyone asking: mermaid 11 defaulted to `dagre` and did not
+ * bundle elk, so the upgrade done for the theme work quietly changed the
+ * engine, and the flowchart on the diagrams post went from 774x177 to 744x167.
+ *
+ * Mermaid takes an unknown layout name without complaint and falls back to
+ * dagre, so a typo here or in a diagram's own frontmatter is a silent change of
+ * engine rather than an error.
+ */
+export const DIAGRAM_LAYOUT = 'elk';
+
 const FRONTMATTER = /^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$\r?\n?/m;
 
 /**

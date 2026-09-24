@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import {
   DIAGRAM_FONT,
   DIAGRAM_FONT_FILE,
+  DIAGRAM_LAYOUT,
   DIAGRAM_THEMES,
   MERMAID_THEMES,
   withoutPinnedTheme,
@@ -132,13 +133,14 @@ for (const [key, { source: written, file }] of missing) {
     ['dark', DIAGRAM_THEMES.dark],
   ]) {
     const result = await page.evaluate(
-      async ([diagram, mermaidTheme, id, font]) => {
+      async ([diagram, mermaidTheme, id, font, layout]) => {
         try {
           window.mermaid.initialize({
             startOnLoad: false,
             securityLevel: 'strict',
             suppressErrorRendering: true,
             theme: mermaidTheme,
+            layout,
             fontFamily: font,
           });
           const { svg } = await window.mermaid.render(id, diagram);
@@ -147,7 +149,7 @@ for (const [key, { source: written, file }] of missing) {
           return { error: String(cause && cause.message ? cause.message : cause) };
         }
       },
-      [source, theme, `d-${key}-${name}`, DIAGRAM_FONT],
+      [source, theme, `d-${key}-${name}`, DIAGRAM_FONT, DIAGRAM_LAYOUT],
     );
 
     if (result.error) {

@@ -394,6 +394,25 @@ Mermaid. In `npm run dev` diagrams render in the browser instead, which keeps
 the edit loop fast, and that same path is the fallback if a diagram fails to
 render at build time.
 
+#### Diagram layout
+
+Diagrams are laid out by elk, named in `DIAGRAM_LAYOUT` in
+`scripts/diagram-source.mjs`. That is also mermaid 12's own default, and
+pinning it rendered a byte-for-byte identical SVG, so it is written down
+purely so it cannot move underneath the site again: mermaid 11 defaulted to
+`dagre` and did not bundle elk, and the upgrade done for the theme work
+changed the engine without anything being said — the flowchart on the diagrams
+post went from 774x177 to 744x167.
+
+An unknown layout name is taken without complaint and falls back to `dagre`,
+in `DIAGRAM_LAYOUT` and in a diagram's own frontmatter alike, so a typo there
+is a change of engine rather than an error.
+
+A `layout:` in a diagram's frontmatter is kept rather than stripped, unlike
+`theme:`. It has to be: one diagram wanting a different engine is a reasonable
+thing to ask for and says nothing about the page's light and dark copies, which
+is the only reason `theme:` cannot stay.
+
 #### Diagram themes
 
 The two renders use mermaid's `redux-color` and `redux-dark-color` themes, a
