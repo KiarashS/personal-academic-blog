@@ -232,11 +232,6 @@ the same colours. `look:` and `layout:` are kept. Note that `neo` is a look,
 not a theme.
 
 ```mermaid
----
-config:
-  theme: neo
-  look: neo
----
 sequenceDiagram
     participant web as Web Browser
     participant blog as Blog Service
