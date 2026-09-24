@@ -885,21 +885,27 @@ there, and the moment it goes there is no way back that is not a scroll.
 Measured on the built site, that is 130px in on a desktop and 155px on a phone,
 about 2% of a long post.
 
-Past the header they follow the direction of travel: away while the reader is
-going down the page, back the moment they come up, and there at the bottom
-whatever happened on the way. A fixed control over a column that fills the
-window covers words, and on a 390px screen the pair sat on the last line of
-every paragraph it passed. No corner avoids that when the column is the whole
-width, so the answer is to be absent while there is reading going on — which is
-also when nobody is looking for the way out.
+Past the header they stay for the rest of the page, whichever way the reader
+is going.
 
-They waited for the end of the reading matter at first, which put them after
-the only stretch of the page they were for. `exitShown` in
-`src/lib/progress.ts` holds all of this, with a 24px band either side of the
-header's edge and an 8px one either side of a standstill, so neither a reader
-parked on the boundary nor a jittery finger flips them on and off — they
-animate as they arrive, and each flip would be a movement at the edge of the
-eye.
+They followed the direction of travel for one revision — gone while scrolling
+down, back on the way up — to keep them off the prose on a narrow screen. That
+was the wrong trade twice over: scrolling down is reading, which is nearly the
+whole visit, so the pair was missing exactly when it was wanted, which is the
+thing moving it earlier was meant to fix.
+
+What gives instead is the width of the pair. Below 80rem there is no margin
+beside the column for a fixed control to live in, so it sits over the text
+whichever corner it takes; what it can do is take up less of it. There the
+labels are hidden and the two icons stand alone in 44px circles, 94px across
+the pair — about a quarter of a 390px line, where the labelled version covered
+well over half. From 80rem, the same width the contents rail appears at and for
+the same reason, the margin is 272px and the labels are free.
+
+`exitShown` in `src/lib/progress.ts` holds the decision in a 24px band either
+side of the header's edge, so a reader parked on the boundary does not flip the
+pair on and off — it animates as it arrives, and each flip would be a movement
+at the edge of the eye.
 
 They stay in the corner rather than hanging off the bottom of the contents
 rail. The rail only exists above 80rem and only when it is switched on, so a

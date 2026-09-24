@@ -24,43 +24,25 @@ export function readingProgress({ top, height, scrollY, viewport }: ProgressInpu
 /** How far past the header's edge the decision is held, so it cannot flicker. */
 const EXIT_BAND = 24;
 
-/** Movement small enough to be a jitter rather than a change of mind. */
-const EXIT_STEP = 8;
-
-export interface ExitInput {
-  /** Distance from the top of the document to the bottom of the header. */
-  headerBottom: number;
-  scrollY: number;
-  /** Where the last measurement found it. */
-  previous: number;
-  /** Whether there is any page left below. */
-  atBottom: boolean;
-}
-
 /**
  * Whether the way out of a post is shown, given whether it was a moment ago.
  *
- * Two rules, and the second is the one a phone needs. The header is not
- * sticky, so scrolling takes the site's name, its nav and the link back to the
- * blog off the screen together; while any of that is visible the pair repeats
- * what is already there, so it stays away.
+ * One rule: the header has gone. It is not sticky, so scrolling takes the
+ * site's name, its nav and the link back to the blog off the screen together,
+ * and that is the moment there is no way back that is not a scroll.
  *
- * Past that it follows the direction of travel: gone while the reader is going
- * down the page, back as soon as they come up. A fixed control over a column
- * that fills the window covers words, and on a 390px screen the pair sat on
- * the last line of every paragraph it passed. There is no arrangement of a
- * corner that avoids that — the column is the whole width — so the answer is
- * to be absent while there is reading going on, which is also when nobody is
- * looking for the way out. At the bottom it shows regardless: there is no more
- * scrolling down to do, and that is where the decision to leave gets made.
+ * This briefly also hid the pair while the reader was scrolling down, to keep
+ * it off the prose on a narrow screen. That is reading — it is what a reader
+ * is doing almost the whole time they are on the page — so the pair was
+ * missing exactly when it was wanted, which is the thing it was moved earlier
+ * to fix. Being always there and small enough to ignore beats being correct
+ * about the pixels underneath it; the width of the pair is what gives on a
+ * phone instead, in CSS.
+ *
+ * The band is what keeps it from blinking. Without it a reader parked on the
+ * boundary flips the pair on and off with every small scroll, and it animates
+ * as it arrives, so each flip is a movement at the edge of the eye.
  */
-export function exitShown(was: boolean, input: ExitInput): boolean {
-  const { headerBottom, scrollY, previous, atBottom } = input;
-  if (scrollY <= headerBottom + (was ? -EXIT_BAND : EXIT_BAND)) return false;
-  if (atBottom) return true;
-
-  const moved = scrollY - previous;
-  if (moved > EXIT_STEP) return false;
-  if (moved < -EXIT_STEP) return true;
-  return was;
+export function exitShown(shown: boolean, headerBottom: number, scrollY: number): boolean {
+  return scrollY > headerBottom + (shown ? -EXIT_BAND : EXIT_BAND);
 }

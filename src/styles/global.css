@@ -1703,6 +1703,32 @@ mark {
   color: var(--text);
 }
 
+/*
+ * Below 80rem the icons stand alone.
+ *
+ * There is no margin at that width for a fixed control to live in, so the pair
+ * sits over the column whichever corner it takes; what it can do is take up
+ * less of it. Two 44px circles cover about a quarter of the bottom line, where
+ * the labelled pair covered well over half of a 390px one. From 80rem — the
+ * same width at which the contents rail appears, and for the same reason — the
+ * margin beside the column is 272px and the labels are free, so they stay.
+ *
+ * The label is hidden rather than dropped, so the button keeps a name from its
+ * `aria-label` either way and nothing changes for a screen reader.
+ */
+@media (width < 80rem) {
+  .post-exit__label {
+    display: none;
+  }
+
+  .post-exit__link {
+    block-size: 2.75rem;
+    inline-size: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+}
+
 .post-exit__link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

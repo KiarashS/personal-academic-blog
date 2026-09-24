@@ -35,54 +35,36 @@ describe('readingProgress', () => {
 });
 
 describe('exitShown', () => {
-  const at = (scrollY: number, previous = scrollY, atBottom = false) => ({
-    headerBottom: 100,
-    scrollY,
-    previous,
-    atBottom,
-  });
+  const header = 100;
 
   it('stays away while the header is still on screen', () => {
-    expect(exitShown(false, at(0))).toBe(false);
-    expect(exitShown(false, at(80))).toBe(false);
+    expect(exitShown(false, header, 0)).toBe(false);
+    expect(exitShown(false, header, 80)).toBe(false);
   });
 
-  it('does not blink for a reader parked on the header boundary', () => {
-    expect(exitShown(false, at(110))).toBe(false);
-    expect(exitShown(true, at(110))).toBe(true);
-    expect(exitShown(true, at(90))).toBe(true);
-    expect(exitShown(true, at(70))).toBe(false);
+  it('arrives once the header has gone, and stays for the rest of the page', () => {
+    expect(exitShown(false, header, 125)).toBe(true);
+    expect(exitShown(true, header, 4000)).toBe(true);
+    expect(exitShown(true, header, 9000)).toBe(true);
   });
 
-  it('goes away while the reader is going down the page', () => {
-    // A fixed control over a column that fills the window covers words, and on
-    // a phone the column is the whole width.
-    expect(exitShown(true, at(1200, 1100))).toBe(false);
+  it('does not depend on which way the reader is going', () => {
+    // It did for one revision, to keep it off the prose on a narrow screen.
+    // Scrolling down is reading, which is nearly the whole visit, so the pair
+    // was missing exactly when it was wanted.
+    expect(exitShown(true, header, 3000)).toBe(true);
+    expect(exitShown(true, header, 1000)).toBe(true);
   });
 
-  it('comes back the moment they scroll up', () => {
-    expect(exitShown(false, at(1100, 1200))).toBe(true);
-  });
-
-  it('ignores a jitter too small to be a change of mind', () => {
-    expect(exitShown(true, at(1204, 1200))).toBe(true);
-    expect(exitShown(false, at(1196, 1200))).toBe(false);
-  });
-
-  it('is there at the bottom however the reader arrived', () => {
-    expect(exitShown(false, at(5000, 4000, true))).toBe(true);
-  });
-
-  it('is never there at the bottom of a page too short to leave the header', () => {
-    expect(exitShown(false, at(20, 0, true))).toBe(false);
+  it('does not blink for a reader parked on the boundary', () => {
+    expect(exitShown(false, header, 110)).toBe(false);
+    expect(exitShown(true, header, 110)).toBe(true);
+    expect(exitShown(true, header, 90)).toBe(true);
+    expect(exitShown(true, header, 70)).toBe(false);
   });
 
   it('follows a header that wrapped onto a second line', () => {
-    expect(
-      exitShown(false, { headerBottom: 100, scrollY: 130, previous: 200, atBottom: false }),
-    ).toBe(true);
-    expect(
-      exitShown(false, { headerBottom: 180, scrollY: 130, previous: 200, atBottom: false }),
-    ).toBe(false);
+    expect(exitShown(false, 100, 130)).toBe(true);
+    expect(exitShown(false, 180, 130)).toBe(false);
   });
 });
