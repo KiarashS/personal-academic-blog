@@ -20,6 +20,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     slug: 'x',
     title: 'X',
     date: '2026-01-01',
+    comments: 'on',
     revisions: [],
     tags: [],
     authorIds: [],

@@ -741,6 +741,44 @@ path. To switch them on:
 Until then, each post shows a note where the thread would be. The script is
 loaded lazily and the iframe follows the site's theme.
 
+## Comments on a post
+
+`comments:` in a post's frontmatter decides whether it takes them:
+
+```yaml
+comments: false # no thread at all
+comments: readonly # the thread stays, the box goes
+comments: true # the same as leaving it out
+```
+
+Unset follows `giscus.comments` in `src/site.config.ts`, which ships as `on`.
+Set that to `off` and the few posts that should take comments say so
+themselves — the override works in both directions.
+
+`false` renders nothing: no heading, no frame, and no request to giscus. A post
+that does not take comments does not load a third party to say so.
+
+`readonly` keeps the thread, puts a line above it saying the comments are
+closed, and hides the box. The last part is presentation and not enforcement,
+and the difference matters. giscus has no read-only mode and its frame is
+another origin, so the only way in from outside is the stylesheet giscus loads
+for itself: `data-theme` takes a URL as well as a built-in name.
+`public/giscus/readonly-light.css` and its dark twin import the built-in theme
+and hide `.gsc-comment-box` and `.gsc-reply-box`. The discussion on GitHub
+still accepts posts; locking it there is what closes it. The line above the
+thread is the part that is true whatever happens to the stylesheet, which is
+why it is written in the page rather than left to CSS.
+
+Two consequences of giscus doing the fetching rather than the reader's browser.
+The URL has to be absolute and publicly reachable, so it is built with
+`canonicalUrl` and points at the deployed site; and a site that has never been
+deployed cannot preview a read-only thread, because there is nothing at that
+address yet. The closed line still shows.
+
+A `comments:` value that is none of those three leaves the post on the site
+default, which is usually `on` — a post meant to be closed quietly staying
+open, with nothing on the page looking wrong. The build says so instead.
+
 ## Feed
 
 `feed.xml` is an Atom feed carrying the full text of every post, and each tag

@@ -1,3 +1,4 @@
+import type { CommentState } from '../site.config';
 export interface Author {
   id: string;
   name: string;
@@ -230,6 +231,11 @@ export interface PostFrontmatter {
    * it for most posts; see `Banner` for the longer form.
    */
   banner?: string | Partial<Banner>;
+  /**
+   * Whether this post takes comments: `true`, `false`, or `readonly` to keep
+   * the thread and take the box away. Unset follows `giscus.comments`.
+   */
+  comments?: boolean | CommentState;
 }
 
 export interface Heading {
@@ -259,6 +265,8 @@ export interface PostMeta {
   readingMinutes: number;
   doi?: string;
   banner?: Banner;
+  /** Resolved against the site default, so a component never has to. */
+  comments: CommentState;
   draft: boolean;
   featured: boolean;
   headings: Heading[];

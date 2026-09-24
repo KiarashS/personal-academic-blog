@@ -1,0 +1,25 @@
+/*
+ * The dark giscus theme with the writing taken out of it.
+ *
+ * giscus has no read-only mode, and its frame is another origin, so the only
+ * way to reach inside is the stylesheet it loads for itself: `data-theme`
+ * takes a URL as well as a built-in name. This is that URL for a post whose
+ * comments are closed — the built-in theme, then the two boxes a reader would
+ * type into.
+ *
+ * It is presentation, not enforcement. The discussion on GitHub still accepts
+ * posts; locking it there is what closes it, and the page says so either way.
+ *
+ * Served from public/, so it deploys with the site. Fetched by giscus rather
+ * than by the reader's browser, which is why it has to be an address on the
+ * public internet and why a site that has never been deployed cannot preview
+ * it.
+ */
+@import url('https://giscus.app/themes/dark_dimmed.css');
+
+/* `.gsc-comment-box` is the box at the top or bottom, `.gsc-reply-box` the
+   one under a thread; both from giscus's own components. */
+.gsc-comment-box,
+.gsc-reply-box {
+  display: none !important;
+}

@@ -15,6 +15,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { bannerWarnings, buildPost, todayUtc } from '../src/lib/post-builder';
+import { commentWarnings } from '../src/lib/comments';
 import { siteConfig } from '../src/site.config';
 import type { FeatureName } from '../src/site.config';
 import { parseFrontmatter } from '../src/lib/frontmatter';
@@ -81,6 +82,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
   const featureLinkWarnings = new Set<string>();
+  // Frontmatter that says something the renderer cannot act on.
   const bannerProblems = new Set<string>();
 
   // The pages a flag can take away. Prose that points at one of them degrades
@@ -212,7 +214,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // the fold, so they scroll past it — and a `src` with a typo leaves a
       // gap rather than an error.
       const { data: frontmatter } = parseFrontmatter<PostFrontmatter>(raw);
-      for (const message of bannerWarnings(built.meta.slug, frontmatter.banner)) {
+      for (const message of [
+        ...bannerWarnings(built.meta.slug, frontmatter.banner),
+        ...commentWarnings(built.meta.slug, frontmatter.comments),
+      ]) {
         bannerProblems.add(message);
       }
 

@@ -14,6 +14,7 @@ const post = (overrides: Partial<Post> = {}): Post => ({
   authors: [{ id: 'k', name: 'Kiarash Soleimanzadeh' }],
   summary: '',
   readingMinutes: 3,
+  comments: 'on',
   featured: false,
   headings: [],
   ...overrides,

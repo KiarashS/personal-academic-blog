@@ -44,8 +44,29 @@ part: 1                   # optional; position within the series
 slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
 banner: /figures/rig.jpg  # optional; see below
+comments: true            # optional; false, or readonly
 ---
 ```
+
+### Comments
+
+`comments:` decides whether a post takes them:
+
+```yaml
+comments: false      # no thread at all
+comments: readonly   # the thread stays, the box goes
+```
+
+`true` is the same as leaving it out, which follows `giscus.comments` in
+`src/site.config.ts` — set that to `off` if most of your posts should not take
+comments and a few should.
+
+`false` renders nothing: no heading, no frame, and nothing asked of giscus.
+`readonly` keeps the thread for reading, says so above it, and hides the box.
+That last part is presentation rather than enforcement — giscus has no
+read-only mode, so the box is hidden by a stylesheet giscus loads for itself,
+and the discussion on GitHub still accepts posts. Lock it there to close it
+properly; the two belong together.
 
 ### Banners
 

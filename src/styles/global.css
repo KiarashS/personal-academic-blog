@@ -1654,6 +1654,14 @@ mark {
 
 /* A plain link in the footer's row, not a button that looks pressed. */
 
+/* A post whose discussion is kept but closed. */
+.comments__closed {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  margin: 0 0 1rem;
+}
+
 /* Leaving a post ----------------------------------------------------------- */
 
 /*

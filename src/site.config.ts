@@ -9,6 +9,18 @@ import type { AlertType } from './lib/alerts';
  */
 export const BLOG_INDEX = '@blog';
 
+/**
+ * Whether a post takes comments.
+ *
+ * `readonly` keeps the thread on the page and takes the box away, for a post
+ * whose discussion has run its course but is worth reading. It is presentation
+ * and not enforcement: giscus has no read-only mode, so the box is hidden with
+ * a stylesheet of the site's own, and anyone who goes to the discussion on
+ * GitHub can still post there. Locking the discussion is what actually closes
+ * it, and the two go together — this says so on the page, that makes it true.
+ */
+export type CommentState = 'on' | 'off' | 'readonly';
+
 export interface GiscusConfig {
   repo: `${string}/${string}`;
   repoId: string;
@@ -17,6 +29,12 @@ export interface GiscusConfig {
   mapping: 'pathname' | 'url' | 'title' | 'og:title';
   reactionsEnabled: boolean;
   lang: string;
+  /**
+   * What a post gets when its frontmatter says nothing. `comments:` on the
+   * post overrides it either way, so `off` here is how a blog that takes
+   * comments on a few posts and not the rest is run.
+   */
+  comments: CommentState;
 }
 
 /** Optional parts of the site that can be switched off wholesale. */
@@ -573,6 +591,9 @@ export const siteConfig: SiteConfig = {
     mapping: 'pathname',
     reactionsEnabled: true,
     lang: 'en',
+    // Every post takes comments unless it says otherwise. `comments: false` or
+    // `comments: readonly` in a post's frontmatter is the override.
+    comments: 'on',
   },
   analytics: {
     // Empty: blog.kiarashs.ir is proxied through Cloudflare, so the beacon is

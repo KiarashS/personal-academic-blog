@@ -1,18 +1,30 @@
 import { useEffect, useRef } from 'react';
+import { commentsConfigured } from '../lib/comments';
+import { giscusTheme } from '../lib/giscus';
 import { siteConfig } from '../site.config';
 import { useTheme } from './ThemeProvider';
+import type { CommentState } from '../site.config';
 
 const GISCUS_ORIGIN = 'https://giscus.app';
 
 /**
  * Comments run on giscus, which stores threads as GitHub Discussions on the
  * blog's own repository. Readers sign in with GitHub; nothing is stored here.
+ *
+ * `readonly` keeps the thread and takes the box away. giscus has no such mode,
+ * and its frame is another origin, so the box is hidden by the stylesheet
+ * giscus loads for itself — `data-theme` takes a URL as well as a built-in
+ * name. That is presentation: the discussion on GitHub still accepts posts,
+ * and locking it there is what closes it. The line above the thread says the
+ * comments are closed whether or not the stylesheet arrives, which is the part
+ * that has to be true.
  */
-export function Comments({ term }: { term: string }) {
+export function Comments({ state, term }: { state: CommentState; term: string }) {
   const { giscus } = siteConfig;
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
-  const configured = Boolean(giscus.repoId && giscus.categoryId);
+  const configured = commentsConfigured(giscus);
+  const dressing = giscusTheme(state, theme === 'dark');
 
   useEffect(() => {
     const container = containerRef.current;
@@ -33,26 +45,31 @@ export function Comments({ term }: { term: string }) {
     script.setAttribute('data-reactions-enabled', giscus.reactionsEnabled ? '1' : '0');
     script.setAttribute('data-emit-metadata', '0');
     script.setAttribute('data-input-position', 'top');
-    script.setAttribute('data-theme', theme === 'dark' ? 'dark_dimmed' : 'light');
+    script.setAttribute('data-theme', dressing);
     script.setAttribute('data-lang', giscus.lang);
     script.setAttribute('data-loading', 'lazy');
     container.appendChild(script);
 
     return () => container.replaceChildren();
-  }, [configured, giscus, term, theme]);
+  }, [configured, dressing, giscus, term]);
 
   // The iframe keeps its own theme, so tell it directly instead of reloading.
   useEffect(() => {
     const frame = containerRef.current?.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
     frame?.contentWindow?.postMessage(
-      { giscus: { setConfig: { theme: theme === 'dark' ? 'dark_dimmed' : 'light' } } },
+      { giscus: { setConfig: { theme: dressing } } },
       GISCUS_ORIGIN,
     );
-  }, [theme]);
+  }, [dressing]);
 
   return (
     <section className="comments" id="comments">
       <h2>Comments</h2>
+      {state === 'readonly' ? (
+        <p className="comments__closed">
+          Comments are closed on this post. The thread below is kept for reading.
+        </p>
+      ) : null}
       {configured ? (
         <div ref={containerRef} />
       ) : (

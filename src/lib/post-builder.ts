@@ -1,6 +1,7 @@
 import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
 import { RESERVED_SLUGS } from './routes';
+import { commentState } from './comments';
 import { mediaKind } from './media';
 import type {
   Banner,
@@ -216,6 +217,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       readingMinutes: readingMinutes(plainText),
       doi: data.doi,
       banner: bannerFrom(data.banner),
+      comments: commentState(data.comments),
       draft: data.draft === true,
       featured: data.featured === true,
     },

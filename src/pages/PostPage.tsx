@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
 import { CiteBlock } from '../components/CiteBlock';
 import { Comments } from '../components/Comments';
+import { commentsShown } from '../lib/comments';
 import { PostBody } from '../components/PostBody';
 import { PublicationNote } from '../components/PublicationNote';
 import { ContentsRail } from '../components/ContentsRail';
@@ -158,7 +159,11 @@ export function PostPage() {
 
       <RelatedPosts posts={relatedPosts(post.slug)} />
 
-      <Comments term={postPath(post.slug)} />
+      {/* Off is absent rather than hidden: no heading, no frame, and nothing
+          asked of giscus for a post that does not take comments. */}
+      {commentsShown(post.comments) ? (
+        <Comments state={post.comments} term={postPath(post.slug)} />
+      ) : null}
     </article>
   );
 }
