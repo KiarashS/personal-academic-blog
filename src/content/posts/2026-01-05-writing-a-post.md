@@ -6,6 +6,7 @@ category: Tutorials
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
+comments: readonly
 banner:
   src: /figures/example-banner.svg
   alt: ''
