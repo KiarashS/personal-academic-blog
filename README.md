@@ -394,6 +394,38 @@ Mermaid. In `npm run dev` diagrams render in the browser instead, which keeps
 the edit loop fast, and that same path is the fallback if a diagram fails to
 render at build time.
 
+#### Diagram themes
+
+The two renders use mermaid's `neutral` and `dark` themes, named in
+`DIAGRAM_THEMES` in `scripts/diagram-source.mjs`. Changing the look of every
+diagram on the site is changing those two words; they live there rather than in
+`src/site.config.ts` because `npm run diagrams` runs before the build, so there
+is no compiled config for a plain Node script to read yet.
+
+A `theme:` in a diagram's own frontmatter is taken out before it is rendered,
+and the build says so. It has to be: that setting outranks the one the renderer
+passes, so both renders come out identical and a dark page shows a light
+diagram. Measured on the sequence diagram that prompted this — the two SVGs
+shared all four of their fills, and the diagram followed neither theme.
+
+```yaml
+---
+config:
+  theme: neo # dropped, with a warning
+  look: neo # kept
+---
+```
+
+Only `theme` is taken. `look:` is a different setting — the hand-drawn and neo
+styling, which works with any palette — and so is `layout:`, and both survive.
+`neo` is a common thing to write as a theme by mistake, since it is a look;
+mermaid accepts an unknown theme without complaint and draws the diagram with
+no palette at all, which is what "the theme does not work" looks like from the
+outside. The warning names the file and lists the five real themes.
+
+The same stripping runs on the development path, where the browser draws the
+diagram, so a diagram looks the same in `npm run dev` as it does in the build.
+
 ### The diagram viewer
 
 A click on a diagram opens it full size, with zoom and drag. It is for the

@@ -225,6 +225,12 @@ while part 2 is still a draft.
 
 ## Mermaid
 
+Every diagram is drawn twice, light and dark, and the page shows whichever
+matches the reader's theme. A `theme:` in a diagram's own frontmatter is
+dropped for that reason — it would outrank the renderer's and give both copies
+the same colours. `look:` and `layout:` are kept. Note that `neo` is a look,
+not a theme.
+
 ```mermaid
 ---
 config:

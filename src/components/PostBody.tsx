@@ -4,6 +4,9 @@ import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postBody } from '../lib/post-content';
 import { useResource } from '../lib/resource';
 import { reprefix, uniqueIds } from '../lib/svg-ids';
+// The build's own stripper, so a diagram drawn in the browser during
+// development follows the page theme exactly as the built one does.
+import { withoutPinnedTheme } from '../../scripts/diagram-source.mjs';
 import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
 
@@ -209,7 +212,8 @@ export function PostBody({ slug }: { slug: string }) {
       const seen = new Set<string>();
 
       for (const [index, block] of blocks.entries()) {
-        const source = block.querySelector('script')?.textContent ?? '';
+        const written = block.querySelector('script')?.textContent ?? '';
+        const { source } = withoutPinnedTheme(written);
         try {
           const { svg } = await mermaid.render(`mermaid-live-${index}`, source);
           if (cancelled) return;

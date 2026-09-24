@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import { DIAGRAM_THEMES, MERMAID_THEMES, withoutPinnedTheme } from './diagram-source.mjs';
 
 const POSTS = resolve('src/content/posts');
 const EXTRA = [resolve('src/content/about.md')];
@@ -23,12 +24,15 @@ async function sources() {
     ...EXTRA.filter((f) => existsSync(f)),
   ];
 
+  // Keyed by a hash of the source as written, so the plugin that looks an
+  // entry up from the same text finds it. The theme is taken out when the
+  // diagram is drawn, not when it is counted.
   const found = new Map();
   for (const file of files) {
     const text = await readFile(file, 'utf8');
     for (const match of text.matchAll(FENCE)) {
       const source = match[1].trim();
-      if (source) found.set(hash(source), source);
+      if (source) found.set(hash(source), { source, file: file.split('/').pop() });
     }
   }
   return found;
@@ -67,11 +71,21 @@ await page.waitForFunction(() => Boolean(window.mermaid), null, { timeout: 30000
 
 let failures = 0;
 
-for (const [key, source] of missing) {
+const pinned = [];
+
+for (const [key, { source: written, file }] of missing) {
+  /*
+   * A `theme:` in the diagram's own frontmatter outranks the one passed to
+   * `initialize`, so both renders would come out the same and a dark page
+   * would show a light diagram. It is taken out here and said out loud below.
+   */
+  const { source, theme: pinnedTheme } = withoutPinnedTheme(written);
+  if (pinnedTheme !== undefined) pinned.push({ file, theme: pinnedTheme });
+
   const rendered = {};
   for (const [name, theme] of [
-    ['light', 'neutral'],
-    ['dark', 'dark'],
+    ['light', DIAGRAM_THEMES.light],
+    ['dark', DIAGRAM_THEMES.dark],
   ]) {
     const result = await page.evaluate(
       async ([diagram, mermaidTheme, id]) => {
@@ -112,6 +126,20 @@ await browser.close();
 // Drop entries for diagrams that no longer appear in any post.
 for (const key of Object.keys(cache)) {
   if (!wanted.has(key)) delete cache[key];
+}
+
+for (const { file, theme } of pinned) {
+  const known = MERMAID_THEMES.includes(theme);
+  console.warn(
+    `diagrams: ${file} pins \`theme: ${theme}\` in a diagram's frontmatter. ` +
+      (known
+        ? 'Every diagram is drawn once per page theme and the page swaps between them, ' +
+          'so a pinned theme would show the same colours on a dark page as a light one. '
+        : `“${theme}” is not one of ${MERMAID_THEMES.join(', ')} — mermaid takes an unknown ` +
+          'theme without complaint and draws the diagram with no palette at all. ') +
+      'It has been ignored; `look:` and the rest of the block are kept. Change ' +
+      'DIAGRAM_THEMES in scripts/diagram-source.mjs to restyle every diagram.',
+  );
 }
 
 await mkdir(dirname(CACHE), { recursive: true });
