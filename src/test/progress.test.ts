@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readingProgress } from '../lib/progress';
+import { exitShown, readingProgress } from '../lib/progress';
 
 // An article 3000px tall starting 200px down, read in an 800px window.
 const article = { top: 200, height: 3000, viewport: 800 };
@@ -31,5 +31,33 @@ describe('readingProgress', () => {
   it('reports nothing read when a short article is still below the fold', () => {
     const short = { top: 2000, height: 400, viewport: 800 };
     expect(readingProgress({ ...short, scrollY: 0 })).toBe(0);
+  });
+});
+
+describe('exitShown', () => {
+  const header = 100;
+
+  it('stays away while the header is still on screen', () => {
+    expect(exitShown(false, header, 0)).toBe(false);
+    expect(exitShown(false, header, 80)).toBe(false);
+  });
+
+  it('arrives once the header has gone, not at the end of the post', () => {
+    expect(exitShown(false, header, 125)).toBe(true);
+  });
+
+  it('does not blink for a reader parked on the boundary', () => {
+    // Hidden, it waits until well past the edge; shown, it waits until well
+    // before it. The gap between the two is what stops a small scroll at 100
+    // flipping it on and off, and it animates as it arrives.
+    expect(exitShown(false, header, 110)).toBe(false);
+    expect(exitShown(true, header, 110)).toBe(true);
+    expect(exitShown(true, header, 90)).toBe(true);
+    expect(exitShown(true, header, 70)).toBe(false);
+  });
+
+  it('follows a header that wrapped onto a second line', () => {
+    expect(exitShown(false, 100, 130)).toBe(true);
+    expect(exitShown(false, 180, 130)).toBe(false);
   });
 });

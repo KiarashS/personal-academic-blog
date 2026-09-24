@@ -62,6 +62,47 @@ export function pan(view: View, dx: number, dy: number): View {
   return { ...view, x: view.x + dx, y: view.y + dy };
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+/** The two fingers of a pinch, at one moment. */
+export interface Pinch {
+  a: Point;
+  b: Point;
+}
+
+const distance = ({ a, b }: Pinch): number => Math.hypot(a.x - b.x, a.y - b.y);
+const midpoint = ({ a, b }: Pinch): Point => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+/**
+ * A pinch, as a zoom and a drag.
+ *
+ * Two fingers say both things at once: how far apart they are is the scale,
+ * and where their midpoint has moved to is the pan. Zooming about that
+ * midpoint is what makes a pinch feel attached to the picture — the point
+ * between the fingers is the one that must not move.
+ *
+ * A factor of 1 when the fingers have not moved apart, rather than a division
+ * by zero when they are on top of each other.
+ */
+export function pinchStep(
+  from: Pinch,
+  to: Pinch,
+): { factor: number; centre: Point; dx: number; dy: number } {
+  const was = distance(from);
+  const now = distance(to);
+  const start = midpoint(from);
+  const end = midpoint(to);
+  return {
+    factor: was > 0 && now > 0 ? now / was : 1,
+    centre: end,
+    dx: end.x - start.x,
+    dy: end.y - start.y,
+  };
+}
+
 /** A little air, so a fitted drawing does not sit against the edges. */
 const FIT_MARGIN = 0.92;
 

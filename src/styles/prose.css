@@ -407,6 +407,19 @@
   opacity: 1;
 }
 
+/*
+ * A touch screen never hovers, so the quiet-until-hovered trick left this
+ * button permanently invisible on a phone — the one place a small diagram is
+ * hardest to read. There it is simply always there, and big enough to hit.
+ */
+@media (pointer: coarse) {
+  .mermaid-figure__expand {
+    block-size: 2.75rem;
+    inline-size: 2.75rem;
+    opacity: 1;
+  }
+}
+
 .mermaid-figure__expand:hover {
   border-color: var(--rule-strong);
   color: var(--text);

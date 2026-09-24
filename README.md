@@ -401,9 +401,9 @@ diagrams that do not fit a text column — a mindmap held to 46rem is a page of
 grey boxes — but every diagram gets it, since a small one opening large is
 harmless and a rule about which ones qualify is a rule nobody can predict.
 
-Zoom in and out step by 1.4, the wheel zooms about the pointer, a double click
-zooms in on the point clicked, and dragging moves the drawing. Fit goes back to
-the opening view. Escape closes it, as does the button and a click outside.
+Zoom in and out step by 1.4, the wheel zooms about the pointer, a pinch zooms
+about the point between the fingers, a double click zooms in on the point
+clicked, and dragging moves the drawing. Fit goes back to the opening view. Escape closes it, as does the button and a click outside.
 `dialog.showModal()` does the focus trap, the Escape key, the backdrop and the
 stacking above the header and the contents rail, so none of that is this
 component's to get wrong.
@@ -419,6 +419,22 @@ Opening fits the diagram to the window, enlarging it if there is room. A
 diagram in a post is held to the width of the text column, so its own size is
 usually small, and answering "show me this bigger" with the same picture in a
 larger window is no answer. An SVG has no resolution to lose by growing.
+
+On a phone, every pointer that is down is held in one map rather than each
+installing listeners of its own: one is a drag and two are a pinch. The first
+version did install them separately, so a second finger added a second drag
+handler and a pinch sent the diagram skidding across the stage while the scale
+never moved. The dialog is sized in `dvh` and `dvw`, since `vh` on a phone is
+the height with the browser's bars hidden and a dialog sized in it overflows
+the screen while they are showing — which is most of the time. The buttons are
+44px on a coarse pointer, against 32x26 before, and the expand button in the
+corner of a figure is always visible there: a touch screen never hovers, so
+quiet-until-hovered left it permanently invisible on the one device where a
+small diagram is hardest to read.
+
+The wheel is listened for on the element with `{ passive: false }` rather than
+through React's `onWheel`, which registers passively at the root — the
+`preventDefault` inside one never runs, and it logged a warning on every notch.
 
 Three things had to be got right for the copy to render at all, each of which
 failed quietly:
@@ -861,16 +877,27 @@ page.
 
 ## Leaving a post
 
-Two ways out appear in the corner once the reader reaches the end of the
-reading matter: back to the top of the post, and back to the index. They use
-the same block and the same measure as the progress bar, so the pair arrives
-exactly as the bar fills, and they stay for the tags, the citation, the
-comments and the related posts below.
+Two ways out appear in the corner once the header has scrolled away: back to
+the top of the post, and back to the index. The header is not sticky, so
+scrolling takes the site's name, its nav and the link back to the blog off the
+screen together — while any of it is showing, the pair repeats what is already
+there, and the moment it goes there is no way back that is not a scroll.
+Measured on the built site, that is 130px in on a desktop and 155px on a phone,
+about 2% of a long post.
 
-Before that they are not rendered at all. A control floating over a paragraph
-someone is reading is chrome, and the only thing floating buys over a row of
-links at the end of the post is being reachable earlier — which is the part
-that was not wanted.
+They waited for the end of the reading matter at first, which put them after
+the only stretch of the page they were for. `exitShown` in
+`src/lib/progress.ts` holds the decision in a 24px band either side of the
+header's edge, so a reader parked on the boundary does not flip them on and off
+— they animate as they arrive, and each flip would be a movement at the edge of
+the eye.
+
+They stay in the corner rather than hanging off the bottom of the contents
+rail. The rail only exists above 80rem and only when it is switched on, so a
+phone would need the corner anyway; its height follows the number of headings,
+so buttons pinned beneath it would sit at a different place on every post and
+halfway up the screen on a short one; and it scrolls inside itself when it is
+long, which would carry them out of reach.
 
 They stand in the corner opposite the contents rail, which is the one other
 fixed thing on a wide screen they could reach. Top scrolls and moves focus to

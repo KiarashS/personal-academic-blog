@@ -41,7 +41,7 @@ export function PostPage() {
       {/* Fixed in the margin, so it sits outside the measured block for the
           same reason the banner does: it is not reading matter. */}
       {railShown() ? <ContentsRail headings={post.headings} /> : null}
-      <PostFooterLinks target={article} />
+      <PostFooterLinks />
       {/* Above the reading matter on purpose. A banner is looked at, not read,
           and inside the measured block it would make the progress bar count
           scrolling past a photograph as progress through the post. */}

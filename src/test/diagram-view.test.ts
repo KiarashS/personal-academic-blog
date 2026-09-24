@@ -5,6 +5,7 @@ import {
   MAX_SCALE,
   MIN_SCALE,
   pan,
+  pinchStep,
   RESET,
   STEP,
   zoomAt,
@@ -110,5 +111,36 @@ describe('fitScale', () => {
 
   it('answers for a drawing it could not measure', () => {
     expect(fitScale({ width: 0, height: 0 }, { width: 800, height: 600 })).toBe(1);
+  });
+});
+
+describe('pinchStep', () => {
+  const at = (ax: number, ay: number, bx: number, by: number) => ({
+    a: { x: ax, y: ay },
+    b: { x: bx, y: by },
+  });
+
+  it('reads the scale from how far the fingers moved apart', () => {
+    expect(pinchStep(at(-50, 0, 50, 0), at(-100, 0, 100, 0)).factor).toBeCloseTo(2, 10);
+    expect(pinchStep(at(-100, 0, 100, 0), at(-50, 0, 50, 0)).factor).toBeCloseTo(0.5, 10);
+  });
+
+  it('zooms about the point between the fingers, which must not move', () => {
+    expect(pinchStep(at(0, 0, 100, 0), at(-50, 0, 150, 0)).centre).toEqual({ x: 50, y: 0 });
+  });
+
+  it('reads the pan from where that point travelled to', () => {
+    const step = pinchStep(at(0, 0, 100, 0), at(40, 20, 140, 20));
+    expect([step.dx, step.dy]).toEqual([40, 20]);
+    expect(step.factor).toBeCloseTo(1, 10);
+  });
+
+  it('holds the scale still rather than dividing by zero', () => {
+    expect(pinchStep(at(10, 10, 10, 10), at(0, 0, 60, 0)).factor).toBe(1);
+    expect(pinchStep(at(0, 0, 60, 0), at(10, 10, 10, 10)).factor).toBe(1);
+  });
+
+  it('measures diagonally, not along one axis', () => {
+    expect(pinchStep(at(0, 0, 3, 4), at(0, 0, 6, 8)).factor).toBeCloseTo(2, 10);
   });
 });

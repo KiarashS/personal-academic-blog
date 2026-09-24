@@ -1,24 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { readingProgress } from '../lib/progress';
+import { exitShown } from '../lib/progress';
 import { blogIndexPath } from '../lib/routes';
 import { useReducedMotion } from '../lib/reduced-motion';
 import { siteConfig } from '../site.config';
 
 /**
- * Two ways out, once the reading is done.
+ * Two ways out: back to the top of the post, and back to the index.
  *
- * They appear when the reader reaches the end of the reading matter — the same
- * block and the same measure the progress bar uses, so the pair arrives exactly
- * as the bar fills — and stay for the tags, the citation, the comments and the
- * related posts below it. Before that they are not rendered at all: a control
- * that floats over a paragraph someone is reading is chrome, and this site does
- * not have much.
+ * They arrive when the header leaves. The header is not sticky, so scrolling
+ * takes the site's name, its nav and the link back to the blog off the screen
+ * together — while any of it is on screen the pair repeats what is already
+ * there, and the moment it goes there is no way back that is not a scroll.
  *
  * It stands in the corner opposite the contents rail, which is the one fixed
  * thing it could otherwise collide with on a wide screen.
  */
-export function PostFooterLinks({ target }: { target: React.RefObject<HTMLElement | null> }) {
+export function PostFooterLinks() {
   const [done, setDone] = useState(false);
   const frame = useRef(0);
   const still = useReducedMotion();
@@ -26,17 +24,10 @@ export function PostFooterLinks({ target }: { target: React.RefObject<HTMLElemen
   useEffect(() => {
     const measure = () => {
       frame.current = 0;
-      const element = target.current;
-      if (!element) return;
-      const box = element.getBoundingClientRect();
-      setDone(
-        readingProgress({
-          top: box.top + window.scrollY,
-          height: box.height,
-          scrollY: window.scrollY,
-          viewport: window.innerHeight,
-        }) >= 1,
-      );
+      const header = document.querySelector('.site-header');
+      if (!header) return;
+      const bottom = header.getBoundingClientRect().bottom + window.scrollY;
+      setDone((shown) => exitShown(shown, bottom, window.scrollY));
     };
 
     const schedule = () => {
@@ -46,8 +37,11 @@ export function PostFooterLinks({ target }: { target: React.RefObject<HTMLElemen
     measure();
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
+    // The header wraps onto a second line at some widths, which moves the edge
+    // the decision is made against.
     const observer = new ResizeObserver(schedule);
-    if (target.current) observer.observe(target.current);
+    const header = document.querySelector('.site-header');
+    if (header) observer.observe(header);
 
     return () => {
       window.removeEventListener('scroll', schedule);
@@ -55,7 +49,7 @@ export function PostFooterLinks({ target }: { target: React.RefObject<HTMLElemen
       observer.disconnect();
       if (frame.current !== 0) window.cancelAnimationFrame(frame.current);
     };
-  }, [target]);
+  }, []);
 
   if (!done) return null;
 

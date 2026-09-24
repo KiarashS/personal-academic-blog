@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { fitScale, pan, RESET, STEP, zoomAt, zoomBy } from '../lib/diagram-view';
-import type { View } from '../lib/diagram-view';
+import { fitScale, pan, pinchStep, RESET, STEP, zoomAt, zoomBy } from '../lib/diagram-view';
+import type { Point, View } from '../lib/diagram-view';
 
 /** How far a wheel notch zooms. Gentler than a button press, which is deliberate. */
 const WHEEL_STEP = 1.12;
@@ -91,40 +91,75 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
     };
   };
 
-  const onWheel = (event: React.WheelEvent) => {
-    event.preventDefault();
-    const factor = event.deltaY < 0 ? WHEEL_STEP : 1 / WHEEL_STEP;
-    setView((current) => zoomAt(current, factor, pointOn(event)));
+  /*
+   * The wheel is listened for on the element rather than through `onWheel`.
+   * React registers its wheel handlers passively at the root, so the
+   * `preventDefault` in one never runs — it logged "Unable to preventDefault
+   * inside passive event listener invocation" on every notch and left the
+   * browser free to do its own thing with the gesture underneath.
+   */
+  useEffect(() => {
+    const element = stage.current;
+    if (!element) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? WHEEL_STEP : 1 / WHEEL_STEP;
+      setView((current) => zoomAt(current, factor, pointOn(event)));
+    };
+
+    element.addEventListener('wheel', onWheel, { passive: false });
+    return () => element.removeEventListener('wheel', onWheel);
+  }, []);
+
+  /*
+   * Every pointer currently down, by id, at the position it was last seen.
+   *
+   * One is a drag and two are a pinch, which is why they are held together
+   * rather than each installing listeners of its own: the first version did
+   * that, and a second finger added a second drag handler, so a pinch sent
+   * the diagram skidding across the stage while the scale never moved.
+   */
+  const pointers = useRef(new Map<number, Point>());
+
+  const onPointerDown = (event: React.PointerEvent) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.current.size === 1) {
+      event.currentTarget.classList.add('diagram-viewer__stage--dragging');
+    }
   };
 
-  /**
-   * Dragging, on pointer events so a finger and a mouse are the same code.
-   * The pointer is captured, so a drag that leaves the window still ends when
-   * the button does rather than leaving the diagram stuck to the cursor.
-   */
-  const onPointerDown = (event: React.PointerEvent) => {
-    if (event.button !== 0) return;
-    const element = event.currentTarget as HTMLElement;
-    element.setPointerCapture(event.pointerId);
-    let last = { x: event.clientX, y: event.clientY };
+  const onPointerMove = (event: React.PointerEvent) => {
+    const down = pointers.current;
+    const previous = down.get(event.pointerId);
+    if (!previous) return;
+    const next = { x: event.clientX, y: event.clientY };
 
-    const move = (next: PointerEvent) => {
-      const dx = next.clientX - last.x;
-      const dy = next.clientY - last.y;
-      last = { x: next.clientX, y: next.clientY };
-      setView((current) => pan(current, dx, dy));
-    };
-    const up = () => {
-      element.removeEventListener('pointermove', move);
-      element.removeEventListener('pointerup', up);
-      element.removeEventListener('pointercancel', up);
-      element.classList.remove('diagram-viewer__stage--dragging');
-    };
+    if (down.size === 1) {
+      down.set(event.pointerId, next);
+      setView((current) => pan(current, next.x - previous.x, next.y - previous.y));
+      return;
+    }
 
-    element.classList.add('diagram-viewer__stage--dragging');
-    element.addEventListener('pointermove', move);
-    element.addEventListener('pointerup', up);
-    element.addEventListener('pointercancel', up);
+    if (down.size === 2) {
+      const [first, second] = [...down.entries()];
+      const other = first[0] === event.pointerId ? second : first;
+      const step = pinchStep({ a: previous, b: other[1] }, { a: next, b: other[1] });
+      down.set(event.pointerId, next);
+      // The centre is in client coordinates; the stage measures from its middle.
+      const centre = pointOn({ clientX: step.centre.x, clientY: step.centre.y });
+      setView((current) => pan(zoomAt(current, step.factor, centre), step.dx, step.dy));
+    }
+    // Three fingers or more: wait for the reader to make up their mind.
+  };
+
+  const onPointerUp = (event: React.PointerEvent) => {
+    pointers.current.delete(event.pointerId);
+    if (pointers.current.size === 0) {
+      event.currentTarget.classList.remove('diagram-viewer__stage--dragging');
+    }
   };
 
   return (
@@ -168,8 +203,10 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
       <div
         className="diagram-viewer__stage"
         onDoubleClick={(event) => setView((current) => zoomAt(current, STEP, pointOn(event)))}
+        onPointerCancel={onPointerUp}
         onPointerDown={onPointerDown}
-        onWheel={onWheel}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
         ref={stage}
       >
         <div
@@ -180,7 +217,7 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
         />
       </div>
 
-      <p className="diagram-viewer__hint">Drag to move · scroll to zoom · Esc to close</p>
+      <p className="diagram-viewer__hint">Drag to move · pinch or scroll to zoom · Esc to close</p>
     </dialog>
   );
 }
