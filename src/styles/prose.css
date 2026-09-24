@@ -442,8 +442,15 @@
  * `foreignObject` clips to its bounds by default, which takes the end off the
  * word. Letting it spill means a label is briefly too wide rather than briefly
  * cut in half, and nothing is lost if the font never arrives at all.
+ *
+ * The viewer is named separately because the copy it shows is built from the
+ * figure's `innerHTML`: the `.mermaid-figure` element itself never gets there,
+ * so a rule that goes through that class covers the page and not the lightbox,
+ * which is the one place a reader goes to read a label they could not make
+ * out.
  */
-.mermaid-figure foreignObject {
+.mermaid-figure foreignObject,
+.diagram-viewer__drawing foreignObject {
   overflow: visible;
 }
 

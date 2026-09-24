@@ -1897,9 +1897,12 @@ mark {
  * in pixels when the copy is made — see `PostBody` — which is an inline style
  * and beats anything here; these three only stop the boxes around it shrinking
  * back to the column's width.
+ *
+ * The children are the two theme wrappers, `mermaid-figure__light` and
+ * `__dark`. The figure they sit in is not copied — `PostBody` inserts its
+ * `innerHTML` — so naming `.mermaid-figure` here matched nothing at all.
  */
-.diagram-viewer__drawing .mermaid-figure,
-.diagram-viewer__drawing .mermaid-figure > div {
+.diagram-viewer__drawing > div {
   inline-size: max-content;
   margin: 0;
   overflow: visible;

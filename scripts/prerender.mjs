@@ -38,18 +38,27 @@ const {
 const template = await readFile(join(dist, 'index.html'), 'utf8');
 
 /**
- * The body face is only discovered once the stylesheet has been parsed, which
- * costs a round trip on first view. Preloading the roman weight starts it with
- * the CSS. The filename is hashed by the build, so it is looked up rather than
- * hard-coded; italic is left to load on demand.
+ * A face is only discovered once the stylesheet has been parsed, which costs a
+ * round trip on first view. Preloading starts it with the CSS. Filenames are
+ * hashed by the build, so each is looked up by the name it was vendored under
+ * rather than hard-coded.
+ *
+ * Named exactly, because a pattern loose enough to match one roman weight
+ * matches the other: `/wght-normal/` once matched both faces, and every page
+ * on the site preloaded the diagram sans instead of the body serif.
  */
-async function fontPreload() {
+async function fontPreload(vendored) {
   const assets = await readdir(join(dist, 'assets')).catch(() => []);
-  const roman = assets.find((name) => /wght-normal.*\.woff2$/.test(name));
-  if (!roman) return '';
+  const file = assets.find((name) => name.startsWith(vendored));
+  if (!file) {
+    throw new Error(
+      `No built asset for ${vendored}; the preload would be dropped silently. ` +
+        'Check that the face is still vendored in src/styles/fonts and declared in fonts.css.',
+    );
+  }
   return (
     `\n    <link rel="preload" as="font" type="font/woff2" crossorigin ` +
-    `href="${escapeXml(withBase(`/assets/${roman}`))}" />`
+    `href="${escapeXml(withBase(`/assets/${file}`))}" />`
   );
 }
 const TITLE_TAG = /<title>[\s\S]*?<\/title>/;
@@ -64,7 +73,16 @@ const escapeXml = (value) =>
     (char) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[char],
   );
 
-const preload = await fontPreload();
+// The body serif, wanted on every page. Italic is left to load on demand.
+const preload = await fontPreload('source-serif-4-latin-wght-normal');
+
+/*
+ * The diagram sans, wanted only by pages that have a diagram. Mermaid cuts
+ * each label's box to this face at build time, so until it arrives the labels
+ * are drawn in a fallback and spill; preloading it removes the spill on the
+ * pages it can happen on, and leaves the other 20 routes alone.
+ */
+const diagramPreload = await fontPreload('source-sans-3-latin-wght-normal');
 
 /*
  * Cloudflare Web Analytics, when a token is configured: one deferred script
@@ -94,7 +112,7 @@ const INSTALL_TAGS = [
   `<meta name="apple-mobile-web-app-title" content="${escapeXml(siteConfig.shortName)}" />`,
 ];
 
-function head({ title, description, url, type, image, feed, jsonLd }) {
+function head({ title, description, url, type, image, feed, jsonLd }, extraPreload = '') {
   return (
     [
       `<title>${escapeXml(title)}</title>`,
@@ -133,6 +151,7 @@ function head({ title, description, url, type, image, feed, jsonLd }) {
       ...(jsonLd ? [`<script type="application/ld+json">${jsonLd}</script>`] : []),
     ].join('\n    ') +
     preload +
+    extraPreload +
     analytics
   );
 }
@@ -168,8 +187,11 @@ function pageFor(route) {
 }
 
 function document(html, meta) {
+  // Only a page that has a diagram in it asks for the face the diagrams were
+  // measured in, which is the class the build writes around every one.
+  const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
   return template
-    .replace(TITLE_TAG, head(meta))
+    .replace(TITLE_TAG, head(meta, diagrams))
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 }
 

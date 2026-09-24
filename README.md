@@ -929,6 +929,13 @@ with `font-display: swap`, and the prerenderer preloads the roman one. The old
 system stack stays as the fallback, so a reader sees Iowan or Georgia until the
 file lands.
 
+Source Sans 3 is vendored beside it, roman only, ~29 kB, and is used by nothing
+but prerendered diagrams — the site's sans is still the system stack. Mermaid
+cuts each label's box to the face it measured at build time, so the renderer
+and the reader have to agree on one or the labels are clipped; see
+`src/styles/fonts/README.md`. Only routes that actually contain a diagram
+preload it, which the prerenderer decides from the rendered HTML.
+
 The measure is 68 characters (`--measure: 68ch`), which tracks the face rather
 than the root size. Prose is hyphenated, since a 68-character measure collapses
 to about 340px on a phone where unhyphenated technical vocabulary leaves large

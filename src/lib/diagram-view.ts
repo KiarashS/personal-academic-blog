@@ -107,13 +107,23 @@ export function pinchStep(
 const FIT_MARGIN = 0.92;
 
 /**
- * The scale that fits a drawing to the stage, enlarging it if there is room.
+ * The size a diagram was drawn at, which is as large as opening it makes it.
  *
- * Enlarging is the whole point here. A diagram in a post is held to the width
- * of the text column, so its own size is usually small — opening it at that
- * size would answer "show me this bigger" with the same picture in a larger
- * window. An SVG has no native resolution to protect, so growing it costs
- * nothing that a photograph would lose.
+ * The viewer used to fill the stage, and on a desktop that meant enlarging:
+ * the flowchart on the diagrams post opened at 1.62x, the sequence diagrams at
+ * about 1.5x. Mermaid lays a diagram out around 12-16px text, so past 1x
+ * nothing is revealed and the labels just get clumsy.
+ *
+ * What the viewer is for is undoing the text column, not magnifying. Measured
+ * on that same flowchart: 744px drawn, 612px in the post, so 1x is still 22%
+ * more than the page gives. A diagram the post already shows whole opens the
+ * same size, and the zoom buttons are there for a closer look.
+ */
+const MAX_FIT_SCALE = 1;
+
+/**
+ * The scale that fits a drawing to the stage, never above the size it was
+ * drawn at.
  *
  * Clamped like every other scale, which means a drawing large enough to need
  * less than `MIN_SCALE` does not quite fit. That is the better answer: shown
@@ -129,6 +139,7 @@ export function fitScale(
     Math.min(
       (stage.width * FIT_MARGIN) / drawing.width,
       (stage.height * FIT_MARGIN) / drawing.height,
+      MAX_FIT_SCALE,
     ),
   );
 }

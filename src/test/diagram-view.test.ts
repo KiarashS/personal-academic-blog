@@ -95,18 +95,28 @@ describe('fitScale', () => {
     expect(fitScale({ width: 6000, height: 4800 }, { width: 1000, height: 800 })).toBe(MIN_SCALE);
   });
 
-  it('enlarges a small diagram, which is what opening it was for', () => {
-    // Held to the width of a text column in the post, it is small by the time
-    // it gets here; answering with the same picture in a bigger window is no
-    // answer. An SVG has no resolution to lose by growing.
-    expect(fitScale({ width: 400, height: 200 }, { width: 1600, height: 900 })).toBeCloseTo(
-      3.68,
-      10,
-    );
+  it('opens a small diagram at the size it was drawn, not the size of the stage', () => {
+    // Filling the stage used to open the flowchart on the diagrams post at
+    // 1.62x. Mermaid lays a diagram out around 12-16px text, so past 1x
+    // nothing is revealed and the labels only get clumsy.
+    expect(fitScale({ width: 400, height: 200 }, { width: 1600, height: 900 })).toBe(1);
+    expect(fitScale({ width: 20, height: 10 }, { width: 1600, height: 900 })).toBe(1);
   });
 
-  it('stops at the maximum rather than blowing a tiny diagram up to nothing', () => {
-    expect(fitScale({ width: 20, height: 10 }, { width: 1600, height: 900 })).toBe(MAX_SCALE);
+  it('still undoes the text column, which is what opening it was for', () => {
+    // 744px drawn and 612px in the post: 1x is 22% more than the page gives.
+    expect(fitScale({ width: 744, height: 167 }, { width: 1314, height: 740 })).toBe(1);
+  });
+
+  it('shrinks anything wider than the stage, on a phone as much as a desktop', () => {
+    // Fitting that flowchart to a 390px phone wants 0.44, which is under the
+    // floor, so it opens at the floor and the reader drags the rest into view.
+    expect(fitScale({ width: 744, height: 167 }, { width: 358, height: 620 })).toBe(MIN_SCALE);
+    // A narrow window shrinks it without hitting the floor: 700 x 0.92 / 744.
+    expect(fitScale({ width: 744, height: 167 }, { width: 700, height: 740 })).toBeCloseTo(
+      0.8656,
+      3,
+    );
   });
 
   it('answers for a drawing it could not measure', () => {
