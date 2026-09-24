@@ -453,10 +453,13 @@ the cursor stays under it; without that, zooming into the corner of a large
 diagram walks the part you were looking at off the screen. Scale is held
 between 0.5 and 8.
 
-Opening fits the diagram to the window, enlarging it if there is room. A
+Opening fits the diagram to the window, enlarging it by up to a quarter. A
 diagram in a post is held to the width of the text column, so its own size is
 usually small, and answering "show me this bigger" with the same picture in a
-larger window is no answer. An SVG has no resolution to lose by growing.
+larger window is no answer. Filling the window instead was too much the other
+way: the flowchart on the diagrams post opened at 1.62x, and mermaid lays a
+diagram out around 12-16px text, so past its own size nothing further is
+revealed and the labels only look clumsy. The cap keeps 16px text under 20px.
 
 On a phone, every pointer that is down is held in one map rather than each
 installing listeners of its own: one is a drag and two are a pinch. The first

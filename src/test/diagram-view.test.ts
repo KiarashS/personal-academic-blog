@@ -95,17 +95,25 @@ describe('fitScale', () => {
     expect(fitScale({ width: 6000, height: 4800 }, { width: 1000, height: 800 })).toBe(MIN_SCALE);
   });
 
-  it('opens a small diagram at the size it was drawn, not the size of the stage', () => {
+  it('enlarges a small diagram a quarter, not up to the size of the stage', () => {
     // Filling the stage used to open the flowchart on the diagrams post at
-    // 1.62x. Mermaid lays a diagram out around 12-16px text, so past 1x
-    // nothing is revealed and the labels only get clumsy.
-    expect(fitScale({ width: 400, height: 200 }, { width: 1600, height: 900 })).toBe(1);
-    expect(fitScale({ width: 20, height: 10 }, { width: 1600, height: 900 })).toBe(1);
+    // 1.62x. Mermaid lays a diagram out around 12-16px text, so far past its
+    // own size nothing is revealed and the labels only get clumsy.
+    expect(fitScale({ width: 400, height: 200 }, { width: 1600, height: 900 })).toBe(1.25);
+    expect(fitScale({ width: 20, height: 10 }, { width: 1600, height: 900 })).toBe(1.25);
   });
 
-  it('still undoes the text column, which is what opening it was for', () => {
-    // 744px drawn and 612px in the post: 1x is 22% more than the page gives.
-    expect(fitScale({ width: 744, height: 167 }, { width: 1314, height: 740 })).toBe(1);
+  it('holds the cap even in a stage with room to spare', () => {
+    // 744px drawn and 612px in the post, so this opens at 930px.
+    expect(fitScale({ width: 744, height: 167 }, { width: 1314, height: 740 })).toBe(1.25);
+  });
+
+  it('fits rather than capping when the stage is the tighter of the two', () => {
+    // 800 x 0.92 / 744 is under the cap, so the stage decides.
+    expect(fitScale({ width: 744, height: 167 }, { width: 800, height: 740 })).toBeCloseTo(
+      0.9892,
+      3,
+    );
   });
 
   it('shrinks anything wider than the stage, on a phone as much as a desktop', () => {

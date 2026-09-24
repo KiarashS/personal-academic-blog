@@ -107,22 +107,23 @@ export function pinchStep(
 const FIT_MARGIN = 0.92;
 
 /**
- * The size a diagram was drawn at, which is as large as opening it makes it.
+ * As far past its drawn size as opening a diagram enlarges it.
  *
- * The viewer used to fill the stage, and on a desktop that meant enlarging:
- * the flowchart on the diagrams post opened at 1.62x, the sequence diagrams at
- * about 1.5x. Mermaid lays a diagram out around 12-16px text, so past 1x
- * nothing is revealed and the labels just get clumsy.
+ * Filling the stage meant 1.62x for the flowchart on the diagrams post and
+ * about 1.5x for the sequence diagrams, which is enough for the labels to look
+ * clumsy: mermaid lays a diagram out around 12-16px text, so past its own size
+ * nothing further is revealed. Stopping dead at 1x had the opposite fault —
+ * the 178px diagram on that post is shown whole in the prose already, and
+ * opening it would have changed nothing at all.
  *
- * What the viewer is for is undoing the text column, not magnifying. Measured
- * on that same flowchart: 744px drawn, 612px in the post, so 1x is still 22%
- * more than the page gives. A diagram the post already shows whole opens the
- * same size, and the zoom buttons are there for a closer look.
+ * A quarter over is the middle: enough that the small ones grow, little enough
+ * that 16px text never passes 20px. The flowchart, 744px drawn against 612px
+ * in the post, opens at 930px.
  */
-const MAX_FIT_SCALE = 1;
+const MAX_FIT_SCALE = 1.25;
 
 /**
- * The scale that fits a drawing to the stage, never above the size it was
+ * The scale that fits a drawing to the stage, never far past the size it was
  * drawn at.
  *
  * Clamped like every other scale, which means a drawing large enough to need
