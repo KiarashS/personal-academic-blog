@@ -190,7 +190,7 @@
  * Dropping the padding and raising the tint answers both. The box hugs the
  * glyphs, so the comma sits where it should, and the mono already carries its
  * own side bearings so nothing looks cramped. `--inline-code-bg` is a harder
- * tint than the one code blocks use: 1.34:1 in light, 1.28:1 in dark, against
+ * tint than the one code blocks use: 1.18:1 in light, 1.28:1 in dark, against
  * a block's 1.06 — a block is a shape on the page and announces itself, while
  * a few characters mid-sentence have only their own width to do it with.
  *
@@ -203,9 +203,10 @@
 
   /*
    * Stated rather than inherited. A caption sets its text to `--text-muted`,
-   * and muted grey on this tint is 4.07:1 at a caption's 10.88px — under the
-   * 4.5 that size needs, which the old invisible tint had been hiding. Code is
-   * the thing a caption is naming, so it reads in the body colour: 12.68:1.
+   * and muted grey on a tint this side of the page colour ran to 4.07:1 at a
+   * caption's 10.88px — under the 4.5 that size needs, which the old invisible
+   * tint had been hiding. Code is the thing a caption is naming, so it reads
+   * in the body colour rather than the caption's.
    */
   color: var(--text);
   font-family: var(--mono);
