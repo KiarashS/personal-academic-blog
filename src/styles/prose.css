@@ -179,20 +179,38 @@
 /* Code -------------------------------------------------------------------- */
 
 /*
- * Inline code is a change of face and nothing else.
+ * Inline code: tinted enough to see, with no horizontal padding.
  *
- * It used to be a tinted chip, but the tint measured 1.06:1 against the page
- * in light and 1.07:1 in dark — no reader was seeing it. The padding it was
- * there to carry was visible though: 4.62px against a 4.03px word space, so
- * every `code` followed by a comma or a full stop pushed the punctuation a
- * full space away, four times on the code-and-tables post alone.
+ * Those two used to be in tension. The old chip carried 4.62px of side
+ * padding against a 4.03px word space, so a `code` followed by a comma pushed
+ * the punctuation a full space away; but its tint was 1.06:1 against the page,
+ * which no reader could see, so the face was left doing the work alone and a
+ * name in running prose read as prose.
+ *
+ * Dropping the padding and raising the tint answers both. The box hugs the
+ * glyphs, so the comma sits where it should, and the mono already carries its
+ * own side bearings so nothing looks cramped. `--inline-code-bg` is a harder
+ * tint than the one code blocks use: 1.34:1 in light, 1.28:1 in dark, against
+ * a block's 1.06 — a block is a shape on the page and announces itself, while
+ * a few characters mid-sentence have only their own width to do it with.
  *
  * 0.85em is what matches the x-heights, 8px of mono against 9px of the body
  * serif, so the mono sits on the line rather than towering over it.
  */
 .prose code {
+  background: var(--inline-code-bg);
+  border-radius: 2px;
+
+  /*
+   * Stated rather than inherited. A caption sets its text to `--text-muted`,
+   * and muted grey on this tint is 4.07:1 at a caption's 10.88px — under the
+   * 4.5 that size needs, which the old invisible tint had been hiding. Code is
+   * the thing a caption is naming, so it reads in the body colour: 12.68:1.
+   */
+  color: var(--text);
   font-family: var(--mono);
   font-size: 0.85em;
+  padding: 0.1em 0;
 }
 
 .code-block {

@@ -15,7 +15,7 @@ export function ShareLinks({ post }: { post: Post }) {
 
   return (
     <section className="share" aria-labelledby="share-heading">
-      <h2 className="share__heading" id="share-heading">
+      <h2 className="section-heading share__heading" id="share-heading">
         Share
       </h2>
       <ul className="share__list">

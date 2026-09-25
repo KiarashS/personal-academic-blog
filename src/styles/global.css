@@ -16,6 +16,12 @@
   --light-rule-strong: #c9c9c0;
   --light-accent: #7a3b2e;
   --light-code-bg: #f6f6f3;
+
+  /* Inline code is tinted harder than a code block: a block is a shape on the
+     page and announces itself, while a run of `code` inside a sentence has
+     only its own few characters to do it with. 1.34:1 against the page here,
+     1.28:1 in dark — the block tint is 1.06 and was invisible mid-sentence. */
+  --light-inline-code-bg: #e0ddd0;
   --light-surface: #f6f6f3;
   --light-mark: #f3e8c8;
   --light-hl-string: #3f7a4c;
@@ -39,6 +45,7 @@
   --dark-rule-strong: #45453a;
   --dark-accent: #d99a80;
   --dark-code-bg: #1b1b15;
+  --dark-inline-code-bg: #2a2a20;
   --dark-surface: #1f1f18;
   --dark-mark: #4a3f1e;
   --dark-hl-string: #8fbf98;
@@ -66,6 +73,7 @@
   --link: var(--light-text);
   --accent: var(--light-accent);
   --code-bg: var(--light-code-bg);
+  --inline-code-bg: var(--light-inline-code-bg);
   --surface: var(--light-surface);
   --mark: var(--light-mark);
   --hl-string: var(--light-hl-string);
@@ -93,6 +101,7 @@
     --link: var(--dark-text);
     --accent: var(--dark-accent);
     --code-bg: var(--dark-code-bg);
+    --inline-code-bg: var(--dark-inline-code-bg);
     --surface: var(--dark-surface);
     --mark: var(--dark-mark);
     --hl-string: var(--dark-hl-string);
@@ -123,6 +132,7 @@
   --link: var(--dark-text);
   --accent: var(--dark-accent);
   --code-bg: var(--dark-code-bg);
+  --inline-code-bg: var(--dark-inline-code-bg);
   --surface: var(--dark-surface);
   --mark: var(--dark-mark);
   --hl-string: var(--dark-hl-string);
@@ -2331,11 +2341,13 @@ mark {
   padding-top: 1rem;
 }
 
-.share__heading {
-  color: var(--text-muted);
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  font-weight: 500;
+/*
+ * `.section-heading` carries the look; these two only undo its bottom margin,
+ * because in these rows the label sits on the baseline beside its controls
+ * rather than above them.
+ */
+.share__heading,
+.post-tags__heading {
   margin: 0;
 }
 
@@ -2394,26 +2406,26 @@ mark {
   padding-top: 1rem;
 }
 
-/* Matches `.share__heading`; the two sit one above the other. */
-.post-tags__heading {
-  color: var(--text-muted);
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  font-weight: 500;
-  margin: 0;
-}
-
 .cite {
   border-top: 1px solid var(--rule);
   margin-top: 2rem;
   padding-top: 1rem;
 }
 
+/*
+ * The fourth row at the foot of a post, and the last one that did not look
+ * like the others. It is a control rather than a heading, so it keeps the
+ * pointer and the disclosure marker and takes the rest from
+ * `.section-heading`, which Tags, Revisions, Share and Related posts all use.
+ */
 .cite summary {
   color: var(--text-muted);
   cursor: pointer;
   font-family: var(--sans);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .cite summary:hover {
@@ -3020,6 +3032,10 @@ mark {
     --link: #000;
     --accent: #000;
     --code-bg: #fff;
+
+    /* Lighter than on screen: a laser prints a 1.34 tint darker than it looks,
+       and this has to stay clear of --mark below it. */
+    --inline-code-bg: #f2f2f2;
     --mark: #eee;
 
     color-scheme: light;

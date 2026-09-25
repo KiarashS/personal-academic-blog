@@ -120,7 +120,7 @@ export function PostPage() {
 
       {post.tags.length > 0 ? (
         <section className="post-tags" aria-labelledby="tags-heading">
-          <h2 className="post-tags__heading" id="tags-heading">
+          <h2 className="section-heading post-tags__heading" id="tags-heading">
             Tags
           </h2>
           <TagList tags={post.tags} />
