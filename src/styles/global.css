@@ -17,13 +17,6 @@
   --light-accent: #7a3b2e;
   --light-code-bg: #f6f6f3;
 
-  /* Inline code is tinted harder than a code block: a block is a shape on the
-     page and announces itself, while a run of `code` inside a sentence has
-     only its own few characters to do it with. The block tint is 1.06 and was
-     invisible mid-sentence; this is 1.18:1 against the page, and 1.28:1 in
-     dark, where a tint needs more separation to read at all. 1.34 was tried
-     here first and looked like a smudge on a light page. */
-  --light-inline-code-bg: #ecebe2;
   --light-surface: #f6f6f3;
   --light-mark: #f3e8c8;
   --light-hl-string: #3f7a4c;
@@ -47,7 +40,6 @@
   --dark-rule-strong: #45453a;
   --dark-accent: #d99a80;
   --dark-code-bg: #1b1b15;
-  --dark-inline-code-bg: #2a2a20;
   --dark-surface: #1f1f18;
   --dark-mark: #4a3f1e;
   --dark-hl-string: #8fbf98;
@@ -75,7 +67,6 @@
   --link: var(--light-text);
   --accent: var(--light-accent);
   --code-bg: var(--light-code-bg);
-  --inline-code-bg: var(--light-inline-code-bg);
   --surface: var(--light-surface);
   --mark: var(--light-mark);
   --hl-string: var(--light-hl-string);
@@ -103,7 +94,6 @@
     --link: var(--dark-text);
     --accent: var(--dark-accent);
     --code-bg: var(--dark-code-bg);
-    --inline-code-bg: var(--dark-inline-code-bg);
     --surface: var(--dark-surface);
     --mark: var(--dark-mark);
     --hl-string: var(--dark-hl-string);
@@ -134,7 +124,6 @@
   --link: var(--dark-text);
   --accent: var(--dark-accent);
   --code-bg: var(--dark-code-bg);
-  --inline-code-bg: var(--dark-inline-code-bg);
   --surface: var(--dark-surface);
   --mark: var(--dark-mark);
   --hl-string: var(--dark-hl-string);
@@ -3035,9 +3024,6 @@ mark {
     --accent: #000;
     --code-bg: #fff;
 
-    /* Lighter than on screen: a laser prints a 1.34 tint darker than it looks,
-       and this has to stay clear of --mark below it. */
-    --inline-code-bg: #f2f2f2;
     --mark: #eee;
 
     color-scheme: light;
