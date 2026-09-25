@@ -99,9 +99,18 @@ export function rehypeMermaid(options: {
       if (rendered) {
         // A real element, not a raw blob: later steps need to see the class in
         // order to caption and number it.
+        //
+        // `div`, not `figure` — `rehypeCaptions` gives a `figure` element its
+        // caption as a direct child, on the assumption that the figure is
+        // otherwise just the picture. This element is also the clickable
+        // widget `PostBody` clones into the lightbox, so a caption living
+        // inside it opened in the lightbox too. As a `div`, `rehypeCaptions`
+        // wraps it in its own new `<figure>` alongside the caption instead —
+        // the path every other captioned block (code, table, notebook)
+        // already takes — and the clone stays just the diagram.
         parent.children[index] = {
           type: 'element',
-          tagName: 'figure',
+          tagName: 'div',
           properties: { className: ['mermaid-figure'], 'data-rendered': 'true' },
           children: [
             raw(`<div class="mermaid-figure__light">${uniqueIds(rendered.light, seen)}</div>`),

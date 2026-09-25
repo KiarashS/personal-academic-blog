@@ -75,6 +75,32 @@ describe('rehypeCaptions', () => {
     expect(html).toContain('Figure 1.</span> The residuals.');
   });
 
+  /*
+   * `plugins/mermaid.ts` writes a diagram as `<div class="mermaid-figure">`
+   * rather than `<figure>` for exactly this reason: this plugin gives a
+   * `figure` element its caption as a direct child, on the assumption that a
+   * figure is otherwise just the picture. `.mermaid-figure` is also the
+   * element `PostBody` clones into the lightbox on a click, so a caption
+   * living inside it opened in the lightbox too — reproduced once, on
+   * /blog/diagrams#fig-1, before this was a `div`.
+   */
+  it('wraps a diagram in its own figure rather than nesting the caption inside it', () => {
+    const html = render(
+      [
+        '<div class="mermaid-figure" data-rendered="true"><svg></svg></div>',
+        '',
+        'Caption: What the build does to a post.',
+      ].join('\n'),
+    );
+
+    expect(html).toContain('Figure 1.</span> What the build does to a post.');
+    // The caption sits after the diagram's own closing tag, not before it.
+    const diagramClose = html.indexOf('</div>');
+    const captionOpen = html.indexOf('<figcaption');
+    expect(diagramClose).toBeGreaterThan(-1);
+    expect(captionOpen).toBeGreaterThan(diagramClose);
+  });
+
   it('counts code listings in a third sequence, captioned above', () => {
     const html = render(
       [
