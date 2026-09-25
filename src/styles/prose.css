@@ -178,12 +178,21 @@
 
 /* Code -------------------------------------------------------------------- */
 
+/*
+ * Inline code is a change of face and nothing else.
+ *
+ * It used to be a tinted chip, but the tint measured 1.06:1 against the page
+ * in light and 1.07:1 in dark — no reader was seeing it. The padding it was
+ * there to carry was visible though: 4.62px against a 4.03px word space, so
+ * every `code` followed by a comma or a full stop pushed the punctuation a
+ * full space away, four times on the code-and-tables post alone.
+ *
+ * 0.85em is what matches the x-heights, 8px of mono against 9px of the body
+ * serif, so the mono sits on the line rather than towering over it.
+ */
 .prose code {
-  background: var(--code-bg);
-  border-radius: 3px;
   font-family: var(--mono);
   font-size: 0.85em;
-  padding: 0.12em 0.32em;
 }
 
 .code-block {

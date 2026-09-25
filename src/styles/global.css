@@ -2378,8 +2378,29 @@ mark {
   color: var(--text);
 }
 
+/*
+ * Laid out like `.share` below it, down to the numbers: the foot of a post is
+ * a stack of labelled rows, and this was the one that had neither a label nor
+ * a rule, so two bare pills sat between the prose and the Share row saying
+ * nothing about what they were.
+ */
 .post-tags {
-  margin-top: 2.5rem;
+  align-items: baseline;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+/* Matches `.share__heading`; the two sit one above the other. */
+.post-tags__heading {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .cite {

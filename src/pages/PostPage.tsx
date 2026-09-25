@@ -119,9 +119,12 @@ export function PostPage() {
       </div>
 
       {post.tags.length > 0 ? (
-        <div className="post-tags">
+        <section className="post-tags" aria-labelledby="tags-heading">
+          <h2 className="post-tags__heading" id="tags-heading">
+            Tags
+          </h2>
           <TagList tags={post.tags} />
-        </div>
+        </section>
       ) : null}
 
       <Revisions revisions={post.revisions} />
