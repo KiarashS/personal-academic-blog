@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { researchAreas } from '../content/research';
 import { RoutedHtml } from '../components/RoutedHtml';
@@ -100,9 +99,7 @@ export function ResearchPage() {
   return (
     <>
       <h1>Research</h1>
-      <Suspense fallback={<p className="empty">Loading…</p>}>
-        <ResearchBody />
-      </Suspense>
+      <ResearchBody />
 
       {current.length > 0 ? (
         <>

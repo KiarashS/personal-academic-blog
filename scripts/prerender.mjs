@@ -192,12 +192,27 @@ function pageFor(route) {
   };
 }
 
+/*
+ * The front page's portrait, fetched with the stylesheet rather than after it.
+ * Left to the `img` alone, the request waited for the CSS and the scripts
+ * ahead of it and came in after the banner's fade had finished: on a throttled
+ * load the introduction settled at 1.7s and the picture landed on its own at
+ * 2.0s. Read from the markup rather than the config, so it follows whatever
+ * address the component actually wrote, base and all.
+ */
+function portraitPreload(html) {
+  const src = /<img[^>]*class="banner__avatar-image"[^>]*>/
+    .exec(html)?.[0]
+    .match(/src="([^"]+)"/)?.[1];
+  return src ? `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />` : '';
+}
+
 function document(html, meta) {
   // Only a page that has a diagram in it asks for the face the diagrams were
   // measured in, which is the class the build writes around every one.
   const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
   return template
-    .replace(TITLE_TAG, head(meta, diagrams))
+    .replace(TITLE_TAG, head(meta, diagrams + portraitPreload(html)))
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 }
 

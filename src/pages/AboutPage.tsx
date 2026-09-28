@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { AuthorCard } from '../components/AuthorCard';
 import { authors } from '../content/authors';
 import { RoutedHtml } from '../components/RoutedHtml';
@@ -14,9 +13,7 @@ export function AboutPage() {
   return (
     <>
       <h1>About</h1>
-      <Suspense fallback={<p className="empty">Loading…</p>}>
-        <AboutBody />
-      </Suspense>
+      <AboutBody />
       <h2 className="section-heading section-heading--spaced">People</h2>
       {Object.values(authors).map((author) => (
         <AuthorCard key={author.id} author={author} />

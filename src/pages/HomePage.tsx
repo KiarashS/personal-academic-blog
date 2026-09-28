@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Avatar } from '../components/Avatar';
 import { HomeNews } from '../components/HomeNews';
 import { ProfileIcon } from '../components/ProfileIcon';
@@ -49,9 +48,7 @@ export function HomePage() {
           {signed ? <Signature /> : siteConfig.title}
         </h1>
         <p className="banner__tagline">{tagline}</p>
-        <Suspense fallback={<p className="empty">Loading…</p>}>
-          <HomeBody />
-        </Suspense>
+        <HomeBody />
         {links.length > 0 ? (
           <ul
             className={`banner__links banner__links--${style}`}

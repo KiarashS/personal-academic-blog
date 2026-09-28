@@ -1,4 +1,4 @@
-import { Suspense, useRef } from 'react';
+import { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
 import { CiteBlock } from '../components/CiteBlock';
@@ -119,9 +119,10 @@ export function PostPage() {
 
         <TableOfContents headings={contents} />
 
-        <Suspense fallback={<p className="empty">Loading…</p>}>
-          <PostBody slug={post.slug} />
-        </Suspense>
+        {/* No boundary of its own: it suspends to the one around the outlet,
+            which keeps the page the reader came from until this one has its
+            text, rather than showing the heading over "Loading…". */}
+        <PostBody slug={post.slug} />
       </div>
 
       {tags.length > 0 ? (

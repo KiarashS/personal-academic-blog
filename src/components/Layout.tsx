@@ -1,5 +1,5 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
-import { Fragment, useEffect } from 'react';
+import { Fragment, Suspense, useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
@@ -7,6 +7,7 @@ import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { MobileNav } from './MobileNav';
+import { NavigationProgress } from './NavigationProgress';
 import { NoticeBanner } from './NoticeBanner';
 import { NavGroup } from './NavGroup';
 import { PageMeta } from './PageMeta';
@@ -46,6 +47,7 @@ export function Layout() {
     <div className={`page${bare ? ' page--banner' : ''}`}>
       <PageMeta />
       <ScrollToTop />
+      <NavigationProgress />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -89,7 +91,16 @@ export function Layout() {
               returns nothing, so the document only ever holds one. */}
           <NoticeBanner slot="top" />
           <RouteBoundary>
-            <Outlet />
+            {/* The one boundary for every page, and it stays mounted. The router
+                navigates in a transition, and a transition only holds back a
+                boundary that is already on screen: when each page brought its
+                own, every first visit to one showed "Loading…" in place of the
+                page, then the heading over a second "Loading…" for its text,
+                then the page. Now the page a reader is on stays until the next
+                is ready, and `NavigationProgress` says that it is coming. */}
+            <Suspense fallback={<p className="empty">Loading…</p>}>
+              <Outlet />
+            </Suspense>
           </RouteBoundary>
           <NoticeBanner slot="bottom" />
         </div>

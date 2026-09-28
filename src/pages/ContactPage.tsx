@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { profileLinksFor, siteOwner } from '../lib/profiles';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { resource, useResource } from '../lib/resource';
@@ -25,9 +24,7 @@ export function ContactPage() {
   return (
     <>
       <h1>Contact</h1>
-      <Suspense fallback={<p className="empty">Loading…</p>}>
-        <ContactBody />
-      </Suspense>
+      <ContactBody />
       {links.length > 0 ? (
         <ul className="author-links" aria-label="Profiles and contact">
           {links.map((link) => (

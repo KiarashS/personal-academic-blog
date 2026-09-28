@@ -2443,6 +2443,62 @@ h1 + .author-card {
   width: 100%;
 }
 
+/*
+ * The next page is on its way (`NavigationProgress`). The same 2px line as
+ * the reading bar, in the same place and above it, since the page it belongs
+ * to is about to be replaced.
+ *
+ * The 150ms delay is the point of it. A page already in the cache arrives
+ * inside that, and a bar that flickers across on every click says "slow" about
+ * a site that is not. After it, the bar runs most of the way quickly and then
+ * crawls, because nothing here knows how long the rest will take.
+ */
+.nav-progress {
+  height: 2px;
+  left: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 21;
+}
+
+.nav-progress__bar {
+  animation: nav-progress 10s cubic-bezier(0.1, 0.8, 0.2, 1) 150ms both;
+  background: var(--accent);
+  height: 100%;
+  transform-origin: 0 50%;
+}
+
+@keyframes nav-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(0.95);
+  }
+}
+
+/* Still shown, since it is the only sign a click was heard, but as a line that
+   appears rather than one that travels. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress__bar {
+    animation: nav-progress-shown 1ms 150ms both;
+    opacity: 0.6;
+  }
+
+  @keyframes nav-progress-shown {
+    from {
+      visibility: hidden;
+    }
+
+    to {
+      visibility: visible;
+    }
+  }
+}
+
 /* Featured posts ----------------------------------------------------------- */
 
 /* 0.68rem, which is the smallest type anywhere else on the site — the prose
@@ -2883,8 +2939,13 @@ h1 + .author-card {
   }
 }
 
+/* A fill for the moment before the photo arrives. Without one the image box
+   is transparent, and what showed through was the rim's own grey across the
+   whole disc with the highlight's wedge turning over it: a pie chart, where a
+   portrait was about to be. */
 .banner__avatar-image {
   aspect-ratio: 1;
+  background: var(--bg-subtle);
   border-radius: 50%;
   display: block;
   height: auto;
@@ -2931,6 +2992,14 @@ h1 + .author-card {
   to {
     opacity: 1;
   }
+}
+
+/* Arriving, not returning. The fade played on every visit to the front page,
+   so going back to it from a post blanked the screen for half a second where
+   every other page came straight up. `data-navigated` is set by
+   `NavigationProgress` once the reader has left the page they landed on. */
+:root[data-navigated] .banner {
+  animation: none;
 }
 
 /*
@@ -3199,6 +3268,7 @@ h1 + .author-card {
   .pagination,
   .related,
   .reading-progress,
+  .nav-progress,
   .share,
   .code-block__copy,
   .heading-anchor,

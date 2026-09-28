@@ -1,4 +1,4 @@
-import { createElement, Suspense, lazy } from 'react';
+import { createElement, lazy } from 'react';
 import type { ComponentType } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { getPage } from './lib/page-registry';
@@ -45,9 +45,10 @@ const ContactPage = lazy(() =>
 const NewsPage = lazy(() => import('./pages/NewsPage').then((m) => ({ default: m.NewsPage })));
 
 /**
- * One route's page, with its boundary. The lazy component is the reader's path
- * and the registered one is the prerenderer's; the markup is the same either
- * way, so hydration matches whichever wrote it.
+ * One route's page. The lazy component is the reader's path and the registered
+ * one is the prerenderer's; the markup is the same either way, so hydration
+ * matches whichever wrote it. The boundary it suspends to is the one around
+ * the outlet in `Layout`, which is why it has none of its own.
  */
 function Lazily({ name, of: Lazy }: { name: string; of: ComponentType }) {
   // `createElement` rather than JSX: both components are module-level constants
@@ -55,7 +56,7 @@ function Lazily({ name, of: Lazy }: { name: string; of: ComponentType }) {
   // server always has the eager one, the browser never does — but written as
   // `<Page />` it reads to the linter as a component made up during a render.
   const Page = getPage(name) ?? Lazy;
-  return <Suspense fallback={<p className="empty">Loading…</p>}>{createElement(Page)}</Suspense>;
+  return createElement(Page);
 }
 
 export function App() {
