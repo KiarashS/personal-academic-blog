@@ -2785,6 +2785,20 @@ mark {
   }
 }
 
+/*
+ * The one animation on the site that missed this. Checked directly: with
+ * `prefers-reduced-motion: reduce` on, `.banner` still computed
+ * `animation-name: banner-in` and `animation-play-state: running` — every
+ * other transition and animation here is turned off for the same setting,
+ * `avatar-shine` right above it included, and this is the first thing on the
+ * page a visitor sees.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    animation: none;
+  }
+}
+
 /* The one place on the site where type is set at display size. */
 .banner__name {
   font-size: clamp(1.875rem, 1.1rem + 3.4vw, 3rem);
