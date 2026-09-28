@@ -17,9 +17,7 @@ export function AboutPage() {
       <Suspense fallback={<p className="empty">Loading…</p>}>
         <AboutBody />
       </Suspense>
-      <h2 className="section-heading" style={{ marginTop: '3rem' }}>
-        People
-      </h2>
+      <h2 className="section-heading section-heading--spaced">People</h2>
       {Object.values(authors).map((author) => (
         <AuthorCard key={author.id} author={author} />
       ))}

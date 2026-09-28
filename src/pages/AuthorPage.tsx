@@ -11,12 +11,16 @@ export function AuthorPage() {
   if (!author) return <NotFoundPage what="author" />;
 
   const written = postsByAuthor(id);
+  const standing = [author.role, author.affiliation].filter(Boolean).join(', ');
 
   return (
     <>
       <h1>{author.name}</h1>
-      <AuthorCard author={author} headingLevel="h3" linkName={false} />
-      <h2 className="section-heading" style={{ marginTop: '2.5rem' }}>
+      {/* The card used to open with the name again, directly under the same
+          name as the page's heading. */}
+      {standing ? <p className="lede">{standing}</p> : null}
+      <AuthorCard author={author} showIdentity={false} />
+      <h2 className="section-heading section-heading--spaced">
         {written.length} post{written.length === 1 ? '' : 's'}
       </h2>
       <PostList posts={written} />

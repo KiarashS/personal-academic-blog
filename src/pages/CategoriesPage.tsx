@@ -13,7 +13,10 @@ export function CategoriesPage() {
     <>
       <h1>Categories</h1>
       <p className="lede">
-        {counts.length} categor{counts.length === 1 ? 'y' : 'ies'}, above the tags.
+        {/* "above the tags" meant something in the code and nothing to a
+            reader. */}
+        {counts.length} categor{counts.length === 1 ? 'y' : 'ies'}. A post is filed under one at
+        most; its tags cut across them.
       </p>
       {counts.length === 0 ? (
         <p className="empty">Nothing filed yet.</p>

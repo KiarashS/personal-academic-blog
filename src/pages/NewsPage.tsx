@@ -27,12 +27,20 @@ export function NewsPage() {
       {items.length === 0 ? (
         <p className="empty">Nothing here yet.</p>
       ) : (
-        grouped.map(([year, list]) => (
-          <section key={year} className="archive-year">
-            <h2 className="section-heading">{year}</h2>
-            <NewsList items={list} label={`News from ${year}`} />
-          </section>
-        ))
+        <>
+          {/* The same opening line as the archive's. Without it the first year's
+              label sat directly under the heading, closer to it than to the
+              list it names. */}
+          <p className="lede">
+            {items.length} entr{items.length === 1 ? 'y' : 'ies'}, newest first.
+          </p>
+          {grouped.map(([year, list]) => (
+            <section key={year} className="archive-year">
+              <h2 className="section-heading">{year}</h2>
+              <NewsList items={list} label={`News from ${year}`} />
+            </section>
+          ))}
+        </>
       )}
     </>
   );

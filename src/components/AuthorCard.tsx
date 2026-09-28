@@ -7,22 +7,38 @@ interface AuthorCardProps {
   /** `h2` on the post page, `h1` on the author's own page. */
   headingLevel?: 'h2' | 'h3';
   linkName?: boolean;
+  /**
+   * Off on the author's own page, where the heading above already names them
+   * and the role and affiliation are the page's opening line.
+   */
+  showIdentity?: boolean;
 }
 
-export function AuthorCard({ author, headingLevel = 'h3', linkName = true }: AuthorCardProps) {
+export function AuthorCard({
+  author,
+  headingLevel = 'h3',
+  linkName = true,
+  showIdentity = true,
+}: AuthorCardProps) {
   const Heading = headingLevel;
   // `profileLinkKeys.authorCard`, and the same list for every author: a
   // co-author with no ORCID simply has one fewer chip.
   const links = profileLinksFor('authorCard', author);
   const interests = researchInterests(author);
+  // Nothing left to box once the name and role are elsewhere.
+  if (!showIdentity && !author.bio && interests.length === 0 && links.length === 0) return null;
 
   return (
-    <section className="author-card">
-      <Heading>
-        {linkName ? <Link to={`/authors/${author.id}`}>{author.name}</Link> : author.name}
-      </Heading>
-      {author.role || author.affiliation ? (
-        <p className="meta">{[author.role, author.affiliation].filter(Boolean).join(', ')}</p>
+    <section className={showIdentity ? 'author-card' : 'author-card author-card--plain'}>
+      {showIdentity ? (
+        <>
+          <Heading>
+            {linkName ? <Link to={`/authors/${author.id}`}>{author.name}</Link> : author.name}
+          </Heading>
+          {author.role || author.affiliation ? (
+            <p className="meta">{[author.role, author.affiliation].filter(Boolean).join(', ')}</p>
+          ) : null}
+        </>
       ) : null}
       {author.bio ? <p className="author-card__bio">{author.bio}</p> : null}
       {interests.length > 0 ? (

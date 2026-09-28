@@ -106,9 +106,7 @@ export function ResearchPage() {
 
       {current.length > 0 ? (
         <>
-          <h2 className="section-heading" style={{ marginTop: '2.5rem' }}>
-            What I am working on
-          </h2>
+          <h2 className="section-heading section-heading--spaced">What I am working on</h2>
           {current.map((area) => (
             <Area key={area.title} area={area} />
           ))}
@@ -117,9 +115,7 @@ export function ResearchPage() {
 
       {past.length > 0 ? (
         <>
-          <h2 className="section-heading" style={{ marginTop: '2.5rem' }}>
-            Earlier work
-          </h2>
+          <h2 className="section-heading section-heading--spaced">Earlier work</h2>
           {past.map((area) => (
             <Area key={area.title} area={area} />
           ))}

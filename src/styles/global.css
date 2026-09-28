@@ -727,6 +727,10 @@ video {
   color: var(--text);
 }
 
+.site-footer__item {
+  white-space: nowrap;
+}
+
 /* Post list --------------------------------------------------------------- */
 
 .post-list {
@@ -970,6 +974,12 @@ video {
   font-size: 0.95rem;
   padding: 0.55rem 0.7rem;
   width: 100%;
+}
+
+/* The form stands where the other pages' opening line does, so the count
+   below it needs the same 10px the heading leaves above it. */
+.search-form {
+  margin-bottom: 0.6rem;
 }
 
 .search-field::placeholder {
@@ -1225,6 +1235,25 @@ mark {
 
 .author-card + .author-card {
   margin-top: 1rem;
+}
+
+/* Under a heading of its own the card is the content, not an addition after
+   it: the heading's margin is the gap. */
+.section-heading + .author-card,
+.lede + .author-card {
+  margin-top: 0;
+}
+
+h1 + .author-card {
+  margin-top: 1.5rem;
+}
+
+/* The author's own page, where the card is down to its bio and links: the
+   page is already about them, and a box around two chips was a frame around
+   nothing. */
+.author-card--plain {
+  border: 0;
+  padding: 0;
 }
 
 .author-card h2,
@@ -1489,6 +1518,13 @@ mark {
   text-transform: uppercase;
   color: var(--text-muted);
   margin: 0 0 1rem;
+}
+
+/* A section label after a page's opening content — About's People, an
+   author's posts, Research's two lists. Each page used to set this inline, at
+   3rem on one and 2.5rem on the others. */
+.section-heading--spaced {
+  margin-top: 2.5rem;
 }
 
 @media (width <= 34rem) {
@@ -2585,8 +2621,12 @@ mark {
   padding: 1rem 0;
 }
 
+/* Set in the weight the post list's titles use. At the body's weight the title
+   and the authors under it were the same face, size and colour, and the list
+   had no first line to scan down. */
 .publication__title {
   font-size: 1.05rem;
+  font-weight: 600;
   margin: 0 0 0.2rem;
 }
 
@@ -2614,7 +2654,10 @@ mark {
   padding-top: 0;
 }
 
+/* Baseline, not a nudge: the date is smaller type in another face, and a
+   fixed offset set it a little above the title's first line. */
 .archive-list li {
+  align-items: baseline;
   border-bottom: 1px solid var(--rule);
   display: flex;
   gap: 1rem;
@@ -2623,11 +2666,10 @@ mark {
 
 .archive-list time {
   color: var(--text-muted);
-  flex: 0 0 7.5rem;
+  flex: 0 0 3.5rem;
   font-family: var(--sans);
   font-size: 0.8rem;
   font-variant-numeric: lining-nums tabular-nums;
-  padding-top: 0.15rem;
 }
 
 .archive-list a {

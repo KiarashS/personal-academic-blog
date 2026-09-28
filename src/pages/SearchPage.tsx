@@ -66,7 +66,7 @@ export function SearchPage() {
   return (
     <>
       <h1>Search</h1>
-      <form role="search" onSubmit={(event) => event.preventDefault()}>
+      <form className="search-form" role="search" onSubmit={(event) => event.preventDefault()}>
         <label className="visually-hidden" htmlFor="search-input">
           Search posts
         </label>

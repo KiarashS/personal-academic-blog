@@ -1,5 +1,5 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
@@ -108,16 +108,25 @@ export function Layout() {
                 of it kept by hand: Tags, Search and About were written out
                 twice, and Archive would have made four. */}
             {navFor('footer').map((item) => (
-              <span key={item.to}>
-                {isExternal(item.to ?? '') ? (
-                  <a href={item.to}>{item.label}</a>
-                ) : (
-                  <Link to={item.to ?? '/'}>{item.label}</Link>
-                )}{' '}
-                ·{' '}
-              </span>
+              <Fragment key={item.to}>
+                {/* Each link is held to the separator after it, so a row that
+                    wraps on a phone ends a line with one rather than opening
+                    the next line with it. The break goes in the space between. */}
+                <span className="site-footer__item">
+                  {isExternal(item.to ?? '') ? (
+                    <a href={item.to}>{item.label}</a>
+                  ) : (
+                    <Link to={item.to ?? '/'}>{item.label}</Link>
+                  )}
+                  {' ·'}
+                </span>{' '}
+              </Fragment>
             ))}
-            <FeedLink /> · <KeyboardShortcuts />
+            <span className="site-footer__item">
+              <FeedLink />
+              {' ·'}
+            </span>{' '}
+            <KeyboardShortcuts />
           </div>
         </div>
       </footer>

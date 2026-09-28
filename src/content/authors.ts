@@ -39,10 +39,10 @@ export const authors: Record<string, Author> = {
   coauthor: {
     id: 'coauthor',
     name: 'Co-author Name',
-    role: 'Your role',
-    affiliation: 'Their department, their institution',
+    role: 'Role',
+    affiliation: 'Department, Institution',
     bio: 'Posts can list several authors. Each one gets a byline, a card at the foot of the post, and a page listing what they have written.',
-    interests: ['Their first subject', 'Their second'],
+    interests: ['First subject', 'Second subject'],
     email: 'test@example.com',
     links: {},
   },

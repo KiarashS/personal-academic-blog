@@ -48,7 +48,7 @@ export const news: NewsItem[] = [
   // Dated ahead, so it sorts above everything: how an announcement is made.
   {
     date: '2026-11-20',
-    text: 'Example: an entry dated ahead sits at the top until the day passes. This is a multi-line news. Check it!',
+    text: 'Example: an entry dated ahead sits at the top until the day passes. This one is long enough to run onto a second line.',
   },
   // Nothing to point at, which is a complete entry — and a shortcode, which
   // the build reads. `npm run emoji <term>` searches the names.

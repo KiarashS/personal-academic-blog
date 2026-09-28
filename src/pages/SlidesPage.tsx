@@ -32,36 +32,41 @@ export function SlidesPage() {
       {given.length === 0 ? (
         <p className="empty">Nothing here yet.</p>
       ) : (
-        <ul className="post-list">
-          {given.map((deck) => (
-            <li key={`${deck.date}-${deck.title}`}>
-              <article>
-                <h2 className="post-card__title">{deck.title}</h2>
-                <p className="meta">
-                  <time dateTime={isoDate(deck.date)}>{formatDate(deck.date)}</time>
-                  {deck.event ? (
-                    <>
-                      <span className="meta__sep">·</span>
-                      <span>{deck.event}</span>
-                    </>
+        <>
+          <p className="lede">
+            {given.length} talk{given.length === 1 ? '' : 's'}, newest first.
+          </p>
+          <ul className="post-list">
+            {given.map((deck) => (
+              <li key={`${deck.date}-${deck.title}`}>
+                <article>
+                  <h2 className="post-card__title">{deck.title}</h2>
+                  <p className="meta">
+                    <time dateTime={isoDate(deck.date)}>{formatDate(deck.date, 'short')}</time>
+                    {deck.event ? (
+                      <>
+                        <span className="meta__sep">·</span>
+                        <span>{deck.event}</span>
+                      </>
+                    ) : null}
+                  </p>
+                  {deck.summary ? <p className="post-card__summary">{deck.summary}</p> : null}
+                  {materials(deck).length > 0 ? (
+                    <ul className="author-links" aria-label={`${deck.title}: materials`}>
+                      {materials(deck).map(([label, value]) => (
+                        <li key={label}>
+                          <a className="author-links__link" href={href(value)}>
+                            {label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   ) : null}
-                </p>
-                {deck.summary ? <p className="post-card__summary">{deck.summary}</p> : null}
-                {materials(deck).length > 0 ? (
-                  <ul className="author-links" aria-label={`${deck.title}: materials`}>
-                    {materials(deck).map(([label, value]) => (
-                      <li key={label}>
-                        <a className="author-links__link" href={href(value)}>
-                          {label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </article>
-            </li>
-          ))}
-        </ul>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </>
   );

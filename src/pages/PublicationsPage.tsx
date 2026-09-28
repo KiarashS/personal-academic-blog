@@ -63,9 +63,10 @@ export function PublicationsPage() {
         </p>
       ) : (
         <>
+          {/* Where the list comes from is a note for the site's owner, and the
+              README carries it. A reader was being told a file path. */}
           <p className="lede">
-            {entries.length} entr{entries.length === 1 ? 'y' : 'ies'}, newest first. Generated from{' '}
-            <code>src/content/publications.bib</code>.
+            {entries.length} entr{entries.length === 1 ? 'y' : 'ies'}, newest first.
           </p>
           {grouped.map(([year, list]) => (
             <section key={year} className="publication-year">
