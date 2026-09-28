@@ -3,15 +3,31 @@
 Two faces, both vendored here rather than fetched from a CDN so that reading
 the blog does not announce the reader to a third party. Both come from
 [fontsource](https://www.npmjs.com/org/fontsource-variable) 5.3.0, variable
-weight axis, latin subset, and both are licensed under the SIL Open Font
-License 1.1 — see `LICENSE`, which the licence requires to travel with the
+weight axis, and both are licensed under the SIL Open Font License 1.1 — see `LICENSE`, which the licence requires to travel with the
 files. Replacing a face means replacing the licence too.
 
 ## Source Serif 4 — body text
 
-Two files, roman and italic, about 50 kB each. Between them they cover every
-weight the site uses. `src/styles/fonts.css` declares them; the build hashes
-the filenames and rewrites the URLs, and the prerenderer preloads the roman.
+Six files, roman and italic of three subsets, all under one family name in
+`src/styles/fonts.css`. The build hashes the filenames and rewrites the URLs.
+
+| Subset      | Roman | Italic | Loaded                                             |
+| ----------- | ----- | ------ | -------------------------------------------------- |
+| `latin`     | 50 kB | 51 kB  | every page; the roman is preloaded                 |
+| `latin-ext` | 42 kB | 44 kB  | pages with a character in its range: Ł, ő, č, ş, ğ |
+| `greek`     | 20 kB | 21 kB  | pages with Greek outside maths                     |
+
+Each file carries fontsource's own `unicode-range`, so a browser fetches the
+two extra subsets only for a page that uses them. The basic Latin roman loads
+with `font-display: optional`; the other five `swap`, since they are fetched
+on demand and Chrome does not use an `optional` face that arrives after the
+page has rendered. The prerenderer preloads a
+subset's roman on the pages whose text needs it (`src/lib/font-subsets.ts`,
+which skips maths, code and diagrams, since those are set in other faces). A
+test holds that module's ranges and the stylesheet's to the same values.
+
+None of the subsets has the maths operators or arrows (≤, ≈, ∈, →). Written
+inside `$…$`, KaTeX draws them.
 
 ## Source Sans 3 — diagrams
 

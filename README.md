@@ -984,13 +984,21 @@ across a page, with orphans and widows held at two lines.
 
 The body face is Source Serif 4, vendored under `src/styles/fonts/` rather than
 loaded from a CDN, so no reader is announced to a third party. Two variable
-files, roman and italic, cover every weight the site uses — about 100 kB
-together, against the ~300 kB of KaTeX faces the math already needs. They load
-with `font-display: optional`, and the prerenderer preloads the roman one. A
-face that has not arrived within about 100ms of the first render is not swapped
-in later: that page stays in the system stack (Iowan, Georgia) and the next one
-has the file from the cache. `swap` changed the text's width under a reader who
-had already started, which rewrapped lines and moved everything below them.
+files, roman and italic, cover every weight the site uses in basic Latin —
+about 100 kB together, against the ~300 kB of KaTeX faces the math already
+needs. Latin Extended (Ł, ő, č) and Greek are separate files that a page
+fetches only when its text uses them, and the prerenderer preloads them on
+those pages; maths symbols and arrows are in none of them, so they belong
+inside `$…$`.
+
+The basic Latin roman, which is nearly all of every page, loads with
+`font-display: optional` and is preloaded. A page it has not reached within
+about 100ms of the first render stays in the system stack (Iowan, Georgia) and
+the next one has the file from the cache; with `swap` the text changed width
+under a reader who had already started, which rewrapped lines and moved
+everything below them. The italic and the two extra subsets `swap`: they are
+fetched when a page first needs them, and Chrome never uses an `optional` face
+that arrives after the page has rendered.
 
 Source Sans 3 is vendored beside it, roman only, ~29 kB, and is used by nothing
 but prerendered diagrams — the site's sans is still the system stack. Mermaid

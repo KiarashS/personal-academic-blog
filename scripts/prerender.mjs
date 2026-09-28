@@ -34,6 +34,7 @@ const {
   pwaWarnings,
   webManifest,
   CACHE_PREFIX,
+  fontSubsetsFor,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -84,6 +85,18 @@ const preload = await fontPreload('source-serif-4-latin-wght-normal');
  * pages it can happen on, and leaves the other 20 routes alone.
  */
 const diagramPreload = await fontPreload('source-sans-3-latin-wght-normal');
+
+/*
+ * The serif's Latin Extended and Greek files, wanted only by pages whose text
+ * has a character in their range. Left to the layout to discover, a file
+ * arrives after the text is on screen and swaps in under the reader; asked
+ * for from the head, it comes with the stylesheet. Roman only, like the basic
+ * Latin preload.
+ */
+const subsetPreloads = {
+  'latin-ext': await fontPreload('source-serif-4-latin-ext-wght-normal'),
+  greek: await fontPreload('source-serif-4-greek-wght-normal'),
+};
 
 /*
  * Cloudflare Web Analytics, when a token is configured: one deferred script
@@ -220,8 +233,11 @@ function document(html, meta) {
   // Only a page that has a diagram in it asks for the face the diagrams were
   // measured in, which is the class the build writes around every one.
   const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
+  const subsets = fontSubsetsFor(html)
+    .map((name) => subsetPreloads[name])
+    .join('');
   return template
-    .replace(TITLE_TAG, head(meta, diagrams + portraitPreload(html)))
+    .replace(TITLE_TAG, head(meta, diagrams + subsets + portraitPreload(html)))
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
 }
 

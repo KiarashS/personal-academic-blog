@@ -1,9 +1,9 @@
 /*
  * Source Serif 4, vendored rather than fetched from a CDN so no reader is
- * announced to a third party, and subsetted to latin. Two variable files cover
- * every weight in roman and italic: about 100 kB together, against the ~300 kB
- * of KaTeX faces the math already needs. Licensed OFL-1.1; the licence travels
- * with the files in src/styles/fonts/.
+ * announced to a third party. Basic Latin in roman and italic, two variable
+ * files covering every weight, is what every page loads: about 100 kB
+ * together, against the ~300 kB of KaTeX faces the math already needs.
+ * Licensed OFL-1.1; the licence travels with the files in src/styles/fonts/.
  *
  * `optional`, not `swap`. With `swap` the fallback showed first and the file
  * replaced it when it landed, and the two faces do not set the same width: on
@@ -16,7 +16,73 @@
  * from the head, so on an ordinary connection it is there; when it is not,
  * that page stays in the fallback and the next page has the file from the
  * cache. Nothing moves under the reader either way.
+ *
+ * Only this one file, the basic Latin roman, is `optional`. Chrome does not
+ * use an `optional` face that is first asked for after the page has rendered,
+ * even once it has arrived: measured on the build, an italic word added to a
+ * post after load stayed in the fallback italic with the file already in
+ * memory. The italic and the two subsets below are fetched on demand, and the
+ * site stays one document from page to page, so under `optional` they would
+ * mostly never be used. They `swap` instead, which moves only the few words
+ * set in them.
+ *
+ * Latin Extended and Greek come as files of their own under the same family
+ * name, so the browser fetches one only for a page with a character in its
+ * range: the Ł of Łukasiewicz, the ő of Erdős, an α typed as a word rather
+ * than as maths. Without them each such letter came from the fallback face in
+ * the middle of a Source Serif word. The prerenderer preloads a subset on the
+ * pages whose text uses it (`src/lib/font-subsets.ts`), so on those pages it
+ * arrives with the stylesheet and the swap happens before a reader has begun.
+ * Maths symbols and arrows are in none of the files; inside `$…$` KaTeX draws
+ * them.
+ *
+ * Declared ahead of the basic Latin faces on purpose. Where two faces of a
+ * family claim the same character — the combining marks U+0304, U+0308 and
+ * U+0329 are in both — the later one is used, and the preloaded file should
+ * be the one.
  */
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('./fonts/source-serif-4-greek-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('./fonts/source-serif-4-greek-wght-italic.woff2') format('woff2-variations');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('./fonts/source-serif-4-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Source Serif 4 Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('./fonts/source-serif-4-latin-ext-wght-italic.woff2') format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
 
 @font-face {
   font-family: 'Source Serif 4 Variable';
@@ -32,7 +98,7 @@
 @font-face {
   font-family: 'Source Serif 4 Variable';
   font-style: italic;
-  font-display: optional;
+  font-display: swap;
   font-weight: 200 900;
   src: url('./fonts/source-serif-4-latin-wght-italic.woff2') format('woff2-variations');
   unicode-range:
