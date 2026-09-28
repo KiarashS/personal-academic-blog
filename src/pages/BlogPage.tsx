@@ -1,4 +1,5 @@
 import { Navigate, useParams } from 'react-router-dom';
+import { FeedLink } from '../components/FeedLink';
 import { Pagination } from '../components/Pagination';
 import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
@@ -40,13 +41,15 @@ export function BlogPage() {
           — with the home feature off this is the front page, where the header
           carries the site's name and this still says what the page is. */}
       <h1>Blog</h1>
-      {/* Past page one a reader may have arrived from a search result or a
-          saved link, and the list alone does not say that newer posts exist. */}
-      {page > 1 ? (
-        <p className="lede">
-          Page {page} of {totalPages}, newest first
-        </p>
-      ) : null}
+      {/* The same line the tag and category pages open with: how many posts,
+          which page, and the feed. It is also what separates the heading from
+          the list — without it the first title sat 10px under "Blog", closer
+          than any two posts are to each other, and read as its subtitle. */}
+      <p className="lede">
+        {posts.length} post{posts.length === 1 ? '' : 's'} ·{' '}
+        {page > 1 ? `page ${page} of ${totalPages} · ` : null}
+        <FeedLink label="Feed for all posts" />
+      </p>
       <PostList posts={items} />
       <Pagination page={page} totalPages={totalPages} hrefFor={blogPagePath} />
     </>

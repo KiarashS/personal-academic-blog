@@ -716,6 +716,17 @@ video {
   padding-block: 0.28rem;
 }
 
+/* One colour for the row. The page links took the body's link colour while
+   the feed and the shortcuts, styled muted of their own accord, did not, so
+   four links read darker than the two at the end of the same line. */
+.site-footer__links a {
+  color: var(--text-muted);
+}
+
+.site-footer__links a:hover {
+  color: var(--text);
+}
+
 /* Post list --------------------------------------------------------------- */
 
 .post-list {
@@ -769,6 +780,13 @@ video {
 
 .meta__sep {
   color: var(--rule-strong);
+}
+
+/* A separator and the item after it, as one piece of the wrapping row. */
+.meta__item {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.55rem;
 }
 
 /* Tags -------------------------------------------------------------------- */

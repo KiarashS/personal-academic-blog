@@ -758,6 +758,12 @@ short bio, research interests, email and profile links. Posts reference authors 
 author gets a page at `/authors/<id>` listing their posts. An id with no record
 still renders a byline, so a typo degrades rather than disappears.
 
+In lists — the index, tag, category, author and search pages, related posts —
+a post whose only author is `siteConfig.owner` shows no byline. On a personal
+blog that is almost every card, and the same name on each said nothing the
+header does not. A post with any other author names all of them, the owner
+included. The post's own page keeps its author cards either way.
+
 Everything but `name` is optional, and a field that is missing is left out of
 the page rather than replaced with anything. That is why the record ships with
 those fields commented rather than filled with a description of themselves: an
