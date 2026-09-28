@@ -37,6 +37,31 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // The front page's news window, held to the height of its first few
+      // entries before anything is painted. `NewsList` measures the same thing
+      // once the app has hydrated, but that is a second or more after the page
+      // is on screen, and the prerendered fallback assumes one line an entry:
+      // an entry that wraps made the list grow late, and since the banner is
+      // centred in the window, the name, the portrait and every line moved.
+      // This runs after the stylesheet (an inline script waits for it) and
+      // again when the fonts have settled; keep it in step with
+      // `useWindowHeight` in src/components/NewsList.tsx.
+      (function () {
+        function measure() {
+          var lists = document.querySelectorAll('.news__list--windowed');
+          for (var i = 0; i < lists.length; i++) {
+            var list = lists[i];
+            var next = list.children[parseInt(list.style.getPropertyValue('--news-rows'), 10)];
+            if (!next) continue;
+            var top = next.getBoundingClientRect().top - list.getBoundingClientRect().top;
+            list.style.setProperty('--news-height', Math.round(top + list.scrollTop) + 'px');
+          }
+        }
+        measure();
+        if (document.fonts) document.fonts.ready.then(measure);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -23,7 +23,7 @@ npm run dev        # http://localhost:5173, drafts and future posts included
 npm test           # unit tests for the content pipeline
 npm run lint       # eslint, stylelint and prettier
 npm run lint:fix   # the same, applying what can be fixed
-npm run build      # diagrams, type-check, bundle, cards, prerender → dist/
+npm run build      # diagrams, type-check, bundle, cards, avatar, prerender → dist/
 npm run preview    # serve the build locally
 npm run links      # every internal link in dist resolves (--external checks the rest)
 npm run audit:a11y # axe-core over one page of each kind, phone and desktop
@@ -31,10 +31,10 @@ npm run diagrams   # re-render diagrams only
 npm run cards      # re-render social images only
 ```
 
-`npm run build` runs five stages: `render-diagrams` (Mermaid to SVG), `vite
+`npm run build` runs six stages: `render-diagrams` (Mermaid to SVG), `vite
 build` (client bundle), `vite build --ssr` (server bundle), `render-cards`
-(social images), and `prerender` (one HTML file per route, plus feeds, sitemap
-and robots.txt).
+(social images), `render-avatar` (the front page's portrait at 416px), and
+`prerender` (one HTML file per route, plus feeds, sitemap and robots.txt).
 
 ## Writing a post
 
@@ -986,9 +986,11 @@ The body face is Source Serif 4, vendored under `src/styles/fonts/` rather than
 loaded from a CDN, so no reader is announced to a third party. Two variable
 files, roman and italic, cover every weight the site uses — about 100 kB
 together, against the ~300 kB of KaTeX faces the math already needs. They load
-with `font-display: swap`, and the prerenderer preloads the roman one. The old
-system stack stays as the fallback, so a reader sees Iowan or Georgia until the
-file lands.
+with `font-display: optional`, and the prerenderer preloads the roman one. A
+face that has not arrived within about 100ms of the first render is not swapped
+in later: that page stays in the system stack (Iowan, Georgia) and the next one
+has the file from the cache. `swap` changed the text's width under a reader who
+had already started, which rewrapped lines and moved everything below them.
 
 Source Sans 3 is vendored beside it, roman only, ~29 kB, and is used by nothing
 but prerendered diagrams — the site's sans is still the system stack. Mermaid
@@ -1697,6 +1699,12 @@ arc travelling around the rim every six seconds. It takes the room the text
 leaves, between 7rem and 13rem, and below 46rem it moves above the text, which
 is the order a profile reads in. Reduced motion keeps the rim and stops the
 highlight. Leave it empty and the front page is words alone.
+
+The build writes a 416px WebP copy beside a file under `public/`
+(`/avatar.jpg` becomes `/avatar-416.webp`) and the page shows that, since the
+picture is never drawn wider than 208px. The original is left as it is, and
+is still what the structured data points search engines at. The dev server
+shows the original. A URL is used as given.
 
 The front page also uses a wider column than the rest of the site, 56rem
 against `--wide`'s 46rem, because it is not prose and the portrait would

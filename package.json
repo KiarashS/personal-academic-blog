@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "diagrams": "node scripts/render-diagrams.mjs",
-    "build": "npm run diagrams && tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/prerender.mjs",
-    "build:no-diagrams": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/prerender.mjs",
+    "build": "npm run diagrams && tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/render-avatar.mjs && node scripts/prerender.mjs",
+    "build:no-diagrams": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/render-avatar.mjs && node scripts/prerender.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

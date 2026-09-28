@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, type CSSProperties } from 'react';
 import { dateParts, formatDate, isoDate } from '../lib/format';
 import { parseInlineLinks, plainText } from '../lib/inline-links';
 import { Target } from './Target';
@@ -122,17 +122,28 @@ function NewsDate({ date }: { date: string }) {
  * it, so the server's markup and the browser's first pass stay identical and
  * nothing about hydration changes.
  *
- * Until then the stylesheet's own `--news-rows` fallback stands, which is that
- * many single-line rows: right whenever nothing wraps, and a little short for a
- * moment when something does. With JavaScript off it stands for good, which is
- * a window slightly too small rather than a page with no news in it.
+ * On a prerendered page the same measurement has already been made before the
+ * first paint, by a small script in index.html that runs straight after the
+ * markup; this one then finds the value in place and writes nothing. Without
+ * that, the list grew a second after the page appeared whenever an entry
+ * wrapped, and the centred banner around it moved.
+ *
+ * With JavaScript off the stylesheet's own `--news-rows` fallback stands, which
+ * is that many single-line rows: right whenever nothing wraps, and a window
+ * slightly too small when something does, rather than a page with no news in
+ * it.
+ *
+ * A layout effect, so the measurement lands before the browser paints. The
+ * front page reached by a link, rather than loaded, has no prerendered script
+ * ahead of it, and from a plain effect it was drawn once at the fallback height
+ * and again 90ms later at the measured one, with the banner jumping 6px.
  *
  * Re-measured on resize, since a narrower column wraps more sentences.
  */
 function useWindowHeight(rows: number | undefined) {
   const ref = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const list = ref.current;
     if (!list || !rows) return;
 

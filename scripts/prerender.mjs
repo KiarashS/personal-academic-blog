@@ -204,7 +204,16 @@ function portraitPreload(html) {
   const src = /<img[^>]*class="banner__avatar-image"[^>]*>/
     .exec(html)?.[0]
     .match(/src="([^"]+)"/)?.[1];
-  return src ? `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />` : '';
+  if (!src) return '';
+  // The page names the sized copy from scripts/render-avatar.mjs. If that step
+  // did not write it, the front page would ship a broken portrait.
+  const root = withBase('/');
+  if (src.startsWith(root) && !existsSync(join(dist, src.slice(root.length - 1)))) {
+    throw new Error(
+      `The front page shows ${src}, which is not in dist/. Run scripts/render-avatar.mjs.`,
+    );
+  }
+  return `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />`;
 }
 
 function document(html, meta) {
