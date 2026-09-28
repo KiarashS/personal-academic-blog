@@ -26,8 +26,9 @@ export function BlogPage() {
     siteConfig.postsPerPage,
   );
 
-  // A stale /page/9 link should land somewhere real rather than show nothing.
-  if (pageParam && page !== requested) {
+  // A stale /page/9 link should land somewhere real rather than show nothing,
+  // and /page/1 is the index under a second address.
+  if (pageParam && (page !== requested || page === 1)) {
     return <Navigate to={blogPagePath(page)} replace />;
   }
 
@@ -39,6 +40,13 @@ export function BlogPage() {
           — with the home feature off this is the front page, where the header
           carries the site's name and this still says what the page is. */}
       <h1>Blog</h1>
+      {/* Past page one a reader may have arrived from a search result or a
+          saved link, and the list alone does not say that newer posts exist. */}
+      {page > 1 ? (
+        <p className="lede">
+          Page {page} of {totalPages}, newest first
+        </p>
+      ) : null}
       <PostList posts={items} />
       <Pagination page={page} totalPages={totalPages} hrefFor={blogPagePath} />
     </>

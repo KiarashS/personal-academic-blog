@@ -220,6 +220,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       comments: commentState(data.comments),
       draft: data.draft === true,
       featured: data.featured === true,
+      unlisted: data.unlisted === true,
     },
     body: content,
     plainText,
@@ -265,6 +266,41 @@ export function selectPosts<T extends PostMeta>(posts: T[], options: SelectOptio
         return true;
       })
   );
+}
+
+/**
+ * The posts that appear in lists. An unlisted post is still built and still
+ * answers at its address; it is only this that leaves it out, so every list
+ * that goes through here agrees on what is hidden.
+ */
+export function listed<T extends { unlisted: boolean }>(list: readonly T[]): T[] {
+  return list.filter((post) => !post.unlisted);
+}
+
+/**
+ * What the build should say about a post's `unlisted` setting.
+ *
+ * A value that is not `true` or `false` is the failure worth catching:
+ * `unlisted: yes` in YAML is the string "yes", which would otherwise be read as
+ * "listed" and put the post in the index it was meant to stay out of. And a
+ * post both featured and unlisted is asking to be pinned to a list it is not
+ * in; unlisted wins, and the build says so.
+ */
+export function unlistedWarnings(slug: string, written: unknown, featured: unknown): string[] {
+  if (written === undefined || written === null || written === false) return [];
+  if (written !== true) {
+    return [
+      `${slug}: \`unlisted: ${JSON.stringify(written)}\` is not true or false, so the post ` +
+        'stays listed. Write `unlisted: true` to leave it out of the index.',
+    ];
+  }
+  if (featured === true) {
+    return [
+      `${slug}: \`featured\` and \`unlisted\` are both set. An unlisted post is in no list ` +
+        'to be pinned to, so it stays unlisted and `featured` does nothing.',
+    ];
+  }
+  return [];
 }
 
 /**

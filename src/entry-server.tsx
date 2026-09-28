@@ -36,7 +36,7 @@ registerPage('SearchPage', SearchPage);
 registerPage('SlidesPage', SlidesPage);
 
 export { allRoutes, metaFor } from './lib/route-meta';
-export { posts, postsByTag, tagCounts } from './lib/posts';
+export { allPosts, posts, postsByTag, tagCounts } from './lib/posts';
 export { categoryCounts, postsInCategory } from './lib/categories';
 export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';

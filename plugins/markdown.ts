@@ -14,7 +14,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
-import { bannerWarnings, buildPost, todayUtc } from '../src/lib/post-builder';
+import { bannerWarnings, buildPost, todayUtc, unlistedWarnings } from '../src/lib/post-builder';
 import { commentWarnings } from '../src/lib/comments';
 import { siteConfig } from '../src/site.config';
 import type { FeatureName } from '../src/site.config';
@@ -217,6 +217,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       for (const message of [
         ...bannerWarnings(built.meta.slug, frontmatter.banner),
         ...commentWarnings(built.meta.slug, frontmatter.comments),
+        ...unlistedWarnings(built.meta.slug, frontmatter.unlisted, frontmatter.featured),
       ]) {
         bannerProblems.add(message);
       }
@@ -260,6 +261,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
             readingMinutes: 1,
             draft: true,
             featured: false,
+            unlisted: false,
             headings: [],
           };
           return { code: `export default ${JSON.stringify(stub)};`, map: null };
@@ -274,8 +276,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       }
 
       if (query === 'text') {
+        // Search is a list too. The results already leave an unlisted post
+        // out, but its prose would still ship in the search chunk for anyone
+        // who opened it; the page itself is the only place it is published.
+        const plainText = built.meta.unlisted ? '' : built.plainText;
         return {
-          code: `export default ${JSON.stringify({ slug: built.meta.slug, plainText: built.plainText })};`,
+          code: `export default ${JSON.stringify({ slug: built.meta.slug, plainText })};`,
           map: null,
         };
       }

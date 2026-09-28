@@ -17,6 +17,24 @@ function setMeta(selector: string, attribute: 'name' | 'property', key: string, 
 const JSON_LD = 'script[type="application/ld+json"]';
 
 /**
+ * The prerenderer writes `noindex` into an unlisted post's own HTML. A reader
+ * who arrives there and clicks on keeps that head, so it is taken off again on
+ * the way out — and put on when a reader navigates in from a listed page.
+ */
+function setNoindex(noindex: boolean) {
+  const existing = document.head.querySelector('meta[name="robots"]');
+  if (!noindex) {
+    existing?.remove();
+    return;
+  }
+  if (existing) return;
+  const tag = document.createElement('meta');
+  tag.name = 'robots';
+  tag.content = 'noindex';
+  document.head.appendChild(tag);
+}
+
+/**
  * The prerenderer writes the front page's `Person` block into its static HTML.
  * A reader who then clicks through to a post is on a different page with the
  * same head, so the block is removed on the way out and put back on the way in
@@ -45,7 +63,7 @@ export function PageMeta() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const { title, description } = metaFor(pathname);
+    const { title, description, noindex = false } = metaFor(pathname);
     const url = canonicalUrl(pathname);
 
     document.title = title;
@@ -55,6 +73,7 @@ export function PageMeta() {
     setMeta('meta[property="og:url"]', 'property', 'og:url', url);
 
     setJsonLd(pathname);
+    setNoindex(noindex);
 
     const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (canonical) canonical.href = url;

@@ -3,11 +3,13 @@ import {
   buildPost,
   categorySlug,
   featuredFirst,
+  listed,
   rankRelated,
   selectPosts,
   seriesParts,
   slugFromPath,
   tableOfContents,
+  unlistedWarnings,
 } from '../lib/post-builder';
 import { toPlainText, readingMinutes } from '../lib/markdown-text';
 import type { Heading, PostMeta } from '../lib/types';
@@ -28,6 +30,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     readingMinutes: 1,
     draft: false,
     featured: false,
+    unlisted: false,
     headings: [],
     ...overrides,
   };
@@ -157,6 +160,44 @@ describe('featuredFirst', () => {
     const before = [...list];
     featuredFirst(list);
     expect(list).toEqual(before);
+  });
+});
+
+describe('unlisted', () => {
+  it('is off unless the frontmatter says true', () => {
+    const on = buildPost(post('a.md', '---\ntitle: A\nunlisted: true\n---\nBody.'));
+    const yes = buildPost(post('b.md', '---\ntitle: B\nunlisted: yes\n---\nBody.'));
+    const none = buildPost(post('c.md', '---\ntitle: C\n---\nBody.'));
+    expect(on.meta.unlisted).toBe(true);
+    // YAML reads `yes` as a string. Guessing it meant true would be kind here,
+    // and would make `unlisted: no` — also a string — hide a post too.
+    expect(yes.meta.unlisted).toBe(false);
+    expect(none.meta.unlisted).toBe(false);
+  });
+
+  it('leaves the post out of lists and keeps the order of the rest', () => {
+    const list = [
+      meta({ slug: 'new', date: '2026-03-01' }),
+      meta({ slug: 'hidden', date: '2026-02-01', unlisted: true }),
+      meta({ slug: 'old', date: '2026-01-01' }),
+    ];
+    expect(listed(list).map((p) => p.slug)).toEqual(['new', 'old']);
+  });
+
+  it('still leaves a published post selected, so it keeps its page', () => {
+    const selected = selectPosts([meta({ slug: 'hidden', unlisted: true })], options);
+    expect(selected.map((p) => p.slug)).toEqual(['hidden']);
+  });
+
+  it('says so when the value is not a boolean', () => {
+    expect(unlistedWarnings('p', 'yes', undefined)[0]).toContain('is not true or false');
+    expect(unlistedWarnings('p', true, undefined)).toEqual([]);
+    expect(unlistedWarnings('p', false, true)).toEqual([]);
+    expect(unlistedWarnings('p', undefined, true)).toEqual([]);
+  });
+
+  it('says so when a post is both featured and unlisted', () => {
+    expect(unlistedWarnings('p', true, true)[0]).toContain('stays unlisted');
   });
 });
 

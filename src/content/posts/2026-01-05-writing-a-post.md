@@ -275,6 +275,16 @@ Only the index is reordered: the feed, the archive, the tag pages and the
 newer/older links at the foot of a post stay in date order, so a pinned post
 does not follow the reader everywhere.
 
+## Unlisted posts
+
+`unlisted: true` is the opposite of pinning. The post keeps its page and its
+address, and drops out of everything that lists posts: this index, the
+archive, the tag and category pages, search, related posts, the newer/older
+links, the feeds and the sitemap. Its page asks search engines not to index
+it. Use it for a page you mean to send by link — to reviewers, or alongside a
+talk — and nothing else. It is unlisted, not private: anyone with the address
+can read it.
+
 ## Structure
 
 Headings from `h2` down get ids automatically. Hovering one shows a link icon;

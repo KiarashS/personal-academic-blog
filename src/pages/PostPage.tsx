@@ -17,9 +17,9 @@ import { ShareLinks } from '../components/ShareLinks';
 import { TableOfContents } from '../components/TableOfContents';
 import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
-import { getCategory } from '../lib/categories';
+import { getCategory, postsInCategory } from '../lib/categories';
 import { formatDate, isoDate } from '../lib/format';
-import { getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
+import { displayTag, getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
 import { canonicalUrl } from '../lib/urls';
 import { NotFoundPage } from './NotFoundPage';
@@ -34,7 +34,13 @@ export function PostPage() {
   const { previous, next } = neighbours(post.slug);
   const contents = tableOfContents(post.headings);
   const series = seriesFor(post.slug);
-  const category = getCategory(post.category);
+  // A tag or category page is built from listed posts, so one that only an
+  // unlisted post uses has no page, and its chip would be a link to nothing.
+  // A listed post always has the pages its own chips point to.
+  const filed = getCategory(post.category);
+  const category =
+    filed && (!post.unlisted || postsInCategory(filed.slug).length > 0) ? filed : undefined;
+  const tags = post.unlisted ? post.tags.filter((tag) => displayTag(tag)) : post.tags;
 
   return (
     <article>
@@ -118,12 +124,12 @@ export function PostPage() {
         </Suspense>
       </div>
 
-      {post.tags.length > 0 ? (
+      {tags.length > 0 ? (
         <section className="post-tags" aria-labelledby="tags-heading">
           <h2 className="section-heading post-tags__heading" id="tags-heading">
             Tags
           </h2>
-          <TagList tags={post.tags} />
+          <TagList tags={tags} />
         </section>
       ) : null}
 

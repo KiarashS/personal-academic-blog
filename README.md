@@ -53,6 +53,7 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
 featured: false # pins the post to the top of the index
+unlisted: false # true: published at its address, left out of every list
 series: Running this blog # optional; groups multi-part posts
 part: 1 # optional; position within the series
 revisions: # optional history; see below
@@ -119,6 +120,38 @@ the index is reordered — the feed, the archive, the tag pages and the
 newer/older links keep date order — so a pinned post leads the front page
 without following the reader around. Pin several and they hold their date order
 among themselves.
+
+`unlisted: true` keeps a post's page and takes it out of everything that lists
+posts: the blog index and its pages, the archive, tag, category and author
+pages, search, related posts, the newer/older links, series navigation, the
+feeds and the sitemap. Its page carries `<meta name="robots" content="noindex">`,
+so search engines leave it out of theirs. It is for a post meant to be reached
+by its link and nothing else — a page to send reviewers, or a companion to a
+talk. It is not private: anyone with the address can read it, and a link to it
+from another post works as any link does.
+
+Every list is built from `posts` in `src/lib/posts.ts`, which leaves unlisted
+posts out; `allPosts` holds every published post and is only for answering at
+an address. A list added later hides unlisted posts without having to know they
+exist. On an unlisted post, a tag or category chip is shown only if that tag or
+category has a page, since those pages are built from listed posts. The prose of
+an unlisted post is also kept out of the search index, not just the results.
+The value has to be `true`: `unlisted: yes` is a string in YAML and leaves the
+post listed, and the build says so, as it does for a post both `featured` and
+`unlisted` (it stays unlisted).
+
+### Pagination
+
+The index, and each tag and category page, shows `postsPerPage` posts a page.
+Newer is at the left edge of the column and Older at the right, with the page
+numbers between them; the arrows sit at the edges so that paging through with
+one of them keeps it under the pointer. At either end the arrow with nowhere to
+go is not drawn but keeps its column. The numbers are always the first, last and
+current page and one either side, in seven slots once there are more pages than
+that — an ellipsis never stands in for a single page, and the row keeps its
+width from page to page. Below 30rem the numbers give way to "Page 4 of 11".
+Past page one the page's lede says which page it is, the title reads
+"Blog, page 4", and `/blog/page/1` redirects to `/blog`.
 
 The sample posts under `src/content/posts/` document each feature and render
 one of everything. Replace them with your own — and replace

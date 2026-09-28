@@ -2,7 +2,7 @@ import { siteConfig } from '../site.config';
 import { authors } from '../content/authors';
 import { researchInterests } from './profiles';
 import { allCategories, categoriesEnabled, getCategory, postsInCategory } from './categories';
-import { displayTag, posts, postsByTag } from './posts';
+import { allPosts, displayTag, getPost, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
 import { isEnabled } from './features';
 import { newsPageEnabled } from './news';
@@ -11,6 +11,8 @@ import { blogIndexPath, blogPagePath, postPath, postSlugFromPath } from './route
 export interface RouteMeta {
   title: string;
   description: string;
+  /** Asks search engines not to list the page: set for an unlisted post. */
+  noindex?: boolean;
 }
 
 function withSuffix(title: string | undefined): string {
@@ -29,8 +31,14 @@ export function metaFor(pathname: string): RouteMeta {
   // index and its numbered pages also live.
   const slug = postSlugFromPath(path);
   if (slug) {
-    const post = posts.find((candidate) => candidate.slug === slug);
-    if (post) return { title: withSuffix(post.title), description: post.summary };
+    const post = getPost(slug);
+    if (post) {
+      return {
+        title: withSuffix(post.title),
+        description: post.summary,
+        ...(post.unlisted ? { noindex: true } : {}),
+      };
+    }
   }
 
   // The front page carries the site's own title, whether that page is the home
@@ -47,11 +55,15 @@ export function metaFor(pathname: string): RouteMeta {
     return { title: withSuffix('Blog'), description: siteConfig.description };
   }
 
+  // Named the way page one is — "Blog" — rather than "Posts", which is what
+  // page two used to be called while page one was not. The page number goes
+  // into the description too, or every page of the index previews identically.
   const paged = /^\/(?:blog\/)?page\/(\d+)$/.exec(path);
   if (paged && path === blogPagePath(Number(paged[1]))) {
+    const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
     return {
-      title: withSuffix(`Posts, page ${paged[1]}`),
-      description: siteConfig.description,
+      title: withSuffix(`Blog, page ${paged[1]}`),
+      description: `${siteConfig.description} Page ${paged[1]} of ${totalPages}.`,
     };
   }
 
@@ -181,7 +193,9 @@ export function allRoutes(): string[] {
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(blogPagePath(page));
 
-  for (const post of posts) routes.add(postPath(post.slug));
+  // Every published post has an address, listed or not: unlisted is about
+  // where a post is shown, not whether it exists.
+  for (const post of allPosts) routes.add(postPath(post.slug));
   for (const id of Object.keys(authors)) routes.add(`/authors/${id}`);
 
   const tags = new Set(posts.flatMap((post) => post.tags.map((tag) => tag)));

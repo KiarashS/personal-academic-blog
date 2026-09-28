@@ -13,7 +13,7 @@ export function TagPage() {
   const requested = pageParam ? Number(pageParam) : 1;
 
   const { items, page, totalPages } = paginate(matching, requested, siteConfig.postsPerPage);
-  if (pageParam && page !== requested) {
+  if (pageParam && (page !== requested || page === 1)) {
     return <Navigate to={page === 1 ? `/tags/${tag}` : `/tags/${tag}/page/${page}`} replace />;
   }
 
@@ -22,6 +22,7 @@ export function TagPage() {
       <h1>Tagged “{label}”</h1>
       <p className="lede">
         {matching.length} post{matching.length === 1 ? '' : 's'} ·{' '}
+        {page > 1 ? `page ${page} of ${totalPages} · ` : null}
         <FeedLink path={`/tags/${tag}/feed.xml`} label="Feed for this tag" />
       </p>
       <PostList posts={items} />

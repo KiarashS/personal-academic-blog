@@ -11,6 +11,7 @@ const {
   render,
   allRoutes,
   metaFor,
+  allPosts,
   posts,
   siteConfig,
   canonicalUrl,
@@ -112,11 +113,14 @@ const INSTALL_TAGS = [
   `<meta name="apple-mobile-web-app-title" content="${escapeXml(siteConfig.shortName)}" />`,
 ];
 
-function head({ title, description, url, type, image, feed, jsonLd }, extraPreload = '') {
+function head({ title, description, url, type, image, feed, jsonLd, noindex }, extraPreload = '') {
   return (
     [
       `<title>${escapeXml(title)}</title>`,
       `<meta name="description" content="${escapeXml(description)}" />`,
+      // An unlisted post is out of every list the site makes, the sitemap
+      // included; this keeps it out of the lists other people make of it.
+      ...(noindex ? ['<meta name="robots" content="noindex" />'] : []),
       `<link rel="canonical" href="${escapeXml(url)}" />`,
       // Vite rewrites icon hrefs in index.html but not rel="manifest", and the
       // manifest is generated here anyway, so it is written with the base
@@ -163,7 +167,9 @@ function cardFor(slug) {
 
 function pageFor(route) {
   const slug = postSlugFromPath(route);
-  const post = slug && posts.find((candidate) => candidate.slug === slug);
+  // `allPosts`: an unlisted post is still a page, and still needs its title,
+  // its card and `article` as its type.
+  const post = slug && allPosts.find((candidate) => candidate.slug === slug);
   const tag = /^\/tags\/([^/]+)/.exec(route)?.[1];
   const category = /^\/categories\/([^/]+)/.exec(route)?.[1];
 
@@ -306,18 +312,23 @@ await write(
   [
     '<?xml version="1.0" encoding="utf-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...allRoutes().map((route) => {
-      const post = posts.find((candidate) => postPath(candidate.slug) === route);
-      const lastmod = post ? (post.updated ?? post.date) : undefined;
-      return [
-        '  <url>',
-        `    <loc>${escapeXml(canonicalUrl(route))}</loc>`,
-        lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
-        '  </url>',
-      ]
-        .filter(Boolean)
-        .join('\n');
-    }),
+    // Every route except an unlisted post's: the sitemap is a list, and a
+    // crawler's index of the site is the one list a post cannot be taken
+    // back out of once it is in.
+    ...allRoutes()
+      .filter((route) => !allPosts.some((post) => post.unlisted && postPath(post.slug) === route))
+      .map((route) => {
+        const post = posts.find((candidate) => postPath(candidate.slug) === route);
+        const lastmod = post ? (post.updated ?? post.date) : undefined;
+        return [
+          '  <url>',
+          `    <loc>${escapeXml(canonicalUrl(route))}</loc>`,
+          lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
+          '  </url>',
+        ]
+          .filter(Boolean)
+          .join('\n');
+      }),
     '</urlset>',
     '',
   ].join('\n'),

@@ -1,5 +1,5 @@
 import { categoriesEnabled } from './features';
-import { rankRelated, selectPosts, seriesParts, todayUtc } from './post-builder';
+import { listed, rankRelated, selectPosts, seriesParts, todayUtc } from './post-builder';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
 import type { Post, PostMeta } from './types';
@@ -19,12 +19,24 @@ const selected = selectPosts(Object.values(metaModules), {
   today: todayUtc(),
 });
 
-export const posts: Post[] = selected.map(({ authorIds, draft: _draft, ...meta }) => ({
+/**
+ * Every published post, unlisted ones included. For answering at an address —
+ * routing, the prerenderer, looking a post up by slug — and nothing that shows
+ * a reader a list.
+ */
+export const allPosts: Post[] = selected.map(({ authorIds, draft: _draft, ...meta }) => ({
   ...meta,
   authors: getAuthors(authorIds),
 }));
 
-export const postsBySlug = new Map(posts.map((post) => [post.slug, post]));
+/**
+ * The posts a reader can find: every list on the site is built from this one.
+ * Leaving an unlisted post out here rather than at each list means a list added
+ * later hides it without having to know it exists.
+ */
+export const posts: Post[] = listed(allPosts);
+
+export const postsBySlug = new Map(allPosts.map((post) => [post.slug, post]));
 
 export function getPost(slug: string | undefined): Post | undefined {
   return slug ? postsBySlug.get(slug) : undefined;
@@ -93,6 +105,8 @@ export function seriesFor(slug: string): Series | undefined {
   // series name misspelled. Either way there is nothing to navigate.
   if (parts.length < 2) return undefined;
 
+  // An unlisted part is not among `parts`, so it gets no series navigation,
+  // and the listed parts do not lead to it.
   const index = parts.findIndex((candidate) => candidate.slug === slug);
   if (index === -1) return undefined;
 
@@ -107,6 +121,8 @@ export function seriesFor(slug: string): Series | undefined {
 
 /** Adjacent posts in reverse-chronological order, for the post footer. */
 export function neighbours(slug: string): { previous?: Post; next?: Post } {
+  // An unlisted post is not in the sequence, so it has no neighbours and is
+  // no one's neighbour.
   const index = posts.findIndex((post) => post.slug === slug);
   if (index === -1) return {};
   return { previous: posts[index + 1], next: posts[index - 1] };

@@ -16,7 +16,7 @@ export function CategoryPage() {
   const requested = pageParam ? Number(pageParam) : 1;
   const { items, page, totalPages } = paginate(matching, requested, siteConfig.postsPerPage);
 
-  if (pageParam && page !== requested) {
+  if (pageParam && (page !== requested || page === 1)) {
     return (
       <Navigate
         to={page === 1 ? `/categories/${slug}` : `/categories/${slug}/page/${page}`}
@@ -31,6 +31,7 @@ export function CategoryPage() {
       <p className="lede">
         {category.description ? `${category.description} ` : ''}
         {matching.length} post{matching.length === 1 ? '' : 's'} ·{' '}
+        {page > 1 ? `page ${page} of ${totalPages} · ` : null}
         <FeedLink path={`/categories/${slug}/feed.xml`} label="Feed for this category" />
       </p>
       <PostList posts={items} />

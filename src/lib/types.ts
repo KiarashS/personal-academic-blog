@@ -223,6 +223,14 @@ export interface PostFrontmatter {
   draft?: boolean;
   /** Pins the post to the top of the index. */
   featured?: boolean;
+  /**
+   * Published at its address but left out of every list the site makes: the
+   * blog index, the archive, tag, category and author pages, search, related
+   * posts, the newer/older links, series navigation, the feeds and the
+   * sitemap. The page carries `noindex`. For a post meant to be reached by its
+   * link and nothing else.
+   */
+  unlisted?: boolean;
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
@@ -269,6 +277,8 @@ export interface PostMeta {
   comments: CommentState;
   draft: boolean;
   featured: boolean;
+  /** See `PostFrontmatter.unlisted`. */
+  unlisted: boolean;
   headings: Heading[];
 }
 
