@@ -845,8 +845,11 @@ embedded with `@giscus/react`, giscus's own component, rather than its
 `client.js`: the script builds a frame and a listener every time it runs and
 never removes either, so running it again on a change of theme or of page left
 stale frames behind, and a closed thread could fail to show until a reload.
-The component keeps one frame per post, loads it lazily, and passes a change
-of theme to the frame without rebuilding it.
+The component keeps one frame per post and passes a change of theme to the
+frame without rebuilding it. It is created when the comments come within about
+a screen of view, by an `IntersectionObserver` of the page's own, and then
+loads at once: left to the frame's `loading="lazy"`, Safari could leave it
+empty on a first visit until a reload.
 
 giscus only creates a discussion when someone posts the first comment, and
 until then its search for the thread answers 404, twice, in every reader's
