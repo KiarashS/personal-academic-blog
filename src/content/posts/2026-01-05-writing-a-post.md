@@ -147,6 +147,30 @@ and add the deployment's base path — a relative `./diagram.svg` gets none of
 that. Site-absolute links in prose get the base path too, so a PDF link works
 on a project site served from a subdirectory.
 
+## Embedding another page
+
+An `<iframe>` on a line of its own shows another page inside the post: a map,
+an interactive figure, a demo. Give it a `width`, a `height` and a `title`:
+
+```html
+<iframe src="/projects/example/" width="800" height="450"
+        title="The example project page"></iframe>
+```
+
+The frame fills the column, and the two numbers set its shape rather than its
+size, so this one is 800 by 450 in proportion on any screen: about 612 by 344
+here, 350 by 197 on a phone. Leave them out and it is 16:9. The title is what a
+screen reader announces, and the frame loads only as the reader nears it:
+
+<iframe src="/projects/example/" width="800" height="450" title="The example project page"></iframe>
+
+A YouTube video is better written as an image, `![The talk](https://youtu.be/…)`,
+than as the iframe YouTube's Share button gives you. The image syntax shows the
+video's still and a play button and loads nothing from Google until the reader
+clicks. The copied iframe loads YouTube's player, and YouTube, as soon as the
+reader scrolls near it, and its address carries an `si=` parameter that tells
+YouTube whose share the reader came from.
+
 ## Dates
 
 Dates are parsed as UTC, not local time. Without that, `date: 2026-01-05`
