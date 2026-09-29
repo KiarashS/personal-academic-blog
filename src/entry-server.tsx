@@ -48,6 +48,7 @@ export { CACHE_PREFIX } from './lib/cache-name';
 export { canonicalUrl, withBase } from './lib/urls';
 export { AVATAR_WIDTH, avatarCopyPath, isUrl } from './lib/avatar';
 export { fontSubsetsFor } from './lib/font-subsets';
+export { commentTerm, commentsConfigured, discussionBody } from './lib/comments';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';
 export { serialiseJsonLd, structuredDataFor } from './lib/structured-data';

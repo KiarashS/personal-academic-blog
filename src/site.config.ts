@@ -15,9 +15,10 @@ export const BLOG_INDEX = '@blog';
  * `readonly` keeps the thread on the page and takes the box away, for a post
  * whose discussion has run its course but is worth reading. It is presentation
  * and not enforcement: giscus has no read-only mode, so the box is hidden with
- * a stylesheet of the site's own, and anyone who goes to the discussion on
- * GitHub can still post there. Locking the discussion is what actually closes
- * it, and the two go together — this says so on the page, that makes it true.
+ * a stylesheet of the site's own, and anyone who went to the discussion on
+ * GitHub could still post there. The deploy locks the discussion of every
+ * `readonly` post (scripts/ensure-discussions.mjs), which is what actually
+ * closes it — this says so on the page, the lock makes it true.
  */
 export type CommentState = 'on' | 'off' | 'readonly';
 
@@ -26,7 +27,6 @@ export interface GiscusConfig {
   repoId: string;
   category: string;
   categoryId: string;
-  mapping: 'pathname' | 'url' | 'title' | 'og:title';
   reactionsEnabled: boolean;
   lang: string;
   /**
@@ -588,7 +588,6 @@ export const siteConfig: SiteConfig = {
     repoId: 'R_kgDOUMUy0Q',
     category: 'Comments',
     categoryId: 'DIC_kwDOUMUy0c4DE8gX',
-    mapping: 'pathname',
     reactionsEnabled: true,
     lang: 'en',
     // Every post takes comments unless it says otherwise. `comments: false` or

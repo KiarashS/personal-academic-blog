@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { commentState, commentWarnings, commentsConfigured, commentsShown } from '../lib/comments';
+import {
+  commentState,
+  commentTerm,
+  commentWarnings,
+  commentsConfigured,
+  commentsShown,
+  discussionBody,
+} from '../lib/comments';
 import { giscusTheme } from '../lib/giscus';
 import { canonicalUrl } from '../lib/urls';
 import { siteConfig } from '../site.config';
@@ -79,5 +86,28 @@ describe('commentWarnings', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0]).toContain('a-post');
     expect(problems[0]).toContain('"no"');
+  });
+});
+
+describe('commentTerm', () => {
+  it('is the post path without its leading slash, as giscus named threads before', () => {
+    // The same string giscus's `pathname` mapping produced for a link inside
+    // the site, so a thread opened under it is still the one found.
+    expect(commentTerm('writing-a-post')).toBe('blog/writing-a-post');
+  });
+
+  it('has no trailing slash, whichever address the reader arrived at', () => {
+    expect(commentTerm('writing-a-post').endsWith('/')).toBe(false);
+  });
+});
+
+describe('discussionBody', () => {
+  it('ends with the hash line giscus searches for in strict mode', () => {
+    // sha1("blog/writing-a-post"), which is what giscus hashes: the term.
+    const hash = '5bb8b5c6182b27779a5a6b70f3db6661114a0e29';
+    const body = discussionBody('blog/writing-a-post', 'A summary.', 'https://x.test/p', hash);
+    expect(body).toBe(
+      `# blog/writing-a-post\n\nA summary.\n\nhttps://x.test/p\n\n<!-- sha1: ${hash} -->`,
+    );
   });
 });

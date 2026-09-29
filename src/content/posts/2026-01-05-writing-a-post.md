@@ -66,8 +66,8 @@ comments and a few should.
 `readonly` keeps the thread for reading, says so above it, and hides the box.
 That last part is presentation rather than enforcement — giscus has no
 read-only mode, so the box is hidden by a stylesheet giscus loads for itself,
-and the discussion on GitHub still accepts posts. Lock it there to close it
-properly; the two belong together.
+and on its own the discussion on GitHub would still accept posts. The deploy
+locks it, which is what closes it.
 
 ### Banners
 

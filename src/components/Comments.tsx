@@ -14,8 +14,8 @@ const GISCUS_ORIGIN = 'https://giscus.app';
  * `readonly` keeps the thread and takes the box away. giscus has no such mode,
  * and its frame is another origin, so the box is hidden by the stylesheet
  * giscus loads for itself — `data-theme` takes a URL as well as a built-in
- * name. That is presentation: the discussion on GitHub still accepts posts,
- * and locking it there is what closes it. The line above the thread says the
+ * name. That is presentation: what closes the discussion on GitHub is the
+ * lock the deploy puts on it (scripts/ensure-discussions.mjs). The line above the thread says the
  * comments are closed whether or not the stylesheet arrives, which is the part
  * that has to be true.
  */
@@ -39,7 +39,9 @@ export function Comments({ state, term }: { state: CommentState; term: string })
     script.setAttribute('data-repo-id', giscus.repoId);
     script.setAttribute('data-category', giscus.category);
     script.setAttribute('data-category-id', giscus.categoryId);
-    script.setAttribute('data-mapping', giscus.mapping);
+    // `specific` and a term fixed per post (`commentTerm`), never the address
+    // bar: the same post is reached with and without a trailing slash.
+    script.setAttribute('data-mapping', 'specific');
     script.setAttribute('data-term', term);
     script.setAttribute('data-strict', '1');
     script.setAttribute('data-reactions-enabled', giscus.reactionsEnabled ? '1' : '0');

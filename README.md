@@ -829,8 +829,11 @@ they wrote and on their author page.
 
 ## Comments
 
-Comments are giscus threads backed by GitHub Discussions, keyed on the post's
-path. To switch them on:
+Comments are giscus threads backed by GitHub Discussions, one per post, titled
+with the post's path without its leading slash (`blog/writing-a-post`). The
+term is fixed per post rather than read from the address bar, because a post
+is reached both with and without a trailing slash, and giscus's own `pathname`
+mapping would give each spelling a thread of its own. To switch them on:
 
 1. Enable Discussions on the repository and create a category for comments.
 2. Run <https://giscus.app> against the repository to get the ids.
@@ -839,6 +842,16 @@ path. To switch them on:
 
 Until then, each post shows a note where the thread would be. The script is
 loaded lazily and the iframe follows the site's theme.
+
+giscus only creates a discussion when someone posts the first comment, and
+until then its search for the thread answers 404, twice, in every reader's
+console. So the deploy workflow runs `scripts/ensure-discussions.mjs` after the
+checks: it creates the missing discussion for each post that shows comments,
+in the same shape giscus would (title, description, link, and the
+`<!-- sha1: … -->` line giscus searches for), and locks it if the post is
+`readonly`. It uses the workflow's `GITHUB_TOKEN`, which the workflow grants
+`discussions: write`; without a token, as in a local build, it does nothing, and
+a failure is a warning on the run rather than a failed deploy.
 
 ## Comments on a post
 
@@ -864,7 +877,7 @@ another origin, so the only way in from outside is the stylesheet giscus loads
 for itself: `data-theme` takes a URL as well as a built-in name.
 `public/giscus/readonly-light.css` and its dark twin import the built-in theme
 and hide `.gsc-comment-box` and `.gsc-reply-box`. The discussion on GitHub
-still accepts posts; locking it there is what closes it. The line above the
+would still accept posts, so the deploy locks it (see above). The line above the
 thread is the part that is true whatever happens to the stylesheet, which is
 why it is written in the page rather than left to CSS.
 

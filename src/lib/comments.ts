@@ -1,3 +1,4 @@
+import { postPath } from './routes';
 import { siteConfig } from '../site.config';
 import type { CommentState, GiscusConfig } from '../site.config';
 
@@ -41,6 +42,31 @@ export function commentState(
 /** Whether the post shows a thread at all, in either state. */
 export function commentsShown(state: CommentState): boolean {
   return state !== 'off';
+}
+
+/**
+ * The name a post's thread goes by: its path without the leading slash,
+ * `blog/writing-a-post`, which is also the discussion's title on GitHub.
+ *
+ * Fixed per post and handed to giscus as its `specific` term, not read off the
+ * address bar. giscus's `pathname` mapping took whatever the location said,
+ * and a post is reached both as `/blog/x` (a link inside the site) and as
+ * `/blog/x/` (GitHub Pages redirects a directory to its slash): two terms, so
+ * two threads for one post, each holding half its comments.
+ */
+export function commentTerm(slug: string): string {
+  return postPath(slug).replace(/^\//, '');
+}
+
+/**
+ * The body of the discussion that holds a post's thread, as giscus writes it
+ * when the first comment creates one: the term as a heading, the description,
+ * the page's address, then a comment carrying the SHA-1 of the term. That last
+ * line is what giscus searches for in `strict` mode, so a discussion made by
+ * `scripts/ensure-discussions.mjs` is found exactly as one giscus made is.
+ */
+export function discussionBody(term: string, description: string, url: string, sha1: string) {
+  return `# ${term}\n\n${description}\n\n${url}\n\n<!-- sha1: ${sha1} -->`;
 }
 
 /**
