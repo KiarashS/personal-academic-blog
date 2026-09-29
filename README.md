@@ -1326,6 +1326,31 @@ player on arrival, which means the request happens whether or not the reader
 wanted the video. It is muted, because every current browser blocks an unmuted
 autoplay outright.
 
+### Embedding another page
+
+An `<iframe>` written on its own line in a post fills the column and keeps the
+shape its `width` and `height` give it:
+
+```html
+<iframe
+  src="https://www.openstreetmap.org/export/embed.html?bbox=…"
+  width="800"
+  height="400"
+  title="The study area"
+></iframe>
+```
+
+That one is 612×306 on a desktop and 350×175 on a phone. The build reads the
+two attributes into an `--embed-ratio` on the element, since a stylesheet
+cannot read an attribute as a number, and `.embed-frame` in prose.css sizes it
+from that; with no numeric size it is 16:9. A `height` in the iframe's own
+`style` is kept, for a page that needs a fixed one. The build also makes it
+`loading="lazy"` unless the post says otherwise, and print leaves it out.
+
+Give every iframe a `title`: it is what a screen reader announces. For
+YouTube use the video syntax above instead, which asks nothing of Google until
+the reader clicks.
+
 ### The social card
 
 A post with a picture for a banner gets it as a band across the top of its

@@ -3282,6 +3282,7 @@ h1 + .author-card {
   .media-frame--banner,
   .media-frame video,
   .media-frame iframe,
+  .embed-frame,
   .media-frame__badge {
     display: none;
   }

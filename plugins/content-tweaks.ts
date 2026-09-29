@@ -30,6 +30,47 @@ function loneMedia(paragraph: Element): Element | undefined {
   return found;
 }
 
+/**
+ * An iframe's `width` and `height` as a CSS ratio, `800 / 400`, when both are
+ * plain numbers; nothing for a percentage, a unit, or a missing one.
+ */
+export function iframeRatio(width: unknown, height: unknown): string | undefined {
+  const w = Number(width);
+  const h = Number(height);
+  return w > 0 && h > 0 ? `${w} / ${h}` : undefined;
+}
+
+/**
+ * An iframe written into a post, made to fill the column at its own shape.
+ *
+ * `.prose > *` already caps a block at the column's width, but the height an
+ * iframe was written with stayed as written, so an 800x400 map came out 350px
+ * wide and 400px tall on a phone. The stylesheet (`.embed-frame` in
+ * prose.css) sets the width to the column's and the height from an aspect
+ * ratio, and a stylesheet cannot read the ratio off the attributes itself:
+ * `attr()` as a number is in one browser. So the build writes it into the
+ * element as `--embed-ratio`, and a frame with no numeric size gets 16 / 9.
+ *
+ * Lazy unless the post says otherwise, so the embedded page is not fetched
+ * with the post by a reader who never scrolls to it. The class keeps all of
+ * this off the YouTube player, which the page builds inside `.media-frame`
+ * and which that frame sizes.
+ */
+function embedFrame(node: Element) {
+  if (node.tagName !== 'iframe') return;
+  const properties = node.properties ?? {};
+  const ratio = iframeRatio(properties.width, properties.height);
+  const written = typeof properties.style === 'string' ? properties.style.replace(/;\s*$/, '') : '';
+  const style = [written, ratio ? `--embed-ratio: ${ratio}` : ''].filter(Boolean).join('; ');
+  const classes = Array.isArray(properties.className) ? properties.className : [];
+  node.properties = {
+    ...properties,
+    className: [...classes, 'embed-frame'],
+    loading: properties.loading ?? 'lazy',
+    ...(style ? { style } : {}),
+  };
+}
+
 export interface ContentTweakOptions {
   /** Deployment base path, prefixed onto site-absolute link targets. */
   base: string;
@@ -67,12 +108,14 @@ export function rehypeContentTweaks(options: ContentTweakOptions) {
           if (media) {
             children[index] = media;
             prefixSrc(media);
+            embedFrame(media);
             walk(media);
             return;
           }
         }
 
         prefixSrc(child);
+        embedFrame(child);
 
         if (child.tagName === 'table') {
           children[index] = {

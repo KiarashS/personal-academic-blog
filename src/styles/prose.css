@@ -650,6 +650,25 @@
 }
 
 /*
+ * An iframe written into a post: the column's width, and a height from its
+ * own shape, which the build reads off `width` and `height` into
+ * `--embed-ratio` (`embedFrame` in plugins/content-tweaks.ts). Without a
+ * numeric size it is 16 / 9, a video's shape. A height written into the
+ * iframe's own `style` still wins, for a page that needs a fixed one. The
+ * browser's inset border goes; the rule colour stands in while it loads.
+ */
+.prose .embed-frame {
+  aspect-ratio: var(--embed-ratio, 16 / 9);
+  background: var(--rule);
+  border: 0;
+  border-radius: 3px;
+  display: block;
+  height: auto;
+  margin: 1.75rem 0;
+  width: 100%;
+}
+
+/*
  * A dark-theme sibling. These rules only ever hide the copy for the theme not
  * showing; none of them says how the other one is displayed, because the class
  * is on an `img` for a plain figure and on its `.figure-zoom` link for a wide
