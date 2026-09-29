@@ -17,6 +17,9 @@ const markup = markSource
   .replace(/ role="img"/, '')
   .replace(/ aria-label="[^"]*"/, ' aria-hidden="true" focusable="false"');
 
+// One object for the life of the page; see src/lib/inner-html.ts.
+const inner = { __html: markup };
+
 export function SiteMark() {
-  return <span className="site-mark" dangerouslySetInnerHTML={{ __html: markup }} />;
+  return <span className="site-mark" dangerouslySetInnerHTML={inner} />;
 }

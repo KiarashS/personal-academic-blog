@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useInnerHtml } from '../lib/inner-html';
 import { routerPath, shouldRoute } from '../lib/internal-links';
 
 interface RoutedHtmlProps {
@@ -19,6 +20,7 @@ interface RoutedHtmlProps {
 export function RoutedHtml({ html, className }: RoutedHtmlProps) {
   const container = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const inner = useInnerHtml(html);
 
   useEffect(() => {
     const root = container.current;
@@ -35,5 +37,5 @@ export function RoutedHtml({ html, className }: RoutedHtmlProps) {
     return () => root.removeEventListener('click', onClick);
   }, [html, navigate]);
 
-  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} ref={container} />;
+  return <div className={className} dangerouslySetInnerHTML={inner} ref={container} />;
 }

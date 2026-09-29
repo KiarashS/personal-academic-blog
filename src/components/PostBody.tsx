@@ -14,6 +14,7 @@ import {
 } from '../../scripts/diagram-source.mjs';
 import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
+import { useInnerHtml } from '../lib/inner-html';
 
 /**
  * Renders a post body. The HTML was produced by the build — math, highlighting,
@@ -22,6 +23,7 @@ import { useTheme } from './ThemeProvider';
  */
 export function PostBody({ slug }: { slug: string }) {
   const html = useResource(postBody(slug));
+  const inner = useInnerHtml(html);
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -242,7 +244,7 @@ export function PostBody({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="prose" ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="prose" ref={containerRef} dangerouslySetInnerHTML={inner} />
       {viewing === null ? null : (
         <DiagramViewer markup={viewing} onClose={() => setViewing(null)} />
       )}

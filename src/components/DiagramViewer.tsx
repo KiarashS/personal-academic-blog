@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useInnerHtml } from '../lib/inner-html';
 import { fitScale, pan, pinchStep, RESET, STEP, zoomAt, zoomBy } from '../lib/diagram-view';
 import type { Point, View } from '../lib/diagram-view';
 
@@ -40,6 +41,9 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
   const stage = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<View>(RESET);
+  // Every pan and zoom step re-renders this; without it each one re-parsed
+  // the whole drawing into the stage.
+  const inner = useInnerHtml(markup);
 
   // Opened once, on arrival. Closing is the browser's, and `onClose` clears
   // the markup that renders this, so it is unmounted rather than hidden.
@@ -211,7 +215,7 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
       >
         <div
           className="diagram-viewer__drawing"
-          dangerouslySetInnerHTML={{ __html: markup }}
+          dangerouslySetInnerHTML={inner}
           ref={drawing}
           style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})` }}
         />

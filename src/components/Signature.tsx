@@ -9,6 +9,8 @@ import { siteConfig } from '../site.config';
  * hidden from the accessibility tree here rather than by editing the drawing.
  */
 const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusable="false"');
+// One object for the life of the page; see src/lib/inner-html.ts.
+const inner = { __html: markup };
 
 /**
  * The name, a lift, and then the swash under it.
@@ -167,7 +169,7 @@ export function Signature() {
     <span
       aria-label={siteConfig.title}
       className="banner__signature"
-      dangerouslySetInnerHTML={{ __html: markup }}
+      dangerouslySetInnerHTML={inner}
       ref={wrap}
       role="img"
       style={{ transform: `rotate(${siteConfig.home.signatureTilt}deg)` }}

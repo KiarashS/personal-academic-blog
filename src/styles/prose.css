@@ -649,27 +649,35 @@
   outline-offset: 3px;
 }
 
-/* A dark-theme sibling, swapped the same way diagrams are. */
-.figure-image--dark {
+/*
+ * A dark-theme sibling. These rules only ever hide the copy for the theme not
+ * showing; none of them says how the other one is displayed, because the class
+ * is on an `img` for a plain figure and on its `.figure-zoom` link for a wide
+ * one, and those display differently.
+ *
+ * They used to hide the dark copy with `.figure-image--dark` alone and show it
+ * again with `display: inline`. On a wide figure `.prose .figure-zoom`, being
+ * more specific, put the hidden link back, so the light theme showed the plot
+ * twice, the second time as a dark box that read as an image that had failed
+ * to load; and the dark theme turned the link from inline-block to inline.
+ * Every rule here is `:root` plus a condition plus the class, which outranks
+ * `.prose .figure-zoom`.
+ */
+:root[data-theme='light'] .figure-image--dark,
+:root[data-theme='dark'] .figure-image--light {
   display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .figure-image--dark {
+    display: none;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .figure-image--light {
     display: none;
   }
-
-  :root:not([data-theme='light']) .figure-image--dark {
-    display: inline;
-  }
-}
-
-:root[data-theme='dark'] .figure-image--light {
-  display: none;
-}
-
-:root[data-theme='dark'] .figure-image--dark {
-  display: inline;
 }
 
 /* Captions and centred blocks ---------------------------------------------- */

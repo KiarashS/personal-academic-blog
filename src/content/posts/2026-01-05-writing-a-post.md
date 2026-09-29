@@ -134,7 +134,7 @@ axis and guessing at it. Images the column can already show in full get no
 link, and a diagram in SVG never gets one, since the page scales vectors on its
 own.
 
-![A damped oscillation, drawn wide](/posts/writing-a-post/wide-plot.png "Click it: the file is 1400px wide, the column is not. A `.dark` sibling means the dark theme gets its own version, and each one links to itself.")
+![A damped oscillation, drawn wide](/posts/writing-a-post/wide-plot.png "Click it: the file is 1400px wide, the column is not. wide-plot.dark.png beside it gives the dark theme its own version, and each one links to itself.")
 
 The folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
 served at `/posts/writing-a-post/diagram.svg` and lands next to the post's own
