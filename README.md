@@ -830,10 +830,11 @@ they wrote and on their author page.
 ## Comments
 
 Comments are giscus threads backed by GitHub Discussions, one per post, titled
-with the post's path without its leading slash (`blog/writing-a-post`). The
-term is fixed per post rather than read from the address bar, because a post
-is reached both with and without a trailing slash, and giscus's own `pathname`
-mapping would give each spelling a thread of its own. To switch them on:
+with the address GitHub Pages serves the post at, less the leading slash
+(`blog/writing-a-post/`). The term is fixed per post rather than read from the
+address bar, because a post is reached both with and without a trailing
+slash, and giscus's own `pathname` mapping would give each spelling a thread
+of its own. To switch them on:
 
 1. Enable Discussions on the repository and create a category for comments.
 2. Run <https://giscus.app> against the repository to get the ids.

@@ -89,13 +89,9 @@ describe('commentWarnings', () => {
 });
 
 describe('commentTerm', () => {
-  it('is the post path without its leading slash, as giscus named threads before', () => {
-    // The same string giscus's `pathname` mapping produced for a link inside
-    // the site, so a thread opened under it is still the one found.
-    expect(commentTerm('writing-a-post')).toBe('blog/writing-a-post');
-  });
-
-  it('has no trailing slash, whichever address the reader arrived at', () => {
-    expect(commentTerm('writing-a-post').endsWith('/')).toBe(false);
+  it('is the address GitHub Pages serves the post at, without the leading slash', () => {
+    // What giscus's `pathname` mapping produced on that address, so the
+    // threads opened under it before the term was fixed are still found.
+    expect(commentTerm('writing-a-post')).toBe('blog/writing-a-post/');
   });
 });

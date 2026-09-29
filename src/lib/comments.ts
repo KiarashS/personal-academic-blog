@@ -45,17 +45,23 @@ export function commentsShown(state: CommentState): boolean {
 }
 
 /**
- * The name a post's thread goes by: its path without the leading slash,
- * `blog/writing-a-post`, which is also the discussion's title on GitHub.
+ * The name a post's thread goes by: its path without the leading slash and
+ * with the trailing one, `blog/writing-a-post/`, which is also the title
+ * giscus gives the discussion on GitHub.
  *
  * Fixed per post and handed to giscus as its `specific` term, not read off the
  * address bar. giscus's `pathname` mapping took whatever the location said,
  * and a post is reached both as `/blog/x` (a link inside the site) and as
  * `/blog/x/` (GitHub Pages redirects a directory to its slash): two terms, so
  * two threads for one post, each holding half its comments.
+ *
+ * The trailing slash because that is the address GitHub Pages serves a post
+ * at, and so the one the threads opened before this was fixed are filed
+ * under. For a while this was the other spelling, and the one post with
+ * comments showed none, its thread still there under the slash.
  */
 export function commentTerm(slug: string): string {
-  return postPath(slug).replace(/^\//, '');
+  return `${postPath(slug).replace(/^\//, '')}/`;
 }
 
 /**
