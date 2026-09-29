@@ -840,8 +840,13 @@ mapping would give each spelling a thread of its own. To switch them on:
 3. Paste `repoId` and `categoryId` into the `giscus` block in
    `src/site.config.ts`.
 
-Until then, each post shows a note where the thread would be. The script is
-loaded lazily and the iframe follows the site's theme.
+Until then, each post shows a note where the thread would be. The thread is
+embedded with `@giscus/react`, giscus's own component, rather than its
+`client.js`: the script builds a frame and a listener every time it runs and
+never removes either, so running it again on a change of theme or of page left
+stale frames behind, and a closed thread could fail to show until a reload.
+The component keeps one frame per post, loads it lazily, and passes a change
+of theme to the frame without rebuilding it.
 
 giscus only creates a discussion when someone posts the first comment, and
 until then its search for the thread answers 404, twice, in every reader's

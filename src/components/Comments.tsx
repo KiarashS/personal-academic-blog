@@ -1,68 +1,38 @@
-import { useEffect, useRef } from 'react';
+import Giscus from '@giscus/react';
 import { commentsConfigured } from '../lib/comments';
 import { giscusTheme } from '../lib/giscus';
 import { siteConfig } from '../site.config';
 import { useTheme } from './ThemeProvider';
 import type { CommentState } from '../site.config';
 
-const GISCUS_ORIGIN = 'https://giscus.app';
-
 /**
  * Comments run on giscus, which stores threads as GitHub Discussions on the
  * blog's own repository. Readers sign in with GitHub; nothing is stored here.
  *
+ * Through `@giscus/react`, giscus's own component for pages that render on the
+ * client, rather than by inserting its `client.js`. That script builds the
+ * frame and a message listener each time it runs and never takes either down,
+ * and this component used to run it again on every change of theme, which
+ * happens once on every load for a reader in dark mode, as the theme settles
+ * after hydration. A copy that finished loading after it had been removed
+ * found the live container and put its own frame there. The component keeps
+ * one frame for as long as it is mounted, sends a change of theme to the
+ * loaded frame instead of rebuilding it, and removes its listener when the
+ * post is left. It renders nothing until it has loaded, on the server and on
+ * the first pass in the browser alike, so hydration is untouched.
+ *
  * `readonly` keeps the thread and takes the box away. giscus has no such mode,
  * and its frame is another origin, so the box is hidden by the stylesheet
- * giscus loads for itself — `data-theme` takes a URL as well as a built-in
- * name. That is presentation: what closes the discussion on GitHub is the
- * lock the deploy puts on it (scripts/ensure-discussions.mjs). The line above the thread says the
- * comments are closed whether or not the stylesheet arrives, which is the part
- * that has to be true.
+ * giscus loads for itself — `theme` takes a URL as well as a built-in name.
+ * That is presentation: what closes the discussion on GitHub is the lock the
+ * deploy puts on it (scripts/ensure-discussions.mjs). The line above the
+ * thread says the comments are closed whether or not the stylesheet arrives,
+ * which is the part that has to be true.
  */
 export function Comments({ state, term }: { state: CommentState; term: string }) {
   const { giscus } = siteConfig;
   const { theme } = useTheme();
-  const containerRef = useRef<HTMLDivElement>(null);
   const configured = commentsConfigured(giscus);
-  const dressing = giscusTheme(state, theme === 'dark');
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!configured || !container) return;
-
-    container.replaceChildren();
-    const script = document.createElement('script');
-    script.src = `${GISCUS_ORIGIN}/client.js`;
-    script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.setAttribute('data-repo', giscus.repo);
-    script.setAttribute('data-repo-id', giscus.repoId);
-    script.setAttribute('data-category', giscus.category);
-    script.setAttribute('data-category-id', giscus.categoryId);
-    // `specific` and a term fixed per post (`commentTerm`), never the address
-    // bar: the same post is reached with and without a trailing slash.
-    script.setAttribute('data-mapping', 'specific');
-    script.setAttribute('data-term', term);
-    script.setAttribute('data-strict', '1');
-    script.setAttribute('data-reactions-enabled', giscus.reactionsEnabled ? '1' : '0');
-    script.setAttribute('data-emit-metadata', '0');
-    script.setAttribute('data-input-position', 'top');
-    script.setAttribute('data-theme', dressing);
-    script.setAttribute('data-lang', giscus.lang);
-    script.setAttribute('data-loading', 'lazy');
-    container.appendChild(script);
-
-    return () => container.replaceChildren();
-  }, [configured, dressing, giscus, term]);
-
-  // The iframe keeps its own theme, so tell it directly instead of reloading.
-  useEffect(() => {
-    const frame = containerRef.current?.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-    frame?.contentWindow?.postMessage(
-      { giscus: { setConfig: { theme: dressing } } },
-      GISCUS_ORIGIN,
-    );
-  }, [dressing]);
 
   return (
     <section className="comments" id="comments">
@@ -73,7 +43,26 @@ export function Comments({ state, term }: { state: CommentState; term: string })
         </p>
       ) : null}
       {configured ? (
-        <div ref={containerRef} />
+        <Giscus
+          // A post of its own gets a frame of its own, rather than the last
+          // post's frame told a new term.
+          key={term}
+          repo={giscus.repo}
+          repoId={giscus.repoId}
+          category={giscus.category}
+          categoryId={giscus.categoryId}
+          // `specific` and a term fixed per post (`commentTerm`), never the
+          // address bar: the same post is reached with and without a slash.
+          mapping="specific"
+          term={term}
+          strict="1"
+          reactionsEnabled={giscus.reactionsEnabled ? '1' : '0'}
+          emitMetadata="0"
+          inputPosition="top"
+          theme={giscusTheme(state, theme === 'dark')}
+          lang={giscus.lang}
+          loading="lazy"
+        />
       ) : (
         <p className="notice">
           Comments are switched off until giscus is configured. Enable Discussions on the
