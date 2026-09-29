@@ -59,17 +59,6 @@ export function commentTerm(slug: string): string {
 }
 
 /**
- * The body of the discussion that holds a post's thread, as giscus writes it
- * when the first comment creates one: the term as a heading, the description,
- * the page's address, then a comment carrying the SHA-1 of the term. That last
- * line is what giscus searches for in `strict` mode, so a discussion made by
- * `scripts/ensure-discussions.mjs` is found exactly as one giscus made is.
- */
-export function discussionBody(term: string, description: string, url: string, sha1: string) {
-  return `# ${term}\n\n${description}\n\n${url}\n\n<!-- sha1: ${sha1} -->`;
-}
-
-/**
  * What the build should say about a post's comment setting.
  *
  * A value nobody can read is the failure worth catching: it leaves the post on

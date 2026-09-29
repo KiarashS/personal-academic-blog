@@ -67,7 +67,7 @@ comments and a few should.
 That last part is presentation rather than enforcement — giscus has no
 read-only mode, so the box is hidden by a stylesheet giscus loads for itself,
 and on its own the discussion on GitHub would still accept posts. The deploy
-locks it, which is what closes it.
+locks it, if the post has one yet, which is what closes it.
 
 ### Banners
 

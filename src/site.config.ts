@@ -17,7 +17,7 @@ export const BLOG_INDEX = '@blog';
  * and not enforcement: giscus has no read-only mode, so the box is hidden with
  * a stylesheet of the site's own, and anyone who went to the discussion on
  * GitHub could still post there. The deploy locks the discussion of every
- * `readonly` post (scripts/ensure-discussions.mjs), which is what actually
+ * `readonly` post (scripts/lock-discussions.mjs), which is what actually
  * closes it — this says so on the page, the lock makes it true.
  */
 export type CommentState = 'on' | 'off' | 'readonly';

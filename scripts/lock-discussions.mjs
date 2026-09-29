@@ -3,26 +3,28 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /*
- * Makes sure every post that takes comments has its GitHub Discussion before a
- * reader gets there.
+ * Locks the GitHub Discussion of every `readonly` post that has one.
  *
- * giscus finds a post's thread by searching the repository, and when there is
- * none yet the search answers 404, twice (the newest comments and the
- * oldest), and the browser logs both from inside giscus's frame, where the
- * page cannot quiet them. Every post without a comment did that for every
- * reader. giscus only creates the discussion when someone posts the first
- * comment; this creates it at deploy time instead, in the exact shape giscus
- * would (`discussionBody` in src/lib/comments.ts), so the thread giscus later
- * finds is indistinguishable from one it made.
+ * `readonly` hides giscus's comment box on the page, which is presentation:
+ * anyone who opened the discussion on GitHub could still reply there. The
+ * lock is what closes it. A `readonly` post with no discussion is left
+ * without one, since there is then nothing on GitHub to reply to, and giscus
+ * shows an empty thread with no box.
  *
- * A `readonly` post gets its thread too, and the thread is locked: the page
- * hides the comment box, and a lock is what stops anyone posting on GitHub
- * instead. A post whose comments are off gets nothing; giscus never loads.
+ * This never creates a discussion. giscus opens one when the first comment is
+ * posted, and until then its search for the thread answers 404 in the
+ * console; that is how giscus is meant to work. Creating a thread for every
+ * post in advance filled the repository's Discussions tab with empty,
+ * bot-written threads and sent a notification to anyone watching the
+ * repository for each post published.
+ *
+ * The thread is matched as giscus matches it in strict mode, by the
+ * `<!-- sha1: … -->` line giscus writes into the discussion's body, the SHA-1
+ * of the post's term (`commentTerm` in src/lib/comments.ts).
  *
  * Runs in the deploy workflow with its GITHUB_TOKEN, which needs
  * `discussions: write`. With no token (a local build) it does nothing, and a
- * failure is a warning rather than a failed deploy: the site works without
- * it, the console is just noisier.
+ * failure is a warning rather than a failed deploy.
  */
 
 const token = process.env.GITHUB_TOKEN;
@@ -32,16 +34,7 @@ if (!token) {
 }
 
 const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href;
-const {
-  allPosts,
-  siteConfig,
-  postPath,
-  canonicalUrl,
-  metaFor,
-  commentTerm,
-  commentsConfigured,
-  discussionBody,
-} = await import(serverEntry);
+const { allPosts, siteConfig, commentTerm, commentsConfigured } = await import(serverEntry);
 
 const { giscus } = siteConfig;
 if (!commentsConfigured(giscus)) {
@@ -101,30 +94,6 @@ async function existingThreads() {
   return threads;
 }
 
-async function create(post, term, hash) {
-  const route = postPath(post.slug);
-  const data = await graphql(
-    `
-      mutation ($repo: ID!, $category: ID!, $title: String!, $body: String!) {
-        createDiscussion(
-          input: { repositoryId: $repo, categoryId: $category, title: $title, body: $body }
-        ) {
-          discussion {
-            id
-          }
-        }
-      }
-    `,
-    {
-      repo: giscus.repoId,
-      category: giscus.categoryId,
-      title: term,
-      body: discussionBody(term, metaFor(route).description ?? '', canonicalUrl(route), hash),
-    },
-  );
-  return { id: data.createDiscussion.discussion.id, locked: false };
-}
-
 async function lock(id) {
   await graphql(
     `
@@ -142,31 +111,19 @@ async function lock(id) {
 
 try {
   const threads = await existingThreads();
-  const wanted = allPosts.filter((post) => post.comments === 'on' || post.comments === 'readonly');
-  let created = 0;
+  const closed = allPosts.filter((post) => post.comments === 'readonly');
   let locked = 0;
 
-  for (const post of wanted) {
+  for (const post of closed) {
     const term = commentTerm(post.slug);
-    const hash = sha1(term);
-    let thread = threads.get(hash);
-    if (!thread) {
-      thread = await create(post, term, hash);
-      threads.set(hash, thread);
-      created += 1;
-      console.log(`discussions: created "${term}"`);
-    }
-    if (post.comments === 'readonly' && !thread.locked) {
-      await lock(thread.id);
-      thread.locked = true;
-      locked += 1;
-      console.log(`discussions: locked "${term}"`);
-    }
+    const thread = threads.get(sha1(term));
+    if (!thread || thread.locked) continue;
+    await lock(thread.id);
+    locked += 1;
+    console.log(`discussions: locked "${term}"`);
   }
 
-  console.log(
-    `discussions: ${wanted.length} posts show comments, ${created} threads created, ${locked} locked`,
-  );
+  console.log(`discussions: ${closed.length} readonly posts, ${locked} threads locked`);
 } catch (error) {
   // GitHub's annotation syntax, so it shows on the run's summary page.
   console.log(`::warning::discussions: not checked (${error.message})`);

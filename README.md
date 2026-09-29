@@ -851,15 +851,20 @@ a screen of view, by an `IntersectionObserver` of the page's own, and then
 loads at once: left to the frame's `loading="lazy"`, Safari could leave it
 empty on a first visit until a reload.
 
-giscus only creates a discussion when someone posts the first comment, and
-until then its search for the thread answers 404, twice, in every reader's
-console. So the deploy workflow runs `scripts/ensure-discussions.mjs` after the
-checks: it creates the missing discussion for each post that shows comments,
-in the same shape giscus would (title, description, link, and the
-`<!-- sha1: … -->` line giscus searches for), and locks it if the post is
-`readonly`. It uses the workflow's `GITHUB_TOKEN`, which the workflow grants
-`discussions: write`; without a token, as in a local build, it does nothing, and
-a failure is a warning on the run rather than a failed deploy.
+giscus creates a post's discussion when someone posts the first comment. Until
+then its search for the thread answers 404, twice, in the browser's console:
+that is giscus working as designed, not an error on the page, and the site
+leaves it. Opening every post's discussion in advance would quiet it, at the
+cost of an empty, bot-written thread in the repository's Discussions tab for
+each post and a notification to anyone watching the repository whenever a post
+is published.
+
+The deploy workflow runs `scripts/lock-discussions.mjs` after the checks. It
+locks the discussion of each `readonly` post that has one, which is what
+actually closes it on GitHub, and never creates one. It uses the workflow's
+`GITHUB_TOKEN`, which the workflow grants `discussions: write`; without a
+token, as in a local build, it does nothing, and a failure is a warning on the
+run rather than a failed deploy.
 
 ## Comments on a post
 

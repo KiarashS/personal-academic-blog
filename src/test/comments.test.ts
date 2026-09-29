@@ -5,7 +5,6 @@ import {
   commentWarnings,
   commentsConfigured,
   commentsShown,
-  discussionBody,
 } from '../lib/comments';
 import { giscusTheme } from '../lib/giscus';
 import { canonicalUrl } from '../lib/urls';
@@ -98,16 +97,5 @@ describe('commentTerm', () => {
 
   it('has no trailing slash, whichever address the reader arrived at', () => {
     expect(commentTerm('writing-a-post').endsWith('/')).toBe(false);
-  });
-});
-
-describe('discussionBody', () => {
-  it('ends with the hash line giscus searches for in strict mode', () => {
-    // sha1("blog/writing-a-post"), which is what giscus hashes: the term.
-    const hash = '5bb8b5c6182b27779a5a6b70f3db6661114a0e29';
-    const body = discussionBody('blog/writing-a-post', 'A summary.', 'https://x.test/p', hash);
-    expect(body).toBe(
-      `# blog/writing-a-post\n\nA summary.\n\nhttps://x.test/p\n\n<!-- sha1: ${hash} -->`,
-    );
   });
 });

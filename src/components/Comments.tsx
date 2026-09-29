@@ -26,7 +26,7 @@ import type { CommentState } from '../site.config';
  * and its frame is another origin, so the box is hidden by the stylesheet
  * giscus loads for itself — `theme` takes a URL as well as a built-in name.
  * That is presentation: what closes the discussion on GitHub is the lock the
- * deploy puts on it (scripts/ensure-discussions.mjs). The line above the
+ * deploy puts on it (scripts/lock-discussions.mjs). The line above the
  * thread says the comments are closed whether or not the stylesheet arrives,
  * which is the part that has to be true.
  */
