@@ -164,12 +164,29 @@ screen reader announces, and the frame loads only as the reader nears it:
 
 <iframe src="/projects/example/" width="800" height="450" title="The example project page"></iframe>
 
-A YouTube video is better written as an image, `![The talk](https://youtu.be/…)`,
-than as the iframe YouTube's Share button gives you. The image syntax shows the
-video's still and a play button and loads nothing from Google until the reader
-clicks. The copied iframe loads YouTube's player, and YouTube, as soon as the
-reader scrolls near it, and its address carries an `si=` parameter that tells
-YouTube whose share the reader came from.
+### A YouTube video
+
+A YouTube video is written as an image whose address is the video's:
+
+```markdown
+![The talk](https://www.youtube.com/watch?v=8l9hIjYB5zc)
+
+Caption: The talk, recorded at the workshop.
+```
+
+Any address YouTube gives you works: a `watch?v=` link, a `youtu.be/` short
+link, or the `embed/` address inside the iframe the Share button offers, so
+there is no need to tidy one into another. A `t=` in it is kept, and the video
+starts there. Like any figure, it takes a numbered caption from a `Caption:`
+line under it.
+
+The page shows the video's still with a play button over it, and the player
+takes its place when the reader clicks. Until that click nothing is asked of
+Google but the still itself, and the player comes from
+`youtube-nocookie.com`. The iframe the Share button gives you does the
+opposite: it loads YouTube's player, and YouTube, as soon as the reader scrolls
+near it, and its address carries an `si=` parameter that tells YouTube whose
+share the reader came from.
 
 ## Dates
 
