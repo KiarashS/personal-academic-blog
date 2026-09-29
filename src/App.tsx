@@ -6,6 +6,8 @@ import { Layout } from './components/Layout';
 import { categoriesEnabled } from './lib/categories';
 import { isEnabled } from './lib/features';
 import { newsPageEnabled } from './lib/news';
+import { openingsPageEnabled } from './lib/openings';
+import { peoplePageEnabled } from './lib/people';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { CategoryPage } from './pages/CategoryPage';
 import { BlogPage } from './pages/BlogPage';
@@ -43,6 +45,12 @@ const ContactPage = lazy(() =>
   import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })),
 );
 const NewsPage = lazy(() => import('./pages/NewsPage').then((m) => ({ default: m.NewsPage })));
+const PeoplePage = lazy(() =>
+  import('./pages/PeoplePage').then((m) => ({ default: m.PeoplePage })),
+);
+const OpeningsPage = lazy(() =>
+  import('./pages/OpeningsPage').then((m) => ({ default: m.OpeningsPage })),
+);
 
 /**
  * One route's page. The lazy component is the reader's path and the registered
@@ -92,6 +100,12 @@ export function App() {
         ) : null}
         {newsPageEnabled() ? (
           <Route path="news" element={<Lazily name="NewsPage" of={NewsPage} />} />
+        ) : null}
+        {peoplePageEnabled() ? (
+          <Route path="people" element={<Lazily name="PeoplePage" of={PeoplePage} />} />
+        ) : null}
+        {openingsPageEnabled() ? (
+          <Route path="openings" element={<Lazily name="OpeningsPage" of={OpeningsPage} />} />
         ) : null}
         {isEnabled('publications') ? (
           <Route

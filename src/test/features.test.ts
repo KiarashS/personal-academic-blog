@@ -21,6 +21,8 @@ const all = {
   slides: true,
   contact: true,
   news: true,
+  people: true,
+  openings: true,
 };
 const none = {
   home: false,
@@ -33,6 +35,8 @@ const none = {
   slides: false,
   contact: false,
   news: false,
+  people: false,
+  openings: false,
 };
 
 describe('filterNav', () => {

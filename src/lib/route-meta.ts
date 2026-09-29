@@ -6,6 +6,8 @@ import { allPosts, displayTag, getPost, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
 import { isEnabled } from './features';
 import { newsPageEnabled } from './news';
+import { openingsPageEnabled } from './openings';
+import { peoplePageEnabled } from './people';
 import { blogIndexPath, blogPagePath, postPath, postSlugFromPath } from './routes';
 
 export interface RouteMeta {
@@ -71,6 +73,20 @@ export function metaFor(pathname: string): RouteMeta {
     return {
       title: withSuffix('Research'),
       description: `What ${siteConfig.title} works on, and where it is going.`,
+    };
+  }
+
+  if (path === '/people' && peoplePageEnabled()) {
+    return {
+      title: withSuffix('People'),
+      description: `Who is in the group, and where its alumni went.`,
+    };
+  }
+
+  if (path === '/openings' && openingsPageEnabled()) {
+    return {
+      title: withSuffix('Openings'),
+      description: 'Open positions in the group, and how to apply.',
     };
   }
 
@@ -176,6 +192,8 @@ export function allRoutes(): string[] {
   if (isEnabled('slides')) routes.add('/slides');
   if (isEnabled('contact')) routes.add('/contact');
   if (newsPageEnabled()) routes.add('/news');
+  if (peoplePageEnabled()) routes.add('/people');
+  if (openingsPageEnabled()) routes.add('/openings');
 
   if (categoriesEnabled()) {
     routes.add('/categories');

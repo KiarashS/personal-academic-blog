@@ -48,7 +48,9 @@ export type FeatureName =
   | 'research'
   | 'slides'
   | 'contact'
-  | 'news';
+  | 'news'
+  | 'people'
+  | 'openings';
 
 /**
  * Where a nav entry is shown. The header is the default because that is what a
@@ -66,10 +68,11 @@ export type NavPlace = 'header' | 'footer' | 'both';
 export type ProfileLinkStyle = 'both' | 'icon' | 'label';
 
 /**
- * The three places an author's profile links are rendered: the front page's
- * row, the contact page's list, and the card under every post the author wrote.
+ * The four places an author's profile links are rendered: the front page's
+ * row, the contact page's list, the card under every post the author wrote,
+ * and their card on the People page.
  */
-export type ProfileSurface = 'home' | 'contact' | 'authorCard';
+export type ProfileSurface = 'home' | 'contact' | 'authorCard' | 'people';
 
 /** Where the site notice can appear. `blog` is the index and its numbered pages. */
 export type NoticeSurface = 'home' | 'blog' | 'post';
@@ -396,6 +399,7 @@ export interface SiteConfig {
    *       home: ['github', 'orcid', 'email'],
    *       contact: [],
    *       authorCard: ['orcid', 'scholar'],
+   *       people: ['scholar', 'github', 'email'],
    *     }
    *
    * The keys are the services in `src/content/authors.ts` plus `cv` and
@@ -473,6 +477,11 @@ export const siteConfig: SiteConfig = {
     // The page at /news and its nav entry. The front page lists the newest few
     // whatever this says; with no entries yet the page says there are none.
     news: true,
+    // A group's pages: /people, everyone in src/content/people.ts by role with
+    // the alumni last, and /openings, the positions in openings.ts under the
+    // text of openings.md. Both hold placeholders until you fill them in.
+    people: false,
+    openings: false,
   },
   owner: 'you',
   home: {
@@ -521,6 +530,7 @@ export const siteConfig: SiteConfig = {
     home: [],
     contact: [],
     authorCard: [],
+    people: [],
   },
   notice: {
     /*
@@ -565,6 +575,8 @@ export const siteConfig: SiteConfig = {
     { label: 'Publications', to: '/publications', feature: 'publications' },
     { label: 'Slides', to: '/slides', feature: 'slides' },
     { label: 'News', to: '/news', feature: 'news' },
+    { label: 'People', to: '/people', feature: 'people' },
+    { label: 'Openings', to: '/openings', feature: 'openings' },
     { label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
     {

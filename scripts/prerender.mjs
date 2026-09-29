@@ -30,6 +30,8 @@ const {
   configuredNewsWarnings,
   noticeWarnings,
   researchWarnings,
+  peopleWarnings,
+  openingsWarnings,
   pwaEnabled,
   pwaWarnings,
   webManifest,
@@ -473,6 +475,8 @@ for (const message of [
   ...configuredNewsWarnings(),
   ...noticeWarnings(),
   ...researchWarnings(),
+  ...peopleWarnings(),
+  ...openingsWarnings(),
   ...pwaWarnings(),
 ])
   console.warn(message);

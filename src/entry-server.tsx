@@ -10,6 +10,8 @@ import { ArchivePage } from './pages/ArchivePage';
 import { ContactPage, contactBody } from './pages/ContactPage';
 import { HomePage, homeBody } from './pages/HomePage';
 import { NewsPage } from './pages/NewsPage';
+import { OpeningsPage, openingsBody } from './pages/OpeningsPage';
+import { PeoplePage } from './pages/PeoplePage';
 import { PostPage } from './pages/PostPage';
 import { PublicationsPage } from './pages/PublicationsPage';
 import { ResearchPage, researchBody } from './pages/ResearchPage';
@@ -29,6 +31,8 @@ registerPage('ArchivePage', ArchivePage);
 registerPage('ContactPage', ContactPage);
 registerPage('HomePage', HomePage);
 registerPage('NewsPage', NewsPage);
+registerPage('OpeningsPage', OpeningsPage);
+registerPage('PeoplePage', PeoplePage);
 registerPage('PostPage', PostPage);
 registerPage('PublicationsPage', PublicationsPage);
 registerPage('ResearchPage', ResearchPage);
@@ -43,10 +47,12 @@ export { siteConfig } from './site.config';
 export { configuredNewsWarnings } from './lib/news';
 export { noticeWarnings } from './lib/notice';
 export { researchWarnings } from './lib/research';
+export { memberPhotos, peopleWarnings } from './lib/people';
+export { openingsWarnings } from './lib/openings';
 export { pwaEnabled, pwaWarnings, webManifest } from './lib/pwa';
 export { CACHE_PREFIX } from './lib/cache-name';
 export { canonicalUrl, withBase } from './lib/urls';
-export { AVATAR_WIDTH, avatarCopyPath, isUrl } from './lib/avatar';
+export { AVATAR_WIDTH, PHOTO_WIDTH, avatarCopyPath, isUrl } from './lib/avatar';
 export { fontSubsetsFor } from './lib/font-subsets';
 export { commentTerm, commentsConfigured } from './lib/comments';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
@@ -63,6 +69,7 @@ async function warmContent(): Promise<void> {
     aboutBody.warm(),
     contactBody.warm(),
     researchBody.warm(),
+    openingsBody.warm(),
     ...allContentSlugs().map((slug) => postBody(slug).warm()),
   ]);
 }

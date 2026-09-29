@@ -1474,6 +1474,8 @@ features: {
   slides: false,         // /slides, talks and their materials
   contact: false,        // /contact, from contact.md plus your profile links
   news: false,           // /news, every entry in news.ts grouped by year
+  people: false,         // /people, the group by role, then its alumni
+  openings: false,       // /openings, open positions and how to apply
 },
 ```
 
@@ -1659,13 +1661,14 @@ links rather than the bordered chips the author cards use: those sit under a
 post as one more block of furniture, and this row sits under two lines of light
 type at display size.
 
-One record, three rows, and `profileLinkKeys` says what each row shows:
+One record, four rows, and `profileLinkKeys` says what each row shows:
 
 ```ts
 profileLinkKeys: {
   home: ['github', 'orcid', 'email'],
   contact: [],
   authorCard: ['orcid', 'scholar'],
+  people: ['scholar', 'github', 'email'],   // each card on /people
 },
 ```
 
@@ -2209,6 +2212,112 @@ and `paper` are each optional, and each takes a URL or a path under `public/`:
 
 `contact` renders `src/content/contact.md` at `/contact`, followed by the same
 profile row the author cards use, so an address changes in one place.
+
+## People and openings
+
+Two pages for a research group, each behind its own flag and both off by
+default.
+
+### People
+
+`people` renders `src/content/people.ts` at `/people`: a section per role in
+the order principal investigator, management team, researchers, postdocs, PhD,
+Master's and Bachelor's students, then the alumni. A role with nobody in it is
+left out, and the heading counts who is in it. Within a role the file's order
+is the page's order.
+
+```ts
+{
+  name: 'A. Student',
+  role: 'phd',                 // pi, management, researcher, postdoc, phd, masters, bachelors
+  title: 'PhD student',        // optional; the role's name if left out
+  photo: '/people/a-student.jpg',
+  pronouns: 'she/her',
+  affiliation: 'Co-supervised with another university',
+  bio: 'One or two sentences.',
+  interests: ['Subject', 'Another'],
+  email: 'a.student@example.org',
+  cv: '/people/a-student-cv.pdf',
+  links: { scholar: 'id', github: 'handle', orcid: '0000-0000-0000-0000' },
+  joined: '2024',
+}
+```
+
+Only `name` and `role` are required. A `left` year makes someone alumni,
+whatever their role was; alumni come last, newest first, with a smaller card
+that shows where they went instead of a bio:
+
+```ts
+{
+  name: 'A. Graduate',
+  role: 'phd',
+  joined: '2019',
+  left: '2024',
+  now: 'Postdoc at another university',
+  nowUrl: 'https://example.org/',                 // optional
+  thesis: { title: 'The thesis', url: '/theses/graduate.pdf' },
+}
+```
+
+`author` joins a member to a record in `src/content/authors.ts`. The name then
+links to their author page, and any of photo, bio, interests, email, CV and
+links the member leaves out comes from that record, so someone who writes posts
+is written down once. A field set on the member wins.
+
+A photo is a path under `public/` (put them in `public/people/`) or a URL. For
+each local photo the build writes a 256px WebP beside it, `a-student-256.webp`,
+the same way it sizes the front page's portrait, and the page shows that copy.
+The development server shows the original. Without a photo the card shows the
+person's initials. The profile marks under each card follow
+`profileLinkKeys.people`; empty shows every link the person has.
+
+The build warns about a member with no name, a role that is not one of the
+seven, an `author` id that is not in `authors.ts`, a `now` on someone with no
+`left` year, a year that is not four digits, and a photo path that does not
+start with `/`.
+
+### Openings
+
+`openings` renders `src/content/openings.md` at `/openings`, then each position
+in `src/content/openings.ts`:
+
+```ts
+{
+  title: 'PhD position in the thing',
+  kind: 'phd',                 // phd, postdoc, masters, bachelors, researcher, engineer, intern, other
+  summary: 'Two or three sentences on the project.',
+  work: ['What they will do'],
+  requirements: ['What they need'],
+  offer: ['What they get'],
+  start: 'September 2027',
+  duration: '4 years',
+  funding: 'Fully funded',
+  location: 'The city',
+  deadline: '2027-01-31',      // YYYY-MM-DD; leave out for open until filled
+  apply: {
+    url: 'https://jobs.example.org/123',   // a portal, or
+    email: 'lab@example.org',              // a mail, or both
+    subject: 'PhD application',
+    note: 'A CV, a transcript and a one-page statement.',
+  },
+  details: '/openings/phd-2027.pdf',        // the full advertisement, optional
+}
+```
+
+`title`, `kind`, `summary` and one of `apply.url` or `apply.email` are needed.
+With a URL the button goes there; with only an email it opens a mail with the
+subject filled in; with both, a second button, "Ask a question", opens the mail.
+
+A position is listed through its deadline day and dropped the day after, judged
+in UTC at build time and again in the reader's browser, as the news and the
+notice are. The build warns when one has closed so it can be removed from the
+file, and also about a missing title, summary or way to apply, a deadline that
+is not a date, and a `details` path that does not start with `/`. With nothing
+open the page says so in its first line, and `openings.md` is the place to say
+whether to write anyway.
+
+With both pages on and any position open, the People page's opening line links
+to the openings.
 
 ## Working without the assets
 

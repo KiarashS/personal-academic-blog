@@ -3232,6 +3232,415 @@ h1 + .author-card {
   white-space: nowrap;
 }
 
+/* People ------------------------------------------------------------------- */
+
+.people-group + .people-group {
+  margin-top: 3rem;
+}
+
+/* The count after a role's name, in the heading's own small caps, set apart
+   by a rule-coloured dot rather than brackets. */
+.people-group__count {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  margin-inline-start: 0.5rem;
+}
+
+.people-group__count::before {
+  color: var(--rule-strong);
+  content: '·';
+  margin-inline-end: 0.5rem;
+}
+
+.people-grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Two columns across the 46rem shell, one on a phone. `min()` keeps a single
+   column from pushing past a screen narrower than the minimum. Cards are rows,
+   photo beside the words, so a role with one person in it fills half the line
+   rather than a third of it. */
+.people-grid--member,
+.people-grid--alumni {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+
+.people-grid--alumni {
+  gap: 0.75rem;
+}
+
+.people-grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+/*
+ * A card is a box in the grid and a column inside it: photo, then the words,
+ * with the links pushed to the bottom so a row of cards ends on one line
+ * whatever the length of each bio.
+ */
+.person {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  display: flex;
+  flex: 1;
+  gap: 1rem;
+  min-width: 0;
+  padding: 1.1rem;
+  transition: border-color 0.15s ease;
+}
+
+.person:hover {
+  border-color: var(--rule-strong);
+}
+
+.person__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.person__photo {
+  aspect-ratio: 1;
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+
+  /* Not stretched to the card's height by the row it sits in, which turned
+     the circle into an oval as tall as the bio beside it. */
+  align-self: flex-start;
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  object-fit: cover;
+  width: 4.5rem;
+}
+
+.person__photo--initials {
+  align-items: center;
+  border-color: var(--rule-strong);
+  color: var(--text-muted);
+  display: flex;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.person__name {
+  font-size: 1.05rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.person__name a {
+  text-decoration: none;
+}
+
+.person__name a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--link-rule);
+}
+
+.person__pronouns {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-inline-start: 0.4rem;
+  white-space: nowrap;
+}
+
+.person__title,
+.person__meta,
+.person__now,
+.person__thesis {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0.2rem 0 0;
+}
+
+.person__title {
+  color: var(--text);
+}
+
+.person__meta {
+  color: var(--text-muted);
+}
+
+.person__now,
+.person__thesis {
+  margin-top: 0.5rem;
+}
+
+.person__label {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin-inline-end: 0.2rem;
+  text-transform: uppercase;
+}
+
+.person__thesis cite {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+}
+
+.person__bio {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0.7rem 0 0;
+}
+
+.person__interests {
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.person__interests li {
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  color: var(--text-muted);
+  padding: 0.12rem 0.55rem;
+}
+
+.person__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0.9rem 0 0;
+}
+
+.person__links .profile-icon {
+  height: 15px;
+  width: 15px;
+}
+
+/* The principal investigator: the full width, the photo larger, with the
+   whole bio. */
+.person--lead {
+  gap: 1.4rem;
+  padding: 1.4rem;
+}
+
+.person--lead .person__photo {
+  width: 8rem;
+}
+
+.person--lead .person__photo--initials {
+  font-size: 2.4rem;
+}
+
+.person--lead .person__name {
+  font-size: 1.3rem;
+}
+
+.person--lead .person__title {
+  font-size: 0.9rem;
+}
+
+.person--lead .person__bio {
+  font-size: 1rem;
+}
+
+/* Alumni: the photo small and to the side, as a list of where people went
+   rather than a second roster. */
+.person--alumni {
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+}
+
+.person--alumni .person__photo {
+  width: 3.25rem;
+}
+
+.person--alumni .person__photo--initials {
+  font-size: 1.05rem;
+}
+
+.person--alumni .person__name {
+  font-size: 0.98rem;
+}
+
+.person--alumni .person__links {
+  padding-top: 0.6rem;
+}
+
+@media (width <= 34rem) {
+  .person--lead {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.1rem;
+  }
+
+  .person--lead .person__photo {
+    width: 6.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .person {
+    transition: none;
+  }
+}
+
+/* Openings ------------------------------------------------------------------ */
+
+/*
+ * A position is a card with a rule down its side in the accent, the one
+ * colour on the page, since it is the thing a reader came here to act on.
+ */
+.opening {
+  border: 1px solid var(--rule);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: 6px;
+  margin: 0 0 1.5rem;
+  padding: 1.3rem 1.4rem 1.4rem;
+}
+
+.opening__kind {
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  color: var(--text-muted);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.6rem;
+  padding: 0.1rem 0.6rem;
+  text-transform: uppercase;
+}
+
+.opening__title {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.opening__facts {
+  display: grid;
+  font-family: var(--sans);
+  gap: 0.6rem 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+  margin: 1rem 0 0;
+  padding: 0.85rem 0;
+  border-block: 1px solid var(--rule);
+}
+
+.opening__facts div {
+  min-width: 0;
+}
+
+.opening__facts dt {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.opening__facts dd {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0.1rem 0 0;
+}
+
+.opening__deadline dd {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.opening__summary {
+  margin: 1rem 0 0;
+}
+
+.opening__lists {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.opening__label {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  margin: 1.1rem 0 0.35rem;
+  text-transform: uppercase;
+}
+
+.opening__points ul {
+  font-size: 0.93rem;
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}
+
+.opening__points li {
+  margin-bottom: 0.25rem;
+}
+
+.opening__apply {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+.opening__button {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--bg);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+}
+
+.opening__button:hover {
+  background: color-mix(in srgb, var(--accent) 85%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 85%, var(--text));
+  color: var(--bg);
+}
+
+.opening__button--quiet {
+  background: none;
+  border-color: var(--rule-strong);
+  color: var(--text);
+  font-weight: 400;
+}
+
+.opening__button--quiet:hover {
+  background: var(--bg-subtle);
+  border-color: var(--link-rule);
+  color: var(--text);
+}
+
+.opening__note {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  margin: 0.8rem 0 0;
+}
+
 @media print {
   /*
    * Papers get printed. The chrome goes, the palette is forced light whatever
@@ -3386,8 +3795,29 @@ h1 + .author-card {
   pre,
   .code-block,
   .mermaid-figure,
-  .toc {
+  .toc,
+  .person,
+  .opening {
     break-inside: avoid;
+  }
+
+  /* On paper the buttons are their targets, written out. */
+  .opening__button {
+    background: none;
+    border: 0;
+    color: #000;
+    padding: 0;
+  }
+
+  .opening__button[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    font-weight: 400;
+    word-break: break-all;
+  }
+
+  .person__links {
+    display: none;
   }
 
   h1,

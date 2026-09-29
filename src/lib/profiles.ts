@@ -128,9 +128,10 @@ export function selectProfileLinks(
 /**
  * The links one surface shows for one author.
  *
- * Three surfaces render this row — the front page, the contact page and the
- * author card under every post — and each has its own list in the config, so a
- * front page can carry two marks while the contact page carries all eleven.
+ * Four surfaces render this row — the front page, the contact page, the author
+ * card under every post and each card on the People page — and each has its
+ * own list in the config, so a front page can carry two marks while the
+ * contact page carries all eleven.
  *
  * `structured-data.ts` deliberately does not go through here. Its `sameAs` is
  * the record itself, not a view of it: the point of that array is to tell a

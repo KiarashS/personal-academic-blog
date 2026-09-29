@@ -171,11 +171,12 @@ describe('selectProfileLinks', () => {
 });
 
 describe('siteConfig.profileLinkKeys', () => {
-  it('covers all three surfaces', () => {
+  it('covers all four surfaces', () => {
     expect(Object.keys(siteConfig.profileLinkKeys).sort()).toEqual([
       'authorCard',
       'contact',
       'home',
+      'people',
     ]);
   });
 

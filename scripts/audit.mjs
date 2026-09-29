@@ -82,6 +82,8 @@ const routes = [
     '/tags/guide/',
     '/authors/you/',
     '/research/',
+    '/people/',
+    '/openings/',
     '/slides/',
     '/contact/',
     '/search/',
