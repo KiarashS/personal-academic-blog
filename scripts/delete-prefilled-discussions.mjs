@@ -3,9 +3,13 @@
  * 29 September 2026, before that was stopped. Run once by hand from
  * .github/workflows/delete-prefilled-discussions.yml, then removed with it.
  *
- * Deletes a discussion only if all three hold: its title is one of the four
- * post terms it opened, the workflow's own bot wrote it, and it has no
- * comments. Anything else is listed and left alone.
+ * Deletes a discussion only if all three hold: its title, with any trailing
+ * slash, is one of the four post terms it opened, the workflow's own bot
+ * wrote it, and it has no comments. Anything else is listed, with the hash
+ * line giscus finds it by, and left alone.
+ *
+ * The first run deleted three and kept #22, titled `blog/writing-a-post/`:
+ * the exact match missed the slash.
  */
 
 const token = process.env.GITHUB_TOKEN;
@@ -46,6 +50,7 @@ const data = await graphql(
             author {
               login
             }
+            body
             comments {
               totalCount
             }
@@ -60,8 +65,10 @@ const data = await graphql(
 let deleted = 0;
 for (const discussion of data.repository.discussions.nodes) {
   const author = discussion.author?.login ?? '(none)';
-  const label = `#${discussion.number} "${discussion.title}" by ${author}, ${discussion.comments.totalCount} comments`;
-  if (!TITLES.has(discussion.title) || !BOTS.has(author) || discussion.comments.totalCount > 0) {
+  const hash = /<!-- sha1: ([0-9a-f]{40}) -->/.exec(discussion.body)?.[1] ?? 'no hash line';
+  const label = `#${discussion.number} "${discussion.title}" by ${author}, ${discussion.comments.totalCount} comments, sha1 ${hash}`;
+  const title = discussion.title.replace(/\/$/, '');
+  if (!TITLES.has(title) || !BOTS.has(author) || discussion.comments.totalCount > 0) {
     console.log(`kept    ${label}`);
     continue;
   }

@@ -1,8 +1,14 @@
 name: Delete prefilled discussions (one-off)
 
-# Run once by hand, then removed together with its script.
+# Runs when this file or its script changes on main, or by hand; removed
+# together with its script once the prefilled threads are gone.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/delete-prefilled-discussions.yml
+      - scripts/delete-prefilled-discussions.mjs
 
 permissions:
   discussions: write
