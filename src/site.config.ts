@@ -322,7 +322,8 @@ export interface HomeConfig {
   avatar: string;
   /**
    * How many entries from `src/content/news.ts` the front page lists under the
-   * profile links, newest first. 0 leaves the page as words alone.
+   * profile links, newest first. 0 leaves the page as words alone, and so does
+   * `features.news: false`, whatever this says.
    *
    * Three is the number that fits: the block is the page's quietest register
    * and the banner is centred in the window, so at three nothing else moves.
@@ -480,8 +481,9 @@ export const siteConfig: SiteConfig = {
     research: false,
     slides: false,
     contact: false,
-    // The page at /news and its nav entry. The front page lists the newest few
-    // whatever this says; with no entries yet the page says there are none.
+    // News as a whole: the page at /news, its nav entry, and the newest few on
+    // the front page (`home.news`). Off takes all three. With no entries yet
+    // the page says there are none.
     news: false,
     // A group's pages: /people, everyone in src/content/people.ts by role with
     // the alumni last, and /openings, the positions in openings.ts under the

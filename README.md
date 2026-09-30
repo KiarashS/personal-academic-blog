@@ -2223,12 +2223,12 @@ A windowed list is focusable, so it can be scrolled from the keyboard, and it
 shows the `All news →` link whether or not there are entries beyond the ones it
 holds — a reader who would rather read than scroll has somewhere to go.
 
-The two are separate switches and any combination works. `home.news: 0` with
-`features.news: true` keeps the page, the nav entry and the sitemap and leaves
-the front page as words alone — which is what you want if the front page is a
-greeting and the news belongs a click away. The reverse, `home.news: 3` with
-the feature off, puts the newest three on the front page and nowhere else; the
-front page then shows no link out, since there is nothing to link to.
+`features.news` is news as a whole. Off, there is no `/news`, no nav entry,
+and no block on the front page, whatever `home.news` says, and the build keeps
+its news warnings to itself, since nothing is shown. On, `home.news` decides
+the front page: `home.news: 0` keeps the page, the nav entry and the sitemap
+and leaves the front page as words alone, which is what you want if the front
+page is a greeting and the news belongs a click away.
 
 News is deliberately not in `feed.xml`. People subscribed to that for the
 writing, and a one-line "gave a talk" arriving beside the essays is how a feed

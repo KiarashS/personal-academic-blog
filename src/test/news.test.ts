@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { frontPageNews, newsWarning, sortNews } from '../lib/news';
+import {
+  configuredNewsWarnings,
+  frontPageNews,
+  homeNews,
+  newsWarning,
+  sortNews,
+} from '../lib/news';
 import { siteConfig } from '../site.config';
 import type { NewsItem } from '../lib/types';
 
@@ -111,5 +117,31 @@ describe('siteConfig.home', () => {
     expect(Number.isInteger(siteConfig.home.news)).toBe(true);
     expect(siteConfig.home.news).toBeGreaterThanOrEqual(0);
     expect(siteConfig.home.newsFreshMonths).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('homeNews and the news switch', () => {
+  const on = siteConfig.features.news;
+  const restore = () => {
+    siteConfig.features.news = on;
+  };
+
+  it('shows nothing on the front page, and warns about nothing, with news off', () => {
+    siteConfig.features.news = false;
+    try {
+      expect(homeNews('2026-09-30')).toEqual({ items: [], more: false });
+      expect(configuredNewsWarnings()).toEqual([]);
+    } finally {
+      restore();
+    }
+  });
+
+  it('lists the newest entries with news on', () => {
+    siteConfig.features.news = true;
+    try {
+      expect(homeNews('2026-09-30').items.length).toBeGreaterThan(0);
+    } finally {
+      restore();
+    }
   });
 });

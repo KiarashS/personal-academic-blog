@@ -113,14 +113,17 @@ const options = (today: string = todayUtc()): NewsOptions => ({
 export const allNews = (): NewsItem[] => sortNews(news);
 
 /**
- * The front page's block, from the configured list, as of `today`.
+ * The front page's block, from the configured list, as of `today`. Nothing
+ * when `features.news` is off: that switch is news as a whole, so turning it
+ * off takes the block with the page.
  *
  * `HomeNews` passes `useToday()`: the build's day while the prerendered page
  * hydrates, then the reader's. So a list that goes quiet between deployments
  * disappears for a reader without waiting for the next one, and without the
  * two dates disagreeing mid-hydration.
  */
-export const homeNews = (today?: string): FrontPageNews => frontPageNews(news, options(today));
+export const homeNews = (today?: string): FrontPageNews =>
+  newsPageEnabled() ? frontPageNews(news, options(today)) : { items: [], more: false };
 
 /**
  * Whether `/news` exists. The flag alone decides, as it does for the slides
@@ -152,6 +155,8 @@ export function newsBlogLinks(items: NewsItem[], blog: boolean = blogEnabled()):
 
 /** Everything the build should say about the configured list. */
 export function configuredNewsWarnings(): string[] {
+  // Shown nowhere, so nothing about it can be wrong on the page.
+  if (!newsPageEnabled()) return [];
   const quiet = newsWarning(news, options());
   return [...(quiet ? [quiet] : []), ...newsLinkProblems(news), ...newsBlogLinks(news)];
 }
