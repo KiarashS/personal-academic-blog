@@ -2,7 +2,7 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { Fragment, Suspense, useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { useToday } from '../lib/today';
-import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
+import { blogEnabled, isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
@@ -76,7 +76,8 @@ export function Layout() {
                 ),
               )}
               <CvLink />
-              <FeedLink icon />
+              {/* The feed is the posts', so it goes with them. */}
+              {blogEnabled() ? <FeedLink icon /> : null}
             </nav>
             <div className="site-header__controls">
               <ThemeToggle />
@@ -137,10 +138,14 @@ export function Layout() {
                 </span>{' '}
               </Fragment>
             ))}
-            <span className="site-footer__item">
-              <FeedLink />
-              {' ·'}
-            </span>{' '}
+            {blogEnabled() ? (
+              <>
+                <span className="site-footer__item">
+                  <FeedLink />
+                  {' ·'}
+                </span>{' '}
+              </>
+            ) : null}
             <KeyboardShortcuts />
           </div>
         </div>

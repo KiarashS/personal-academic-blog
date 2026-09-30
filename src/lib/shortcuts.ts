@@ -6,21 +6,31 @@ export interface Shortcut {
   keys: string;
   action: ShortcutAction;
   description: string;
+  /** About posts, so gone with the blog: no list to step through, no index. */
+  blog?: true;
 }
 
 /** The whole set, in the order the help dialog lists them. */
 export const SHORTCUTS: Shortcut[] = [
-  { keys: '/', action: 'search', description: 'Search the archive' },
-  { keys: 'j', action: 'next', description: 'Next post in the list' },
-  { keys: 'k', action: 'previous', description: 'Previous post in the list' },
-  { keys: '[', action: 'followPrev', description: 'Previous page, or the newer post' },
-  { keys: ']', action: 'followNext', description: 'Next page, or the older post' },
-  { keys: 'b', action: 'blog', description: 'Back to the blog index' },
+  { keys: '/', action: 'search', description: 'Search the archive', blog: true },
+  { keys: 'j', action: 'next', description: 'Next post in the list', blog: true },
+  { keys: 'k', action: 'previous', description: 'Previous post in the list', blog: true },
+  {
+    keys: '[',
+    action: 'followPrev',
+    description: 'Previous page, or the newer post',
+    blog: true,
+  },
+  { keys: ']', action: 'followNext', description: 'Next page, or the older post', blog: true },
+  { keys: 'b', action: 'blog', description: 'Back to the blog index', blog: true },
   { keys: 't', action: 'theme', description: 'Cycle light, dark and system theme' },
   { keys: '?', action: 'help', description: 'Show this list' },
 ];
 
-const BY_KEY = new Map(SHORTCUTS.map((shortcut) => [shortcut.keys, shortcut.action]));
+/** The shortcuts a site with or without a blog answers to. */
+export function shortcutsFor(blog: boolean): Shortcut[] {
+  return blog ? SHORTCUTS : SHORTCUTS.filter((shortcut) => !shortcut.blog);
+}
 
 export interface KeyPress {
   key: string;
@@ -34,9 +44,9 @@ export interface KeyPress {
  * browser or OS combination is held would shadow it, so any modifier bar shift
  * — which is how `?` is typed at all — takes the key back.
  */
-export function actionFor(event: KeyPress): ShortcutAction | undefined {
+export function actionFor(event: KeyPress, blog = true): ShortcutAction | undefined {
   if (event.ctrlKey || event.metaKey || event.altKey) return undefined;
-  return BY_KEY.get(event.key);
+  return shortcutsFor(blog).find((shortcut) => shortcut.keys === event.key)?.action;
 }
 
 export interface MaybeTyping {

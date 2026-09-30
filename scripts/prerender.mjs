@@ -14,6 +14,8 @@ const {
   allPosts,
   posts,
   siteConfig,
+  blogEnabled,
+  blogWarnings,
   canonicalUrl,
   withBase,
   loadPostHtml,
@@ -40,6 +42,9 @@ const {
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
+
+// Read once: the flag decides the feeds and the feed link in every page's head.
+const blog = blogEnabled();
 
 /**
  * A face is only discovered once the stylesheet has been parsed, which costs a
@@ -143,7 +148,12 @@ function head({ title, description, url, type, image, feed, jsonLd, noindex }, e
       // is nothing to install, so a page that claims otherwise is a lie a
       // reader only discovers after tapping Add to Home Screen.
       ...(installable ? INSTALL_TAGS : []),
-      `<link rel="alternate" type="application/atom+xml" title="${escapeXml(siteConfig.title)}" href="${escapeXml(canonicalUrl('/feed.xml'))}" />`,
+      // The feed is the posts'; without a blog there is none to point at.
+      ...(blog
+        ? [
+            `<link rel="alternate" type="application/atom+xml" title="${escapeXml(siteConfig.title)}" href="${escapeXml(canonicalUrl('/feed.xml'))}" />`,
+          ]
+        : []),
       ...(feed
         ? [
             `<link rel="alternate" type="application/atom+xml" title="${escapeXml(feed.title)}" href="${escapeXml(feed.href)}" />`,
@@ -318,13 +328,17 @@ async function writeFeed({ path, title, subtitle, alternate, entries }) {
   );
 }
 
-await writeFeed({
-  path: 'feed.xml',
-  title: siteConfig.title,
-  subtitle: siteConfig.description,
-  alternate: blogIndexPath(),
-  entries: posts,
-});
+// No blog, no feeds: `feed.xml` with no entries would still be found by a
+// reader that guesses the address, and subscribing to it would say nothing.
+if (blog) {
+  await writeFeed({
+    path: 'feed.xml',
+    title: siteConfig.title,
+    subtitle: siteConfig.description,
+    alternate: blogIndexPath(),
+    entries: posts,
+  });
+}
 
 // One feed per category, for a reader who wants the shelf and not the archive.
 for (const { category } of categoryCounts()) {
@@ -472,6 +486,7 @@ await write(
 // on the author's behalf, so the build says them out loud; nobody notices
 // either from inside their own site.
 for (const message of [
+  ...blogWarnings(),
   ...configuredNewsWarnings(),
   ...noticeWarnings(),
   ...researchWarnings(),
@@ -482,7 +497,7 @@ for (const message of [
   console.warn(message);
 
 console.log(
-  `prerendered ${allRoutes().length} routes, 404.html, feeds, sitemap.xml, robots.txt` +
+  `prerendered ${allRoutes().length} routes, 404.html, ${blog ? 'feeds, ' : ''}sitemap.xml, robots.txt` +
     (installable
       ? `, site.webmanifest and sw.js (${buildStamp})`
       : '; pwa off, no manifest or worker'),

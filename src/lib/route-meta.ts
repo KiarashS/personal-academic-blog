@@ -4,7 +4,7 @@ import { researchInterests } from './profiles';
 import { allCategories, categoriesEnabled, getCategory, postsInCategory } from './categories';
 import { allPosts, displayTag, getPost, posts, postsByTag } from './posts';
 import { paginate } from './pagination';
-import { isEnabled } from './features';
+import { archiveEnabled, blogEnabled, isEnabled } from './features';
 import { newsPageEnabled } from './news';
 import { openingsPageEnabled } from './openings';
 import { peoplePageEnabled } from './people';
@@ -53,7 +53,7 @@ export function metaFor(pathname: string): RouteMeta {
       (isEnabled('home') && siteConfig.home.description) || siteConfig.description;
     return { title: withSuffix(undefined), description };
   }
-  if (path === blogIndexPath()) {
+  if (path === blogIndexPath() && blogEnabled()) {
     return { title: withSuffix('Blog'), description: siteConfig.description };
   }
 
@@ -61,7 +61,7 @@ export function metaFor(pathname: string): RouteMeta {
   // page two used to be called while page one was not. The page number goes
   // into the description too, or every page of the index previews identically.
   const paged = /^\/(?:blog\/)?page\/(\d+)$/.exec(path);
-  if (paged && path === blogPagePath(Number(paged[1]))) {
+  if (paged && path === blogPagePath(Number(paged[1])) && blogEnabled()) {
     const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
     return {
       title: withSuffix(`Blog, page ${paged[1]}`),
@@ -125,7 +125,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (segments[0] === 'tags' && segments[1]) {
+  if (segments[0] === 'tags' && segments[1] && blogEnabled()) {
     const label = displayTag(segments[1]) ?? segments[1];
     const count = postsByTag(segments[1]).length;
     const page = segments[2] === 'page' ? `, page ${segments[3]}` : '';
@@ -135,7 +135,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (segments[0] === 'tags') {
+  if (segments[0] === 'tags' && blogEnabled()) {
     return { title: withSuffix('Tags'), description: 'Every tag used across the posts.' };
   }
 
@@ -148,12 +148,14 @@ export function metaFor(pathname: string): RouteMeta {
       const fallback =
         interests.length > 0
           ? `${author.name} works on ${interests.join(', ')}.`
-          : `Posts by ${author.name}.`;
+          : blogEnabled()
+            ? `Posts by ${author.name}.`
+            : [author.role, author.affiliation].filter(Boolean).join(', ') || author.name;
       return { title: withSuffix(author.name), description: author.bio ?? fallback };
     }
   }
 
-  if (path === '/search') {
+  if (path === '/search' && blogEnabled()) {
     return {
       title: withSuffix('Search'),
       description: 'Search the archive by title, tag, author or text.',
@@ -167,7 +169,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (path === '/archive' && isEnabled('archive')) {
+  if (path === '/archive' && archiveEnabled()) {
     return {
       title: withSuffix('Archive'),
       description: `Every post, grouped by year — ${posts.length} in total.`,
@@ -183,11 +185,17 @@ export function metaFor(pathname: string): RouteMeta {
 
 /** Every path the build turns into a static HTML file. */
 export function allRoutes(): string[] {
-  const routes = new Set<string>(['/', '/tags', '/search']);
-  if (isEnabled('home')) routes.add(blogIndexPath());
+  const routes = new Set<string>(['/']);
+  // Without a blog, none of its pages: the posts are already empty, so the
+  // pagination, post and tag loops below add nothing either.
+  if (blogEnabled()) {
+    routes.add('/tags');
+    routes.add('/search');
+    if (isEnabled('home')) routes.add(blogIndexPath());
+  }
   if (isEnabled('about')) routes.add('/about');
   if (isEnabled('publications')) routes.add('/publications');
-  if (isEnabled('archive')) routes.add('/archive');
+  if (archiveEnabled()) routes.add('/archive');
   if (isEnabled('research')) routes.add('/research');
   if (isEnabled('slides')) routes.add('/slides');
   if (isEnabled('contact')) routes.add('/contact');
@@ -208,13 +216,15 @@ export function allRoutes(): string[] {
     }
   }
 
+  for (const id of Object.keys(authors)) routes.add(`/authors/${id}`);
+  if (!blogEnabled()) return [...routes];
+
   const { totalPages } = paginate(posts, 1, siteConfig.postsPerPage);
   for (let page = 2; page <= totalPages; page += 1) routes.add(blogPagePath(page));
 
   // Every published post has an address, listed or not: unlisted is about
   // where a post is shown, not whether it exists.
   for (const post of allPosts) routes.add(postPath(post.slug));
-  for (const id of Object.keys(authors)) routes.add(`/authors/${id}`);
 
   const tags = new Set(posts.flatMap((post) => post.tags.map((tag) => tag)));
   for (const tag of tags) {

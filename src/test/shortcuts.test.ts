@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { actionFor, isTyping, step, SHORTCUTS } from '../lib/shortcuts';
+import { actionFor, isTyping, shortcutsFor, step, SHORTCUTS } from '../lib/shortcuts';
 
 describe('actionFor', () => {
   it('maps each documented key to its action', () => {
@@ -67,5 +67,16 @@ describe('step', () => {
 
   it('has nowhere to go in an empty list', () => {
     expect(step([], -1, 1)).toBe(-1);
+  });
+});
+
+describe('without a blog', () => {
+  it('answers only to the keys that are not about posts', () => {
+    expect(shortcutsFor(false).map((shortcut) => shortcut.keys)).toEqual(['t', '?']);
+    expect(actionFor({ key: '/' }, false)).toBeUndefined();
+    expect(actionFor({ key: 'j' }, false)).toBeUndefined();
+    expect(actionFor({ key: 'b' }, false)).toBeUndefined();
+    expect(actionFor({ key: 't' }, false)).toBe('theme');
+    expect(actionFor({ key: '?' }, false)).toBe('help');
   });
 });

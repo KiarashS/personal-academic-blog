@@ -44,6 +44,7 @@ export { allPosts, posts, postsByTag, tagCounts } from './lib/posts';
 export { categoryCounts, postsInCategory } from './lib/categories';
 export { tagSlug } from './lib/format';
 export { siteConfig } from './site.config';
+export { blogEnabled, blogWarnings } from './lib/features';
 export { configuredNewsWarnings } from './lib/news';
 export { noticeWarnings } from './lib/notice';
 export { researchWarnings } from './lib/research';

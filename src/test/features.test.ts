@@ -11,6 +11,7 @@ const nav: NavItem[] = [
 ];
 
 const all = {
+  blog: true,
   home: true,
   about: true,
   publications: true,
@@ -25,6 +26,7 @@ const all = {
   openings: true,
 };
 const none = {
+  blog: false,
   home: false,
   about: false,
   publications: false,

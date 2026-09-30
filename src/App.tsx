@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { getPage } from './lib/page-registry';
 import { Layout } from './components/Layout';
 import { categoriesEnabled } from './lib/categories';
-import { isEnabled } from './lib/features';
+import { archiveEnabled, blogEnabled, isEnabled } from './lib/features';
 import { newsPageEnabled } from './lib/news';
 import { openingsPageEnabled } from './lib/openings';
 import { peoplePageEnabled } from './lib/people';
@@ -74,13 +74,19 @@ export function App() {
         {/* With a home page the blog moves aside to /blog and takes its posts
             with it, so a list and its items never live in two branches of the
             tree. Without one the blog is the site, and its index is the front
-            page. `postPath` and `blogPagePath` say the same thing in links. */}
+            page. `postPath` and `blogPagePath` say the same thing in links.
+            With `blog` off there is only the home page; `blogEnabled` keeps
+            the blog whenever there is no home page to stand in for it. */}
         {isEnabled('home') ? (
           <>
             <Route index element={<Lazily name="HomePage" of={HomePage} />} />
-            <Route path="blog" element={<BlogPage />} />
-            <Route path="blog/page/:page" element={<BlogPage />} />
-            <Route path="blog/:slug" element={<Lazily name="PostPage" of={PostPage} />} />
+            {blogEnabled() ? (
+              <>
+                <Route path="blog" element={<BlogPage />} />
+                <Route path="blog/page/:page" element={<BlogPage />} />
+                <Route path="blog/:slug" element={<Lazily name="PostPage" of={PostPage} />} />
+              </>
+            ) : null}
           </>
         ) : (
           <>
@@ -113,7 +119,7 @@ export function App() {
             element={<Lazily name="PublicationsPage" of={PublicationsPage} />}
           />
         ) : null}
-        {isEnabled('archive') ? (
+        {archiveEnabled() ? (
           <Route path="archive" element={<Lazily name="ArchivePage" of={ArchivePage} />} />
         ) : null}
         {categoriesEnabled() ? (
@@ -123,11 +129,17 @@ export function App() {
             <Route path="categories/:category/page/:page" element={<CategoryPage />} />
           </>
         ) : null}
-        <Route path="tags" element={<TagsPage />} />
-        <Route path="tags/:tag" element={<TagPage />} />
-        <Route path="tags/:tag/page/:page" element={<TagPage />} />
+        {blogEnabled() ? (
+          <>
+            <Route path="tags" element={<TagsPage />} />
+            <Route path="tags/:tag" element={<TagPage />} />
+            <Route path="tags/:tag/page/:page" element={<TagPage />} />
+            <Route path="search" element={<Lazily name="SearchPage" of={SearchPage} />} />
+          </>
+        ) : null}
+        {/* Kept without the blog: the People page and the research areas link
+            to a person's page, which is their bio and profiles without posts. */}
         <Route path="authors/:id" element={<AuthorPage />} />
-        <Route path="search" element={<Lazily name="SearchPage" of={SearchPage} />} />
         {isEnabled('about') ? (
           <Route path="about" element={<Lazily name="AboutPage" of={AboutPage} />} />
         ) : null}

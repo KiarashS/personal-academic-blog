@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
-import { actionFor, isTyping, step, SHORTCUTS } from '../lib/shortcuts';
+import { blogEnabled } from '../lib/features';
+import { actionFor, isTyping, shortcutsFor, step } from '../lib/shortcuts';
 import { blogIndexPath } from '../lib/routes';
 
 // The index, a tag page and the search results share the card markup; the
@@ -118,7 +119,7 @@ export function KeyboardShortcuts() {
       if (isTyping(event.target as HTMLElement | null)) return;
       if (dialog.current?.open && event.key !== '?') return;
 
-      const action = actionFor(event);
+      const action = actionFor(event, blogEnabled());
       if (!action) return;
       event.preventDefault();
 
@@ -169,7 +170,7 @@ export function KeyboardShortcuts() {
           Keyboard shortcuts
         </h2>
         <dl className="shortcuts__list">
-          {SHORTCUTS.map((shortcut) => (
+          {shortcutsFor(blogEnabled()).map((shortcut) => (
             <div className="shortcuts__row" key={shortcut.keys}>
               <dt>
                 <kbd>{shortcut.keys}</kbd>

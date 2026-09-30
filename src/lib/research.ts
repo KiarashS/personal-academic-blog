@@ -1,6 +1,6 @@
 import { researchAreas } from '../content/research';
 import { authors } from '../content/authors';
-import { isEnabled, isExternal } from './features';
+import { blogEnabled, isEnabled, isExternal } from './features';
 import { postsByTag } from './posts';
 import type { ResearchArea } from './types';
 
@@ -52,7 +52,12 @@ export function researchWarnings(areas: ResearchArea[] = researchAreas): string[
     if (!area.title.trim()) problems.push('research: an area has no title.');
     if (!area.summary.trim()) problems.push(`${where} has no summary.`);
 
-    for (const tag of area.tags ?? []) {
+    // Without a blog the page leaves the tags off, which is one fact about
+    // the area rather than one per tag that has no posts.
+    if (!blogEnabled() && (area.tags ?? []).length > 0) {
+      problems.push(`${where} names tags, which are not shown while the blog is off.`);
+    }
+    for (const tag of blogEnabled() ? (area.tags ?? []) : []) {
       if (postsByTag(tag).length === 0) {
         problems.push(`${where} names the tag “${tag}”, which no published post carries.`);
       }

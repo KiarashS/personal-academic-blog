@@ -1494,6 +1494,7 @@ prefix. One visit is enough; the visit after that has nothing left to do.
 ```ts
 features: {
   home: false,           // a front page for the site; moves the blog to /blog
+  blog: true,            // the posts and every page made of them; off needs home
   about: true,           // /about, from about.md plus the author cards
   publications: false,   // /publications, generated from publications.bib
   archive: true,         // /archive, every post grouped by year
@@ -1558,6 +1559,42 @@ about me, or on my profile", with the sentence intact and no link to a 404.
 One wrinkle: the page component still ends up in the bundle as an unreferenced
 chunk that no reader ever fetches. The flag is read at runtime, so the bundler
 cannot prove the import is dead.
+
+## A site without a blog
+
+`blog: false` takes the posts away and every page made of them: the index and
+its numbered pages, each post, tags, categories, the archive and search. Their
+routes are not built and not in the sitemap, `feed.xml` and the tag and
+category feeds are not written, the feed link leaves the header, the footer and
+each page's `<head>`, and no social card is drawn for a post. The Markdown in
+`src/content/posts/` stays where it is, and a build ships none of its text:
+every post is stubbed the way a draft is, so turning the blog back on is the
+one change needed to bring it all back.
+
+It needs `home: true`. Without a home page the blog is the front page, and
+there would be nothing at `/`; with both off the blog stays on and the build
+says why.
+
+Everything else adjusts rather than disappears:
+
+- Nav entries that point into the blog go, whatever feature they name: the Blog
+  entry, Tags, Search, Archive, Categories, and any link to a post, inside a
+  Projects group too.
+- Author pages stay, since the People page and the research areas link to
+  them. They show the bio and profile links without a post list.
+- The research page leaves each area's tags off, since they link to tag pages,
+  and the build says so once per area.
+- The keyboard shortcuts about posts go (`/`, `j`, `k`, `[`, `]`, `b`),
+  leaving `t` and `?`.
+- The not-found page points at the front page instead of the post list.
+- Discussions are left as they are: `lock-discussions.mjs` skips, so a thread
+  keeps the lock it had.
+
+Links into the blog from your own content are yours to change. The build names
+each news entry and a notice that links to a blog path, and warns about a notice
+whose `on` names only `blog` and `post`. For Markdown pages such as
+`home.md` and `about.md`, the link check in the deploy workflow fails on a link
+to a page that is no longer built, and names the page it was found on.
 
 ## Why the prerender renders synchronously
 
@@ -1653,7 +1690,8 @@ its button forces another attempt.
 
 ## A blog, or a site with a blog in it
 
-`home` decides which of the two this is, and it is the only switch involved.
+`home` decides which of the two this is. `blog` decides whether there is a blog
+at all; see [A site without a blog](#a-site-without-a-blog).
 
 Off, the blog is the site. Its index is the front page at `/`, numbered pages
 are `/page/2`, and posts are `/posts/<slug>`. That is the default, and nothing

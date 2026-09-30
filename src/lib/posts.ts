@@ -1,4 +1,4 @@
-import { categoriesEnabled } from './features';
+import { blogEnabled, categoriesEnabled } from './features';
 import { listed, rankRelated, selectPosts, seriesParts } from './post-builder';
 import { buildDate } from './today';
 import { getAuthors } from '../content/authors';
@@ -21,10 +21,15 @@ const metaModules: Record<string, PostMeta> = import.meta.glob('../content/posts
 // reader whose clock is behind, and a list that differs from the prerendered
 // one makes React redraw the page. A queued post goes live with the first
 // deploy on or after its date.
-const selected = selectPosts(Object.values(metaModules), {
-  includeUnpublished: import.meta.env.DEV,
-  today: buildDate,
-});
+//
+// With the blog off there are no posts at all, in development as well, so
+// every list, route and feed made of them comes out empty from here.
+const selected = blogEnabled()
+  ? selectPosts(Object.values(metaModules), {
+      includeUnpublished: import.meta.env.DEV,
+      today: buildDate,
+    })
+  : [];
 
 /**
  * Every published post, unlisted ones included. For answering at an address —

@@ -39,6 +39,7 @@ export interface GiscusConfig {
 
 /** Optional parts of the site that can be switched off wholesale. */
 export type FeatureName =
+  | 'blog'
   | 'home'
   | 'about'
   | 'publications'
@@ -462,6 +463,11 @@ export const siteConfig: SiteConfig = {
     // Off: the blog is the whole site and its index is the front page. On: the
     // front page is the site's own and the blog moves to /blog. See the README.
     home: true,
+    // The posts and everything made of them: the index, each post, tags,
+    // categories, the archive, search and the feeds. Off needs `home` on,
+    // since without a home page the blog is the front page; with `home` off
+    // the blog stays and the build says why.
+    blog: true,
     about: true,
     publications: false,
     archive: true,

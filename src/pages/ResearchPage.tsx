@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { researchAreas } from '../content/research';
 import { RoutedHtml } from '../components/RoutedHtml';
 import { orderedAreas, peopleOn } from '../lib/research';
-import { isExternal } from '../lib/features';
+import { blogEnabled, isExternal } from '../lib/features';
 import { tagSlug } from '../lib/format';
 import { resource, useResource } from '../lib/resource';
 import { withBase } from '../lib/urls';
@@ -52,7 +52,8 @@ function Area({ area }: { area: ResearchArea }) {
         </p>
       ) : null}
 
-      {tags.length > 0 ? (
+      {/* Tags point at the blog's tag pages, which do not exist without it. */}
+      {tags.length > 0 && blogEnabled() ? (
         <ul className="tag-list" aria-label={`${area.title}: writing`}>
           {tags.map((tag) => (
             <li key={tag}>

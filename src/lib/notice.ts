@@ -1,7 +1,7 @@
 import { siteConfig } from '../site.config';
 import { emojify } from './emoji';
-import { isEnabled } from './features';
-import { unsafeHrefs } from './inline-links';
+import { blogEnabled, isBlogPath, isEnabled } from './features';
+import { parseInlineLinks, unsafeHrefs } from './inline-links';
 import { blogIndexPath, blogPagePath, postSlugFromPath } from './routes';
 import { todayUtc } from './post-builder';
 import type { NoticeConfig, NoticePlace, NoticeSurface } from '../site.config';
@@ -75,6 +75,21 @@ export function noticeWarnings(
     problems.push(
       `notice: it expired on ${notice.until} and is no longer shown. Change ` +
         '`notice.until`, or clear `notice.text` to retire it for good.',
+    );
+  }
+  if (!blogEnabled()) {
+    for (const { href } of parseInlineLinks(notice.text)) {
+      if (href && isBlogPath(href)) {
+        problems.push(
+          `notice: it links to ${href}, which is part of the blog, and the blog is off.`,
+        );
+      }
+    }
+  }
+  if (!blogEnabled() && notice.on.length > 0 && !notice.on.includes('home')) {
+    problems.push(
+      'notice: `on` names only the blog and its posts, which are off, so the text is ' +
+        "shown nowhere. Add 'home'.",
     );
   }
   if (notice.on.length === 0) {

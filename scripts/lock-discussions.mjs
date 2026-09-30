@@ -42,7 +42,16 @@ if (!token) {
 }
 
 const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href;
-const { allPosts, siteConfig, commentTerm, commentsConfigured } = await import(serverEntry);
+const { allPosts, siteConfig, commentTerm, commentsConfigured, blogEnabled } = await import(
+  serverEntry
+);
+
+// Without a blog there are no posts to match, and a thread's lock is left as
+// the last deploy with a blog set it.
+if (!blogEnabled()) {
+  console.log('discussions: the blog is off, skipped');
+  process.exit(0);
+}
 
 const { giscus } = siteConfig;
 if (!commentsConfigured(giscus)) {

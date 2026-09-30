@@ -16,6 +16,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { bannerWarnings, buildPost, todayUtc, unlistedWarnings } from '../src/lib/post-builder';
 import { commentWarnings } from '../src/lib/comments';
+import { blogEnabled } from '../src/lib/features';
 import { siteConfig } from '../src/site.config';
 import type { FeatureName } from '../src/site.config';
 import { parseFrontmatter } from '../src/lib/frontmatter';
@@ -245,9 +246,17 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // text is dropped entirely, so unpublished writing never ships.
       // BUILD_DATE, when set, is the day `vite.config.ts` gives the pages, so
       // what is stubbed here and what they list agree across midnight.
+      // With the blog switched off, every post is unpublished the same way:
+      // the pages that would show them are not built, and their text should
+      // not ship in a chunk nothing links to. Only posts: the site's own pages
+      // (about.md, openings.md) come through here too.
       const today = process.env.BUILD_DATE ?? todayUtc();
+      const post = /[\\/]content[\\/]posts[\\/]/.test(path);
       const unpublished =
-        building && (built.meta.draft || (built.meta.date && built.meta.date > today));
+        building &&
+        ((post && !blogEnabled()) ||
+          built.meta.draft ||
+          (built.meta.date && built.meta.date > today));
 
       if (unpublished) {
         if (query === 'meta') {

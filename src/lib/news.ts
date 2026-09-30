@@ -1,8 +1,8 @@
 import { news as written } from '../content/news';
 import { siteConfig } from '../site.config';
 import { emojify } from './emoji';
-import { isEnabled } from './features';
-import { unsafeHrefs } from './inline-links';
+import { blogEnabled, isBlogPath, isEnabled } from './features';
+import { parseInlineLinks, unsafeHrefs } from './inline-links';
 import { todayUtc } from './post-builder';
 import type { NewsItem } from './types';
 
@@ -129,8 +129,29 @@ export const homeNews = (today?: string): FrontPageNews => frontPageNews(news, o
  */
 export const newsPageEnabled = (): boolean => isEnabled('news');
 
+/**
+ * Entries that link into a blog the site no longer has. The link checker fails
+ * the build on them anyway; this says which entry and why, where the checker
+ * can only name the page the link was found on.
+ */
+export function newsBlogLinks(items: NewsItem[], blog: boolean = blogEnabled()): string[] {
+  if (blog) return [];
+  return items.flatMap((item) =>
+    [
+      ...parseInlineLinks(item.text).flatMap((segment) => (segment.href ? [segment.href] : [])),
+      ...(item.href ? [item.href] : []),
+    ]
+      .filter((href) => isBlogPath(href))
+      .map(
+        (href) =>
+          `news: the entry dated ${item.date} links to ${href}, which is part of the blog, ` +
+          'and the blog is off. Link somewhere else or drop the link.',
+      ),
+  );
+}
+
 /** Everything the build should say about the configured list. */
 export function configuredNewsWarnings(): string[] {
   const quiet = newsWarning(news, options());
-  return [...(quiet ? [quiet] : []), ...newsLinkProblems(news)];
+  return [...(quiet ? [quiet] : []), ...newsLinkProblems(news), ...newsBlogLinks(news)];
 }

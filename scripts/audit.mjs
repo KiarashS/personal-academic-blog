@@ -64,9 +64,11 @@ const base = `http://localhost:${server.address().port}`;
 // second has a banner, a zoomable figure with a dark sibling, and a diagram,
 // and the first version of this list had none of them: the missing name on a
 // zoom link went unreported until it was looked for by hand.
-const { postPath, blogIndexPath } = await import(
+const { postPath, blogIndexPath, allRoutes } = await import(
   pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href
 );
+
+const built = new Set(allRoutes());
 
 // Deduped: with no home page the blog index is the front page, so the two
 // entries collapse to one.
@@ -90,7 +92,9 @@ const routes = [
     '/about/',
     '/404.html',
   ]),
-];
+  // Only pages the build made: a feature that is off, the blog included,
+  // leaves its route out of the site rather than rendering it empty.
+].filter((route) => route === '/404.html' || built.has(route.replace(/\/$/, '') || '/'));
 
 /*
  * Both widths, because half of these rules are about the window.
