@@ -737,6 +737,12 @@ canonical link and Open Graph and Twitter tags, so links unfurl correctly in
 clients that do not run JavaScript, and deep links return 200 rather than a 404
 that happens to contain the right page.
 
+`404.html` is the one page the browser does not hydrate. The host serves that
+file for every address it has no page for, so its markup is the not-found page
+whatever was asked for, and a missing post ("No such post") or a tag page would
+never match it. Its root carries `data-fallback`, and `main.tsx` renders the
+page the address asks for in its place.
+
 Alongside them: `feed.xml` (Atom, full text, linked from every page's head), a
 per-tag feed at `/tags/<tag>/feed.xml` advertised on that tag's page,
 `sitemap.xml`, `robots.txt`, and a 1200x630 social card per post under `/og/`

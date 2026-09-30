@@ -55,9 +55,16 @@ if (import.meta.env.PROD) {
   });
 }
 
-// Pages are prerendered, so the usual path is hydration; `createRoot` is the
-// fallback for a dev server or a route that was not written out.
-if (container.hasChildNodes()) {
+/*
+ * Pages are prerendered, so the usual path is hydration; `createRoot` is for a
+ * dev server, and for 404.html. The host serves that one file for every
+ * address it has no page for, so its markup is the not-found page whatever the
+ * address was: a missing post renders "No such post", a tag nobody uses renders
+ * a tag page, and hydrating either against it failed with React error #418
+ * and a redraw. The prerender marks its root `data-fallback`, and React renders
+ * the page the address asks for over the top, as it would on a dev server.
+ */
+if (container.hasChildNodes() && !container.hasAttribute('data-fallback')) {
   hydrateRoot(container, tree);
 } else {
   createRoot(container).render(tree);

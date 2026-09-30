@@ -241,7 +241,7 @@ function portraitPreload(html) {
   return `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />`;
 }
 
-function document(html, meta) {
+function document(html, meta, { fallback = false } = {}) {
   // Only a page that has a diagram in it asks for the face the diagrams were
   // measured in, which is the class the build writes around every one.
   const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
@@ -250,7 +250,10 @@ function document(html, meta) {
     .join('');
   return template
     .replace(TITLE_TAG, head(meta, diagrams + subsets + portraitPreload(html)))
-    .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
+    .replace(
+      '<div id="root"></div>',
+      `<div id="root"${fallback ? ' data-fallback' : ''}>${html}</div>`,
+    );
 }
 
 async function write(relative, contents) {
@@ -279,11 +282,18 @@ for (const route of allRoutes()) {
 }
 
 // Unknown paths: static hosts serve 404.html, which boots the router and
-// renders whatever the path turns out to be.
+// renders whatever the path turns out to be. That is rarely the markup below —
+// a missing post says "No such post", a tag nothing carries is a tag page — so
+// the root is marked, and `main.tsx` renders over it rather than hydrating a
+// page it cannot match.
 const missing = await render(locationOf('/__not_found__'), basename);
 await write(
   '404.html',
-  document(missing, { ...metaFor('/__not_found__'), url: canonicalUrl('/404'), type: 'website' }),
+  document(
+    missing,
+    { ...metaFor('/__not_found__'), url: canonicalUrl('/404'), type: 'website' },
+    { fallback: true },
+  ),
 );
 
 const iso = (date) => new Date(`${date}T00:00:00Z`).toISOString();
