@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { NewsList } from './NewsList';
 import { homeNews, newsPageEnabled } from '../lib/news';
+import { useToday } from '../lib/today';
 import { siteConfig } from '../site.config';
 
 /**
@@ -31,7 +32,7 @@ import { siteConfig } from '../site.config';
  * and stops.
  */
 export function HomeNews() {
-  const { items, more } = homeNews();
+  const { items, more } = homeNews(useToday());
   if (items.length === 0) return null;
 
   // Only when there is something past the window: a list that fits keeps no

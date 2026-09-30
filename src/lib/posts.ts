@@ -1,5 +1,6 @@
 import { categoriesEnabled } from './features';
-import { listed, rankRelated, selectPosts, seriesParts, todayUtc } from './post-builder';
+import { listed, rankRelated, selectPosts, seriesParts } from './post-builder';
+import { buildDate } from './today';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
 import type { Post, PostMeta } from './types';
@@ -14,9 +15,15 @@ const metaModules: Record<string, PostMeta> = import.meta.glob('../content/posts
   eager: true,
 });
 
+// The build's day and not the reader's. A post dated after the build ships as
+// a stub with no date or title (see `plugins/markdown.ts`), so the reader's
+// clock can never publish one early; all it could do is hide a post from a
+// reader whose clock is behind, and a list that differs from the prerendered
+// one makes React redraw the page. A queued post goes live with the first
+// deploy on or after its date.
 const selected = selectPosts(Object.values(metaModules), {
   includeUnpublished: import.meta.env.DEV,
-  today: todayUtc(),
+  today: buildDate,
 });
 
 /**

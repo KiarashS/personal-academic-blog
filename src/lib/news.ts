@@ -103,24 +103,24 @@ export function newsLinkProblems(items: NewsItem[]): string[] {
   );
 }
 
-const options = (): NewsOptions => ({
+const options = (today: string = todayUtc()): NewsOptions => ({
   limit: siteConfig.home.news,
   freshMonths: siteConfig.home.newsFreshMonths,
-  today: todayUtc(),
+  today,
 });
 
 /** Every entry, newest first. */
 export const allNews = (): NewsItem[] => sortNews(news);
 
 /**
- * The front page's block, from the configured list.
+ * The front page's block, from the configured list, as of `today`.
  *
- * The date is read when the module loads, which on a prerendered page is the
- * build. A reader who arrives long after that gets the freshness rule applied
- * again in their own browser, so a list that goes quiet between deployments
- * disappears for them without waiting for the next one.
+ * `HomeNews` passes `useToday()`: the build's day while the prerendered page
+ * hydrates, then the reader's. So a list that goes quiet between deployments
+ * disappears for a reader without waiting for the next one, and without the
+ * two dates disagreeing mid-hydration.
  */
-export const homeNews = (): FrontPageNews => frontPageNews(news, options());
+export const homeNews = (today?: string): FrontPageNews => frontPageNews(news, options(today));
 
 /**
  * Whether `/news` exists. The flag alone decides, as it does for the slides

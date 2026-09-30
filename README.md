@@ -1569,6 +1569,33 @@ The check that matters is `grep -rl 'class="empty">Loading' dist --include=index
 which should find nothing. A page that starts suspending again will show up
 there, and in `div hidden id="S:`.
 
+## Dates after a deploy
+
+A few things on the site are shown until or from a date: the notice (`until`),
+the front page's news (`home.newsFreshMonths`), open positions (`deadline`) and
+the year in the footer. The prerendered HTML is written on the day of the build,
+and a reader may arrive weeks later. Each of these is worked out twice, by the
+build and then in the reader's browser, so a notice that expired since the last
+deploy is gone for the reader without waiting for the next one.
+
+The browser's first render uses the build's date, because hydration has to
+match the HTML or React throws error #418, discards the markup and draws the
+page again. The reader's own date takes over immediately after
+(`src/lib/today.ts`). Until the script runs the reader sees the build's answer,
+so an expired notice can show for a moment on a slow connection, and with
+JavaScript off it stays until the next deploy.
+
+Posts are the exception. Which posts exist is fixed at build: one dated ahead
+ships as an empty stub, so no reader's clock can publish it early, and every
+list uses the build's date. A queued post appears with the first deploy on or
+after its date. Deploys run on a push, so a post queued for Tuesday goes live
+with whatever you push on or after Tuesday.
+
+The Markdown plugin and the two Vite builds each take the date when they start.
+Both workflows set `BUILD_DATE` once, as `YYYY-MM-DD` in UTC, so a build that
+runs across midnight agrees with itself. Set it locally to build as of a given
+day.
+
 ## When a deploy lands under an open tab
 
 Every chunk is hashed, so a deploy replaces all of them. A tab that was open
@@ -2309,11 +2336,8 @@ With a URL the button goes there; with only an email it opens a mail with the
 subject filled in; with both, a second button, "Ask a question", opens the mail.
 
 A position is listed through its deadline day and dropped the day after, judged
-in UTC at build time and again in the reader's browser. The page first renders
-with the build's date, so it matches the prerendered HTML, then with the
-reader's; a position that closed since the last deploy disappears on load
-without React redrawing the page. The two Vite builds each take the date when
-they start, and `BUILD_DATE=2026-09-30` pins both to one day. The build warns when one has closed so it can be removed from the
+in UTC, at build time and again in the reader's browser (see
+[Dates after a deploy](#dates-after-a-deploy)). The build warns when one has closed so it can be removed from the
 file, and also about a missing title, summary or way to apply, a deadline that
 is not a date, and a `details` path that does not start with `/`. With nothing
 open the page says so in its first line, and `openings.md` is the place to say

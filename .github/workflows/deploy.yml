@@ -37,6 +37,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run lint
       - run: npm test
+      # One date for the whole build: the Markdown plugin, and the two Vite
+      # builds each read it at their own start. See vite.config.ts.
+      - run: echo "BUILD_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
       - run: npm run build
         env:
           # base_path is "/<repo>" for a project site and empty for a user site

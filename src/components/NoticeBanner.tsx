@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { AlertIcon } from './AlertIcon';
 import { Target } from './Target';
 import { noticeFor } from '../lib/notice';
+import { useToday } from '../lib/today';
 import type { NoticePlace } from '../site.config';
 import { parseInlineLinks } from '../lib/inline-links';
 
@@ -32,7 +33,9 @@ const label = (kind: string): string => kind.charAt(0).toUpperCase() + kind.slic
  * gets the base path, a URL somewhere else opens in its own tab.
  */
 export function NoticeBanner({ slot }: { slot: NoticePlace }) {
-  const shown = noticeFor(useLocation().pathname);
+  // `useToday`, so a notice whose `until` passed since the last deploy leaves
+  // after hydration rather than making React redraw the page to remove it.
+  const shown = noticeFor(useLocation().pathname, undefined, useToday());
   if (!shown || shown.place !== slot) return null;
   const { notice } = shown;
 

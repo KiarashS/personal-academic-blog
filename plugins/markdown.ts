@@ -243,8 +243,11 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // A draft or a future-dated post is filtered out of the post list, but
       // its module would still be emitted as a fetchable chunk. In a build its
       // text is dropped entirely, so unpublished writing never ships.
+      // BUILD_DATE, when set, is the day `vite.config.ts` gives the pages, so
+      // what is stubbed here and what they list agree across midnight.
+      const today = process.env.BUILD_DATE ?? todayUtc();
       const unpublished =
-        building && (built.meta.draft || (built.meta.date && built.meta.date > todayUtc()));
+        building && (built.meta.draft || (built.meta.date && built.meta.date > today));
 
       if (unpublished) {
         if (query === 'meta') {
