@@ -59,7 +59,7 @@ export const news: NewsItem[] = [
   // Words inside the sentence carrying the link.
   {
     date: '2026-08-19',
-    text: 'Example: a line that links [some of its own words](/blog/writing-a-post)',
+    text: 'Example: a line that links [some of its own words](/about)',
     href: 'https://www.example.com',
   },
   // A target for the entry as a whole, which reads as "more" at the end.
@@ -67,8 +67,8 @@ export const news: NewsItem[] = [
   // Both at once: the sentence keeps its links and the entry keeps its handle.
   {
     date: '2026-05-15',
-    text: 'Example: [inline links](/tags) and [a second one](/archive) beside a target of its own',
-    href: '/blog',
+    text: 'Example: [inline links](https://example.org/one) and [a second one](https://example.org/two) beside a target of its own',
+    href: '/about',
   },
   // The fourth newest, which is where the front page stops and the link out appears.
   {
