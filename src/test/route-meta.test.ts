@@ -54,3 +54,22 @@ describe('a tag no post carries', () => {
     expect(metaFor('/tags').title).toMatch(/^Tags/);
   });
 });
+
+describe('a category with nothing in it', () => {
+  const on = siteConfig.features.categories;
+  const restore = () => {
+    siteConfig.features.categories = on;
+  };
+
+  it('is "Not found", while a filled one and the index keep their titles', () => {
+    siteConfig.features.categories = true;
+    try {
+      expect(metaFor('/categories/ai-in-healthcare').title).toMatch(/^Not found/);
+      expect(metaFor('/categories/no-such-shelf').title).toMatch(/^Not found/);
+      expect(metaFor('/categories/tutorials').title).toMatch(/^Tutorials/);
+      expect(metaFor('/categories').title).toMatch(/^Categories/);
+    } finally {
+      restore();
+    }
+  });
+});

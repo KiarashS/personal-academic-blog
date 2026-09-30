@@ -10,9 +10,11 @@ import { NotFoundPage } from './NotFoundPage';
 export function CategoryPage() {
   const { category: slug = '', page: pageParam } = useParams();
   const category = getCategory(slug);
-  if (!category) return <NotFoundPage what="category" />;
-
   const matching = postsInCategory(slug);
+  // A configured shelf with nothing on it has no page in the build and no
+  // entry on the index, so its address answers as one that names nothing.
+  if (!category || matching.length === 0) return <NotFoundPage what="category" />;
+
   const requested = pageParam ? Number(pageParam) : 1;
   const { items, page, totalPages } = paginate(matching, requested, siteConfig.postsPerPage);
 

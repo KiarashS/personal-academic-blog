@@ -107,8 +107,9 @@ export function metaFor(pathname: string): RouteMeta {
 
   if (segments[0] === 'categories' && segments[1] && categoriesEnabled()) {
     const category = getCategory(segments[1]);
-    if (category) {
-      const count = postsInCategory(category.slug).length;
+    const count = category ? postsInCategory(category.slug).length : 0;
+    // An empty or unknown category falls through to "Not found", as its page does.
+    if (category && count > 0) {
       const page = segments[2] === 'page' ? `, page ${segments[3]}` : '';
       return {
         title: withSuffix(`${category.label}${page}`),
@@ -118,7 +119,7 @@ export function metaFor(pathname: string): RouteMeta {
     }
   }
 
-  if (segments[0] === 'categories' && categoriesEnabled()) {
+  if (segments[0] === 'categories' && !segments[1] && categoriesEnabled()) {
     return {
       title: withSuffix('Categories'),
       description: 'The categories posts are filed under.',
