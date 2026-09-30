@@ -55,7 +55,7 @@ export function HomePage() {
             aria-label={`${siteConfig.title}: profiles and contact`}
           >
             {links.map((link) => (
-              <li key={link.key}>
+              <li key={`${link.key}:${link.href}`}>
                 <a
                   className={style === 'icon' ? 'icon-chip' : undefined}
                   href={link.href}

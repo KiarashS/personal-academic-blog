@@ -3,13 +3,21 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /*
- * Locks the GitHub Discussion of every `readonly` post that has one.
+ * Keeps each post's GitHub Discussion locked or unlocked to match its
+ * `comments:` setting: a `readonly` post's thread is locked, and an `on`
+ * post's thread is unlocked, so setting a post back to `on` reopens it.
+ * `off` changes nothing, since the page no longer shows that thread at all.
  *
  * `readonly` hides giscus's comment box on the page, which is presentation:
  * anyone who opened the discussion on GitHub could still reply there. The
  * lock is what closes it. A `readonly` post with no discussion is left
  * without one, since there is then nothing on GitHub to reply to, and giscus
  * shows an empty thread with no box.
+ *
+ * The script locks with the reason "resolved", and only unlocks a thread
+ * locked as resolved or with no reason given. A lock given as spam, off
+ * topic or too heated is moderation, set by hand on GitHub, and a deploy
+ * leaves it where it is whatever the post says.
  *
  * This never creates a discussion. giscus opens one when the first comment is
  * posted, and until then its search for the thread answers 404 in the
@@ -71,6 +79,7 @@ async function existingThreads() {
               nodes {
                 id
                 locked
+                activeLockReason
                 body
               }
               pageInfo {
@@ -84,9 +93,9 @@ async function existingThreads() {
       { owner, name, category: giscus.categoryId, after },
     );
     const { nodes, pageInfo } = data.repository.discussions;
-    for (const { id, locked, body } of nodes) {
+    for (const { id, locked, activeLockReason, body } of nodes) {
       for (const [, hash] of body.matchAll(/<!-- sha1: ([0-9a-f]{40}) -->/g)) {
-        threads.set(hash, { id, locked });
+        threads.set(hash, { id, locked, reason: activeLockReason });
       }
     }
     after = pageInfo.hasNextPage ? pageInfo.endCursor : null;
@@ -98,7 +107,7 @@ async function lock(id) {
   await graphql(
     `
       mutation ($id: ID!) {
-        lockLockable(input: { lockableId: $id }) {
+        lockLockable(input: { lockableId: $id, lockReason: RESOLVED }) {
           lockedRecord {
             locked
           }
@@ -109,21 +118,62 @@ async function lock(id) {
   );
 }
 
+async function unlock(id) {
+  await graphql(
+    `
+      mutation ($id: ID!) {
+        unlockLockable(input: { lockableId: $id }) {
+          unlockedRecord {
+            locked
+          }
+        }
+      }
+    `,
+    { id },
+  );
+}
+
+// Locks this script may undo: its own, and one given no reason, which is how
+// every lock it made before it gave one was recorded.
+const OURS = new Set(['RESOLVED', null, undefined]);
+
 try {
   const threads = await existingThreads();
-  const closed = allPosts.filter((post) => post.comments === 'readonly');
   let locked = 0;
+  let unlocked = 0;
+  let kept = 0;
 
-  for (const post of closed) {
+  for (const post of allPosts) {
+    if (post.comments !== 'readonly' && post.comments !== 'on') continue;
     const term = commentTerm(post.slug);
     const thread = threads.get(sha1(term));
-    if (!thread || thread.locked) continue;
-    await lock(thread.id);
-    locked += 1;
-    console.log(`discussions: locked "${term}"`);
+    if (!thread) continue;
+
+    if (post.comments === 'readonly' && !thread.locked) {
+      await lock(thread.id);
+      locked += 1;
+      console.log(`discussions: locked "${term}"`);
+    } else if (post.comments === 'on' && thread.locked) {
+      if (!OURS.has(thread.reason)) {
+        kept += 1;
+        console.log(
+          `discussions: "${term}" is on, but its thread was locked as ` +
+            `${thread.reason.toLowerCase().replace('_', ' ')} on GitHub, so it stays locked`,
+        );
+        continue;
+      }
+      await unlock(thread.id);
+      unlocked += 1;
+      console.log(`discussions: unlocked "${term}"`);
+    }
   }
 
-  console.log(`discussions: ${closed.length} readonly posts, ${locked} threads locked`);
+  const readonly = allPosts.filter((post) => post.comments === 'readonly').length;
+  console.log(
+    `discussions: ${readonly} readonly post${readonly === 1 ? '' : 's'}; ` +
+      `${locked} locked, ${unlocked} unlocked` +
+      (kept ? `, ${kept} left locked by hand` : ''),
+  );
 } catch (error) {
   // GitHub's annotation syntax, so it shows on the run's summary page.
   console.log(`::warning::discussions: not checked (${error.message})`);

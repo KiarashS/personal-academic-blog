@@ -49,7 +49,7 @@ export function AuthorCard({
       {links.length > 0 ? (
         <ul className="author-links" aria-label={`${author.name}: profiles and contact`}>
           {links.map((link) => (
-            <li key={link.key}>
+            <li key={`${link.key}:${link.href}`}>
               <a
                 className="author-links__link"
                 href={link.href}

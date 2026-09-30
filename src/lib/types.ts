@@ -17,10 +17,23 @@ export interface Author {
   avatar?: string;
   /**
    * Each value is either a full URL or the bare id the service uses — an ORCID
-   * iD, a GitHub username — which `profileLinks` turns into a URL.
+   * iD, a GitHub username — which `profileLinks` turns into a URL. `website`
+   * also takes a list, for someone with more than one site of their own.
    */
-  links?: Partial<Record<ProfileKey, string>>;
+  links?: AuthorLinks;
 }
+
+/**
+ * A site of someone's own: its address, or its address and the name to show
+ * for it — `{ label: 'Lab page', url: 'https://lab.example.edu/ada' }`. The
+ * name is the icon's tooltip and what a screen reader says.
+ */
+export type Website = string | { label?: string; url: string };
+
+/** One value per service, and any number of websites. */
+export type AuthorLinks = Partial<Record<Exclude<ProfileKey, 'website'>, string>> & {
+  website?: Website | Website[];
+};
 
 /**
  * Everything the profile row can carry: a service below, plus the two that come

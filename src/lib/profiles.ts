@@ -2,7 +2,7 @@ import { authors } from '../content/authors';
 import { siteConfig } from '../site.config';
 import type { ProfileSurface } from '../site.config';
 import { withBase } from './urls';
-import type { Author, ProfileKey, ProfileLinkKey } from './types';
+import type { Author, ProfileKey, ProfileLinkKey, Website } from './types';
 
 /**
  * The author the site belongs to. `owner` naming a record that has since been
@@ -71,6 +71,37 @@ const ORDER = Object.keys(SERVICES) as ProfileKey[];
 
 const isUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 
+/** `https://www.example.org/~ada` is "example.org", for a site with no label. */
+function hostOf(href: string): string {
+  try {
+    return new URL(href).hostname.replace(/^www\./, '');
+  } catch {
+    return href;
+  }
+}
+
+/**
+ * One link per website, in the order written. A label written for a site is
+ * its name; without one, a single site is "Website", as it always was, and
+ * several are told apart by their host, since three icons all called
+ * "Website" leave a screen reader user guessing which is which.
+ */
+export function websiteLinks(value: Website | Website[] | undefined): ProfileLink[] {
+  const sites = (Array.isArray(value) ? value : value ? [value] : [])
+    .map((site) => (typeof site === 'string' ? { url: site } : site))
+    .map((site) => ({ label: site.label?.trim(), url: site.url?.trim() ?? '' }))
+    .filter((site) => site.url);
+
+  return sites.map(({ label, url }) => {
+    const href = isUrl(url) ? url : SERVICES.website.url(url);
+    return {
+      key: 'website' as const,
+      label: label || (sites.length === 1 ? SERVICES.website.label : hostOf(href)),
+      href,
+    };
+  });
+}
+
 /**
  * The links for one author, from values that may be either a full URL or the
  * bare id the service uses — `0000-0002-1825-0097` and
@@ -88,6 +119,10 @@ export function profileLinks(author: Author): ProfileLink[] {
   }
 
   for (const key of ORDER) {
+    if (key === 'website') {
+      links.push(...websiteLinks(author.links?.website));
+      continue;
+    }
     const value = author.links?.[key]?.trim();
     if (!value) continue;
     const { label, url } = SERVICES[key];
@@ -119,10 +154,8 @@ export function selectProfileLinks(
   keys: readonly ProfileLinkKey[],
 ): ProfileLink[] {
   if (keys.length === 0) return links;
-  const byKey = new Map(links.map((link) => [link.key, link]));
-  return keys
-    .map((key) => byKey.get(key))
-    .filter((link): link is ProfileLink => link !== undefined);
+  // Every link under a key, not the first: `website` can be several.
+  return [...new Set(keys)].flatMap((key) => links.filter((link) => link.key === key));
 }
 
 /**

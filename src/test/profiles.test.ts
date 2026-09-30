@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { profileLinks, researchInterests, selectProfileLinks } from '../lib/profiles';
+import { profileLinks, researchInterests, selectProfileLinks, websiteLinks } from '../lib/profiles';
 import type { Author, ProfileLinkKey } from '../lib/types';
 import { siteConfig } from '../site.config';
 
@@ -166,7 +166,7 @@ describe('selectProfileLinks', () => {
   });
 
   it('never repeats a link, however often it is named', () => {
-    expect(selectProfileLinks(full, ['github', 'github']).length).toBe(2);
+    expect(selectProfileLinks(full, ['github', 'github']).length).toBe(1);
   });
 });
 
@@ -205,5 +205,49 @@ describe('siteConfig.profileLinkKeys', () => {
     for (const keys of Object.values(siteConfig.profileLinkKeys)) {
       for (const key of keys) expect(known).toContain(key);
     }
+  });
+});
+
+describe('websiteLinks', () => {
+  it('keeps a single unlabelled site as "Website"', () => {
+    expect(websiteLinks('example.org')).toEqual([
+      { key: 'website', label: 'Website', href: 'https://example.org' },
+    ]);
+  });
+
+  it('lists several in order, named by label or else by host', () => {
+    expect(
+      websiteLinks([
+        { label: 'Lab page', url: 'https://lab.example.edu/ada' },
+        'https://www.ada.example.org/',
+        'blog.example.net',
+      ]),
+    ).toEqual([
+      { key: 'website', label: 'Lab page', href: 'https://lab.example.edu/ada' },
+      { key: 'website', label: 'ada.example.org', href: 'https://www.ada.example.org/' },
+      { key: 'website', label: 'blog.example.net', href: 'https://blog.example.net' },
+    ]);
+  });
+
+  it('drops blanks and is empty for nothing', () => {
+    expect(websiteLinks(['', { url: ' ' }])).toEqual([]);
+    expect(websiteLinks(undefined)).toEqual([]);
+  });
+
+  it('puts every site in the row, and keeps all of them when the row is narrowed', () => {
+    const person = author({
+      links: { github: 'ada', website: ['https://one.example', 'https://two.example'] },
+    });
+    const all = profileLinks(person);
+    expect(all.map((link) => link.href)).toEqual([
+      'https://github.com/ada',
+      'https://one.example',
+      'https://two.example',
+    ]);
+    expect(selectProfileLinks(all, ['website', 'github']).map((link) => link.href)).toEqual([
+      'https://one.example',
+      'https://two.example',
+      'https://github.com/ada',
+    ]);
   });
 });

@@ -3,13 +3,21 @@ name: Build and deploy
 on:
   push:
     branches: [main]
+  # Once a day, just after midnight UTC, so what depends on the date changes
+  # without a push: a post queued for today goes live, and a notice, news list
+  # or opening past its date leaves the prerendered HTML too, for readers and
+  # crawlers without JavaScript. Seven past rather than on the hour, when
+  # GitHub's scheduler is busiest and runs start late.
+  schedule:
+    - cron: '7 0 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
-  # scripts/lock-discussions.mjs locks the comment thread of a readonly post.
+  # scripts/lock-discussions.mjs locks a readonly post's comment thread, and
+  # unlocks it again when the post is set back to on.
   discussions: write
 
 concurrency:

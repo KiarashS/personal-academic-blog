@@ -100,7 +100,7 @@ export function MemberCard({ member, size }: { member: Member; size: MemberCardS
         {card.links.length > 0 ? (
           <ul className="person__links" aria-label={`${card.name}: profiles and contact`}>
             {card.links.map((link) => (
-              <li key={link.key}>
+              <li key={`${link.key}:${link.href}`}>
                 <a
                   className="icon-chip"
                   href={link.href}

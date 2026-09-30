@@ -22,7 +22,8 @@ import type { CommentState } from '../site.config';
  * post is left. It renders nothing until it has loaded, on the server and on
  * the first pass in the browser alike, so hydration is untouched.
  *
- * `readonly` keeps the thread and takes the box away. giscus has no such mode,
+ * `readonly` keeps the thread and takes the box and the reactions away.
+ * giscus has no such mode,
  * and its frame is another origin, so the box is hidden by the stylesheet
  * giscus loads for itself — `theme` takes a URL as well as a built-in name.
  * That is presentation: what closes the discussion on GitHub is the lock the
@@ -81,7 +82,9 @@ function Thread({ state, term }: { state: CommentState; term: string }) {
           mapping="specific"
           term={term}
           strict="1"
-          reactionsEnabled={giscus.reactionsEnabled ? '1' : '0'}
+          // A closed thread takes no reactions either. This removes the row
+          // under the post; the ones on each comment are the stylesheet's.
+          reactionsEnabled={giscus.reactionsEnabled && state !== 'readonly' ? '1' : '0'}
           emitMetadata="0"
           inputPosition="top"
           theme={giscusTheme(state, theme === 'dark')}

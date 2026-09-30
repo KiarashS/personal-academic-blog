@@ -804,6 +804,22 @@ links: {
 }
 ```
 
+`website` also takes a list, for someone with more than one site. Each entry is
+an address, or an address with the name to show for it; the name is the icon's
+tooltip and what a screen reader says:
+
+```ts
+website: [
+  { label: 'Lab page', url: 'https://lab.example.edu/ada' },
+  'https://ada.example.org',
+],
+```
+
+A single site with no name is called "Website"; several without names are
+called by their host, `ada.example.org`, so three globes are not all read out
+as the same word. A row narrowed with `profileLinkKeys` keeps every site when it
+names `'website'`.
+
 They render as labelled chips under the author's bio, on every post and on the
 author's own page. Text rather than logos: eight service marks is a lot of
 colour for a page whose subject is the writing, and several of these services
@@ -862,7 +878,14 @@ is published.
 
 The deploy workflow runs `scripts/lock-discussions.mjs` after the checks. It
 locks the discussion of each `readonly` post that has one, which is what
-actually closes it on GitHub, and never creates one. It uses the workflow's
+actually closes it on GitHub, and unlocks it again once the post is set back to
+`on`. `comments: false` leaves the thread as it is. It never creates a
+discussion.
+
+It locks with the reason "Resolved", and only ever unlocks a thread locked as
+resolved or with no reason given. To keep a thread locked by hand whatever the
+post says, lock it on GitHub as spam, off-topic or too heated: the deploy leaves
+those alone and says so in its log. It uses the workflow's
 `GITHUB_TOKEN`, which the workflow grants `discussions: write`; without a
 token, as in a local build, it does nothing, and a failure is a warning on the
 run rather than a failed deploy.
@@ -885,12 +908,18 @@ themselves — the override works in both directions.
 that does not take comments does not load a third party to say so.
 
 `readonly` keeps the thread, puts a line above it saying the comments are
-closed, and hides the box. The last part is presentation and not enforcement,
+closed, hides the box, and takes the reactions away: giscus's row of reactions
+under the post is switched off, the stylesheet hides the button that adds a
+reaction to a comment, and the counts a comment already has stay but no
+longer respond to a click. As with the box, that is presentation: a keyboard can
+still reach those counts. The lock is what refuses the reaction, since GitHub
+turns reactions and votes off on a locked discussion unless whoever locked it
+ticked "Allow reactions", which the deploy's lock does not. The last part is presentation and not enforcement,
 and the difference matters. giscus has no read-only mode and its frame is
 another origin, so the only way in from outside is the stylesheet giscus loads
 for itself: `data-theme` takes a URL as well as a built-in name.
 `public/giscus/readonly-light.css` and its dark twin import the built-in theme
-and hide `.gsc-comment-box` and `.gsc-reply-box`. The discussion on GitHub
+and hide `.gsc-comment-box`, `.gsc-reply-box` and `.gsc-reactions-menu`. The discussion on GitHub
 would still accept posts, so the deploy locks it (see above). The line above the
 thread is the part that is true whatever happens to the stylesheet, which is
 why it is written in the page rather than left to CSS.
@@ -1588,8 +1617,14 @@ JavaScript off it stays until the next deploy.
 Posts are the exception. Which posts exist is fixed at build: one dated ahead
 ships as an empty stub, so no reader's clock can publish it early, and every
 list uses the build's date. A queued post appears with the first deploy on or
-after its date. Deploys run on a push, so a post queued for Tuesday goes live
-with whatever you push on or after Tuesday.
+after its date.
+
+The deploy workflow runs on every push and also once a day, at 00:07 UTC, so a
+post queued for Tuesday goes live early on Tuesday without a push, and an
+expired notice or closed position leaves the HTML itself, which is what a
+reader without JavaScript and a search engine see. GitHub switches off a public
+repository's scheduled workflows after 60 days with no activity on it; a push
+or re-enabling the workflow under Actions turns it back on.
 
 The Markdown plugin and the two Vite builds each take the date when they start.
 Both workflows set `BUILD_DATE` once, as `YYYY-MM-DD` in UTC, so a build that

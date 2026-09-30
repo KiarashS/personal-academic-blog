@@ -5,7 +5,7 @@
  * way to reach inside is the stylesheet it loads for itself: `data-theme`
  * takes a URL as well as a built-in name. This is that URL for a post whose
  * comments are closed — the built-in theme, then the two boxes a reader would
- * type into.
+ * type into and the reaction controls.
  *
  * It is presentation, not enforcement. The discussion on GitHub still accepts
  * posts; locking it there is what closes it, and the page says so either way.
@@ -22,4 +22,21 @@
 .gsc-comment-box,
 .gsc-reply-box {
   display: none !important;
+}
+
+/* Reactions. The row under the post is already gone (`reactionsEnabled` is
+   off for a closed thread); these are the ones on each comment and reply.
+   `.gsc-reactions-menu` is the smiley that opens the picker. The counts a
+   comment has already collected stay, as the record of the thread they are,
+   but stop answering a click: `.gsc-direct-reaction-button` toggles your
+   own reaction and `.gsc-upvote-button` is the upvote. CSS cannot take them
+   out of the tab order; the lock on GitHub is what refuses the reaction. */
+.gsc-reactions-menu {
+  display: none !important;
+}
+
+.gsc-direct-reaction-button,
+.gsc-upvote-button {
+  cursor: default !important;
+  pointer-events: none !important;
 }
