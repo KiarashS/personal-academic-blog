@@ -3248,7 +3248,12 @@ h1 + .author-card {
 
 .people-group__count::before {
   color: var(--rule-strong);
-  content: '·';
+
+  /* Empty alternative text after the slash: the dot is a separator to look
+     at, and a screen reader would otherwise read the heading as "PhD
+     students, dot, 5". A browser without the syntax drops the declaration and
+     shows no dot, which costs nothing. */
+  content: '·' / '';
   margin-inline-end: 0.5rem;
 }
 
@@ -3677,6 +3682,11 @@ h1 + .author-card {
 
   .site-nav,
   .site-footer,
+  /* Controls for the screen: the theme switch, the feed mark and the menu
+     button printed as stray glyphs beside the site's name. */
+  .header-icon,
+  .mobile-nav__toggle,
+  .mobile-nav__panel,
   .shortcuts,
   .comments,
   .post-nav,

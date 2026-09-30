@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { applyHref, isOpen, kindName, openOpenings, openingsWarnings } from '../lib/openings';
+import {
+  applyHref,
+  isOpen,
+  kindName,
+  openOpenings,
+  openingsWarnings,
+  validDeadline,
+} from '../lib/openings';
 import { siteConfig } from '../site.config';
 import type { Opening } from '../lib/types';
 
@@ -99,5 +106,43 @@ describe('openingsWarnings', () => {
   it('passes the placeholder file', () => {
     siteConfig.features.openings = true;
     expect(openingsWarnings(undefined, '2026-09-29')).toEqual([]);
+  });
+});
+
+describe('validDeadline', () => {
+  it('accepts a real day and refuses the rest', () => {
+    expect(validDeadline('2027-01-31')).toBe(true);
+    expect(validDeadline('2028-02-29')).toBe(true);
+    expect(validDeadline('2027-02-30')).toBe(false);
+    expect(validDeadline('2027-1-31')).toBe(false);
+    expect(validDeadline('31 January')).toBe(false);
+    expect(validDeadline(undefined)).toBe(false);
+  });
+});
+
+describe('openings checks, further', () => {
+  it('gives a path to apply the base, and leaves a URL alone', () => {
+    expect(applyHref({ ...base, apply: { url: '/openings/apply.pdf' } })).toBe(
+      '/openings/apply.pdf',
+    );
+    expect(applyHref({ ...base, apply: { url: 'https://jobs.example.org/1' } })).toBe(
+      'https://jobs.example.org/1',
+    );
+  });
+
+  it('names an impossible date, an unknown kind and an apply link with no root', () => {
+    siteConfig.features.openings = true;
+    const warnings = openingsWarnings(
+      [
+        { ...base, deadline: '2027-02-30' },
+        { ...base, kind: 'professor' as Opening['kind'] },
+        { ...base, apply: { url: 'apply.pdf' } },
+      ],
+      '2026-09-30',
+    );
+    expect(warnings).toHaveLength(3);
+    expect(warnings[0]).toMatch(/2027-02-30.*never closes/);
+    expect(warnings[1]).toMatch(/professor/);
+    expect(warnings[2]).toMatch(/apply\.pdf/);
   });
 });

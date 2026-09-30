@@ -10,8 +10,9 @@ import type { Member } from '../lib/types';
  * Replace it with the group's own.
  *
  * `role` is one of pi, management, researcher, postdoc, phd, masters and
- * bachelors. Giving someone a `left` year makes them alumni; they keep the
- * role they had, and `now` says where they went.
+ * bachelors. A `left` year makes someone alumni once it arrives; they keep
+ * the role they had, and `now` says where they went. A year still ahead is a
+ * planned end, and they stay in the group until then.
  *
  * `author` is an id from `src/content/authors.ts`: the name links to their
  * author page, and whatever is left out here comes from that record.

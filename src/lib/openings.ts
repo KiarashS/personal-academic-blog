@@ -1,6 +1,8 @@
 import { openings } from '../content/openings';
 import { isEnabled, isExternal } from './features';
+import { isoDate } from './format';
 import { todayUtc } from './post-builder';
+import { withBase } from './urls';
 import type { Opening, OpeningKind } from './types';
 
 const KIND_NAMES: Record<OpeningKind, string> = {
@@ -22,6 +24,16 @@ export function openingsPageEnabled(): boolean {
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Whether a deadline is a day that exists, written `YYYY-MM-DD`. The shape is
+ * not enough: `2027-02-30` has it, and a date parser quietly reads it as
+ * 2 March.
+ */
+export function validDeadline(deadline: string | undefined): boolean {
+  const value = deadline?.trim() ?? '';
+  return DATE.test(value) && isoDate(value) === value;
+}
 
 /**
  * Whether a position is still taking applications on `today`. Listed through
@@ -48,7 +60,8 @@ export function openOpenings(list: Opening[] = openings, today: string = todayUt
  */
 export function applyHref(opening: Opening): string | undefined {
   const { url, email, subject } = opening.apply ?? {};
-  if (url?.trim()) return url.trim();
+  // A form kept under `public/` needs the deployment's base, as any file does.
+  if (url?.trim()) return isExternal(url.trim()) ? url.trim() : withBase(url.trim());
   if (email?.trim()) {
     const query = subject?.trim() ? `?subject=${encodeURIComponent(subject.trim())}` : '';
     return `mailto:${email.trim()}${query}`;
@@ -68,9 +81,25 @@ export function openingsWarnings(list: Opening[] = openings, today: string = tod
     if (!applyHref(opening)) {
       problems.push(`${where} has no way to apply: give \`apply\` a \`url\` or an \`email\`.`);
     }
+    if (!(opening.kind in KIND_NAMES)) {
+      problems.push(
+        `${where} has the kind “${opening.kind}”, which is not one of ` +
+          `${Object.keys(KIND_NAMES).join(', ')}; its badge says “Position”.`,
+      );
+    }
+    const url = opening.apply?.url?.trim();
+    if (url && !isExternal(url) && !url.startsWith('/')) {
+      problems.push(
+        `${where}: the apply link “${url}” is neither a URL nor a path of the site. ` +
+          'Give it https://, or write it from the root: /openings/apply.pdf.',
+      );
+    }
     const deadline = opening.deadline?.trim();
-    if (deadline && !DATE.test(deadline)) {
-      problems.push(`${where}: the deadline “${deadline}” is not a date; write it as 2027-01-31.`);
+    if (deadline && !validDeadline(deadline)) {
+      problems.push(
+        `${where}: the deadline “${deadline}” is not a date, so the position never closes. ` +
+          'Write it as 2027-01-31.',
+      );
     } else if (deadline && deadline < today) {
       // Said out loud because the page drops it without a trace, and the one
       // person who will not notice is the one who posted it.

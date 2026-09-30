@@ -160,3 +160,54 @@ describe('headcount', () => {
     expect(headcount(0, 1)).toBe('1 former member.');
   });
 });
+
+describe('a planned end', () => {
+  const due: Member = { name: 'Due Student', role: 'phd', joined: '2023', left: '2027' };
+
+  it('keeps someone with a future `left` year in the group until it comes', () => {
+    const before = memberGroups([due], '2026-09-30');
+    expect(before.map((group) => group.key)).toEqual(['phd']);
+    expect(tenure(due, '2026-09-30')).toBe('Since 2023, until 2027');
+    expect(memberCard(due, '2026-09-30').alumnus).toBe(false);
+  });
+
+  it('moves them to the alumni in the year they leave', () => {
+    expect(memberGroups([due], '2027-01-01').map((group) => group.key)).toEqual(['alumni']);
+    expect(tenure(due, '2027-01-01')).toBe('2023–2027');
+  });
+});
+
+describe('initials, further', () => {
+  it('skips a title written with a full stop', () => {
+    expect(initials('Dr. Ada Lovelace')).toBe('AL');
+    expect(initials('Prof. Hypatia')).toBe('H');
+  });
+
+  it('keeps Persian initials from joining into a word', () => {
+    expect(initials('کیارش سلیمان‌زاده')).toBe('ک‌س');
+  });
+
+  it('takes whole characters', () => {
+    expect(initials('𝒜da Lovelace')).toBe('𝒜L');
+  });
+});
+
+describe('peopleWarnings, further', () => {
+  it('names a `left` before `joined` and a thesis with no title', () => {
+    siteConfig.features.people = true;
+    const warnings = peopleWarnings([
+      { name: 'Backwards', role: 'phd', joined: '2024', left: '2020' },
+      { name: 'Untitled', role: 'phd', left: '2020', thesis: { title: ' ' } },
+    ]);
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0]).toMatch(/left in 2020, before joining in 2024/);
+    expect(warnings[1]).toMatch(/no title/);
+  });
+
+  it('does not call a planned end with a `now` a mistake about `left`', () => {
+    siteConfig.features.people = true;
+    expect(peopleWarnings([{ name: 'Due', role: 'phd', left: '2099', now: 'Somewhere' }])).toEqual(
+      [],
+    );
+  });
+});

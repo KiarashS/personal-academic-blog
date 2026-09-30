@@ -1,7 +1,7 @@
 import { RoutedHtml } from '../components/RoutedHtml';
 import { formatDate, isoDate } from '../lib/format';
 import { isExternal } from '../lib/features';
-import { applyHref, kindName, openOpenings } from '../lib/openings';
+import { applyHref, kindName, openOpenings, validDeadline } from '../lib/openings';
 import { resource, useResource } from '../lib/resource';
 import { useToday } from '../lib/today';
 import { withBase } from '../lib/urls';
@@ -42,6 +42,7 @@ function OpeningCard({ opening, index }: { opening: Opening; index: number }) {
   // nothing, and two such positions would share one id.
   const id = `opening-${index + 1}`;
   const href = applyHref(opening);
+  const deadline = opening.deadline?.trim();
   const byEmail = href?.startsWith('mailto:');
   const { url, email, subject, note } = opening.apply ?? {};
   const mail =
@@ -71,10 +72,12 @@ function OpeningCard({ opening, index }: { opening: Opening; index: number }) {
         <div className="opening__deadline">
           <dt>Deadline</dt>
           <dd>
-            {opening.deadline ? (
-              <time dateTime={isoDate(opening.deadline)}>{formatDate(opening.deadline)}</time>
+            {/* A deadline the build could not read is shown as written, not
+                reformatted: "31 January" parsed loosely is 31 January 2001. */}
+            {deadline && validDeadline(deadline) ? (
+              <time dateTime={isoDate(deadline)}>{formatDate(deadline)}</time>
             ) : (
-              'Open until filled'
+              deadline || 'Open until filled'
             )}
           </dd>
         </div>
@@ -85,15 +88,17 @@ function OpeningCard({ opening, index }: { opening: Opening; index: number }) {
         <Points label="You bring" items={opening.requirements} id={`${id}-bring`} />
         <Points label="On offer" items={opening.offer} id={`${id}-offer`} />
       </div>
-      {href ? (
+      {href || opening.details ? (
         <div className="opening__apply">
-          <a
-            className="opening__button"
-            href={href}
-            {...(byEmail ? {} : { rel: 'noopener noreferrer', target: '_blank' })}
-          >
-            {byEmail ? 'Apply by email' : 'Apply'}
-          </a>
+          {href ? (
+            <a
+              className="opening__button"
+              href={href}
+              {...(byEmail ? {} : { rel: 'noopener noreferrer', target: '_blank' })}
+            >
+              {byEmail ? 'Apply by email' : 'Apply'}
+            </a>
+          ) : null}
           {mail ? (
             <a className="opening__button opening__button--quiet" href={mail}>
               Ask a question

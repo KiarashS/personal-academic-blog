@@ -1,6 +1,7 @@
 import { authors } from '../content/authors';
 import { people } from '../content/people';
 import { isEnabled, isExternal } from './features';
+import { todayUtc } from './post-builder';
 import { profileLinksFor } from './profiles';
 import type { ProfileLink } from './profiles';
 import type { Author, Member, MemberRole } from './types';
@@ -38,8 +39,17 @@ export function peoplePageEnabled(): boolean {
   return isEnabled('people');
 }
 
-/** Anyone with a `left` year is alumni, whatever their role was. */
-export const isAlumnus = (member: Member): boolean => Boolean(member.left?.trim());
+/**
+ * Alumni are those whose `left` year has come, whatever their role was. A
+ * year still ahead is a planned end — a PhD due to finish in 2027 — and they
+ * stay with the group until it arrives. `today` is `YYYY-MM-DD`; the page
+ * passes `useToday()`, so the move happens with the year rather than the next
+ * deploy after it.
+ */
+export function isAlumnus(member: Member, today: string = todayUtc()): boolean {
+  const left = member.left?.trim();
+  return left ? left <= today.slice(0, 4) : false;
+}
 
 export interface MemberGroup {
   key: MemberRole | 'alumni';
@@ -55,8 +65,11 @@ export interface MemberGroup {
  * and the people a reader is looking for are usually the recent ones; a tie
  * keeps the file's order.
  */
-export function memberGroups(members: Member[] = people): MemberGroup[] {
-  const current = members.filter((member) => !isAlumnus(member));
+export function memberGroups(
+  members: Member[] = people,
+  today: string = todayUtc(),
+): MemberGroup[] {
+  const current = members.filter((member) => !isAlumnus(member, today));
   const groups: MemberGroup[] = ROLE_ORDER.map((role) => {
     const inRole = current.filter((member) => member.role === role);
     const names = ROLE_NAMES[role];
@@ -69,7 +82,7 @@ export function memberGroups(members: Member[] = people): MemberGroup[] {
 
   const alumni = members
     .map((member, index) => ({ member, index }))
-    .filter(({ member }) => isAlumnus(member))
+    .filter(({ member }) => isAlumnus(member, today))
     .sort((a, b) => (b.member.left ?? '').localeCompare(a.member.left ?? '') || a.index - b.index)
     .map(({ member }) => member);
   if (alumni.length > 0) groups.push({ key: 'alumni', label: 'Alumni', members: alumni });
@@ -85,22 +98,38 @@ export function headcount(current: number, alumni: number): string {
   return alumni > 0 ? `${here}, and ${former}.` : `${here}.`;
 }
 
+// Arabic-script letters join to their neighbours, so two initials set side
+// by side read as a two-letter word. A zero-width non-joiner keeps them apart.
+const JOINING = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
 /**
  * Up to two letters for a card with no photo: the first and last words of the
- * name, so "Ada King Lovelace" is AL and "Hypatia" is H.
+ * name, so "Ada King Lovelace" is AL and "Hypatia" is H. A title written with
+ * a full stop — "Dr.", "Prof." — is not part of the name, so "Dr. Ada
+ * Lovelace" is AL and not DL.
  */
 export function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
+  const all = name.trim().split(/\s+/).filter(Boolean);
+  const named = all.filter((word) => !word.endsWith('.'));
+  const words = named.length > 0 ? named : all;
   if (words.length === 0) return '?';
-  const first = words[0][0];
-  const last = words.length > 1 ? words[words.length - 1][0] : '';
-  return `${first}${last}`.toUpperCase();
+  // `Array.from` takes whole characters, not UTF-16 halves.
+  const first = Array.from(words[0])[0];
+  const last = words.length > 1 ? Array.from(words[words.length - 1])[0] : '';
+  const joiner = last && JOINING.test(first) && JOINING.test(last) ? '\u200c' : '';
+  return `${first}${joiner}${last}`.toUpperCase();
 }
 
-/** "2019–2024", "Since 2023", "Until 2021", or nothing. */
-export function tenure(member: Member): string {
+/**
+ * "2019–2024" for someone who has left, "Since 2023" for someone here, and
+ * "Since 2023, until 2027" for someone here with an end already planned.
+ */
+export function tenure(member: Member, today: string = todayUtc()): string {
   const joined = member.joined?.trim();
   const left = member.left?.trim();
+  if (left && !isAlumnus(member, today)) {
+    return joined ? `Since ${joined}, until ${left}` : `Until ${left}`;
+  }
   if (joined && left) return joined === left ? joined : `${joined}–${left}`;
   if (left) return `Until ${left}`;
   if (joined) return `Since ${joined}`;
@@ -136,7 +165,7 @@ export interface MemberCard {
  * written: the line under their name says where they have been, and `now`
  * says where they are.
  */
-export function memberCard(member: Member): MemberCard {
+export function memberCard(member: Member, today: string = todayUtc()): MemberCard {
   const record: Author | undefined = member.author ? authors[member.author] : undefined;
   const person: Author = {
     id: member.author ?? member.name,
@@ -160,8 +189,8 @@ export function memberCard(member: Member): MemberCard {
     bio: member.bio ?? record?.bio,
     interests,
     links: profileLinksFor('people', person),
-    alumnus: isAlumnus(member),
-    tenure: tenure(member),
+    alumnus: isAlumnus(member, today),
+    tenure: tenure(member, today),
     now: member.now,
     nowUrl: member.nowUrl,
     thesis: member.thesis,
@@ -200,10 +229,16 @@ export function peopleWarnings(members: Member[] = people): string[] {
         `${where} names the author “${member.author}”, who is not in src/content/authors.ts.`,
       );
     }
-    if ((member.now || member.nowUrl) && !isAlumnus(member)) {
+    if ((member.now || member.nowUrl) && !member.left?.trim()) {
       problems.push(
         `${where} has \`now\` but no \`left\`, so the card shows them as a current member.`,
       );
+    }
+    if (member.joined && member.left && member.left.trim() < member.joined.trim()) {
+      problems.push(`${where} left in ${member.left}, before joining in ${member.joined}.`);
+    }
+    if (member.thesis && !member.thesis.title?.trim()) {
+      problems.push(`${where} has a \`thesis\` with no title, which renders as an empty line.`);
     }
     for (const year of [member.joined, member.left]) {
       if (year && !/^\d{4}$/.test(year.trim())) {

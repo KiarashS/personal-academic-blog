@@ -15,12 +15,12 @@ const sizeOf = (group: MemberGroup): MemberCardSize =>
  * reader looking at who is in a group is often asking whether they could be.
  */
 export function PeoplePage() {
-  const groups = memberGroups();
+  const today = useToday();
+  const groups = memberGroups(undefined, today);
   const alumni = groups.find((group) => group.key === 'alumni')?.members.length ?? 0;
   const current = groups
     .filter((group) => group.key !== 'alumni')
     .reduce((sum, group) => sum + group.members.length, 0);
-  const today = useToday();
   const hiring = openingsPageEnabled() && openOpenings(undefined, today).length > 0;
 
   return (
@@ -50,9 +50,9 @@ export function PeoplePage() {
                 <span className="people-group__count">{group.members.length}</span>
               </h2>
               <ul className={`people-grid people-grid--${sizeOf(group)}`}>
-                {group.members.map((member) => (
-                  <li key={`${member.name}-${member.left ?? ''}`}>
-                    <MemberCard member={member} size={sizeOf(group)} />
+                {group.members.map((member, index) => (
+                  <li key={index}>
+                    <MemberCard member={member} size={sizeOf(group)} today={today} />
                   </li>
                 ))}
               </ul>

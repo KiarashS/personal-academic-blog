@@ -13,7 +13,7 @@ import type { Member } from '../lib/types';
  * server shows the original. Empty `alt`, because the name is the next thing
  * on the card and a screen reader would otherwise say it twice.
  */
-function Photo({ src, initials }: { src?: string; initials: string }) {
+function Photo({ src, initials, eager }: { src?: string; initials: string; eager: boolean }) {
   if (!src) {
     return (
       <span className="person__photo person__photo--initials" aria-hidden="true">
@@ -31,7 +31,9 @@ function Photo({ src, initials }: { src?: string; initials: string }) {
       alt=""
       width={112}
       height={112}
-      loading="lazy"
+      // The PI's photo is at the top of the page, where lazy loading only
+      // makes the first thing a reader sees arrive last.
+      loading={eager ? 'eager' : 'lazy'}
       decoding="async"
     />
   );
@@ -48,12 +50,21 @@ export type MemberCardSize = 'lead' | 'member' | 'alumni';
  * and as a tooltip, since a card has room for a row of marks and not a row of
  * words. Which services appear is `profileLinkKeys.people` in the config.
  */
-export function MemberCard({ member, size }: { member: Member; size: MemberCardSize }) {
-  const card = memberCard(member);
+export function MemberCard({
+  member,
+  size,
+  today,
+}: {
+  member: Member;
+  size: MemberCardSize;
+  /** `useToday()` from the page, so a planned `left` year hydrates cleanly. */
+  today: string;
+}) {
+  const card = memberCard(member, today);
 
   return (
     <article className={`person person--${size}`}>
-      <Photo src={card.photo} initials={card.initials} />
+      <Photo src={card.photo} initials={card.initials} eager={size === 'lead'} />
       <div className="person__body">
         <h3 className="person__name">
           {card.authorId ? <Link to={`/authors/${card.authorId}`}>{card.name}</Link> : card.name}
@@ -69,7 +80,11 @@ export function MemberCard({ member, size }: { member: Member; size: MemberCardS
           <p className="person__now">
             <span className="person__label">Now</span>{' '}
             {card.nowUrl ? (
-              <a href={card.nowUrl} rel="noopener noreferrer" target="_blank">
+              <a
+                href={isUrl(card.nowUrl) ? card.nowUrl : withBase(card.nowUrl)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
                 {card.now}
               </a>
             ) : (
@@ -92,8 +107,8 @@ export function MemberCard({ member, size }: { member: Member; size: MemberCardS
         ) : null}
         {card.interests.length > 0 && size !== 'alumni' ? (
           <ul className="person__interests" aria-label={`${card.name}: research interests`}>
-            {card.interests.map((interest) => (
-              <li key={interest}>{interest}</li>
+            {card.interests.map((interest, index) => (
+              <li key={index}>{interest}</li>
             ))}
           </ul>
         ) : null}

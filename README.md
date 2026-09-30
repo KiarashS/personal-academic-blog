@@ -2305,9 +2305,12 @@ is the page's order.
 }
 ```
 
-Only `name` and `role` are required. A `left` year makes someone alumni,
-whatever their role was; alumni come last, newest first, with a smaller card
-that shows where they went instead of a bio:
+Only `name` and `role` are required. A `left` year makes someone alumni once
+that year arrives, whatever their role was. A year still ahead is a planned
+end: a PhD student with `left: '2027'` stays with the PhD students, shown as
+"Since 2023, until 2027", and moves to the alumni on 1 January 2027 without a
+deploy. Alumni come last, newest first, with a smaller card that shows where
+they went instead of a bio:
 
 ```ts
 {
@@ -2335,8 +2338,13 @@ person's initials. The profile marks under each card follow
 
 The build warns about a member with no name, a role that is not one of the
 seven, an `author` id that is not in `authors.ts`, a `now` on someone with no
-`left` year, a year that is not four digits, and a photo path that does not
-start with `/`.
+`left` year, a year that is not four digits, a `left` before `joined`, a thesis
+with no title, and a photo path that does not start with `/`.
+
+A card with no photo shows initials: the first letters of the first and last
+words of the name, skipping a title written with a full stop, so "Dr. Ada
+Lovelace" is AL. Initials in Persian or Arabic script are kept as two separate
+letters, where set side by side they would join into a word.
 
 ### Openings
 
@@ -2369,6 +2377,13 @@ in `src/content/openings.ts`:
 `title`, `kind`, `summary` and one of `apply.url` or `apply.email` are needed.
 With a URL the button goes there; with only an email it opens a mail with the
 subject filled in; with both, a second button, "Ask a question", opens the mail.
+`apply.url` and `details` take a URL or a path under `public/`, such as
+`/openings/phd-2027.pdf`.
+
+A deadline has to be a day that exists, written `2027-01-31`. One the build
+cannot read, `31 January` or `2027-02-30`, is shown as written, the position
+never closes, and the build says so. A `kind` outside the list gets the badge
+"Position" and a warning.
 
 A position is listed through its deadline day and dropped the day after, judged
 in UTC, at build time and again in the reader's browser (see
