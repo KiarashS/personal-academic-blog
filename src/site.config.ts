@@ -468,7 +468,7 @@ export const siteConfig: SiteConfig = {
     // categories, the archive, search and the feeds. Off needs `home` on,
     // since without a home page the blog is the front page; with `home` off
     // the blog stays and the build says why.
-    blog: false,
+    blog: true,
     about: true,
     publications: false,
     archive: true,
