@@ -480,8 +480,8 @@ export const siteConfig: SiteConfig = {
     // A group's pages: /people, everyone in src/content/people.ts by role with
     // the alumni last, and /openings, the positions in openings.ts under the
     // text of openings.md. Both hold placeholders until you fill them in.
-    people: true,
-    openings: true,
+    people: false,
+    openings: false,
   },
   owner: 'you',
   home: {
