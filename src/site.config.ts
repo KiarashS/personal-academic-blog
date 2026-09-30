@@ -467,14 +467,14 @@ export const siteConfig: SiteConfig = {
     // categories, the archive, search and the feeds. Off needs `home` on,
     // since without a home page the blog is the front page; with `home` off
     // the blog stays and the build says why.
-    blog: true,
+    blog: false,
     about: true,
     publications: false,
     archive: true,
     categories: false,
     // On once `nav`'s Projects group lists work of yours rather than the
     // example that ships with it.
-    projects: true,
+    projects: false,
     // The page at /research: the overview in research.md, then the areas in
     // research.ts. On once both say something of yours.
     research: false,
@@ -482,7 +482,7 @@ export const siteConfig: SiteConfig = {
     contact: false,
     // The page at /news and its nav entry. The front page lists the newest few
     // whatever this says; with no entries yet the page says there are none.
-    news: true,
+    news: false,
     // A group's pages: /people, everyone in src/content/people.ts by role with
     // the alumni last, and /openings, the positions in openings.ts under the
     // text of openings.md. Both hold placeholders until you fill them in.
@@ -499,7 +499,7 @@ export const siteConfig: SiteConfig = {
     signature: true,
     signatureTilt: -3,
     avatar: '/avatar.jpg',
-    news: 0,
+    news: 5,
     newsRows: 3,
     newsFreshMonths: 12,
   },
@@ -585,17 +585,17 @@ export const siteConfig: SiteConfig = {
     { label: 'Openings', to: '/openings', feature: 'openings' },
     { label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
-    {
+    //{
       // A label with a list under it rather than a link: standalone pages of
       // your own kept in `public/projects/<name>/`, and work that lives
       // somewhere else. Replace these two with your own and turn the flag on.
-      label: 'Projects',
-      feature: 'projects',
-      items: [
-        { label: 'An example project', to: '/projects/example/' },
-        { label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
-      ],
-    },
+      //label: 'Projects',
+      //feature: 'projects',
+      //items: [
+        //{ label: 'An example project', to: '/projects/example/' },
+        //{ label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
+      //],
+    //},
     { label: 'Tags', to: '/tags', place: 'both' },
     { label: 'Search', to: '/search', place: 'both' },
     { label: 'About', to: '/about', feature: 'about', place: 'both' },
