@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { MemberCard } from '../components/MemberCard';
 import type { MemberCardSize } from '../components/MemberCard';
-import { memberGroups } from '../lib/people';
+import { headcount, memberGroups } from '../lib/people';
 import { openOpenings, openingsPageEnabled } from '../lib/openings';
+import { useToday } from '../lib/today';
 import type { MemberGroup } from '../lib/people';
 
 const sizeOf = (group: MemberGroup): MemberCardSize =>
@@ -19,7 +20,8 @@ export function PeoplePage() {
   const current = groups
     .filter((group) => group.key !== 'alumni')
     .reduce((sum, group) => sum + group.members.length, 0);
-  const hiring = openingsPageEnabled() && openOpenings().length > 0;
+  const today = useToday();
+  const hiring = openingsPageEnabled() && openOpenings(undefined, today).length > 0;
 
   return (
     <>
@@ -29,8 +31,7 @@ export function PeoplePage() {
       ) : (
         <>
           <p className="lede">
-            {current} {current === 1 ? 'person' : 'people'} in the group
-            {alumni > 0 ? `, and ${alumni} alumni` : ''}.
+            {headcount(current, alumni)}
             {hiring ? (
               <>
                 {' '}

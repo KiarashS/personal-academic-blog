@@ -3,6 +3,7 @@ import { formatDate, isoDate } from '../lib/format';
 import { isExternal } from '../lib/features';
 import { applyHref, kindName, openOpenings } from '../lib/openings';
 import { resource, useResource } from '../lib/resource';
+import { useToday } from '../lib/today';
 import { withBase } from '../lib/urls';
 import type { Opening } from '../lib/types';
 
@@ -14,12 +15,6 @@ function OpeningsBody() {
   return <RoutedHtml className="prose" html={useResource(openingsBody).html} />;
 }
 
-const slug = (title: string): string =>
-  title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-
 function Points({ label, items, id }: { label: string; items?: string[]; id: string }) {
   if (!items || items.length === 0) return null;
   return (
@@ -28,8 +23,8 @@ function Points({ label, items, id }: { label: string; items?: string[]; id: str
         {label}
       </h4>
       <ul aria-labelledby={id}>
-        {items.map((item) => (
-          <li key={item}>{item}</li>
+        {items.map((item, index) => (
+          <li key={index}>{item}</li>
         ))}
       </ul>
     </div>
@@ -42,8 +37,10 @@ function Points({ label, items, id }: { label: string; items?: string[]; id: str
  * last of the facts and the only one in the text colour, since it is the one
  * that decides whether the rest is worth reading.
  */
-function OpeningCard({ opening }: { opening: Opening }) {
-  const id = `opening-${slug(opening.title)}`;
+function OpeningCard({ opening, index }: { opening: Opening; index: number }) {
+  // By position, not from the title: a title in another script slugs to
+  // nothing, and two such positions would share one id.
+  const id = `opening-${index + 1}`;
   const href = applyHref(opening);
   const byEmail = href?.startsWith('mailto:');
   const { url, email, subject, note } = opening.apply ?? {};
@@ -123,7 +120,8 @@ function OpeningCard({ opening }: { opening: Opening }) {
  * to write anyway.
  */
 export function OpeningsPage() {
-  const open = openOpenings();
+  const today = useToday();
+  const open = openOpenings(undefined, today);
 
   return (
     <>
@@ -139,8 +137,8 @@ export function OpeningsPage() {
           <h2 className="section-heading section-heading--spaced" id="openings-open">
             Open positions
           </h2>
-          {open.map((opening) => (
-            <OpeningCard key={opening.title} opening={opening} />
+          {open.map((opening, index) => (
+            <OpeningCard key={`${index}-${opening.title}`} opening={opening} index={index} />
           ))}
         </section>
       ) : null}

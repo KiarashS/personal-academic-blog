@@ -25,3 +25,6 @@ declare module 'virtual:emoji-map' {
    */
   export const EMOJI: Record<string, string>;
 }
+
+/** The build's day in UTC, `YYYY-MM-DD`; set in `vite.config.ts`. */
+declare const __BUILD_DATE__: string;

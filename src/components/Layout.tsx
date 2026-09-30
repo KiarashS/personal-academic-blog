@@ -1,6 +1,7 @@
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { Fragment, Suspense, useEffect } from 'react';
 import { siteConfig } from '../site.config';
+import { useToday } from '../lib/today';
 import { isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
 import { CvLink } from './CvLink';
@@ -37,7 +38,10 @@ function ScrollToTop() {
 }
 
 export function Layout() {
-  const year = new Date().getFullYear();
+  // Through `useToday`, like the openings: read straight off the clock, the
+  // year in the prerendered footer disagreed with the browser's from 1 January
+  // until the next deploy, and React redrew every page to settle it.
+  const year = useToday().slice(0, 4);
   // The front page carries the name at display size, so the header drops its
   // own copy of it and the tagline and leaves the nav on its own.
   const onHome = useLocation().pathname.replace(/\/+$/, '') === '';

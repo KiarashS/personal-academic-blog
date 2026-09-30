@@ -77,6 +77,14 @@ export function memberGroups(members: Member[] = people): MemberGroup[] {
   return groups;
 }
 
+/** "7 people in the group, and 2 alumni." One former member is not "1 alumni". */
+export function headcount(current: number, alumni: number): string {
+  const former = alumni === 1 ? '1 former member' : `${alumni} alumni`;
+  if (current === 0) return `${former[0].toUpperCase()}${former.slice(1)}.`;
+  const here = `${current} ${current === 1 ? 'person' : 'people'} in the group`;
+  return alumni > 0 ? `${here}, and ${former}.` : `${here}.`;
+}
+
 /**
  * Up to two letters for a card with no photo: the first and last words of the
  * name, so "Ada King Lovelace" is AL and "Hypatia" is H.

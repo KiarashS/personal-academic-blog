@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  headcount,
   initials,
   memberCard,
   memberGroups,
@@ -147,5 +148,15 @@ describe('peopleWarnings', () => {
   it('passes the placeholder file', () => {
     siteConfig.features.people = true;
     expect(peopleWarnings()).toEqual([]);
+  });
+});
+
+describe('headcount', () => {
+  it('counts both, in words that agree with the numbers', () => {
+    expect(headcount(7, 2)).toBe('7 people in the group, and 2 alumni.');
+    expect(headcount(1, 1)).toBe('1 person in the group, and 1 former member.');
+    expect(headcount(3, 0)).toBe('3 people in the group.');
+    expect(headcount(0, 4)).toBe('4 alumni.');
+    expect(headcount(0, 1)).toBe('1 former member.');
   });
 });

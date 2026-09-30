@@ -2309,8 +2309,11 @@ With a URL the button goes there; with only an email it opens a mail with the
 subject filled in; with both, a second button, "Ask a question", opens the mail.
 
 A position is listed through its deadline day and dropped the day after, judged
-in UTC at build time and again in the reader's browser, as the news and the
-notice are. The build warns when one has closed so it can be removed from the
+in UTC at build time and again in the reader's browser. The page first renders
+with the build's date, so it matches the prerendered HTML, then with the
+reader's; a position that closed since the last deploy disappears on load
+without React redrawing the page. The two Vite builds each take the date when
+they start, and `BUILD_DATE=2026-09-30` pins both to one day. The build warns when one has closed so it can be removed from the
 file, and also about a missing title, summary or way to apply, a deadline that
 is not a date, and a `details` path that does not start with `/`. With nothing
 open the page says so in its first line, and `openings.md` is the place to say

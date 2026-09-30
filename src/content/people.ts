@@ -77,7 +77,7 @@ export const people: Member[] = [
     joined: '2019',
     left: '2024',
     now: 'Postdoc, another university',
-    thesis: { title: 'The title of her thesis' },
+    thesis: { title: 'The thesis title' },
   },
   {
     name: 'Example Alumnus',

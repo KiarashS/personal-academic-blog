@@ -3279,9 +3279,11 @@ h1 + .author-card {
 }
 
 /*
- * A card is a box in the grid and a column inside it: photo, then the words,
- * with the links pushed to the bottom so a row of cards ends on one line
- * whatever the length of each bio.
+ * A card is a box in the grid, photo beside the words. The grid stretches the
+ * cards in a row to one height, so the boxes line up; the links follow the
+ * words rather than sitting at the foot. Pinned there, a card with no bio
+ * beside one with a long bio had its only icon 180px below the name it
+ * belongs to.
  */
 .person {
   border: 1px solid var(--rule);
@@ -3303,6 +3305,10 @@ h1 + .author-card {
   flex: 1;
   flex-direction: column;
   min-width: 0;
+
+  /* An address or a URL in "Now" is one long word, and a column this narrow
+     would otherwise let it run out of the card. */
+  overflow-wrap: anywhere;
 }
 
 .person__photo {
@@ -3422,7 +3428,7 @@ h1 + .author-card {
   flex-wrap: wrap;
   gap: 0.35rem;
   list-style: none;
-  margin: auto 0 0;
+  margin: 0;
   padding: 0.9rem 0 0;
 }
 
@@ -3535,8 +3541,8 @@ h1 + .author-card {
 .opening__facts {
   display: grid;
   font-family: var(--sans);
-  gap: 0.6rem 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+  gap: 0.6rem 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 7rem), 1fr));
   margin: 1rem 0 0;
   padding: 0.85rem 0;
   border-block: 1px solid var(--rule);
