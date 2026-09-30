@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { pwaEnabled, pwaShortcuts, pwaWarnings, webManifest } from '../lib/pwa';
 import { ownCaches } from '../lib/pwa-client';
 import { CACHE_PREFIX } from '../lib/cache-name';
@@ -6,6 +6,16 @@ import { allRoutes } from '../lib/route-meta';
 import { navFor } from '../lib/features';
 import { siteConfig, THEME_COLORS } from '../site.config';
 import type { PwaConfig } from '../site.config';
+
+// The examples below name blog routes (/tags, /search), so they need a site
+// with a blog in it, whatever this site's own config says.
+const features = { ...siteConfig.features };
+beforeEach(() => {
+  siteConfig.features.blog = true;
+});
+afterEach(() => {
+  Object.assign(siteConfig.features, features);
+});
 
 const pwa = (overrides: Partial<PwaConfig> = {}): PwaConfig => ({
   enabled: true,

@@ -586,15 +586,15 @@ export const siteConfig: SiteConfig = {
     { label: 'Archive', to: '/archive', feature: 'archive', place: 'footer' },
     { label: 'Categories', to: '/categories', feature: 'categories' },
     //{
-      // A label with a list under it rather than a link: standalone pages of
-      // your own kept in `public/projects/<name>/`, and work that lives
-      // somewhere else. Replace these two with your own and turn the flag on.
-      //label: 'Projects',
-      //feature: 'projects',
-      //items: [
-        //{ label: 'An example project', to: '/projects/example/' },
-        //{ label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
-      //],
+    // A label with a list under it rather than a link: standalone pages of
+    // your own kept in `public/projects/<name>/`, and work that lives
+    // somewhere else. Replace these two with your own and turn the flag on.
+    //label: 'Projects',
+    //feature: 'projects',
+    //items: [
+    //{ label: 'An example project', to: '/projects/example/' },
+    //{ label: 'Something hosted elsewhere', to: 'https://example.org/a-project' },
+    //],
     //},
     { label: 'Tags', to: '/tags', place: 'both' },
     { label: 'Search', to: '/search', place: 'both' },

@@ -18,5 +18,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/test/**/*.test.ts'],
+    // Pins the switches the suite is written against; see the file.
+    setupFiles: ['src/test/setup.ts'],
   },
 });

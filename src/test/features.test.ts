@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { filterNav, isExternal, isNavGroup, shownIn } from '../lib/features';
 import { siteConfig } from '../site.config';
 import type { NavItem } from '../site.config';
@@ -71,6 +71,16 @@ describe('siteConfig.nav', () => {
 });
 
 describe('navFor', () => {
+  // About the nav the site ships with a blog in it, whatever this site's own
+  // config has switched off since.
+  const features = { ...siteConfig.features };
+  beforeEach(() => {
+    Object.assign(siteConfig.features, { blog: true, archive: true });
+  });
+  afterEach(() => {
+    Object.assign(siteConfig.features, features);
+  });
+
   it('points the blog entry at wherever the blog index is', async () => {
     const { BLOG_INDEX } = await import('../site.config');
     const { navFor } = await import('../lib/features');
