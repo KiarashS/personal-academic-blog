@@ -5,10 +5,14 @@ import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
 import { displayTag, postsByTag } from '../lib/posts';
 import { siteConfig } from '../site.config';
+import { NotFoundPage } from './NotFoundPage';
 
 export function TagPage() {
   const { tag = '', page: pageParam } = useParams();
   const matching = postsByTag(tag);
+  // A tag no listed post carries has no page in the build, so the address
+  // gets the same answer as any other that names nothing.
+  if (matching.length === 0) return <NotFoundPage what="tag" />;
   const label = displayTag(tag) ?? tag;
   const requested = pageParam ? Number(pageParam) : 1;
 

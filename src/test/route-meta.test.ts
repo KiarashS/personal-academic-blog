@@ -42,3 +42,15 @@ describe('an optional page', () => {
     }
   });
 });
+
+describe('a tag no post carries', () => {
+  it('is "Not found", like any other address that names nothing', () => {
+    expect(metaFor('/tags/no-such-tag').title).toMatch(/^Not found/);
+    expect(metaFor('/tags/no-such-tag/page/2').title).toMatch(/^Not found/);
+  });
+
+  it('leaves a used tag and the index alone', () => {
+    expect(metaFor('/tags/guide').title).toMatch(/Tagged/);
+    expect(metaFor('/tags').title).toMatch(/^Tags/);
+  });
+});

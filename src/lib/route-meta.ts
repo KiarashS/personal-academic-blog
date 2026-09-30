@@ -125,7 +125,8 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (segments[0] === 'tags' && segments[1] && blogEnabled()) {
+  // A tag with no posts falls through to "Not found", as its page does.
+  if (segments[0] === 'tags' && segments[1] && blogEnabled() && postsByTag(segments[1]).length) {
     const label = displayTag(segments[1]) ?? segments[1];
     const count = postsByTag(segments[1]).length;
     const page = segments[2] === 'page' ? `, page ${segments[3]}` : '';
@@ -135,7 +136,7 @@ export function metaFor(pathname: string): RouteMeta {
     };
   }
 
-  if (segments[0] === 'tags' && blogEnabled()) {
+  if (segments[0] === 'tags' && !segments[1] && blogEnabled()) {
     return { title: withSuffix('Tags'), description: 'Every tag used across the posts.' };
   }
 
