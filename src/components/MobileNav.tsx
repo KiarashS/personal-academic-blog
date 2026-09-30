@@ -83,41 +83,44 @@ export function MobileNav() {
         </svg>
       </button>
 
-      <div
-        className={`mobile-nav__panel${open ? ' mobile-nav__panel--open' : ''}`}
-        // Tapping the sheet where there is no link closes it, as the reference
-        // does with a full-size button behind its nav.
-        onClick={(event) => {
-          if (event.target === event.currentTarget) close();
-        }}
-        ref={panel}
-      >
-        <nav aria-label="Main">
-          {navFor('header').map((item) =>
-            isNavGroup(item) ? (
-              // Closed until the reader asks for it. `details` again, for the
-              // same reason as on a wide screen: the browser opens and closes
-              // one without any script, so the entries are reachable either way.
-              <details className="mobile-nav__group" key={item.label}>
-                <summary className="mobile-nav__group-label">
+      {/* A frame that clips, and the sheet that slides inside it, so the parked
+          sheet never sits past the edge of the screen; see the stylesheet. */}
+      <div className={`mobile-nav__panel${open ? ' mobile-nav__panel--open' : ''}`} ref={panel}>
+        <div
+          className="mobile-nav__sheet"
+          // Tapping the sheet where there is no link closes it, as the reference
+          // does with a full-size button behind its nav.
+          onClick={(event) => {
+            if (event.target === event.currentTarget) close();
+          }}
+        >
+          <nav aria-label="Main">
+            {navFor('header').map((item) =>
+              isNavGroup(item) ? (
+                // Closed until the reader asks for it. `details` again, for the
+                // same reason as on a wide screen: the browser opens and closes
+                // one without any script, so the entries are reachable either way.
+                <details className="mobile-nav__group" key={item.label}>
+                  <summary className="mobile-nav__group-label">
+                    {item.label}
+                    <NavCaret className="mobile-nav__group-caret" />
+                  </summary>
+                  {item.items.map((child) => (
+                    <NavGroupLink item={child} key={child.to} onClick={close} />
+                  ))}
+                </details>
+              ) : (
+                <Link key={item.to} onClick={close} to={item.to ?? '/'}>
                   {item.label}
-                  <NavCaret className="mobile-nav__group-caret" />
-                </summary>
-                {item.items.map((child) => (
-                  <NavGroupLink item={child} key={child.to} onClick={close} />
-                ))}
-              </details>
-            ) : (
-              <Link key={item.to} onClick={close} to={item.to ?? '/'}>
-                {item.label}
-              </Link>
-            ),
-          )}
-          {/* Last, as it is in the header: the nav entries are the site, and
+                </Link>
+              ),
+            )}
+            {/* Last, as it is in the header: the nav entries are the site, and
               this is a file. `navFor` does not know about it, so the sheet has
               to ask for it by name. */}
-          <CvLink onClick={close} />
-        </nav>
+            <CvLink onClick={close} />
+          </nav>
+        </div>
       </div>
     </>
   );

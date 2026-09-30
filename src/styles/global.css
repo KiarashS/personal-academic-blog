@@ -490,35 +490,61 @@ video {
   width: 100%;
 }
 
-/* The sheet is the width of the screen and starts where the header ends, so
-   the button stays above it and stays live: that is how it is closed again.
-   `visibility` rides the same transition, which keeps it out of the tab order
-   and off the scrollable area while it is parked to the right. */
+/*
+ * The sheet is the width of the screen and starts where the header ends, so
+ * the button stays above it and stays live: that is how it is closed again.
+ *
+ * Two boxes. The panel is a frame fixed over exactly that area, which clips;
+ * the sheet slides inside it. The sheet used to be the fixed box itself, parked
+ * one screen to the right with `translateX(100%)`, and a whole screen's width
+ * of menu sitting past the right edge is something Safari on a phone can take
+ * as part of the page: it lays the page out wider than the screen and the
+ * page is seen to slide sideways as it settles on first load. Clipped by the
+ * frame, the parked sheet is never outside the screen, and the slide in and
+ * out is the same slide.
+ *
+ * `visibility` rides the frame's transition, which keeps the menu out of the
+ * tab order while it is closed and lets it stay visible until the sheet has
+ * slid away. `pointer-events` lets a closed frame be tapped through.
+ */
 .mobile-nav__panel {
   --mobile-nav-top: 4.5rem;
 
-  /* The transparency belongs to the background, not the element: `opacity`
-     applies to everything inside, so at 0.95 the nav labels were themselves
-     see-through and a post title behind them read straight through "Home". The
-     page still ghosts through, as the reference does; the words do not. */
-  background: color-mix(in srgb, var(--bg) 95%, transparent);
   inset: var(--mobile-nav-top) 0 0;
+  overflow: hidden;
+  pointer-events: none;
   position: fixed;
-  transform: translateX(100%);
-  transition:
-    transform 300ms ease-in-out,
-    visibility 300ms ease-in-out;
+  transition: visibility 300ms ease-in-out;
   visibility: hidden;
   z-index: 10;
 }
 
 .mobile-nav__panel--open {
-  transform: translateX(0);
+  pointer-events: auto;
   visibility: visible;
 }
 
+.mobile-nav__sheet {
+  /* The transparency belongs to the background, not the element: `opacity`
+     applies to everything inside, so at 0.95 the nav labels were themselves
+     see-through and a post title behind them read straight through "Home". The
+     page still ghosts through, as the reference does; the words do not. */
+  background: color-mix(in srgb, var(--bg) 95%, transparent);
+  height: 100%;
+
+  /* A landscape phone is shorter than a long menu. */
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 300ms ease-in-out;
+}
+
+.mobile-nav__panel--open .mobile-nav__sheet {
+  transform: translateX(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .mobile-nav__panel {
+  .mobile-nav__panel,
+  .mobile-nav__sheet {
     transition: none;
   }
 }
