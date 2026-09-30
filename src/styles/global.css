@@ -145,6 +145,13 @@
 }
 
 html {
+  /* Room for the scrollbar whether or not the page scrolls. Where scrollbars
+     take space (Windows, Linux, a Mac set to show them), a page too short to
+     scroll drew its column 7.5px right of one that scrolls, so moving between
+     the two shifted the page sideways, and the phone menu's scroll lock took
+     the bar away under an open menu. Overlay scrollbars take no space, so
+     phones and a default Mac are unaffected. */
+  scrollbar-gutter: stable;
   text-size-adjust: 100%;
 }
 
