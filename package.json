@@ -58,7 +58,7 @@
     "remark-math": "6.0.0",
     "remark-parse": "11.0.0",
     "remark-rehype": "11.1.2",
-    "simple-icons": "^16.31.0",
+    "simple-icons": "^16.33.0",
     "stylelint": "17.14.1",
     "stylelint-config-standard": "40.0.0",
     "typescript": "6.0.3",
