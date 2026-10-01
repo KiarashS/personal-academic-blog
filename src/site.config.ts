@@ -484,7 +484,7 @@ export const siteConfig: SiteConfig = {
     // News as a whole: the page at /news, its nav entry, and the newest few on
     // the front page (`home.news`). Off takes all three. With no entries yet
     // the page says there are none.
-    news: false,
+    news: true,
     // A group's pages: /people, everyone in src/content/people.ts by role with
     // the alumni last, and /openings, the positions in openings.ts under the
     // text of openings.md. Both hold placeholders until you fill them in.
