@@ -71,6 +71,15 @@ describe('footerCredit', () => {
     expect(footerCredit()).toBeUndefined();
   });
 
+  it('takes a name written, and the owner’s when it is empty', async () => {
+    const { siteOwner } = await import('../lib/profiles');
+    siteConfig.credit.text = 'Built by';
+    siteConfig.credit.name = 'Ada';
+    expect(footerCredit()?.name).toBe('Ada');
+    siteConfig.credit.name = '';
+    expect(footerCredit()?.name).toBe(siteOwner().name);
+  });
+
   it('names the owner, links the About page by default, and takes a link written', () => {
     siteConfig.credit.text = 'Built with care by';
     siteConfig.credit.href = '';

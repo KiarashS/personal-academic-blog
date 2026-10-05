@@ -20,5 +20,5 @@ export function footerCredit(): Credit | undefined {
   const owner = siteOwner();
   const photo = owner.avatar?.trim() || siteConfig.home.avatar.trim() || undefined;
   const href = siteConfig.credit.href.trim() || (isEnabled('about') ? '/about' : undefined);
-  return { text, name: owner.name, photo, href };
+  return { text, name: siteConfig.credit.name.trim() || owner.name, photo, href };
 }

@@ -867,11 +867,12 @@ then the owner's portrait and name.
 ```ts
 credit: {
   text: 'Built with 💙 by',   // empty turns the line off
+  name: '',                  // empty is the owner's name from authors.ts
   href: '',                  // where the name goes; empty is /about while it is on
 },
 ```
 
-The name and the portrait come from the owner's record in
+Unless `name` says otherwise, the name and the portrait come from the owner's record in
 `src/content/authors.ts` (`owner` in the config). A record with no `avatar`
 uses `home.avatar`, the front page's portrait, and with neither the name
 stands alone. The build writes a 64px copy of a local portrait for it, since

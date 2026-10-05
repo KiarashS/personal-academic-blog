@@ -359,6 +359,8 @@ export interface HomeConfig {
 export interface CreditConfig {
   /** The words before the name. Empty turns the line off. */
   text: string;
+  /** The name shown. Empty is the owner's name from their author record. */
+  name: string;
   /**
    * Where the name goes: a URL, or a path of the site. Empty is the About page
    * while it is on, and no link otherwise.
@@ -488,7 +490,7 @@ export const siteConfig: SiteConfig = {
     // the blog stays and the build says why.
     blog: true,
     about: true,
-    publications: false,
+    publications: true,
     archive: true,
     categories: false,
     // On once `nav`'s Projects group lists work of yours rather than the
@@ -526,7 +528,8 @@ export const siteConfig: SiteConfig = {
   cv: '',
   credit: {
     text: 'Built with 💙 by',
-    href: '',
+    name: 'Kiarash',
+    href: 'https://kiarashs.ir',
   },
   categories: [
     {
