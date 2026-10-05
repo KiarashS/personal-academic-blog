@@ -764,6 +764,51 @@ video {
   white-space: nowrap;
 }
 
+/*
+ * The credit: a line of its own under the links, set apart by a little more
+ * space and by the one picture in the footer. The words keep the footer's
+ * muted colour and the name takes the text's, so the eye lands on who rather
+ * than on the sentence leading up to it.
+ */
+.site-credit {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.45rem;
+}
+
+/* Over `.site-footer p`, which spaces the two lines above it. */
+.site-footer .site-credit {
+  margin: 0.9rem 0 0;
+}
+
+.site-credit__who {
+  align-items: center;
+  color: var(--text);
+  display: inline-flex;
+  gap: 0.45rem;
+
+  /* A finger's height, as the footer's other links have. */
+  min-height: 2rem;
+  text-decoration: none;
+}
+
+a.site-credit__who:hover .site-credit__name {
+  text-decoration: underline;
+  text-decoration-color: var(--link-rule);
+}
+
+.site-credit__photo {
+  aspect-ratio: 1;
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  display: block;
+  height: 1.75rem;
+  object-fit: cover;
+  width: 1.75rem;
+}
+
 /* Post list --------------------------------------------------------------- */
 
 .post-list {
@@ -2737,6 +2782,69 @@ h1 + .author-card {
   margin: 0;
 }
 
+/*
+ * An entry with a teaser: the words in the wide column on the left, where the
+ * titles keep one edge to scan down, and the picture in a narrow one on the
+ * right, the way a paper's first figure sits beside its abstract. `minmax(0,
+ * 1fr)` lets an opened BibTeX block scroll inside its column instead of
+ * pushing the picture off the side.
+ */
+.publication--media {
+  align-items: start;
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+}
+
+.publication__media {
+  margin: 0.25rem 0 0;
+}
+
+.publication__media a {
+  border-radius: 6px;
+  display: block;
+}
+
+/* The rule round the picture is the page's own, so a white figure on a white
+   page still has an edge, and the fill holds the space while it loads. A
+   picture taller than it is wide is cropped to the column rather than
+   standing over the entries below it. */
+.publication__media-item {
+  aspect-ratio: 16 / 10;
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  display: block;
+  height: auto;
+  max-height: 11rem;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* A measured image keeps its own shape, from its width and height. */
+img.publication__media-item[width] {
+  aspect-ratio: auto;
+}
+
+.publication__media a:hover .publication__media-item {
+  border-color: var(--link-rule);
+}
+
+/* On a phone the picture follows the words, at the column's width. */
+@media (width <= 34rem) {
+  .publication--media {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .publication__media {
+    margin-top: 0.75rem;
+  }
+
+  .publication__media-item {
+    max-height: 14rem;
+  }
+}
+
 .cite--compact {
   border-top: 0;
   margin-top: 0.5rem;
@@ -3740,6 +3848,7 @@ h1 + .author-card {
   .media-frame--banner,
   .media-frame video,
   .media-frame iframe,
+  .publication__media video,
   .embed-frame,
   .media-frame__badge {
     display: none;

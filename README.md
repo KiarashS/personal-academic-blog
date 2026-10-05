@@ -725,6 +725,34 @@ leaves the fence as it was rather than failing the build.
 year, each entry linking to its DOI or arXiv page with its BibTeX behind a
 disclosure. It ships with two well-known papers as samples — replace them.
 
+An entry can carry a teaser: a picture, a GIF or a short video beside it, in
+a column to the right of the words on a wide screen and under them on a phone.
+Three fields of the site's own, on the entry in the `.bib` file:
+
+```bibtex
+@inproceedings{you2026thing,
+  title        = {The thing},
+  ...
+  teaser       = {/publications/you2026thing.gif},
+  teaseralt    = {The interface, mid-gesture},
+  teaserposter = {/publications/you2026thing.jpg},
+}
+```
+
+`teaser` is a path under `public/` or a URL, and one of `.png`, `.jpg`,
+`.webp`, `.avif`, `.gif`, `.svg`, `.mp4`, `.webm` or `.mov`. `teaseralt`
+describes it; leave it out when the picture only decorates the title beside
+it. `teaserposter` is the still a video shows before it starts. None of the
+three appears in the BibTeX the page offers to copy.
+
+The build measures a local image so the page holds its space while it loads,
+and a picture links to the paper, as the title does. A video plays muted and
+on a loop, like a GIF, and only while it is on screen; a reader whose system
+asks for less motion gets the still and the controls and starts it
+themselves. A GIF cannot be paused that way, so a video file is the kinder
+choice for anything that moves a lot. The build warns about a teaser it cannot
+show, a path not written from the root, and a local image that is not there.
+
 Switch the page off in `src/site.config.ts` if you do not want it. See
 [Optional pages](#optional-pages) below.
 
@@ -830,6 +858,24 @@ They render as labelled chips under the author's bio, on every post and on the
 author's own page. Text rather than logos: eight service marks is a lot of
 colour for a page whose subject is the writing, and several of these services
 have no mark a reader would recognise.
+
+## Footer credit
+
+The last line of every page's footer is a credit: the words in `credit.text`,
+then the owner's portrait and name.
+
+```ts
+credit: {
+  text: 'Built with 💙 by',   // empty turns the line off
+  href: '',                  // where the name goes; empty is /about while it is on
+},
+```
+
+The name and the portrait come from the owner's record in
+`src/content/authors.ts` (`owner` in the config). A record with no `avatar`
+uses `home.avatar`, the front page's portrait, and with neither the name
+stands alone. The build writes a 64px copy of a local portrait for it, since
+it is drawn at 28px on every page.
 
 ## CV
 

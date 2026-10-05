@@ -8,12 +8,15 @@
  * shipped), which is four times the pixels and several times the bytes of
  * anything a reader will see.
  *
- * 256 for a photo on the People page, drawn at 7rem at most, 112px.
+ * 256 for a photo on the People page, drawn at 7rem at most, 112px. 64 for the
+ * portrait in the footer's credit, drawn at 28px.
  *
  * WebP rather than JPEG so a portrait with a transparent background keeps it.
  */
 export const AVATAR_WIDTH = 416;
 export const PHOTO_WIDTH = 256;
+/** The footer's credit, drawn at 1.75rem, 28px. */
+export const CREDIT_WIDTH = 64;
 
 export const isUrl = (value: string): boolean => /^https?:\/\//i.test(value);
 

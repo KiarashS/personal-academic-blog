@@ -350,6 +350,22 @@ export interface HomeConfig {
   newsFreshMonths: number;
 }
 
+/**
+ * "Built with 💙 by", then the owner's portrait and name, under the footer's
+ * links on every page. The name and the portrait are the owner's record in
+ * `src/content/authors.ts`, with `home.avatar` standing in for a record with
+ * no `avatar`; with neither, the name stands alone.
+ */
+export interface CreditConfig {
+  /** The words before the name. Empty turns the line off. */
+  text: string;
+  /**
+   * Where the name goes: a URL, or a path of the site. Empty is the About page
+   * while it is on, and no link otherwise.
+   */
+  href: string;
+}
+
 export interface SiteConfig {
   title: string;
   /** Under a home-screen icon, where a full name will not fit. */
@@ -423,6 +439,8 @@ export interface SiteConfig {
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
    */
   cv: string;
+  /** The line at the foot of every page that says who made the site; see `CreditConfig`. */
+  credit: CreditConfig;
   /**
    * Comments are rendered with giscus (GitHub Discussions). Fill these in from
    * https://giscus.app after enabling Discussions on the repository. Leave
@@ -506,6 +524,10 @@ export const siteConfig: SiteConfig = {
     newsFreshMonths: 12,
   },
   cv: '',
+  credit: {
+    text: 'Built with 💙 by',
+    href: '',
+  },
   categories: [
     {
       slug: 'ai-in-healthcare',

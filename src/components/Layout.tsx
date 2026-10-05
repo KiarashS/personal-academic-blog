@@ -2,6 +2,9 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { Fragment, Suspense, useEffect } from 'react';
 import { siteConfig } from '../site.config';
 import { useToday } from '../lib/today';
+import { avatarCopyPath, CREDIT_WIDTH, isUrl } from '../lib/avatar';
+import { footerCredit } from '../lib/credit';
+import { withBase } from '../lib/urls';
 import { blogEnabled, isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
 import { CvLink } from './CvLink';
@@ -35,6 +38,58 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname, hash]);
   return null;
+}
+
+/**
+ * "Built with 💙 by", the owner's portrait, and their name: `credit` in the
+ * config. The portrait is the 64px copy `scripts/render-avatar.mjs` writes in
+ * a build, the original on the dev server, as the front page's is. Its `alt`
+ * is empty because the name follows it, and a screen reader would say the
+ * name twice.
+ */
+function FooterCredit() {
+  const credit = footerCredit();
+  if (!credit) return null;
+  const photo = credit.photo
+    ? isUrl(credit.photo)
+      ? credit.photo
+      : withBase(import.meta.env.PROD ? avatarCopyPath(credit.photo, CREDIT_WIDTH) : credit.photo)
+    : undefined;
+  const who = (
+    <>
+      {photo ? (
+        <img
+          className="site-credit__photo"
+          src={photo}
+          alt=""
+          width={28}
+          height={28}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : null}
+      <span className="site-credit__name">{credit.name}</span>
+    </>
+  );
+
+  return (
+    <p className="site-credit">
+      <span>{credit.text}</span>{' '}
+      {credit.href ? (
+        isExternal(credit.href) ? (
+          <a className="site-credit__who" href={credit.href}>
+            {who}
+          </a>
+        ) : (
+          <Link className="site-credit__who" to={credit.href}>
+            {who}
+          </Link>
+        )
+      ) : (
+        <span className="site-credit__who">{who}</span>
+      )}
+    </p>
+  );
 }
 
 export function Layout() {
@@ -148,6 +203,7 @@ export function Layout() {
             ) : null}
             <KeyboardShortcuts />
           </div>
+          <FooterCredit />
         </div>
       </footer>
     </div>

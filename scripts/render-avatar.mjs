@@ -17,9 +17,16 @@ import { chromium } from 'playwright';
 
 const dist = resolve('dist');
 const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href;
-const { siteConfig, avatarCopyPath, isUrl, memberPhotos, AVATAR_WIDTH, PHOTO_WIDTH } = await import(
-  serverEntry
-);
+const {
+  siteConfig,
+  avatarCopyPath,
+  isUrl,
+  memberPhotos,
+  footerCredit,
+  AVATAR_WIDTH,
+  PHOTO_WIDTH,
+  CREDIT_WIDTH,
+} = await import(serverEntry);
 
 const MIME = {
   '.avif': 'image/avif',
@@ -36,6 +43,11 @@ const home = siteConfig.features.home ? siteConfig.home.avatar : '';
 if (home && !isUrl(home)) jobs.push({ src: home, width: AVATAR_WIDTH, what: 'home.avatar' });
 for (const photo of memberPhotos()) {
   jobs.push({ src: photo, width: PHOTO_WIDTH, what: 'A People page photo' });
+}
+// The footer's credit, on every page: the portrait at 28px wants a small copy.
+const credit = footerCredit()?.photo;
+if (credit && !isUrl(credit)) {
+  jobs.push({ src: credit, width: CREDIT_WIDTH, what: 'The footer credit photo' });
 }
 
 // The same file at the same width is one copy, whoever asked for it.

@@ -1,7 +1,11 @@
+import type { PublicationMedia } from './publication-media';
+
 export interface BibEntry {
   key: string;
   type: string;
   fields: Record<string, string>;
+  /** The Publications page's teaser, from the site's own fields; see `publication-media.ts`. */
+  media?: PublicationMedia;
 }
 
 const ENTRY = /@(\w+)\s*\{\s*([^,\s]+)\s*,/g;
