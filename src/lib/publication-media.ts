@@ -29,6 +29,13 @@ export interface PublicationMedia {
 
 export const MEDIA_FIELDS = ['teaser', 'teaseralt', 'teaserposter'] as const;
 
+/**
+ * Every field of the site's own: the teaser's three, and `badge`, a short
+ * note shown as a pill under the venue — an award, "to appear", a talk —
+ * emoji and all: `badge = {🏆 Best paper award}`.
+ */
+export const SITE_FIELDS = [...MEDIA_FIELDS, 'badge'] as const;
+
 const isUrl = (value: string): boolean => /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(value);
 
 /**
@@ -89,6 +96,6 @@ export function publicationMedia(
 /** The entry's fields without the site's own, which no other BibTeX reader wants. */
 export function bibFieldsOnly(fields: Record<string, string>): Record<string, string> {
   return Object.fromEntries(
-    Object.entries(fields).filter(([name]) => !(MEDIA_FIELDS as readonly string[]).includes(name)),
+    Object.entries(fields).filter(([name]) => !(SITE_FIELDS as readonly string[]).includes(name)),
   );
 }

@@ -768,14 +768,21 @@ Three fields of the site's own, on the entry in the `.bib` file:
   teaser       = {/publications/you2026thing.gif},
   teaseralt    = {The interface, mid-gesture},
   teaserposter = {/publications/you2026thing.jpg},
+  badge        = {🏆 Best paper award},
 }
 ```
 
 `teaser` is a path under `public/` or a URL, and one of `.png`, `.jpg`,
 `.webp`, `.avif`, `.gif`, `.svg`, `.mp4`, `.webm` or `.mov`. `teaseralt`
 describes it; leave it out when the picture only decorates the title beside
-it. `teaserposter` is the still a video shows before it starts. None of the
-three appears in the BibTeX the page offers to copy.
+it. `teaserposter` is the still a video shows before it starts. `badge` is a
+short note shown as a pill under the venue (an award, a talk, "to appear"),
+with any emoji you type into it. None of the four appears in the BibTeX the
+page offers to copy.
+
+For a video, MP4 (H.264) plays everywhere, including older iPhones; WebM is
+smaller but Safari on iOS only plays it from 17.4. The sample's `adam.webm` is
+WebM because that is what this build machine could record.
 
 The build measures a local image so the page holds its space while it loads,
 and a picture links to the paper, as the title does. A video plays muted and
@@ -900,11 +907,18 @@ then the owner's portrait and name.
 credit: {
   text: 'Built with 💙 by',   // empty turns the line off
   name: '',                  // empty is the owner's name from authors.ts
+  photo: '',                 // a URL or a path; empty is the owner's portrait
   href: '',                  // where the name goes; empty is /about while it is on
 },
 ```
 
-Unless `name` says otherwise, the name and the portrait come from the owner's record in
+`photo` takes a full URL, which is how a credit survives a fork: this site's
+is `https://blog.kiarashs.ir/credit.webp`, a 64px copy kept under its own
+name in `public/`, so a fork that keeps the config keeps the original photo
+whatever it does with its own avatar, and the file does not move if the front
+page's portrait is renamed. A URL is used as it is, unresized.
+
+Unless `name` and `photo` say otherwise, the name and the portrait come from the owner's record in
 `src/content/authors.ts` (`owner` in the config). A record with no `avatar`
 uses `home.avatar`, the front page's portrait, and with neither the name
 stands alone. The build writes a 64px copy of a local portrait for it, since

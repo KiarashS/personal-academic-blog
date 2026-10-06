@@ -2788,6 +2788,21 @@ h1 + .author-card {
   margin: 0;
 }
 
+/* A note on the entry — an award, "to appear" — as a pill: small, set apart
+   from the citation above it, and in the accent's tint so it reads as a mark
+   on the entry and not as more of its metadata. */
+.publication__badge {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--bg));
+  border-radius: 999px;
+  color: var(--text);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  margin: 0.45rem 0 0;
+  padding: 0.1rem 0.6rem;
+}
+
 /*
  * An entry with a teaser: the words in the wide column on the left, where the
  * titles keep one edge to scan down, and the picture in a narrow one on the

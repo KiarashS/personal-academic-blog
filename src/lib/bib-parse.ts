@@ -6,6 +6,8 @@ export interface BibEntry {
   fields: Record<string, string>;
   /** The Publications page's teaser, from the site's own fields; see `publication-media.ts`. */
   media?: PublicationMedia;
+  /** The site's own `badge` field: a short note shown under the venue. */
+  badge?: string;
 }
 
 const ENTRY = /@(\w+)\s*\{\s*([^,\s]+)\s*,/g;

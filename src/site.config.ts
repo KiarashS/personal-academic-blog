@@ -362,6 +362,13 @@ export interface CreditConfig {
   /** The name shown. Empty is the owner's name from their author record. */
   name: string;
   /**
+   * The portrait beside the name: a URL, or a path under `public/`. Empty is
+   * the owner's own (their record's `avatar`, else `home.avatar`). A full URL
+   * on a site of your own keeps a fork showing your photo, whatever the fork
+   * does with its own avatar.
+   */
+  photo: string;
+  /**
    * Where the name goes: a URL, or a path of the site. Empty is the About page
    * while it is on, and no link otherwise.
    */
@@ -529,6 +536,7 @@ export const siteConfig: SiteConfig = {
   credit: {
     text: 'Built with 💙 by',
     name: 'Kiarash',
+    photo: 'https://blog.kiarashs.ir/credit.webp',
     href: 'https://kiarashs.ir',
   },
   categories: [

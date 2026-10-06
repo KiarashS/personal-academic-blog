@@ -106,6 +106,9 @@ function Publication({ entry }: { entry: BibEntry }) {
   const venue = bibVenue(entry);
   const url = bibUrl(entry);
   const { volume, number, pages } = entry.fields;
+  const details = [volume ? `${volume}${number ? `(${number})` : ''}` : '', pages ?? '']
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <li className={`publication${entry.media ? ' publication--media' : ''}`}>
@@ -123,11 +126,13 @@ function Publication({ entry }: { entry: BibEntry }) {
         {venue ? (
           <p className="meta">
             <em>{venue}</em>
-            {volume ? ` ${volume}` : ''}
-            {number ? `(${number})` : ''}
-            {pages ? `, ${pages}` : ''}
+            {/* One piece, so the meta row's spacing goes between the venue
+                and this and nowhere inside it, and a venue with pages but no
+                volume does not begin with a stray comma. */}
+            {details ? <span>{details}</span> : null}
           </p>
         ) : null}
+        {entry.badge ? <p className="publication__badge">{entry.badge}</p> : null}
         <details className="cite cite--compact">
           <summary>BibTeX</summary>
           <div className="code-block">

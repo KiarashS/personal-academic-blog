@@ -18,7 +18,7 @@ function sizeOf(src: string) {
  * Turns an imported `.bib` file into parsed entries at build time, so the
  * publications page ships data rather than a parser.
  *
- * An entry's teaser fields (`teaser`, `teaseralt`, `teaserposter`) come off
+ * An entry's own fields (`teaser`, `teaseralt`, `teaserposter`, `badge`) come off
  * the entry here and arrive as its `media`, measured, so the page can hold
  * the picture's space before it loads and the BibTeX a reader copies is the
  * entry and nothing of the site's. A teaser the page cannot show is said out
@@ -36,7 +36,13 @@ export function bibliography(): Plugin {
       const entries = parseBib(readFileSync(path, 'utf8')).map((entry) => {
         const { media, problems } = publicationMedia(entry.key, entry.fields, sizeOf);
         for (const problem of problems) this.warn(problem);
-        return { ...entry, fields: bibFieldsOnly(entry.fields), ...(media ? { media } : {}) };
+        const badge = entry.fields.badge?.trim();
+        return {
+          ...entry,
+          fields: bibFieldsOnly(entry.fields),
+          ...(media ? { media } : {}),
+          ...(badge ? { badge } : {}),
+        };
       });
       return { code: `export default ${JSON.stringify(entries)};`, map: null };
     },

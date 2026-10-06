@@ -53,6 +53,7 @@ describe('bibFieldsOnly', () => {
         teaser: '/a.png',
         teaseralt: 'a',
         teaserposter: '/b',
+        badge: '🏆 x',
       }),
     ).toEqual({ title: 'T', year: '1984' });
   });
@@ -64,6 +65,14 @@ describe('footerCredit', () => {
   afterEach(() => {
     Object.assign(siteConfig.credit, credit);
     siteConfig.features.about = about;
+  });
+
+  it('takes a photo written, and the owner’s when it is empty', () => {
+    siteConfig.credit.text = 'Built by';
+    siteConfig.credit.photo = 'https://example.org/me.webp';
+    expect(footerCredit()?.photo).toBe('https://example.org/me.webp');
+    siteConfig.credit.photo = '';
+    expect(footerCredit()?.photo).toBe(siteConfig.home.avatar);
   });
 
   it('is nothing when the text is empty', () => {

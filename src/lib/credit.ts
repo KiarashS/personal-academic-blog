@@ -18,7 +18,11 @@ export function footerCredit(): Credit | undefined {
   const text = siteConfig.credit.text.trim();
   if (!text) return undefined;
   const owner = siteOwner();
-  const photo = owner.avatar?.trim() || siteConfig.home.avatar.trim() || undefined;
+  const photo =
+    siteConfig.credit.photo.trim() ||
+    owner.avatar?.trim() ||
+    siteConfig.home.avatar.trim() ||
+    undefined;
   const href = siteConfig.credit.href.trim() || (isEnabled('about') ? '/about' : undefined);
   return { text, name: siteConfig.credit.name.trim() || owner.name, photo, href };
 }
