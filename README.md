@@ -584,16 +584,25 @@ came to sit a character further right than a one-digit one, and push its line of
 code along with it.
 
 Beside the copy button, a second button wraps long lines instead of scrolling
-them, block by block. It reads "wrap", and once pressed "unwrap", which is
-what a press will do next. Each line that is too long runs onto further rows
-and stays one line with one number: the number is pinned to the line's first
-row, and the rows it runs onto start under the line's own first character, two
-characters in, so a wrapped call reads as the call carrying on rather than as
-a new line at the same depth. The build measures each line's indent for that
-(`--indent` on the line, a tab counting as four, which the stylesheet sets as
-the tab width). "unwrap" puts the block back to scrolling. What the copy button
-copies is the same either way, and on a phone, which has no hover to reveal
-them on, both buttons are always shown.
+them. It reads "wrap", and "unwrap" while lines are wrapped, which is what a
+press will do next. The choice is the reader's, not the block's: a press wraps
+every block on the page and is remembered in their browser (`localStorage`,
+`code-wrap`), so the next post they open is wrapped too. A script in
+`index.html` sets it on the root as `data-code-wrap` before the first paint,
+as it does the theme, and the stylesheet shows the matching word, so a
+remembered choice never shows a flash of scrolling code or the wrong label.
+
+Each line that is too long runs onto further rows and stays one line with one
+number: the number is pinned to the line's first row, and the rows it runs
+onto start under the line's own first character, two characters in, so a
+wrapped call reads as the call carrying on rather than as a new line at the
+same depth. The build measures each line's indent for that (`--indent` on the
+line, a tab counting as four, which the stylesheet sets as the tab width).
+What the copy button copies is the same either way.
+
+Both buttons are always shown. They appeared only on hover once, and Safari,
+which rechecks what the pointer is over only when it moves, faded them out
+when a press changed "copy" to "copied" under a still pointer.
 
 ### Figures
 

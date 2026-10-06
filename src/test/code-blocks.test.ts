@@ -97,8 +97,17 @@ describe('rehypeCodeBlocks', () => {
       ['code-block__wrap'],
       ['code-block__copy'],
     ]);
-    expect(buttons[0].children[0]).toMatchObject({ type: 'text', value: 'wrap' });
-    expect(toString(buttons[0])).toBe('wrap long lines');
+    // Both words, for the stylesheet to choose between from the reader's
+    // remembered choice, then the rest of the name for a screen reader.
+    expect(find(buttons[0], classed('code-block__wrap-label--off'))[0]).toMatchObject({
+      children: [{ value: 'wrap' }],
+    });
+    expect(find(buttons[0], classed('code-block__wrap-label--on'))[0]).toMatchObject({
+      children: [{ value: 'unwrap' }],
+    });
+    expect(find(buttons[0], classed('visually-hidden'))[0]).toMatchObject({
+      children: [{ value: ' long lines' }],
+    });
     expect(buttons[0].properties.ariaPressed).toBeUndefined();
   });
 

@@ -31,6 +31,12 @@
           if (stored === 'light' || stored === 'dark') {
             document.documentElement.dataset.theme = stored;
           }
+          // The reader's choice to wrap long lines in code blocks, for the
+          // same reason: set before paint, a wrapped block never shows first
+          // as one that scrolls. See the wrap button in PostBody.tsx.
+          if (localStorage.getItem('code-wrap') === 'on') {
+            document.documentElement.dataset.codeWrap = 'on';
+          }
         } catch (e) {}
       })();
     </script>

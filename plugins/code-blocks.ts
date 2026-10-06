@@ -91,13 +91,22 @@ function numberLines(code: Element): number {
   return lines.length;
 }
 
+const label = (state: 'off' | 'on', word: string): Element => ({
+  type: 'element',
+  tagName: 'span',
+  properties: { className: ['code-block__wrap-label', `code-block__wrap-label--${state}`] },
+  children: [{ type: 'text', value: word }],
+});
+
 /**
  * The toggle that wraps long lines, written the way the copy button is: a
  * word, and the rest of its name for a screen reader. The word is what a
- * press will do, "wrap" and then "unwrap", which the page's script swaps;
- * since the label itself changes there is no `aria-pressed` beside it, which
- * would have a screen reader announce the state twice. It is in the static
- * HTML and does nothing until the script attaches the click.
+ * press will do, "wrap" or "unwrap". Both are here and the stylesheet shows
+ * the one the reader's choice calls for (`data-code-wrap` on the root, set
+ * before paint from what they chose last time), so the label is right on the
+ * first frame, on every page, with no script having run. The hidden one is
+ * `display: none` and not read out. With a label that says it, there is no
+ * `aria-pressed`, which would announce the state twice.
  */
 function wrapButton(): Element {
   return {
@@ -105,7 +114,8 @@ function wrapButton(): Element {
     tagName: 'button',
     properties: { type: 'button', className: ['code-block__wrap'] },
     children: [
-      { type: 'text', value: 'wrap' },
+      label('off', 'wrap'),
+      label('on', 'unwrap'),
       {
         type: 'element',
         tagName: 'span',

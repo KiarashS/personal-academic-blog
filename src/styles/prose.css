@@ -295,6 +295,14 @@
   text-transform: uppercase;
 }
 
+/*
+ * Always shown. They used to appear only while the pointer was over the
+ * block, and Safari, which rechecks what the pointer is over only when it
+ * moves, faded them out the moment a press changed "copy" to "copied" under a
+ * still pointer. The bar is above the code rather than over it, so two small
+ * muted words cost the reading nothing, and a phone or a keyboard finds them
+ * where they always are.
+ */
 .code-block__copy {
   background: var(--bg);
   border: 1px solid var(--rule);
@@ -304,21 +312,20 @@
   font-family: var(--sans);
   font-size: 0.68rem;
   margin-left: auto;
-  opacity: 0;
   padding: 0.1rem 0.4rem;
-  transition: opacity 120ms ease-in-out;
 }
 
-.code-block:hover .code-block__copy,
-.code-block__copy:focus-visible {
-  opacity: 1;
+.code-block__copy:hover,
+.code-block__wrap:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
 }
 
 /*
  * The toggle that wraps long lines: the copy button's twin, before it. It
  * takes the bar's free space, so the two sit together at the right end, and
- * "unwrap" being wider than "wrap" moves only its own left edge. It stays
- * shown while the block is wrapped, since its word is what says so.
+ * "unwrap" being wider than "wrap" moves only its own left edge. Its word
+ * follows the reader's choice on the root, as the wrapping does.
  */
 .code-block__wrap {
   background: var(--bg);
@@ -329,32 +336,24 @@
   font-family: var(--sans);
   font-size: 0.68rem;
   margin-left: auto;
-  opacity: 0;
   padding: 0.1rem 0.4rem;
-  transition: opacity 120ms ease-in-out;
 }
 
 .code-block__wrap + .code-block__copy {
   margin-left: 0;
 }
 
-.code-block:hover .code-block__wrap,
-.code-block__wrap:focus-visible,
-.code-block--wrapped .code-block__wrap {
-  opacity: 1;
+.code-block__wrap-label--on,
+:root[data-code-wrap='on'] .code-block__wrap-label--off {
+  display: none;
 }
 
-/* A phone has no hover to reveal them on, and a phone is where a long line
-   needs wrapping most. */
-@media (hover: none) {
-  .code-block__copy,
-  .code-block__wrap {
-    opacity: 1;
-  }
+:root[data-code-wrap='on'] .code-block__wrap-label--on {
+  display: inline;
 }
 
 /*
- * Wrapped. Each numbered line becomes a box of its own with its number pinned
+ * Wrapped, while the reader's choice on the root says so. Each numbered line becomes a box of its own with its number pinned
  * at the top left, so a line that runs onto a second row is still one line
  * with one number. A row it wraps onto starts under the line's own first
  * character, from the `--indent` the build measured, and two characters
@@ -364,13 +363,13 @@
  * `--gutter` is the number column as `.code-line::before` draws it: the
  * digits, then its padding either side.
  */
-.code-block--wrapped pre,
-.code-block--wrapped pre code {
+:root[data-code-wrap='on'] .code-block pre,
+:root[data-code-wrap='on'] .code-block pre code {
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-.code-block--wrapped pre.numbered .code-line {
+:root[data-code-wrap='on'] .code-block pre.numbered .code-line {
   --gutter: calc(var(--code-digits, 2) * 1ch + 1ch + 3px + 1rem);
   --hang: calc(var(--indent, 0) * 1ch + 2ch);
 
@@ -380,7 +379,7 @@
   text-indent: calc(-1 * var(--hang));
 }
 
-.code-block--wrapped pre.numbered .code-line::before {
+:root[data-code-wrap='on'] .code-block pre.numbered .code-line::before {
   left: 0;
   position: absolute;
   text-indent: 0;
@@ -388,7 +387,7 @@
 }
 
 /* A one-line block has no line boxes, so the hang goes on the code itself. */
-.code-block--wrapped pre:not(.numbered) code {
+:root[data-code-wrap='on'] .code-block pre:not(.numbered) code {
   padding-left: 2ch;
   text-indent: -2ch;
 }

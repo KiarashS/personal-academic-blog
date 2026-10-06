@@ -43,14 +43,22 @@ export function PostBody({ slug }: { slug: string }) {
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
-      // Wrapping long lines, per block. The block takes the class that wraps
-      // it, and the button's word turns to what the next press will do.
-      const wrap = target.closest<HTMLButtonElement>('.code-block__wrap');
-      if (wrap) {
-        const block = wrap.closest('.code-block');
-        const on = !block?.classList.contains('code-block--wrapped');
-        block?.classList.toggle('code-block--wrapped', on);
-        wrap.firstChild!.textContent = on ? 'unwrap' : 'wrap';
+      // Wrapping long lines is a reading preference, not a property of one
+      // block: it goes on the root, which wraps every block on the page and
+      // turns every button's word, and it is kept for the next visit, when
+      // the script in index.html sets it again before the page is painted.
+      if (target.closest('.code-block__wrap')) {
+        const root = document.documentElement;
+        const on = root.dataset.codeWrap !== 'on';
+        if (on) root.dataset.codeWrap = 'on';
+        else delete root.dataset.codeWrap;
+        try {
+          if (on) localStorage.setItem('code-wrap', 'on');
+          else localStorage.removeItem('code-wrap');
+        } catch {
+          // Storage refused (a private window, a blocked site): the choice
+          // still holds for this page, and is gone on the next.
+        }
         return;
       }
 
