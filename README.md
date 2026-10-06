@@ -569,6 +569,17 @@ variables so light and dark stay consistent. Unknown languages are left
 unhighlighted rather than guessed at. The language and the copy button sit in a
 bar above the block, not over the first line.
 
+Code blocks and tables are as wide as the post's column, the width of the
+series box and the other boxes around the text, while paragraphs keep the
+68-character measure that suits reading prose. Code runs long by nature and a
+wide table is a grid, so both get the extra room, about 90px on a laptop; on a
+phone the text and the column are the same width anyway. The column
+(`.post-reading`) is a CSS size container and the blocks take `100cqi` of it.
+This applies to a post's own blocks: code in a list item or a quote keeps that
+item's indent and the measure, a captioned block widens with its caption, and a
+table is centred in the column. A browser without container units keeps them at
+the measure.
+
 Blocks of more than one line are numbered. Each line is wrapped in a span at
 build time and the number itself comes from a CSS counter, so it is not part of
 the text that is copied or selected, and the gutter stays put while a long line

@@ -1691,6 +1691,17 @@ h1 + .author-card {
 }
 
 /*
+ * The post's column, as a size container: code blocks and tables in it are
+ * as wide as it is (`prose.css`). Nothing inside it is fixed-position, which
+ * matters because a container can become the box such an element is placed
+ * against: the contents rail and the reading progress bar are its siblings,
+ * and the diagram viewer and the shortcuts are dialogs in the top layer.
+ */
+.post-reading {
+  container-type: inline-size;
+}
+
+/*
  * The contents in the margin.
  *
  * Only from 80rem up, which is where there is a margin to stand in: the column
