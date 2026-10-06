@@ -87,7 +87,7 @@ describe('rehypeCodeBlocks', () => {
     expect(find(block, classed('code-block__copy'))).toHaveLength(1);
   });
 
-  it('puts a wrap toggle before the copy button, unpressed, with both of its icons', () => {
+  it('puts a wrap toggle, worded like the copy button, before it', () => {
     const block = find(tree(fence('js', 'const a = 1;\nconst b = 2;')), classed('code-block'))[0];
     const bar = block.children[0] as Element;
     const buttons = bar.children.filter(
@@ -97,9 +97,9 @@ describe('rehypeCodeBlocks', () => {
       ['code-block__wrap'],
       ['code-block__copy'],
     ]);
-    expect(buttons[0].properties.ariaPressed).toBe('false');
-    expect(find(buttons[0], classed('code-block__wrap-icon--off'))).toHaveLength(1);
-    expect(find(buttons[0], classed('code-block__wrap-icon--on'))).toHaveLength(1);
+    expect(buttons[0].children[0]).toMatchObject({ type: 'text', value: 'wrap' });
+    expect(toString(buttons[0])).toBe('wrap long lines');
+    expect(buttons[0].properties.ariaPressed).toBeUndefined();
   });
 
   it('records each line’s indent, counting a tab as four', () => {

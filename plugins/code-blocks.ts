@@ -91,54 +91,26 @@ function numberLines(code: Element): number {
   return lines.length;
 }
 
-/** One of the toggle's two marks: 16px, drawn in the button's colour. */
-function icon(state: 'off' | 'on', d: string): Element {
-  return {
-    type: 'element',
-    tagName: 'svg',
-    properties: {
-      className: ['code-block__wrap-icon', `code-block__wrap-icon--${state}`],
-      viewBox: '0 0 16 16',
-      width: 16,
-      height: 16,
-      fill: 'none',
-      stroke: 'currentColor',
-      strokeWidth: '1.5',
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round',
-      ariaHidden: 'true',
-      focusable: 'false',
-    },
-    children: [{ type: 'element', tagName: 'path', properties: { d }, children: [] }],
-  };
-}
-
 /**
- * The toggle that wraps long lines. Two marks, and the stylesheet shows the
- * one `aria-pressed` names: unwrapped, an arrow running on past the edge it
- * crosses; wrapped, an arrow that turns back before the edge. `aria-pressed`
- * is also what tells a screen reader the state, so the label stays the same
- * either way. It is in the static HTML, beside the copy button, and does
- * nothing until the page's script attaches the click.
+ * The toggle that wraps long lines, written the way the copy button is: a
+ * word, and the rest of its name for a screen reader. The word is what a
+ * press will do, "wrap" and then "unwrap", which the page's script swaps;
+ * since the label itself changes there is no `aria-pressed` beside it, which
+ * would have a screen reader announce the state twice. It is in the static
+ * HTML and does nothing until the script attaches the click.
  */
 function wrapButton(): Element {
   return {
     type: 'element',
     tagName: 'button',
-    properties: {
-      type: 'button',
-      className: ['code-block__wrap'],
-      ariaPressed: 'false',
-      title: 'Wrap long lines',
-    },
+    properties: { type: 'button', className: ['code-block__wrap'] },
     children: [
-      icon('off', 'M2 8h12M11.5 5.5 14 8l-2.5 2.5M10 3v10'),
-      icon('on', 'M13 3v10M2 5h7.5a2.75 2.75 0 0 1 0 5.5H5M7 8.5 5 10.5l2 2'),
+      { type: 'text', value: 'wrap' },
       {
         type: 'element',
         tagName: 'span',
         properties: { className: ['visually-hidden'] },
-        children: [{ type: 'text', value: 'Wrap long lines' }],
+        children: [{ type: 'text', value: ' long lines' }],
       },
     ],
   };

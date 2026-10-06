@@ -315,23 +315,22 @@
 }
 
 /*
- * The toggle that wraps long lines, before the copy button and in the same
- * box. It takes the bar's free space, so the two sit together at the right
- * end; and it stays shown while the block is wrapped, since its icon is the
- * only thing that says so.
+ * The toggle that wraps long lines: the copy button's twin, before it. It
+ * takes the bar's free space, so the two sit together at the right end, and
+ * "unwrap" being wider than "wrap" moves only its own left edge. It stays
+ * shown while the block is wrapped, since its word is what says so.
  */
 .code-block__wrap {
-  align-items: center;
   background: var(--bg);
   border: 1px solid var(--rule);
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  display: inline-flex;
-  justify-content: center;
+  font-family: var(--sans);
+  font-size: 0.68rem;
   margin-left: auto;
   opacity: 0;
-  padding: 0.12rem 0.3rem;
+  padding: 0.1rem 0.4rem;
   transition: opacity 120ms ease-in-out;
 }
 
@@ -341,24 +340,8 @@
 
 .code-block:hover .code-block__wrap,
 .code-block__wrap:focus-visible,
-.code-block__wrap[aria-pressed='true'] {
+.code-block--wrapped .code-block__wrap {
   opacity: 1;
-}
-
-.code-block__wrap:hover {
-  border-color: var(--rule-strong);
-  color: var(--text);
-}
-
-.code-block__wrap-icon {
-  display: block;
-  height: 14px;
-  width: 14px;
-}
-
-.code-block__wrap[aria-pressed='true'] .code-block__wrap-icon--off,
-.code-block__wrap:not([aria-pressed='true']) .code-block__wrap-icon--on {
-  display: none;
 }
 
 /* A phone has no hover to reveal them on, and a phone is where a long line

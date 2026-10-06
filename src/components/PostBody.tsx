@@ -43,15 +43,14 @@ export function PostBody({ slug }: { slug: string }) {
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
-      // Wrapping long lines, per block: the button says which state it is in
-      // through `aria-pressed`, which the stylesheet reads to pick its icon,
-      // and the block takes the class that wraps it.
+      // Wrapping long lines, per block. The block takes the class that wraps
+      // it, and the button's word turns to what the next press will do.
       const wrap = target.closest<HTMLButtonElement>('.code-block__wrap');
       if (wrap) {
-        const on = wrap.getAttribute('aria-pressed') !== 'true';
-        wrap.setAttribute('aria-pressed', String(on));
-        wrap.title = on ? 'Stop wrapping long lines' : 'Wrap long lines';
-        wrap.closest('.code-block')?.classList.toggle('code-block--wrapped', on);
+        const block = wrap.closest('.code-block');
+        const on = !block?.classList.contains('code-block--wrapped');
+        block?.classList.toggle('code-block--wrapped', on);
+        wrap.firstChild!.textContent = on ? 'unwrap' : 'wrap';
         return;
       }
 
