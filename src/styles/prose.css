@@ -1,5 +1,12 @@
+/*
+ * Prose takes the whole column. Its text once stopped at a 68-character
+ * measure while code and tables ran to the column's edge, so a post had two
+ * right edges and a figure centred on one of them sat off-centre against the
+ * other. One width for everything: the column is 43.5rem (`--wide` less the
+ * shell's padding), about 80 characters of the body face.
+ */
 .prose {
-  max-width: var(--measure);
+  max-width: none;
 }
 
 .prose > * {
@@ -118,28 +125,6 @@
 /* Anchored headings */
 .prose :is(h2, h3, h4)[id] {
   scroll-margin-top: 1.5rem;
-}
-
-/*
- * Code and tables take the column, not the measure. 68 characters is a width
- * for reading sentences; code runs long by nature, with comments set in a
- * column and arguments strung along a line, and a wide table is a grid of
- * numbers. So the blocks of a post's own text keep the measure, and these
- * span the column the post's other boxes do, the series box above them
- * included: one right edge down the page instead of two.
- *
- * The column is `.post-reading`, a size container (`global.css`), so `100cqi`
- * is its width whatever the screen. Direct blocks only, and a captioned one
- * whole, so its caption centres on what it captions; code in a list item or a
- * quote keeps that item's indent and the measure. A browser without container
- * units keeps them at the measure, as before.
- */
-@supports (width: 1cqi) {
-  .post-reading .prose > :is(.code-block, .table-wrap, .captioned--code, .captioned--table) {
-    margin-inline: 0;
-    max-width: none;
-    width: 100cqi;
-  }
 }
 
 /* Tables ------------------------------------------------------------------ */
@@ -811,7 +796,7 @@
 /* Captions and centred blocks ---------------------------------------------- */
 
 /*
- * Every captioned block is a `figure`, centred in the measure, with its caption
+ * Every captioned block is a `figure`, centred in the column, with its caption
  * centred under it — above it for tables, which is where a journal puts them.
  * The number is generated at build time, so it is right with scripting off.
  *

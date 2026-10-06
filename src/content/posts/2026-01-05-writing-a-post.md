@@ -129,7 +129,7 @@ and a link to [the example attachment](/posts/writing-a-post/example.pdf).
 
 An image whose file is wider than the text column is linked to itself, so a
 click opens the original at full size in a new tab. The plot below is 1400px
-wide and the column is about 610, which is the difference between reading the
+wide and the column is about 700, which is the difference between reading the
 axis and guessing at it. Images the column can already show in full get no
 link, and a diagram in SVG never gets one, since the page scales vectors on its
 own.

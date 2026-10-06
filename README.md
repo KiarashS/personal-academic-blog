@@ -569,16 +569,11 @@ variables so light and dark stay consistent. Unknown languages are left
 unhighlighted rather than guessed at. The language and the copy button sit in a
 bar above the block, not over the first line.
 
-Code blocks and tables are as wide as the post's column, the width of the
-series box and the other boxes around the text, while paragraphs keep the
-68-character measure that suits reading prose. Code runs long by nature and a
-wide table is a grid, so both get the extra room, about 90px on a laptop; on a
-phone the text and the column are the same width anyway. The column
-(`.post-reading`) is a CSS size container and the blocks take `100cqi` of it.
-This applies to a post's own blocks: code in a list item or a quote keeps that
-item's indent and the measure, a captioned block widens with its caption, and a
-table is centred in the column. A browser without container units keeps them at
-the measure.
+Everything in a post's text is the width of its column: paragraphs, lists,
+code blocks, tables and figures, the same width as the series box above them,
+so the page has one right edge. The column is 43.5rem, about 80 characters of
+the body face. The pages written in Markdown (About, Research, Contact,
+Openings) follow the same rule.
 
 Blocks of more than one line are numbered. Each line is wrapped in a span at
 build time and the number itself comes from a CSS counter, so it is not part of
@@ -718,7 +713,7 @@ links from outside is handled in `ScrollToTop`: the browser tries the fragment
 before React has mounted the route, so without that the scroll was undone and
 every permalink on the site landed at the top of the post.
 
-The block and its caption are centred in the measure; the caption is set in the
+The block and its caption are centred in the column; the caption is set in the
 sans face at a smaller size, with its label in the text colour.
 
 Video is written the way an image is, and a YouTube link works too; see
@@ -1162,10 +1157,9 @@ and the reader have to agree on one or the labels are clipped; see
 `src/styles/fonts/README.md`. Only routes that actually contain a diagram
 preload it, which the prerenderer decides from the rendered HTML.
 
-The measure is 68 characters (`--measure: 68ch`), which tracks the face rather
-than the root size. Prose is hyphenated, since a 68-character measure collapses
-to about 340px on a phone where unhyphenated technical vocabulary leaves large
-holes.
+Prose runs the width of the column, about 80 characters on a laptop. It is
+hyphenated, since on a phone the column collapses to about 340px, where
+unhyphenated technical vocabulary leaves large holes.
 
 Numbers that are data rather than prose — dates, tables, the archive column —
 are set with `lining-nums tabular-nums`, because Georgia and its kin default to

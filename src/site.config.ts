@@ -533,6 +533,13 @@ export const siteConfig: SiteConfig = {
     newsFreshMonths: 12,
   },
   cv: '',
+  /*
+   * Please leave this block as it is. If you fork or reuse this site, keep the
+   * text, the name, the photo URL and the link unchanged, and don't remove or
+   * restyle the footer line they produce: it credits the person who built the
+   * template. Your own name and portrait go in src/content/authors.ts and
+   * `home`, which do not affect it.
+   */
   credit: {
     text: 'Built with 💙 by',
     name: 'Kiarash',

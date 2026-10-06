@@ -158,8 +158,8 @@ html {
 body {
   margin: 0;
 
-  /* A 68-character measure collapses to about 340px on a phone, where
-     unhyphenated technical vocabulary leaves large holes. */
+  /* The column narrows to about 340px on a phone, where unhyphenated
+     technical vocabulary leaves large holes. */
   hyphens: auto;
   text-wrap: pretty;
   background: var(--bg);
@@ -1691,17 +1691,6 @@ h1 + .author-card {
 }
 
 /*
- * The post's column, as a size container: code blocks and tables in it are
- * as wide as it is (`prose.css`). Nothing inside it is fixed-position, which
- * matters because a container can become the box such an element is placed
- * against: the contents rail and the reading progress bar are its siblings,
- * and the diagram viewer and the shortcuts are dialogs in the top layer.
- */
-.post-reading {
-  container-type: inline-size;
-}
-
-/*
  * The contents in the margin.
  *
  * Only from 80rem up, which is where there is a margin to stand in: the column
@@ -2928,18 +2917,13 @@ img.publication__media-item[width] {
   margin: 0.15rem 0 0;
 }
 
-.route-error {
-  max-width: var(--measure);
-}
-
 .route-error p {
   color: var(--text-muted);
 }
 
 /* Home page ---------------------------------------------------------------- */
 
-/* The front page is not prose, so the 68-character measure does not apply to
-   it: at 46rem the portrait takes 208px of a 736px column and leaves the words
+/* The front page has a portrait beside its words: at 46rem the portrait takes 208px of a 736px column and leaves the words
    about 45 characters, which is narrower than anything else on the site. The
    whole page widens together — header, banner and footer — so the nav still
    ends on the same line the portrait does. */
