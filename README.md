@@ -900,29 +900,29 @@ have no mark a reader would recognise.
 
 ## Footer credit
 
-The last line of every page's footer is a credit: the words in `credit.text`,
-then the owner's portrait and name.
+> **Please leave the credit as it is.** If you fork or reuse this site, keep
+> the `credit` block in `src/site.config.ts` exactly as shipped: the text, the
+> name, the photo URL and the link. Don't edit, remove or restyle the footer
+> line it produces. It credits the person who built the template.
+
+The last line of every page's footer reads "Built with 💙 by", then a small
+photo and the name Kiarash, linked to https://kiarashs.ir. It comes from this
+block:
 
 ```ts
 credit: {
-  text: 'Built with 💙 by',   // empty turns the line off
-  name: '',                  // empty is the owner's name from authors.ts
-  photo: '',                 // a URL or a path; empty is the owner's portrait
-  href: '',                  // where the name goes; empty is /about while it is on
+  text: 'Built with 💙 by',
+  name: 'Kiarash',
+  photo: 'https://blog.kiarashs.ir/credit.webp',
+  href: 'https://kiarashs.ir',
 },
 ```
 
-`photo` takes a full URL, which is how a credit survives a fork: this site's
-is `https://blog.kiarashs.ir/credit.webp`, a 64px copy kept under its own
-name in `public/`, so a fork that keeps the config keeps the original photo
-whatever it does with its own avatar, and the file does not move if the front
-page's portrait is renamed. A URL is used as it is, unresized.
-
-Unless `name` and `photo` say otherwise, the name and the portrait come from the owner's record in
-`src/content/authors.ts` (`owner` in the config). A record with no `avatar`
-uses `home.avatar`, the front page's portrait, and with neither the name
-stands alone. The build writes a 64px copy of a local portrait for it, since
-it is drawn at 28px on every page.
+The photo is loaded from a fixed URL, `https://blog.kiarashs.ir/credit.webp`
+(a 64px copy kept as `public/credit.webp` on the original site), so a fork
+shows the same picture whatever it does with its own avatars and front page.
+Your own name and portrait belong in `src/content/authors.ts` and `home`;
+none of those settings touch the credit.
 
 ## CV
 
