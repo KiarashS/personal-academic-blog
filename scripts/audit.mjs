@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 
 const dist = resolve('dist');
 const axeSource = resolve('node_modules/axe-core/axe.min.js');
@@ -47,13 +47,6 @@ const server = createServer(async (request, response) => {
     response.writeHead(404).end('not found');
   }
 });
-
-// An already-provisioned Chromium can be used instead of Playwright's own
-// download, which is what sandboxes and CI images with a browser baked in
-// need: set CHROMIUM_EXECUTABLE to its path.
-const launchOptions = process.env.CHROMIUM_EXECUTABLE
-  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
-  : {};
 
 await new Promise((done) => server.listen(0, done));
 const base = `http://localhost:${server.address().port}`;
@@ -117,7 +110,7 @@ const VIEWPORTS = [
  */
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
 
-const browser = await chromium.launch(launchOptions);
+const browser = await launchChromium();
 const axe = await readFile(axeSource, 'utf8');
 let total = 0;
 

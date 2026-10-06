@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 
 /*
  * Derives the pen path for a signature drawing and writes it back into the
@@ -93,9 +93,7 @@ const view = /viewBox="([^"]+)"/.exec(svg)[1].split(/\s+/).map(Number);
 const glyphs = [...svg.matchAll(/<path[^>]*class="ks-glyph"[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
 if (glyphs.length === 0) throw new Error(`no .ks-glyph paths in ${FILE}`);
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_EXECUTABLE || undefined,
-});
+const browser = await launchChromium();
 const page = await browser.newPage();
 await page.setContent('<canvas id="c"></canvas>');
 

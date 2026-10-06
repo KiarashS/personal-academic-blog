@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 import {
   DIAGRAM_FONT,
   DIAGRAM_FONT_FILE,
@@ -54,13 +54,6 @@ async function loadCache() {
   }
 }
 
-// An already-provisioned Chromium can be used instead of Playwright's own
-// download, which is what sandboxes and CI images with a browser baked in
-// need: set CHROMIUM_EXECUTABLE to its path.
-const launchOptions = process.env.CHROMIUM_EXECUTABLE
-  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
-  : {};
-
 const wanted = await sources();
 const cache = await loadCache();
 const missing = [...wanted].filter(([key]) => !cache[key]);
@@ -70,7 +63,7 @@ if (missing.length === 0) {
   process.exit(0);
 }
 
-const browser = await chromium.launch(launchOptions);
+const browser = await launchChromium();
 const page = await browser.newPage();
 await page.setContent('<!doctype html><html><body></body></html>');
 await page.addScriptTag({ path: MERMAID });

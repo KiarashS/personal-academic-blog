@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 
 const dist = resolve('dist');
 const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js')).href;
@@ -130,16 +130,9 @@ const targets = [
   )),
 ];
 
-// An already-provisioned Chromium can be used instead of Playwright's own
-// download, which is what sandboxes and CI images with a browser baked in
-// need: set CHROMIUM_EXECUTABLE to its path.
-const launchOptions = process.env.CHROMIUM_EXECUTABLE
-  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
-  : {};
-
 await mkdir(join(dist, 'og'), { recursive: true });
 
-const browser = await chromium.launch(launchOptions);
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 
 for (const { slug, html } of targets) {

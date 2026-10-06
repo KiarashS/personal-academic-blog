@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 
 /*
  * Portraits at the size they are shown, written into the build beside each
@@ -70,13 +70,7 @@ const inputs = await Promise.all(
   }),
 );
 
-// As in render-cards.mjs: CHROMIUM_EXECUTABLE for a browser already on the
-// machine, Playwright's own download otherwise.
-const launchOptions = process.env.CHROMIUM_EXECUTABLE
-  ? { executablePath: process.env.CHROMIUM_EXECUTABLE }
-  : {};
-
-const browser = await chromium.launch(launchOptions);
+const browser = await launchChromium();
 
 try {
   const page = await browser.newPage();

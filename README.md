@@ -15,8 +15,9 @@ runs; the client bundle then takes over for instant navigation.
 npm install
 npx playwright install chromium   # once, for rendering diagrams and cards
 
-# Or point the build at a Chromium you already have, which is what sandboxes
-# and CI images with a browser baked in need:
+# Without that download the build uses the newest Chromium already in
+# Playwright's browser folder (PLAYWRIGHT_BROWSERS_PATH), as sandboxes and CI
+# images with a browser baked in have. To name one yourself:
 #   export CHROMIUM_EXECUTABLE=/path/to/chrome
 
 npm run dev        # http://localhost:5173, drafts and future posts included

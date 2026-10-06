@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { chromium } from 'playwright';
+import { launchChromium } from './chromium.mjs';
 
 /*
  * Renders `public/favicons/` from the logo SVGs.
@@ -42,9 +42,7 @@ const svg = Object.fromEntries(
   ),
 );
 
-const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_EXECUTABLE || undefined,
-});
+const browser = await launchChromium();
 const page = await browser.newPage();
 
 /**
