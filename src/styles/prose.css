@@ -236,6 +236,10 @@
   margin: 0;
   overflow-x: auto;
   padding: 0.9rem 1rem;
+
+  /* Four, the width the build counts a tab as when it measures a line's
+     indent for wrapping. */
+  tab-size: 4;
 }
 
 /* The block itself carries the fill, the border and the padding; its `code`
@@ -308,6 +312,102 @@
 .code-block:hover .code-block__copy,
 .code-block__copy:focus-visible {
   opacity: 1;
+}
+
+/*
+ * The toggle that wraps long lines, before the copy button and in the same
+ * box. It takes the bar's free space, so the two sit together at the right
+ * end; and it stays shown while the block is wrapped, since its icon is the
+ * only thing that says so.
+ */
+.code-block__wrap {
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  margin-left: auto;
+  opacity: 0;
+  padding: 0.12rem 0.3rem;
+  transition: opacity 120ms ease-in-out;
+}
+
+.code-block__wrap + .code-block__copy {
+  margin-left: 0;
+}
+
+.code-block:hover .code-block__wrap,
+.code-block__wrap:focus-visible,
+.code-block__wrap[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.code-block__wrap:hover {
+  border-color: var(--rule-strong);
+  color: var(--text);
+}
+
+.code-block__wrap-icon {
+  display: block;
+  height: 14px;
+  width: 14px;
+}
+
+.code-block__wrap[aria-pressed='true'] .code-block__wrap-icon--off,
+.code-block__wrap:not([aria-pressed='true']) .code-block__wrap-icon--on {
+  display: none;
+}
+
+/* A phone has no hover to reveal them on, and a phone is where a long line
+   needs wrapping most. */
+@media (hover: none) {
+  .code-block__copy,
+  .code-block__wrap {
+    opacity: 1;
+  }
+}
+
+/*
+ * Wrapped. Each numbered line becomes a box of its own with its number pinned
+ * at the top left, so a line that runs onto a second row is still one line
+ * with one number. A row it wraps onto starts under the line's own first
+ * character, from the `--indent` the build measured, and two characters
+ * further in, so it reads as the same statement carrying on and not as a new
+ * line at the same depth.
+ *
+ * `--gutter` is the number column as `.code-line::before` draws it: the
+ * digits, then its padding either side.
+ */
+.code-block--wrapped pre,
+.code-block--wrapped pre code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.code-block--wrapped pre.numbered .code-line {
+  --gutter: calc(var(--code-digits, 2) * 1ch + 1ch + 3px + 1rem);
+  --hang: calc(var(--indent, 0) * 1ch + 2ch);
+
+  display: block;
+  padding-left: calc(var(--gutter) + var(--hang));
+  position: relative;
+  text-indent: calc(-1 * var(--hang));
+}
+
+.code-block--wrapped pre.numbered .code-line::before {
+  left: 0;
+  position: absolute;
+  text-indent: 0;
+  top: 0;
+}
+
+/* A one-line block has no line boxes, so the hang goes on the code itself. */
+.code-block--wrapped pre:not(.numbered) code {
+  padding-left: 2ch;
+  text-indent: -2ch;
 }
 
 /* highlight.js tokens, expressed against the theme variables so light and

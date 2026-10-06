@@ -87,6 +87,28 @@ describe('rehypeCodeBlocks', () => {
     expect(find(block, classed('code-block__copy'))).toHaveLength(1);
   });
 
+  it('puts a wrap toggle before the copy button, unpressed, with both of its icons', () => {
+    const block = find(tree(fence('js', 'const a = 1;\nconst b = 2;')), classed('code-block'))[0];
+    const bar = block.children[0] as Element;
+    const buttons = bar.children.filter(
+      (child): child is Element => child.type === 'element' && child.tagName === 'button',
+    );
+    expect(buttons.map((button) => button.properties.className)).toEqual([
+      ['code-block__wrap'],
+      ['code-block__copy'],
+    ]);
+    expect(buttons[0].properties.ariaPressed).toBe('false');
+    expect(find(buttons[0], classed('code-block__wrap-icon--off'))).toHaveLength(1);
+    expect(find(buttons[0], classed('code-block__wrap-icon--on'))).toHaveLength(1);
+  });
+
+  it('records each line’s indent, counting a tab as four', () => {
+    const styles = lines(fence('', 'def f():\n    return 1\n\tpass')).map(
+      (line) => line.properties.style,
+    );
+    expect(styles).toEqual([undefined, '--indent:4', '--indent:4']);
+  });
+
   it('leaves display maths alone', () => {
     const math = unified()
       .use(remarkParse)

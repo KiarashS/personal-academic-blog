@@ -44,6 +44,21 @@ function splitLines(nodes: ElementContent[]): ElementContent[][] {
   return lines;
 }
 
+/** A line's text, for measuring what it starts with. */
+function textOf(nodes: ElementContent[]): string {
+  return nodes
+    .map((node) =>
+      node.type === 'text' ? node.value : node.type === 'element' ? textOf(node.children) : '',
+    )
+    .join('');
+}
+
+/** How far a line is indented, in characters; a tab counts as the four the stylesheet sets. */
+function indentOf(nodes: ElementContent[]): number {
+  const lead = /^[ \t]*/.exec(textOf(nodes))?.[0] ?? '';
+  return [...lead].reduce((width, char) => width + (char === '\t' ? 4 : 1), 0);
+}
+
 /**
  * Wraps each line in a span the stylesheet can number, and returns how many
  * there are. The newline stays inside the span, so the block still breaks where
@@ -57,14 +72,76 @@ function numberLines(code: Element): number {
   if (lines.length > 1 && lines[lines.length - 1].length === 0) lines.pop();
   if (lines.length < 2) return 0;
 
-  code.children = lines.map((children, index) => ({
-    type: 'element',
-    tagName: 'span',
-    properties: { className: ['code-line'] },
-    children: index === lines.length - 1 ? children : [...children, { type: 'text', value: '\n' }],
-  }));
+  // The indent goes on the line as `--indent`, so a line that wraps can carry
+  // on under its own first character rather than under the line number.
+  code.children = lines.map((children, index) => {
+    const indent = indentOf(children);
+    return {
+      type: 'element',
+      tagName: 'span',
+      properties: {
+        className: ['code-line'],
+        ...(indent > 0 ? { style: `--indent:${indent}` } : {}),
+      },
+      children:
+        index === lines.length - 1 ? children : [...children, { type: 'text', value: '\n' }],
+    };
+  });
 
   return lines.length;
+}
+
+/** One of the toggle's two marks: 16px, drawn in the button's colour. */
+function icon(state: 'off' | 'on', d: string): Element {
+  return {
+    type: 'element',
+    tagName: 'svg',
+    properties: {
+      className: ['code-block__wrap-icon', `code-block__wrap-icon--${state}`],
+      viewBox: '0 0 16 16',
+      width: 16,
+      height: 16,
+      fill: 'none',
+      stroke: 'currentColor',
+      strokeWidth: '1.5',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round',
+      ariaHidden: 'true',
+      focusable: 'false',
+    },
+    children: [{ type: 'element', tagName: 'path', properties: { d }, children: [] }],
+  };
+}
+
+/**
+ * The toggle that wraps long lines. Two marks, and the stylesheet shows the
+ * one `aria-pressed` names: unwrapped, an arrow running on past the edge it
+ * crosses; wrapped, an arrow that turns back before the edge. `aria-pressed`
+ * is also what tells a screen reader the state, so the label stays the same
+ * either way. It is in the static HTML, beside the copy button, and does
+ * nothing until the page's script attaches the click.
+ */
+function wrapButton(): Element {
+  return {
+    type: 'element',
+    tagName: 'button',
+    properties: {
+      type: 'button',
+      className: ['code-block__wrap'],
+      ariaPressed: 'false',
+      title: 'Wrap long lines',
+    },
+    children: [
+      icon('off', 'M2 8h12M11.5 5.5 14 8l-2.5 2.5M10 3v10'),
+      icon('on', 'M13 3v10M2 5h7.5a2.75 2.75 0 0 1 0 5.5H5M7 8.5 5 10.5l2 2'),
+      {
+        type: 'element',
+        tagName: 'span',
+        properties: { className: ['visually-hidden'] },
+        children: [{ type: 'text', value: 'Wrap long lines' }],
+      },
+    ],
+  };
 }
 
 /**
@@ -117,6 +194,7 @@ export function rehypeCodeBlocks() {
             children: [{ type: 'text', value: language }],
           });
         }
+        bar.push(wrapButton());
         bar.push({
           type: 'element',
           tagName: 'button',
