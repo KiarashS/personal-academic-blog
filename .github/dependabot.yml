@@ -12,15 +12,22 @@ updates:
         update-types: ['version-update:semver-major']
     groups:
       # One pull request per family keeps the review load sane — and keeps
-      # packages that peer-depend on each other moving together.
+      # packages that peer-depend on each other moving together. Patch and
+      # minor updates only: a major comes as a pull request of its own, so it
+      # waits for review without holding back the rest of its family, which
+      # merges itself (see the dependabot job in workflows/checks.yml).
       react:
         patterns: ['react', 'react-dom', '@types/react', '@types/react-dom', 'react-router-dom']
+        update-types: ['minor', 'patch']
       unified:
         patterns: ['remark*', 'rehype*', 'unified', 'hast-util-*']
+        update-types: ['minor', 'patch']
       eslint:
         patterns: ['eslint', 'eslint-*', '@eslint/*', 'typescript-eslint', 'globals']
+        update-types: ['minor', 'patch']
       tooling:
         patterns: ['vite', '@vitejs/*', 'vitest', 'typescript', 'prettier', 'stylelint*']
+        update-types: ['minor', 'patch']
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -28,3 +35,4 @@ updates:
     groups:
       actions:
         patterns: ['*']
+        update-types: ['minor', 'patch']

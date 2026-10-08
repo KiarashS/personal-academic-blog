@@ -38,3 +38,42 @@ jobs:
       - name: Check external links
         run: node scripts/check-links.mjs --external
         continue-on-error: true
+
+  # Dependabot's patch and minor updates merge themselves once the checks above
+  # pass on their head commit: the same lint, typecheck, tests, build, link
+  # check and accessibility audit the deploy runs. A major update, or one whose
+  # checks fail, stays open for a person to look at.
+  #
+  # Both conditions, not just the author: `actor` is whoever triggered this
+  # run, so a commit someone else pushes to a Dependabot branch does not merge.
+  # A pull request that no longer applies fails the merge and stays open;
+  # Dependabot rebases it once main moves on, and the rebase runs this again.
+  dependabot:
+    needs: checks
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      # For a grouped pull request, update-type is the largest change in it.
+      # Only a named patch or minor merges; an empty type is treated as major.
+      - id: metadata
+        uses: dependabot/fetch-metadata@v2
+      # --match-head-commit: only the commit the checks ran on, not one pushed
+      # to the branch while they were running.
+      - if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: >-
+          gh pr merge "${{ github.event.pull_request.number }}" --squash
+          --match-head-commit "${{ github.event.pull_request.head.sha }}"
+      # A merge made with this token does not start the push workflow on main,
+      # so the deploy is asked for by name.
+      - if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh workflow run deploy.yml --ref main

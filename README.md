@@ -2589,6 +2589,13 @@ Both run in CI. `.github/workflows/checks.yml` runs the whole set on pull
 requests and on any branch that is not `main`; the deploy workflow runs them
 again before publishing.
 
+Dependabot's patch and minor updates merge themselves: when the checks pass on
+one of its pull requests, the same workflow squash-merges it and starts the
+deploy. Major updates arrive as pull requests of their own and wait for a
+person, as does any update whose checks fail. Dependabot groups only patch and
+minor updates (`.github/dependabot.yml`), so a major never holds back the rest
+of its family.
+
 ## Configuration
 
 `src/site.config.ts` holds the title, tagline, description, navigation, posts
