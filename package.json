@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@giscus/react": "3.1.0",
-    "fuse.js": "7.1.0",
+    "fuse.js": "7.5.0",
     "js-yaml": "5.4.1",
     "katex": "0.18.9",
     "mermaid": "^12.1.0",
