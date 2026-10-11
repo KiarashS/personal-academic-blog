@@ -781,7 +781,9 @@ smaller but Safari on iOS only plays it from 17.4. The sample's `adam.webm` is
 WebM because that is what this build machine could record.
 
 The build measures a local image so the page holds its space while it loads,
-and a picture links to the paper, as the title does. A video plays muted and
+and a picture links to the paper, as the title does. The whole picture always
+shows: 16:10 fills the space exactly, and anything taller is fitted inside it
+rather than cropped, so a figure keeps its labels. A video plays muted and
 on a loop, like a GIF, and only while it is on screen; a reader whose system
 asks for less motion gets the still and the controls and starts it
 themselves. A GIF cannot be paused that way, so a video file is the kinder

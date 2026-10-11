@@ -2816,9 +2816,12 @@ h1 + .author-card {
 }
 
 /* The rule round the picture is the page's own, so a white figure on a white
-   page still has an edge, and the fill holds the space while it loads. A
-   picture taller than it is wide is cropped to the column rather than
-   standing over the entries below it. */
+   page still has an edge, and the fill holds the space while it loads.
+
+   The whole picture always shows. A picture taller than `max-height` allows
+   is fitted inside its box, with the fill either side, rather than cropped:
+   with `cover`, a 16:10 teaser on a 450px phone lost its bottom edge, and on a
+   540px one a quarter of it, labels included. */
 .publication__media-item {
   aspect-ratio: 16 / 10;
   background: var(--bg-subtle);
@@ -2827,7 +2830,7 @@ h1 + .author-card {
   display: block;
   height: auto;
   max-height: 11rem;
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
 }
 
@@ -2850,8 +2853,11 @@ img.publication__media-item[width] {
     margin-top: 0.75rem;
   }
 
+  /* Tall enough for a 16:10 picture at the column's full width at 34rem, the
+     widest this layout gets (about 315px), so a landscape teaser fills the
+     column on every phone; only a taller one is fitted narrower. */
   .publication__media-item {
-    max-height: 14rem;
+    max-height: 20rem;
   }
 }
 
