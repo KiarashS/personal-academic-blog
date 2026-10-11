@@ -149,9 +149,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onMissing: (source) => missingDiagrams.add(source),
       })
       .use(rehypeHighlight, { detect: false, ignoreMissing: true })
-      // Before KaTeX: it numbers the labelled equations by rewriting their TeX,
-      // and KaTeX renders the `\tag` it leaves behind.
-      .use(rehypeEquations, { onWarn: (message: string) => equationWarnings.add(message) })
+      // Before KaTeX: it numbers the equations by rewriting their TeX, and
+      // KaTeX renders the `\tag` it leaves behind.
+      .use(rehypeEquations, {
+        numbering: siteConfig.math.numbering,
+        onWarn: (message: string) => equationWarnings.add(message),
+      })
       .use(rehypeKatex, { strict: false, throwOnError: false })
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.

@@ -482,6 +482,51 @@
   padding: 0.2rem 0;
 }
 
+/*
+ * A numbered equation's number takes its own room at the end of the line.
+ * KaTeX pins it to the right edge with `position: absolute`, which is fine
+ * while the formula fits; on a phone a formula wider than the column scrolls
+ * underneath it, and the number sat over the middle of a sum.
+ *
+ * One row, on the formula's baseline. KaTeX splits a formula into several
+ * `.katex-base` pieces at its break points, so they stay as they are, side by
+ * side, between an empty spacer and the number. The two share the spare width
+ * equally, which keeps the formula centred; the spacer gives way first and
+ * the number never narrower than itself, so with no width to spare the row is
+ * formula and number end to end, and the display scrolls to reach both. A
+ * browser without `:has` keeps KaTeX's own placement.
+ */
+.prose .katex-display > .katex > .katex-html:has(> .katex-tag) {
+  align-items: baseline;
+  display: flex;
+}
+
+.prose .katex-display > .katex > .katex-html:has(> .katex-tag)::before {
+  content: '';
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.prose .katex-display > .katex > .katex-html:has(> .katex-tag) > .katex-base {
+  flex: none;
+}
+
+.prose .katex-display > .katex > .katex-html > .katex-tag {
+  flex: 1 1 0;
+  min-width: max-content;
+  position: static;
+  text-align: right;
+}
+
+/* The space between formula and number, as content of the number rather than
+   padding on it: padding is added on top of the number's equal share, and
+   left the formula half of it left of centre. */
+.prose .katex-display > .katex > .katex-html > .katex-tag::before {
+  content: '';
+  display: inline-block;
+  width: 1em;
+}
+
 /* Mermaid ----------------------------------------------------------------- */
 
 .mermaid-figure {

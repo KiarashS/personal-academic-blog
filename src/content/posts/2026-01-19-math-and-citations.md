@@ -44,9 +44,9 @@ in red where it stands instead of blanking the page.
 
 ## Numbering an equation
 
-Label a display equation and it gets a number; leave it unlabelled and it does
-not. Both of the equations above are unlabelled, which is why neither carries a
-number. This one is labelled:
+Every display equation is numbered, which is why the two above carry (1) and
+(2): a reader can point at one in the comments the way they would in a paper.
+Label an equation to refer to it yourself:
 
 $$
 p(\theta \mid y) = \frac{p(y \mid \theta)\, p(\theta)}{p(y)}
@@ -62,13 +62,18 @@ Refer to it with `\eqref{bayes}` and the reference becomes a link to the
 equation carrying its number: substituting \eqref{bayes} into the likelihood is
 the usual first step. The numbers are assigned in document order at build time,
 so inserting an equation above this one renumbers everything below it and every
-reference follows. A label the post never refers to still gets its number, and a
-reference to a label that does not exist renders as `(?)` and warns during the
-build rather than failing it.
+reference follows. A reference to a label that does not exist renders as `(?)`
+and warns during the build rather than failing it.
 
-Numbering only what is labelled is deliberate. A derivation that runs to fifteen
-display equations does not want fifteen numbers down its right margin when the
-prose refers to two of them.
+A display that is an illustration rather than a step can stay out of the count
+with `\notag`:
+
+$$
+e^{i\pi} + 1 = 0 \notag
+$$
+
+To number only labelled equations, set `math.numbering` to `'labelled'` in
+`src/site.config.ts`.
 
 ## The work behind a post
 

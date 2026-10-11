@@ -165,7 +165,9 @@ JavaScript reaches the browser, only its stylesheet and fonts. Environments
 like `aligned` and `cases` work. Errors render in red rather than blanking the
 page.
 
-Display equations are numbered when they are labelled, and only then:
+Every display equation is numbered, in order down the post, so a reader can
+point at "(3)" in a comment the way they would in a paper. Give one a label to
+refer to it yourself:
 
 ```latex
 $$
@@ -178,13 +180,18 @@ $$
 number. Numbers are assigned in document order during the build, so inserting an
 equation renumbers what follows and every reference with it. A reference whose
 label does not exist renders as `(?)` and warns; two equations sharing a label
-warn as well, and references point at the first. `\label` is stripped before
-KaTeX sees the TeX, and the `\tag` that carries the number is appended after the
-body, which is where KaTeX needs it when the equation is a `\begin{aligned}`
-block. A `\eqref` inside code or inline math is left alone.
+warn as well, and references point at the first. A `\eqref` inside code or
+inline math is left alone. An unlabelled equation can still be linked to, at
+`#equation-3` for the third.
 
-Numbering only labelled equations keeps a fifteen-equation derivation from
-carrying fifteen numbers when the prose refers to two of them.
+`\notag` (or `\nonumber`) anywhere in an equation leaves it out of the count,
+for a display that is an illustration rather than a step. A `\tag{A}` you write
+yourself is shown as written, does not take a number, and is what `\eqref`
+shows for that equation. An `aligned` block is one equation and takes one
+number, after the environment, which is where KaTeX needs the `\tag`.
+
+To number only labelled equations, set `math.numbering` to `'labelled'` in
+`src/site.config.ts`.
 
 ### Footnotes
 

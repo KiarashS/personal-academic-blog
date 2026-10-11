@@ -1,8 +1,15 @@
 import type { Element, ElementContent, Root, RootContent } from 'hast';
 import { toString } from 'hast-util-to-string';
+import type { EquationNumbering } from '../src/site.config';
 
 /** `\label{key}` anywhere in the TeX of a display equation. */
 const LABEL = /\\label\s*\{\s*([^}]+?)\s*\}/g;
+
+/** `\notag` or `\nonumber`: leave this one display out of the count. */
+const NOTAG = /\\(?:notag|nonumber)(?![A-Za-z])/g;
+
+/** A `\tag{…}` the author wrote, which is the number they want shown. */
+const TAG = /\\tag\*?\s*\{([^}]*)\}/;
 
 /** `\eqref{key}` in prose, which is where a reference to an equation is written. */
 const EQREF = /\\eqref\s*\{\s*([^}]+?)\s*\}/g;
@@ -11,6 +18,8 @@ const EQREF = /\\eqref\s*\{\s*([^}]+?)\s*\}/g;
 const VERBATIM = new Set(['code', 'pre', 'script', 'style']);
 
 export interface EquationOptions {
+  /** Defaults to `labelled`; the site passes its own setting. */
+  numbering?: EquationNumbering;
   /** Called once per problem, so the build can report it against the file. */
   onWarn?: (message: string) => void;
 }
@@ -42,6 +51,13 @@ function displayMathIn(block: Element): Element | undefined {
   return block.children.find((child): child is Element => isDisplayMath(child));
 }
 
+/**
+ * The id of a numbered equation nobody labelled, so a reader can still link to
+ * it. A different prefix from `equationId`, so a label written as `3` cannot
+ * collide with the third equation.
+ */
+const numberId = (count: number): string => `equation-${count}`;
+
 /** The id an equation is reachable at, and what `\eqref` points to. */
 export const equationId = (key: string): string =>
   `eq-${key
@@ -56,8 +72,11 @@ export const equationId = (key: string): string =>
  * tag inside the environment.
  */
 function numbered(tex: string, count: number): string {
-  return `${tex.replace(LABEL, '').trimEnd()}\n\\tag{${count}}`;
+  return `${bare(tex)}\n\\tag{${count}}`;
 }
+
+/** The TeX with the markers this plugin reads taken out, which KaTeX would not accept. */
+const bare = (tex: string): string => tex.replace(LABEL, '').replace(NOTAG, '').trimEnd();
 
 /**
  * Equation numbers, and references to them that stay right when an equation is
@@ -70,9 +89,11 @@ function numbered(tex: string, count: number): string {
  *
  *     Substituting \eqref{bayes} into the likelihood …
  *
- * Only a labelled equation is numbered. A post can carry a dozen throwaway
- * lines of display math, and numbering all of them would leave the reader
- * counting past equations nothing refers to.
+ * With `numbering: 'all'`, every display equation is numbered, so a reader can
+ * point at one in a comment as they would in a paper, and `\label` only names
+ * an equation for `\eqref`. `\notag` or `\nonumber` leaves one out, and a
+ * `\tag{…}` the author wrote is kept and not counted. With `'labelled'`, only a
+ * labelled equation is numbered.
  *
  * This runs before `rehype-katex`, which renders whatever TeX it is given, so
  * the `\tag` reaches KaTeX as an ordinary part of the equation.
@@ -81,11 +102,13 @@ export function rehypeEquations(options: EquationOptions = {}) {
   const warn = options.onWarn ?? (() => {});
 
   return (tree: Root) => {
-    const numbers = new Map<string, number>();
+    // What a reference to each label shows: its number, or the author's tag.
+    const numbers = new Map<string, string>();
+    const numberAll = options.numbering === 'all';
     let count = 0;
 
-    // First pass: number the labelled equations, so a reference written above
-    // the equation it points at still resolves.
+    // First pass: number the equations, so a reference written above the
+    // equation it points at still resolves.
     const number = (parent: Root | Element) => {
       const children = 'children' in parent ? parent.children : [];
 
@@ -101,27 +124,57 @@ export function rehypeEquations(options: EquationOptions = {}) {
 
         const tex = toString(node);
         const keys = [...tex.matchAll(LABEL)].map((match) => match[1]);
-        if (keys.length === 0) continue;
-
         const [key] = keys;
+        const skipped = NOTAG.test(tex);
+        NOTAG.lastIndex = 0;
+        const own = TAG.exec(tex)?.[1];
+
         if (keys.length > 1) {
           warn(`equation labelled "${key}" carries ${keys.length} labels; using the first`);
         }
-        if (numbers.has(key)) {
+        const duplicate = key !== undefined && numbers.has(key);
+        if (duplicate) {
           warn(`two equations are labelled "${key}"; references will point at the first`);
-          node.children = [{ type: 'text', value: numbered(tex, numbers.get(key) ?? 0) }];
+        }
+
+        // What this equation shows, and what a reference to it reads.
+        let shown: string | undefined;
+        if (own !== undefined) {
+          node.children = [{ type: 'text', value: bare(tex) }];
+          shown = own;
+        } else if (skipped) {
+          node.children = [{ type: 'text', value: bare(tex) }];
+          if (key !== undefined) {
+            warn(
+              `equation labelled "${key}" is marked \\notag, so references to it have no number`,
+            );
+            shown = '?';
+          }
+        } else if (numberAll || key !== undefined) {
+          count += 1;
+          node.children = [{ type: 'text', value: numbered(tex, count) }];
+          shown = String(count);
+        } else {
           continue;
         }
 
-        count += 1;
-        numbers.set(key, count);
-        node.children = [{ type: 'text', value: numbered(tex, count) }];
+        const named = key !== undefined && !duplicate;
+        if (named) numbers.set(key, shown ?? '?');
+
         // The id goes on a wrapper outside the block, not on the math itself:
         // rehype-katex replaces what it renders, and the id would go with it.
+        // An equation with neither a label nor a number of its own has no
+        // name to be reached by, so it is left as it is.
+        const id = named
+          ? equationId(key)
+          : own === undefined && !skipped
+            ? numberId(count)
+            : undefined;
+        if (id === undefined) continue;
         children[index] = {
           type: 'element',
           tagName: 'div',
-          properties: { className: ['equation'], id: equationId(key) },
+          properties: { className: ['equation'], id },
           children: [block],
         };
       }
@@ -136,7 +189,7 @@ export function rehypeEquations(options: EquationOptions = {}) {
         type: 'element',
         tagName: 'a',
         properties: { className: ['eqref'], href: `#${equationId(key)}` },
-        children: [{ type: 'text', value: known === undefined ? '(?)' : `(${known})` }],
+        children: [{ type: 'text', value: `(${known ?? '?'})` }],
       };
     };
 

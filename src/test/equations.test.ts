@@ -6,22 +6,28 @@ import remarkRehype from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import { equationId, rehypeEquations } from '../../plugins/equations';
 
-const render = (markdown: string, onWarn?: (message: string) => void): string =>
+const render = (
+  markdown: string,
+  onWarn?: (message: string) => void,
+  numbering: 'all' | 'labelled' = 'labelled',
+): string =>
   String(
     unified()
       .use(remarkParse)
       .use(remarkMath)
       .use(remarkRehype)
-      .use(rehypeEquations, { onWarn })
+      .use(rehypeEquations, { numbering, onWarn })
       .use(rehypeStringify)
       .processSync(markdown),
   );
 
-const warnings = (markdown: string): string[] => {
+const warnings = (markdown: string, numbering: 'all' | 'labelled' = 'labelled'): string[] => {
   const collected: string[] = [];
-  render(markdown, (message) => collected.push(message));
+  render(markdown, (message) => collected.push(message), numbering);
   return collected;
 };
+
+const renderAll = (markdown: string): string => render(markdown, undefined, 'all');
 
 describe('equationId', () => {
   it('makes a fragment out of whatever the author typed', () => {
@@ -102,5 +108,64 @@ describe('rehypeEquations', () => {
   it('appends the tag after an environment rather than inside it', () => {
     const html = render('$$\n\\begin{aligned}\na &= b\n\\end{aligned}\n\\label{al}\n$$');
     expect(html.indexOf('\\end{aligned}')).toBeLessThan(html.indexOf('\\tag{1}'));
+  });
+});
+
+describe("rehypeEquations with numbering: 'all'", () => {
+  it('numbers an unlabelled equation and gives it an id to link to', () => {
+    const html = renderAll('$$\nx = 1\n$$');
+    expect(html).toContain('\\tag{1}');
+    expect(html).toContain('<div class="equation" id="equation-1">');
+  });
+
+  it('counts labelled and unlabelled equations together, in document order', () => {
+    const html = renderAll('$$\na\n$$\n\n$$\nb\n\\label{b}\n$$\n\nSee \\eqref{b}.');
+    expect(html).toContain('\\tag{1}');
+    expect(html).toContain('\\tag{2}');
+    expect(html).toContain('<div class="equation" id="eq-b">');
+    expect(html).toContain('<a class="eqref" href="#eq-b">(2)</a>');
+  });
+
+  it('leaves out an equation marked \\notag or \\nonumber, and the count skips it', () => {
+    const html = renderAll('$$\na \\notag\n$$\n\n$$\nb \\nonumber\n$$\n\n$$\nc\n$$');
+    expect(html).not.toContain('\\notag');
+    expect(html).not.toContain('\\nonumber');
+    expect(html).toContain('\\tag{1}');
+    expect(html).not.toContain('\\tag{2}');
+    expect(html.match(/class="equation"/g)).toHaveLength(1);
+  });
+
+  it('does not take \\notagged or a longer command for \\notag', () => {
+    expect(renderAll('$$\n\\nonumberx\n$$')).toContain('\\tag{1}');
+  });
+
+  it("keeps the author's own \\tag, does not count it, and refers to it by that tag", () => {
+    const html = renderAll('$$\na \\tag{A}\n\\label{a}\n$$\n\n$$\nb\n$$\n\n\\eqref{a}');
+    expect(html).toContain('\\tag{A}');
+    expect(html).toContain('\\tag{1}');
+    expect(html).not.toContain('\\tag{2}');
+    expect(html).toContain('<a class="eqref" href="#eq-a">(A)</a>');
+  });
+
+  it('warns about a reference to an equation marked \\notag', () => {
+    const markdown = '$$\na \\notag\n\\label{a}\n$$\n\n\\eqref{a}';
+    expect(warnings(markdown, 'all')).toEqual([
+      'equation labelled "a" is marked \\notag, so references to it have no number',
+    ]);
+    expect(renderAll(markdown)).toContain('<a class="eqref" href="#eq-a">(?)</a>');
+  });
+
+  it('numbers an aligned block once, after the environment', () => {
+    const html = renderAll('$$\n\\begin{aligned}\na &= b \\\\\nc &= d\n\\end{aligned}\n$$');
+    expect(html.match(/\\tag\{/g)).toHaveLength(1);
+    expect(html.indexOf('\\end{aligned}')).toBeLessThan(html.indexOf('\\tag{1}'));
+  });
+
+  it('gives a duplicate label its own number and points references at the first', () => {
+    const markdown = '$$\na\n\\label{d}\n$$\n\n$$\nb\n\\label{d}\n$$\n\n\\eqref{d}';
+    const html = renderAll(markdown);
+    expect(html).toContain('\\tag{2}');
+    expect(html.match(/id="eq-d"/g)).toHaveLength(1);
+    expect(html).toContain('<a class="eqref" href="#eq-d">(1)</a>');
   });
 });

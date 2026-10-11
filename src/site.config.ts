@@ -214,6 +214,25 @@ export interface ContentsConfig {
   side: ContentsSide;
 }
 
+/**
+ * How display equations are numbered.
+ *
+ * `all`: every `$$…$$` equation gets a number in the margin, in order down the
+ * post, so a reader can point at "(3)" in a comment as they would in a paper.
+ * `\label{key}` names an equation for `\eqref{key}`; `\notag` (or
+ * `\nonumber`) leaves one out of the count, and a `\tag{…}` you write yourself
+ * is shown as written and not counted.
+ *
+ * `labelled`: only an equation carrying a `\label` is numbered.
+ *
+ * An `aligned` block is one equation and takes one number, whatever its lines.
+ */
+export type EquationNumbering = 'all' | 'labelled';
+
+export interface MathConfig {
+  numbering: EquationNumbering;
+}
+
 export interface NavItem {
   label: string;
   /**
@@ -443,6 +462,8 @@ export interface SiteConfig {
   notice: NoticeConfig;
   /** How a post shows its contents on a wide screen; see `ContentsConfig`. */
   contents: ContentsConfig;
+  /** Equation numbering; see `MathConfig`. */
+  math: MathConfig;
   /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
@@ -615,6 +636,10 @@ export const siteConfig: SiteConfig = {
     // 'inline' is the collapsed list alone; 'rail' is the margin alone.
     wide: 'both',
     side: 'left',
+  },
+  math: {
+    // 'all' numbers every display equation; 'labelled' only those with \label.
+    numbering: 'all',
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },
