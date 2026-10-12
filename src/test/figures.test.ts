@@ -109,3 +109,40 @@ describe('rehypeFigures, full-size links', () => {
     expect(html).toContain('figure-zoom');
   });
 });
+
+describe('rehypeFigures, framed images', () => {
+  it('frames an image whose path ends in #frame, and drops the fragment', () => {
+    const html = render('![A screenshot](/narrow.png#frame)');
+    expect(html).toContain('class="figure-image figure-image--framed"');
+    expect(html).toContain('src="/narrow.png"');
+    expect(html).not.toContain('#frame');
+  });
+
+  it('still measures a framed image from its file', () => {
+    expect(render('![A screenshot](/narrow.png#frame)')).toContain('width="480" height="320"');
+  });
+
+  it('leaves an image without the fragment unframed', () => {
+    expect(render('![A plot](/narrow.png)')).not.toContain('figure-image--framed');
+  });
+
+  it('frames both theme variants, and the dark sibling is still found', () => {
+    const html = render('![A screenshot](/small.png#frame)');
+    expect(html).toContain('src="/small.dark.png"');
+    expect(html.match(/figure-image--framed/g)).toHaveLength(2);
+  });
+
+  it('puts the frame on the image inside a full-size link, not on the link', () => {
+    const html = render('![A screenshot](/wide.png#frame)');
+    expect(html).toContain('href="/wide.png"');
+    expect(html).toMatch(
+      /<a class="figure-zoom[^"]*"[^>]*><img[^>]*class="figure-image figure-image--framed"/,
+    );
+  });
+
+  it('keeps any other fragment a remote image carries', () => {
+    expect(render('![Remote](https://example.org/a.png#page=2)')).toContain(
+      'src="https://example.org/a.png#page=2"',
+    );
+  });
+});

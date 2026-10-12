@@ -770,6 +770,13 @@
   max-width: 100%;
 }
 
+/* Asked for with `#frame` on the image's path (plugins/figures.ts): an edge
+   for a screenshot or a photo that would otherwise run into the page. The
+   embed frame's hairline, so the two read as the same kind of thing. */
+.prose .figure-image--framed {
+  border: 1px solid var(--rule);
+}
+
 /* An image whose file holds more detail than the column can show links to
    itself. The cursor is the only chrome: the figure is still just a figure. */
 .prose .figure-zoom {

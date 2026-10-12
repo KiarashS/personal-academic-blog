@@ -650,13 +650,28 @@ post's slug means renaming its folder; put anything shared between posts in
 
 An image whose file is wider than the text column is wrapped in a link to
 itself, so a click opens the original at full size in its own tab. The
-threshold is intrinsic width — 800px by default, against a column of about 610
+threshold is intrinsic width — 800px by default, against a column of about 700
 — so a picture the page can already show in full gets no link and no cursor
 change, and an SVG never gets one, since the page scales vectors losslessly on
 its own. With a `.dark` sibling each variant links to itself, so whichever one
 the reader can see is the one that opens. No lightbox, no library: middle-click,
 right-click-save and keyboard all behave as they should, and the page needs no
 JavaScript for any of it.
+
+Figures have no border, since a plot or a diagram on a transparent background
+is meant to sit on the page. A screenshot or a photo whose own edge runs into
+the page, a white window on the light theme above all, can ask for one with
+`#frame` on the end of its path:
+
+```markdown
+![The archive page](/posts/writing-a-post/screenshot.png#frame 'Caption here.')
+```
+
+That draws the same hairline in the rule colour that an embedded page gets, on
+the 3px corners every figure has. The build drops the fragment, so the file is
+still measured, still finds its `.dark` sibling, and still links to itself when
+it is wide. Only the exact `#frame` counts: a remote image whose URL carries a
+fragment of its own keeps it.
 
 Always write the path from the root, starting with `/`. Only then can the build
 measure the image, find a `.dark` sibling and add the base path — and links in

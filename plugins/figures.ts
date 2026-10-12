@@ -47,6 +47,24 @@ function isMediaFrame(node: Element): boolean {
   return Array.isArray(classes) && classes.includes(MEDIA_FRAME);
 }
 
+/**
+ * `#frame` on an image's path asks for a hairline border round it: for a
+ * screenshot or a photo whose own edge disappears into the page, a white
+ * window on the light theme above all. A figure is left unframed by default,
+ * since a plot or a diagram on a transparent background is meant to sit on
+ * the page, and a box round it is a box round empty space.
+ *
+ * Only the exact fragment counts, so a remote image whose URL carries a real
+ * fragment keeps it.
+ */
+const FRAME = '#frame';
+
+function framing(src: string): { src: string; framed: boolean } {
+  return src.endsWith(FRAME)
+    ? { src: src.slice(0, -FRAME.length), framed: true }
+    : { src, framed: false };
+}
+
 /** `plot.png` -> `plot.dark.png`, the convention for a dark-theme variant. */
 function darkSibling(src: string): string {
   const ext = extname(src);
@@ -122,7 +140,7 @@ export function rehypeFigures(options: FigureOptions) {
           return;
         }
 
-        const src = String(target.properties?.src ?? '');
+        const { src, framed } = framing(String(target.properties?.src ?? ''));
         const alt = String(target.properties?.alt ?? '');
         const caption = String(target.properties?.title ?? '');
         if (!src) return;
@@ -152,10 +170,11 @@ export function rehypeFigures(options: FigureOptions) {
          * whichever theme was not showing.
          */
         const variant = (path: string, theme?: 'light' | 'dark'): Element => {
-          const classes = ['figure-image', ...(theme ? [`figure-image--${theme}`] : [])];
+          const image = ['figure-image', ...(framed ? ['figure-image--framed'] : [])];
+          const classes = [...image, ...(theme ? [`figure-image--${theme}`] : [])];
           if (!zoom) return img(href(path), alt, size, classes.join(' '));
 
-          const wrapped = zoomable(img(href(path), alt, size, 'figure-image'), href(path), alt);
+          const wrapped = zoomable(img(href(path), alt, size, image.join(' ')), href(path), alt);
           if (theme)
             wrapped.properties = {
               ...wrapped.properties,

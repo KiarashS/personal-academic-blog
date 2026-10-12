@@ -136,6 +136,19 @@ own.
 
 ![A damped oscillation, drawn wide](/posts/writing-a-post/wide-plot.png "Click it: the file is 1400px wide, the column is not. wide-plot.dark.png beside it gives the dark theme its own version, and each one links to itself.")
 
+A screenshot is the one kind of figure that wants an edge: its white window
+runs straight into the light page, and nothing says where the picture stops.
+Put `#frame` on the end of the path and it gets a hairline border:
+
+```markdown
+![The archive page](/posts/writing-a-post/screenshot.png#frame "Caption here.")
+```
+
+![The site's archive page, listing five posts under 2026](/posts/writing-a-post/screenshot.png#frame "A screenshot, framed. Without the frame its edge would vanish into the page, on either theme, since screenshot.dark.png stands in on the dark one.")
+
+Plots and diagrams are left without one, since a box round a figure on a
+transparent background is a box round empty space.
+
 The folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
 served at `/posts/writing-a-post/diagram.svg` and lands next to the post's own
 `index.html` in the build. Deleting a post means deleting one folder, and two
