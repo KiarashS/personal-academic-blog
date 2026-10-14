@@ -32,6 +32,45 @@
 }
 
 /*
+ * A definition list, written in HTML as `<dl>` with `<dt>` and `<dd>`, since
+ * Markdown has no syntax for one. The term in the text face's bold, and the
+ * definition under it at a list item's indent, so a glossary lines up with
+ * the lists around it; the browser's own 40px indent did not. Two terms in a
+ * row share the definition that follows, and stay together.
+ */
+.prose dl {
+  margin: 0 0 1.1rem;
+}
+
+.prose dt {
+  font-weight: 600;
+  margin-top: 0.9rem;
+}
+
+.prose dt:first-child,
+.prose dt + dt {
+  margin-top: 0;
+}
+
+.prose dd {
+  margin: 0.15rem 0 0 1.4rem;
+}
+
+.prose dd + dd {
+  margin-top: 0.35rem;
+}
+
+.prose dd > :last-child {
+  margin-bottom: 0;
+}
+
+/* An abbreviation with its expansion in `title` keeps the browser's dotted
+   underline; the cursor says the expansion is there to be had. */
+.prose abbr[title] {
+  cursor: help;
+}
+
+/*
  * A task list marks its items with a checkbox, so those items drop the bullet
  * the rest of the list styling would give them. Both were being drawn: the disc
  * held the indent, the box sat after it, and the words started after that,

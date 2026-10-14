@@ -153,6 +153,48 @@ A colour written as inline code gets a swatch of itself: `#c0573e`,
 over a checkerboard. Only a code span holding the colour and nothing else
 counts, so `color: #c0573e` stays as written.
 
+### Definitions and abbreviations
+
+Markdown has no syntax for either, so both are HTML. A definition list is
+`<dl>`, a `<dt>` for each term and a `<dd>` for what it means:
+
+```html
+<dl>
+  <dt>Prior</dt>
+  <dd>What you believe about a parameter before seeing the data.</dd>
+  <dt>Likelihood</dt>
+  <dd>How probable the data are, for each value the parameter could take.</dd>
+  <dt>Posterior</dt>
+  <dt>Updated belief</dt>
+  <dd>The prior, reweighted by the likelihood: what the data leave you believing.</dd>
+</dl>
+```
+
+<dl>
+  <dt>Prior</dt>
+  <dd>What you believe about a parameter before seeing the data.</dd>
+  <dt>Likelihood</dt>
+  <dd>How probable the data are, for each value the parameter could take.</dd>
+  <dt>Posterior</dt>
+  <dt>Updated belief</dt>
+  <dd>The prior, reweighted by the likelihood: what the data leave you believing.</dd>
+</dl>
+
+Two terms in a row share the definition after them, as the last pair does.
+
+An abbreviation is `<abbr>` with its expansion in `title`:
+
+```html
+The <abbr title="Markov chain Monte Carlo">MCMC</abbr> sampler
+```
+
+which shows the full name when the pointer rests on it: the
+<abbr title="Markov chain Monte Carlo">MCMC</abbr> sampler. A phone has no
+pointer to rest, so spell an abbreviation out the first time it appears, as you
+would on paper, and let the tag carry it after that.
+
+### Collapsible sections
+
 <details>
 <summary>A collapsible section</summary>
 

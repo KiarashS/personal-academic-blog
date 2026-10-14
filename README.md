@@ -210,6 +210,13 @@ colour is drawn over a checkerboard. Only a code span holding the colour and
 nothing else counts, so `` `color: #c0573e` `` and a colour in a code block are
 left alone, and a value out of range, `rgb(300, 0, 0)`, gets no swatch.
 
+Markdown has no syntax for definition lists or abbreviations, so both are HTML.
+`<dl>` with a `<dt>` per term and a `<dd>` per definition sets the term in bold
+and the definition at a list item's indent; two `<dt>` in a row share the
+`<dd>` after them. `<abbr title="Markov chain Monte Carlo">MCMC</abbr>` shows
+the expansion on hover, which a phone cannot do, so spell an abbreviation out
+the first time it appears.
+
 A collapsible section is `<details>` with a `<summary>`. Leave a blank line after
 the summary and another before `</details>`, and Markdown works inside. It is
 drawn as a box, and a section inside another as a box inside the first, so the
