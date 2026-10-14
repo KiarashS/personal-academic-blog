@@ -798,6 +798,12 @@ short note shown as a pill under the venue (an award, a talk, "to appear"),
 with any emoji you type into it. None of the four appears in the BibTeX the
 page offers to copy.
 
+A teaser sits on the page unboxed. When its own edge would run into the page,
+such as a light screenshot on the light theme or a dark figure on the dark
+one, put `#frame` on the end of the path, as on a figure in a post:
+`teaser = {/publications/you2026thing.png#frame}`. It gets the page's hairline
+border and a fill that holds its space while it loads.
+
 For a video, MP4 (H.264) plays everywhere, including older iPhones; WebM is
 smaller but Safari on iOS only plays it from 17.4. The sample's `adam.webm` is
 WebM because that is what this build machine could record.

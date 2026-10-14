@@ -12,6 +12,11 @@
 %   teaseralt    = {What the picture shows},        % optional
 %   teaserposter = {/publications/knuth1984.jpg},   % optional; a video's still
 %   badge        = {🏆 Best paper award},           % optional; emoji welcome
+%
+% A teaser sits on the page unboxed. Put #frame on the end of its path for a
+% hairline border, as on a figure in a post, when the picture's own edge would
+% run into the page: {/publications/knuth1984.png#frame}. The three samples
+% below are framed because each one's background matches one of the themes.
 
 @article{knuth1984literate,
   author  = {Knuth, Donald E.},
@@ -44,7 +49,7 @@
   year          = {2017},
   eprint        = {1706.03762},
   archiveprefix = {arXiv},
-  teaser        = {/publications/attention.gif},
+  teaser        = {/publications/attention.gif#frame},
   teaseralt     = {Each word of a sentence in turn, drawing lines to the others, thicker where it attends more},
   badge         = {🏆 Example badge: an award, a talk, or “to appear”}
 }
@@ -56,7 +61,7 @@
   pages     = {770--778},
   year      = {2016},
   doi       = {10.1109/CVPR.2016.90},
-  teaser    = {/publications/resnet.png},
+  teaser    = {/publications/resnet.png#frame},
   teaseralt = {Four layers in a row, with dashed connections skipping over pairs of them}
 }
 
@@ -67,7 +72,7 @@
   year          = {2015},
   eprint        = {1412.6980},
   archiveprefix = {arXiv},
-  teaser        = {/publications/adam.webm},
+  teaser        = {/publications/adam.webm#frame},
   teaserposter  = {/publications/adam-poster.jpg},
   teaseralt     = {A point stepping down a loss surface towards its minimum},
   badge         = {🎬 Example badge: this entry's teaser is a video}

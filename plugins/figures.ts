@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, extname, dirname, basename } from 'node:path';
 import { imageSize } from '../src/lib/image-size';
 import { MEDIA_FRAME } from './video';
+import { withoutFrame } from '../src/lib/media';
 import type { Element, Root } from 'hast';
 
 export interface FigureOptions {
@@ -47,23 +48,11 @@ function isMediaFrame(node: Element): boolean {
   return Array.isArray(classes) && classes.includes(MEDIA_FRAME);
 }
 
-/**
- * `#frame` on an image's path asks for a hairline border round it: for a
- * screenshot or a photo whose own edge disappears into the page, a white
- * window on the light theme above all. A figure is left unframed by default,
- * since a plot or a diagram on a transparent background is meant to sit on
- * the page, and a box round it is a box round empty space.
- *
- * Only the exact fragment counts, so a remote image whose URL carries a real
- * fragment keeps it.
+/*
+ * A figure is left unframed unless its path ends in `#frame` (`withoutFrame`):
+ * a plot or a diagram on a transparent background is meant to sit on the page,
+ * and a box round it is a box round empty space.
  */
-const FRAME = '#frame';
-
-function framing(src: string): { src: string; framed: boolean } {
-  return src.endsWith(FRAME)
-    ? { src: src.slice(0, -FRAME.length), framed: true }
-    : { src, framed: false };
-}
 
 /** `plot.png` -> `plot.dark.png`, the convention for a dark-theme variant. */
 function darkSibling(src: string): string {
@@ -140,7 +129,7 @@ export function rehypeFigures(options: FigureOptions) {
           return;
         }
 
-        const { src, framed } = framing(String(target.properties?.src ?? ''));
+        const { src, framed } = withoutFrame(String(target.properties?.src ?? ''));
         const alt = String(target.properties?.alt ?? '');
         const caption = String(target.properties?.title ?? '');
         if (!src) return;

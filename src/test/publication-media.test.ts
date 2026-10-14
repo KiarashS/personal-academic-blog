@@ -27,6 +27,33 @@ describe('publicationMedia', () => {
     expect(problems).toEqual([]);
   });
 
+  it('frames a teaser whose path ends in #frame, and measures the file without it', () => {
+    const seen: string[] = [];
+    const { media, problems } = publicationMedia('k', { teaser: '/p/a.png#frame' }, (src) => {
+      seen.push(src);
+      return size();
+    });
+    expect(media).toEqual({
+      kind: 'image',
+      src: '/p/a.png',
+      alt: '',
+      width: 800,
+      height: 500,
+      framed: true,
+    });
+    expect(seen).toEqual(['/p/a.png']);
+    expect(problems).toEqual([]);
+  });
+
+  it('frames a video teaser too', () => {
+    const { media } = publicationMedia('k', { teaser: '/p/clip.webm#frame' });
+    expect(media).toMatchObject({ kind: 'video', src: '/p/clip.webm', framed: true });
+  });
+
+  it('leaves a teaser unframed without the fragment', () => {
+    expect(publicationMedia('k', { teaser: '/p/a.gif' }, size).media?.framed).toBeUndefined();
+  });
+
   it('takes a URL as it is, without measuring it', () => {
     const { media, problems } = publicationMedia('k', { teaser: 'https://example.org/a.png' });
     expect(media?.src).toBe('https://example.org/a.png');

@@ -1,5 +1,5 @@
 import type { Dimensions } from './image-size';
-import { mediaKind } from './media';
+import { mediaKind, withoutFrame } from './media';
 
 /**
  * A publication's teaser: the picture, GIF or short clip beside its entry on
@@ -14,6 +14,8 @@ import { mediaKind } from './media';
  * `.webp`, `.avif`, `.gif`, `.svg`) or a video file (`.mp4`, `.webm`, `.mov`).
  * `teaseralt` describes it; leave it out when the picture only decorates the
  * title beside it. `teaserposter` is the still a video shows before it plays.
+ * `#frame` on the end of `teaser` draws a hairline border round it, as it does
+ * on a figure in a post; without it the teaser sits on the page unboxed.
  *
  * None of the three is BibTeX anyone else wants, so they are taken off the
  * entry before the page shows or copies it.
@@ -25,6 +27,8 @@ export interface PublicationMedia {
   poster?: string;
   width?: number;
   height?: number;
+  /** A border asked for with `#frame` on the path. */
+  framed?: boolean;
 }
 
 export const MEDIA_FIELDS = ['teaser', 'teaseralt', 'teaserposter'] as const;
@@ -48,8 +52,9 @@ export function publicationMedia(
   fields: Record<string, string>,
   sizeOf: (src: string) => Dimensions | undefined = () => undefined,
 ): { media?: PublicationMedia; problems: string[] } {
-  const src = fields.teaser?.trim();
-  if (!src) return { problems: [] };
+  const written = fields.teaser?.trim();
+  if (!written) return { problems: [] };
+  const { src, framed } = withoutFrame(written);
 
   const where = `publications: ${key}`;
   const kind = mediaKind(src);
@@ -88,6 +93,7 @@ export function publicationMedia(
       alt: fields.teaseralt?.trim() ?? '',
       ...(poster && kind === 'video' ? { poster } : {}),
       ...(size ? { width: size.width, height: size.height } : {}),
+      ...(framed ? { framed } : {}),
     },
     problems,
   };

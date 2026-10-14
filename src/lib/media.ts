@@ -22,6 +22,24 @@ export function youtubeId(src: string): string | undefined {
   return YOUTUBE.exec(src.trim())?.[1];
 }
 
+/**
+ * `#frame` on the end of a picture's path asks for a hairline border round it:
+ * for a screenshot or a photo whose own edge disappears into the page, a white
+ * window on the light theme above all. Read in the same two places as
+ * `mediaKind`, a figure in a post and a publication's teaser, and taken off
+ * before the path is used, so the file is still found and measured.
+ *
+ * Only the exact fragment counts, so a remote picture whose URL carries a real
+ * fragment keeps it.
+ */
+const FRAME = '#frame';
+
+export function withoutFrame(src: string): { src: string; framed: boolean } {
+  return src.endsWith(FRAME)
+    ? { src: src.slice(0, -FRAME.length), framed: true }
+    : { src, framed: false };
+}
+
 /** A picture, a video file, a YouTube link, or nothing we know how to show. */
 export function mediaKind(src: string): MediaKind | undefined {
   const value = src.trim();

@@ -18,6 +18,11 @@ const address = (src: string): string => (isExternal(src) ? src : withBase(src))
  * themselves. The server renders it paused, as the reduced-motion hook
  * assumes on the server, so hydration matches either way.
  */
+const itemClass = (media: PublicationMedia): string =>
+  media.framed
+    ? 'publication__media-item publication__media-item--framed'
+    : 'publication__media-item';
+
 function TeaserVideo({ media }: { media: PublicationMedia }) {
   const video = useRef<HTMLVideoElement>(null);
   const still = useReducedMotion();
@@ -36,7 +41,7 @@ function TeaserVideo({ media }: { media: PublicationMedia }) {
   return (
     <video
       ref={video}
-      className="publication__media-item"
+      className={itemClass(media)}
       src={address(media.src)}
       poster={media.poster ? address(media.poster) : undefined}
       aria-label={media.alt || undefined}
@@ -61,7 +66,7 @@ function Teaser({ media, url }: { media: PublicationMedia; url?: string }) {
       <TeaserVideo media={media} />
     ) : (
       <img
-        className="publication__media-item"
+        className={itemClass(media)}
         src={address(media.src)}
         alt={media.alt}
         width={media.width}

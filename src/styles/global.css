@@ -2815,23 +2815,28 @@ h1 + .author-card {
   display: block;
 }
 
-/* The rule round the picture is the page's own, so a white figure on a white
-   page still has an edge, and the fill holds the space while it loads.
-
-   The whole picture always shows. A picture taller than `max-height` allows
+/* The whole picture always shows. A picture taller than `max-height` allows
    is fitted inside its box, with the fill either side, rather than cropped:
    with `cover`, a 16:10 teaser on a 450px phone lost its bottom edge, and on a
    540px one a quarter of it, labels included. */
 .publication__media-item {
   aspect-ratio: 16 / 10;
-  background: var(--bg-subtle);
-  border: 1px solid var(--rule);
   border-radius: 6px;
   display: block;
   height: auto;
   max-height: 11rem;
   object-fit: contain;
   width: 100%;
+}
+
+/* Asked for with `#frame` on the teaser's path, as on a figure in a post: the
+   rule round the picture is the page's own, so a white figure on a white page
+   still has an edge, and the fill holds the space while it loads and stands
+   either side of a picture taller than the box. Without it a teaser sits on
+   the page unboxed, which is what a transparent diagram wants. */
+.publication__media-item--framed {
+  background: var(--bg-subtle);
+  border: 1px solid var(--rule);
 }
 
 /* A measured image keeps its own shape, from its width and height. */
