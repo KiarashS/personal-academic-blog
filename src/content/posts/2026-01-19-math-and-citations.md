@@ -42,6 +42,29 @@ $$
 Strict mode is off and errors do not throw, so a malformed expression renders
 in red where it stands instead of blanking the page.
 
+## Notation
+
+A post that leans on symbols can list them once, near the top. Write the list
+as a table: symbols are short and their meanings are a line each, which is what
+a table's two columns are for, and math works inside the cells.
+
+| Symbol | Meaning |
+| --- | --- |
+| $X$ | the design matrix, one row per observation |
+| $\hat\beta$ | the least-squares estimate of the coefficients |
+| $\theta$ | the parameter being estimated |
+| $y = (y_1, \dots, y_n)$ | the observed data |
+| $n$ | the number of observations |
+| $\mu,\ \sigma^2$ | the mean and variance of each observation |
+| $p(a \mid b)$ | the density of $a$ given $b$ |
+
+Caption: Notation used in this post.
+
+A `|` inside math would end the cell, so write `\mid` or `\vert` for a bar, as
+$p(a \mid b)$ does. For concepts rather than symbols, where a definition runs
+to a sentence or two, a definition list reads better; the
+[Code, tables and notes](/blog/code-tables-and-notes) post shows one.
+
 ## Numbering an equation
 
 Every display equation is numbered, which is why the two above carry (1) and

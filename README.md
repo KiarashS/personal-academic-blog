@@ -193,6 +193,11 @@ number, after the environment, which is where KaTeX needs the `\tag`.
 To number only labelled equations, set `math.numbering` to `'labelled'` in
 `src/site.config.ts`.
 
+A post heavy with symbols can list its notation as a Markdown table, a symbol
+and a meaning per row, with math in the cells; the math post has one. A `|`
+inside math would end the cell, so write `\mid` for a bar. Math in a table cell
+does not wrap.
+
 ### Inline formatting and collapsible sections
 
 `**bold**`, `*italic*`, `***both***` and `~~struck out~~` work as on GitHub, and
@@ -213,7 +218,8 @@ left alone, and a value out of range, `rgb(300, 0, 0)`, gets no swatch.
 Markdown has no syntax for definition lists or abbreviations, so both are HTML.
 `<dl>` with a `<dt>` per term and a `<dd>` per definition sets the term in bold
 and the definition at a list item's indent; two `<dt>` in a row share the
-`<dd>` after them. `<abbr title="Markov chain Monte Carlo">MCMC</abbr>` shows
+`<dd>` after them. From 40rem up the terms run down a 10rem column with each
+definition beside its term; on a phone the definition goes under it. `<abbr title="Markov chain Monte Carlo">MCMC</abbr>` shows
 the expansion on hover, which a phone cannot do, so spell an abbreviation out
 the first time it appears.
 

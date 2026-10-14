@@ -33,10 +33,11 @@
 
 /*
  * A definition list, written in HTML as `<dl>` with `<dt>` and `<dd>`, since
- * Markdown has no syntax for one. The term in the text face's bold, and the
- * definition under it at a list item's indent, so a glossary lines up with
- * the lists around it; the browser's own 40px indent did not. Two terms in a
- * row share the definition that follows, and stay together.
+ * Markdown has no syntax for one. On a phone the term is set in the text
+ * face's bold with the definition under it at a list item's indent, so a
+ * glossary lines up with the lists around it; the browser's own 40px indent
+ * did not. Two terms in a row share the definition that follows, and stay
+ * together.
  */
 .prose dl {
   margin: 0 0 1.1rem;
@@ -62,6 +63,51 @@
 
 .prose dd > :last-child {
   margin-bottom: 0;
+}
+
+/*
+ * From 40rem up, two columns: the terms down a 10rem column on the left, each
+ * definition beside its term, which reads faster down a long glossary and
+ * spends the width a phone does not have. Below that, the stacked layout above.
+ *
+ * Floats, not a grid. Two terms in a row share the definition after them, and
+ * a grid places that definition beside the last of them; floated terms leave
+ * it starting level with the first, where it belongs. The last definition of
+ * each entry clears the terms, so two terms stacked beside a one-line
+ * definition do not let the next entry ride up beside the second of them.
+ * A term too long for the column wraps inside it.
+ */
+@media (width >= 40rem) {
+  .prose dl {
+    display: flow-root;
+  }
+
+  .prose dt {
+    clear: left;
+    float: left;
+    margin-top: 0;
+    padding-right: 1.25rem;
+    width: 10rem;
+  }
+
+  .prose dd {
+    margin: 0 0 0 10rem;
+  }
+
+  .prose dd + dd {
+    margin-top: 0.35rem;
+  }
+
+  .prose dd:has(+ dt) {
+    margin-bottom: 0.9rem;
+  }
+
+  .prose dd:has(+ dt)::after,
+  .prose dd:last-child::after {
+    clear: left;
+    content: '';
+    display: block;
+  }
 }
 
 /* An abbreviation with its expansion in `title` keeps the browser's dotted
@@ -620,6 +666,13 @@
    * the gap; the shapes still differ, which is true of most printed papers too.
    */
   font-size: 1.09em;
+}
+
+/* In a table cell a formula is a symbol, read whole: KaTeX lets inline math
+   break after a relation, which in a narrow notation column split
+   `y = (y_1, …, y_n)` after the equals sign. The cell widens instead. */
+.prose :is(td, th) .katex {
+  white-space: nowrap;
 }
 
 .prose .katex-display {
