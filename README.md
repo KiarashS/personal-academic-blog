@@ -193,6 +193,28 @@ number, after the environment, which is where KaTeX needs the `\tag`.
 To number only labelled equations, set `math.numbering` to `'labelled'` in
 `src/site.config.ts`.
 
+### Inline formatting and collapsible sections
+
+`**bold**`, `*italic*`, `***both***` and `~~struck out~~` work as on GitHub, and
+struck-out text is set in the muted colour. A single pair of tildes strikes too,
+so write `\~5` for a literal tilde. Where Markdown has no syntax, HTML goes in
+as it is: `<mark>` highlights in the search results' colour, `<kbd>Ctrl</kbd>`
+draws a key, and `<sub>`, `<sup>`, `<abbr title="…">` and `<br>` do what they do
+anywhere.
+
+A colour written as inline code, `` `#c0573e` ``, `` `rgb(46 125 50)` `` or
+`` `hsl(210, 60%, 45%)` ``, gets a swatch of itself before the value
+(`plugins/color-swatches.ts`). HEX in all four lengths, and `rgb()`/`hsl()` with
+commas or with spaces and a slash before the alpha, are read; a translucent
+colour is drawn over a checkerboard. Only a code span holding the colour and
+nothing else counts, so `` `color: #c0573e` `` and a colour in a code block are
+left alone, and a value out of range, `rgb(300, 0, 0)`, gets no swatch.
+
+A collapsible section is `<details>` with a `<summary>`. Leave a blank line after
+the summary and another before `</details>`, and Markdown works inside. It is
+drawn as a box, and a section inside another as a box inside the first, so the
+nesting shows; `<details open>` starts it open.
+
 ### Footnotes
 
 GitHub-flavoured footnotes: `Text.[^1]` with `[^1]: The note.` anywhere in the

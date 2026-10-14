@@ -141,6 +141,33 @@ referenced.[^pipeline] Task lists render as checkboxes:
     diagrams are expanded before the highlighter sees them, and captions are
     numbered last, once every block that can take one exists.
 
+## Inline formatting
+
+The usual emphasis works, **bold**, *italic* and ***both***, and so does
+~~struck-out text~~, set quieter than the sentence around it. HTML fills in
+where Markdown has no syntax: <mark>a highlight</mark>, a key such as
+<kbd>Ctrl</kbd>+<kbd>C</kbd>, H<sub>2</sub>O and x<sup>2</sup>.
+
+A colour written as inline code gets a swatch of itself: `#c0573e`,
+`rgb(46 125 50)`, `hsl(210, 60%, 45%)`, and a translucent one, `#1565c080`,
+over a checkerboard. Only a code span holding the colour and nothing else
+counts, so `color: #c0573e` stays as written.
+
+<details>
+<summary>A collapsible section</summary>
+
+Write it in HTML, with a blank line after the `<summary>` and another before
+`</details>`, and Markdown works inside: **bold**, a list, a code block.
+
+<details>
+<summary>One inside it</summary>
+
+A section inside another is a box inside the first, so the nesting shows.
+
+</details>
+
+</details>
+
 ## Emoji
 
 GitHub's shortcodes work, in prose and in the frontmatter both: `:rocket:` is

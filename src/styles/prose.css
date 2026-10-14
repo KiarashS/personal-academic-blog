@@ -99,6 +99,55 @@
   padding: 0.1rem 0 0.1rem 1rem;
 }
 
+/*
+ * A collapsible section written into a post: `<details>` with a `<summary>`.
+ * A box in the rule colour, so the open section shows where it ends, and a
+ * section inside another is a box inside the first one's padding, so the
+ * nesting reads at a glance instead of every summary starting at the same
+ * edge. The summary is the line to click: the text face at its own weight,
+ * with the browser's triangle in the muted colour.
+ */
+.prose details {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  margin: 1.25rem 0;
+  padding: 0 1rem;
+}
+
+.prose details details {
+  margin: 0.75rem 0;
+}
+
+.prose details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin: 0 -1rem;
+  padding: 0.55rem 1rem;
+}
+
+.prose details > summary::marker {
+  color: var(--text-muted);
+}
+
+.prose details > summary:hover {
+  background: var(--bg-subtle);
+}
+
+.prose details > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* A rule under an open summary, so its body reads as the summary's. */
+.prose details[open] > summary {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.9rem;
+}
+
+.prose details > :last-child:not(summary) {
+  margin-bottom: 0.9rem;
+}
+
 .prose figure {
   margin: 1.75rem 0;
 }
@@ -214,6 +263,64 @@
   font-family: var(--mono);
   font-size: 0.85em;
   padding: 0 0.15em;
+}
+
+/*
+ * A key, as `<kbd>Ctrl</kbd>`: the shortcuts dialog's box, with a deeper lower
+ * edge so it reads as a key rather than as a second kind of code. `nowrap`
+ * keeps a key from breaking across lines; `Ctrl+C` written as two keys can
+ * still break at the `+`.
+ */
+.prose kbd {
+  background: var(--code-bg);
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.8em;
+  padding: 0.05em 0.35em;
+  white-space: nowrap;
+}
+
+/* Highlighted words, as `<mark>`: the search results' colour, with corners,
+   and carried onto each line when a highlight wraps. */
+.prose mark {
+  border-radius: 2px;
+  box-decoration-break: clone;
+  padding: 0.05em 0.15em;
+}
+
+/* Struck-out words, as `~~this~~`: still legible, and quieter than the
+   sentence around them, which is what a correction left on the page wants. */
+.prose del,
+.prose s {
+  color: var(--text-muted);
+  text-decoration-color: var(--text-muted);
+  text-decoration-thickness: 1px;
+}
+
+/*
+ * A colour value in inline code, with a swatch of itself before it
+ * (plugins/color-swatches.ts). The colour is drawn over a checkerboard, so a
+ * translucent one shows as translucent, and the swatch has an edge of its own
+ * so a white or a near-background colour still has a shape.
+ */
+.prose .color-value {
+  white-space: nowrap;
+}
+
+.prose .color-swatch {
+  background:
+    linear-gradient(var(--swatch), var(--swatch)),
+    repeating-conic-gradient(#c8c8c8 0% 25%, #fff 0% 50%) 0 0 / 0.5em 0.5em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  display: inline-block;
+  height: 0.85em;
+  margin-right: 0.3em;
+  vertical-align: -0.1em;
+  width: 0.85em;
 }
 
 .code-block {

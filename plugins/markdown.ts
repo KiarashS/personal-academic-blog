@@ -30,6 +30,7 @@ import { rehypeVideo } from './video';
 import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
+import { rehypeColorSwatches } from './color-swatches';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
 import { rehypeReservedIds } from './reserved-ids';
@@ -149,6 +150,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onMissing: (source) => missingDiagrams.add(source),
       })
       .use(rehypeHighlight, { detect: false, ignoreMissing: true })
+      // Inline code only: a span that holds a colour and nothing else gets a
+      // swatch of it.
+      .use(rehypeColorSwatches)
       // Before KaTeX: it numbers the equations by rewriting their TeX, and
       // KaTeX renders the `\tag` it leaves behind.
       .use(rehypeEquations, {
