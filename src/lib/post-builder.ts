@@ -40,6 +40,74 @@ function dateFromPath(path: string): string {
   return match ? match[0].slice(0, 10) : '';
 }
 
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * A calendar day written `YYYY-MM-DD` that exists: `2026-02-30` has the shape
+ * and no day behind it, and the feed's `toISOString()` throws on it.
+ */
+export function isDay(value: unknown): boolean {
+  if (typeof value !== 'string' || !ISO_DAY.test(value)) return false;
+  const day = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(day.getTime()) && day.toISOString().slice(0, 10) === value;
+}
+
+/**
+ * What stops a post being published, said in terms of the file: no date at
+ * all, or a date the build cannot read. Without this the build got as far as
+ * the feed and died there on `RangeError: Invalid time value`, naming neither
+ * the post nor the field.
+ *
+ * A date is never guessed. A file's modification time is the moment of the
+ * checkout on every CI build, and the deploy fetches one commit, so git has
+ * no first-commit date to give either.
+ *
+ * Drafts are left alone until they are published: a build never includes
+ * one, so an undated draft is a post still being written.
+ */
+export function dateProblems(path: string, raw: string, today: string): string[] {
+  const { data } = parseFrontmatter<Record<string, unknown>>(raw);
+  if (data.draft === true) return [];
+
+  const file = path.split('/').pop() ?? path;
+  const dir = path.slice(0, path.length - file.length);
+  const problems: string[] = [];
+  const shape = `a day written YYYY-MM-DD, such as ${today}`;
+  // As the author wrote it: YAML hands over a number for `20260302`.
+  const shown = (value: unknown): string =>
+    typeof value === 'string' ? value : JSON.stringify(value);
+
+  if (data.date === undefined || data.date === null || data.date === '') {
+    const prefix = DATE_PREFIX.exec(file)?.[0].slice(0, 10);
+    if (prefix === undefined) {
+      problems.push(
+        `${path} has no date. Add \`date: ${today}\` to its frontmatter, or start the ` +
+          `filename with the date: ${dir}${today}-${file}`,
+      );
+    } else if (!isDay(prefix)) {
+      problems.push(
+        `${path}: the date in the filename, ${prefix}, is not a day that exists. ` +
+          `Rename the file, or add \`date:\` to its frontmatter.`,
+      );
+    }
+  } else if (!isDay(data.date)) {
+    problems.push(`${path}: date "${shown(data.date)}" is not ${shape}.`);
+  }
+
+  if (data.updated !== undefined && data.updated !== null && !isDay(data.updated)) {
+    problems.push(`${path}: updated "${shown(data.updated)}" is not ${shape}.`);
+  }
+  if (Array.isArray(data.revisions)) {
+    for (const entry of data.revisions) {
+      const date = (entry as Record<string, unknown> | null)?.date;
+      if (date !== undefined && date !== null && date !== '' && !isDay(date)) {
+        problems.push(`${path}: the revision dated "${shown(date)}" is not ${shape}.`);
+      }
+    }
+  }
+  return problems;
+}
+
 /**
  * The post's revision history, newest first. What a returning reader wants to
  * know is what changed since they last read it, and the header's "updated"

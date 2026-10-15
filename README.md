@@ -41,12 +41,13 @@ build` (client bundle), `vite build --ssr` (server bundle), `render-cards`
 
 Add a Markdown file to `src/content/posts/`. The filename becomes the URL, with
 a leading date stripped: `2026-01-05-writing-a-post.md` is served at
-`/posts/writing-a-post`.
+`/blog/writing-a-post`. The date prefix is optional when the frontmatter has a
+`date`.
 
 ```markdown
 ---
 title: Writing a post
-date: 2026-01-05 # optional; falls back to the filename prefix
+date: 2026-01-05 # YYYY-MM-DD; may come from the filename prefix instead
 updated: 2026-01-12 # optional
 authors: [you] # ids from src/content/authors.ts
 category: Tutorials # one of siteConfig.categories; optional
@@ -72,6 +73,20 @@ dated in the future are visible with `npm run dev` and excluded from builds, so
 you can queue posts ahead of time. A build strips their text, title and summary
 from the bundle rather than only hiding them from the index; the filename
 remains as a key in the module map.
+
+Every published post needs a date, from its frontmatter or from its filename,
+and the build stops on one it cannot read, naming the file:
+
+```text
+src/content/posts/undated.md has no date. Add `date: 2026-10-15` to its
+frontmatter, or start the filename with the date: src/content/posts/2026-10-15-undated.md
+```
+
+A date is a day written `YYYY-MM-DD` that exists, so `2026-02-30`, `2026-3-2`
+and `20260302` (which YAML reads as a number) are refused too, in `date`,
+`updated` and a revision alike. The build never guesses one: a file's
+modification time is the moment of the checkout on every CI build. A draft is
+not checked until it is published.
 
 A post that changes after publication can carry a `revisions` list, rendered at
 the foot of the post newest first: the question a returning reader has is what

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve, sep } from 'node:path';
 import type { Plugin } from 'vite';
 import type { Element, Root } from 'hast';
 import { toString } from 'hast-util-to-string';
@@ -14,7 +14,13 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
-import { bannerWarnings, buildPost, todayUtc, unlistedWarnings } from '../src/lib/post-builder';
+import {
+  bannerWarnings,
+  buildPost,
+  dateProblems,
+  todayUtc,
+  unlistedWarnings,
+} from '../src/lib/post-builder';
 import { commentWarnings } from '../src/lib/comments';
 import { blogEnabled } from '../src/lib/features';
 import { siteConfig } from '../src/site.config';
@@ -216,6 +222,21 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       if (!MARKDOWN.test(id) || !path.endsWith('.md')) return null;
 
       const raw = readFileSync(path, 'utf8');
+      const isPost = /[\\/]content[\\/]posts[\\/]/.test(path);
+
+      // A post the build cannot date stops the build here, naming the file,
+      // rather than at the feed with an error that names neither. Only on the
+      // `?meta` import, which every post has (src/lib/posts.ts): the page and
+      // the search text are the same file again, and would say it twice more.
+      if (isPost && query === 'meta') {
+        const problems = dateProblems(
+          relative(root, path).split(sep).join('/'),
+          raw,
+          process.env.BUILD_DATE ?? todayUtc(),
+        );
+        if (problems.length > 0) this.error(problems.join('\n'));
+      }
+
       const built = buildPost({ path, raw });
 
       // A banner is the part of a post its author sees least — it is above
@@ -258,7 +279,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // not ship in a chunk nothing links to. Only posts: the site's own pages
       // (about.md, openings.md) come through here too.
       const today = process.env.BUILD_DATE ?? todayUtc();
-      const post = /[\\/]content[\\/]posts[\\/]/.test(path);
+      const post = isPost;
       const unpublished =
         building &&
         ((post && !blogEnabled()) ||
