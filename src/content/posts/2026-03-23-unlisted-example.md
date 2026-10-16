@@ -6,6 +6,7 @@ tags: [guide]
 summary: This post has unlisted set to true, so it is published at its address and left out of every list on the site.
 unlisted: true
 share: false
+cite: false
 ---
 
 You reached this page by its link, which is the only way to reach it. It is
@@ -40,8 +41,10 @@ to read before you publish it properly, notes to go with a talk, or a page
 for one group of readers. When it is ready for everyone, delete the line and
 the post joins the index under its own date.
 
-It also has `share: false`, which is why this page has no Share section at
-its foot: a page sent to a few people by link has nobody to share it with.
+It also has `share: false` and `cite: false`, which is why this page has no
+Share section and no "Cite this post" block at its foot: a page sent to a few
+people by link has nobody to share it with, and is not a version anyone should
+cite.
 
 ## What it is not
 

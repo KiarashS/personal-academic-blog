@@ -19,6 +19,7 @@ import {
   buildPost,
   dateProblems,
   todayUtc,
+  citeWarnings,
   shareWarnings,
   unlistedWarnings,
 } from '../src/lib/post-builder';
@@ -249,6 +250,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         ...commentWarnings(built.meta.slug, frontmatter.comments),
         ...unlistedWarnings(built.meta.slug, frontmatter.unlisted, frontmatter.featured),
         ...shareWarnings(built.meta.slug, frontmatter.share),
+        ...citeWarnings(built.meta.slug, frontmatter.cite),
       ]) {
         bannerProblems.add(message);
       }
@@ -305,6 +307,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
             featured: false,
             unlisted: false,
             share: false,
+            cite: false,
             headings: [],
           };
           return { code: `export default ${JSON.stringify(stub)};`, map: null };

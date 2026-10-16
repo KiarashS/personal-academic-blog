@@ -9,6 +9,7 @@ import {
   seriesParts,
   slugFromPath,
   tableOfContents,
+  citeWarnings,
   shareWarnings,
   unlistedWarnings,
 } from '../lib/post-builder';
@@ -33,6 +34,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     featured: false,
     unlisted: false,
     share: true,
+    cite: true,
     headings: [],
     ...overrides,
   };
@@ -221,6 +223,26 @@ describe('share', () => {
     expect(shareWarnings('p', false)).toEqual([]);
     expect(shareWarnings('p', true)).toEqual([]);
     expect(shareWarnings('p', undefined)).toEqual([]);
+  });
+});
+
+describe('cite', () => {
+  it('is on unless the frontmatter says false', () => {
+    const off = buildPost(post('a.md', '---\ntitle: A\ncite: false\n---\nBody.'));
+    const none = buildPost(post('b.md', '---\ntitle: B\n---\nBody.'));
+    const no = buildPost(post('c.md', '---\ntitle: C\ncite: no\n---\nBody.'));
+    expect(off.meta.cite).toBe(false);
+    expect(none.meta.cite).toBe(true);
+    expect(no.meta.cite).toBe(true);
+  });
+
+  it('says so when the value is not a boolean', () => {
+    expect(citeWarnings('p', 'no')[0]).toBe(
+      'p: `cite: "no"` is not true or false, so the citation block stays. ' +
+        'Write `cite: false` to leave it off this post.',
+    );
+    expect(citeWarnings('p', false)).toEqual([]);
+    expect(citeWarnings('p', undefined)).toEqual([]);
   });
 });
 

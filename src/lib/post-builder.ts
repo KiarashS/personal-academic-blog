@@ -291,6 +291,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       unlisted: data.unlisted === true,
       // On by default: only a written `false` takes the links away.
       share: data.share !== false,
+      cite: data.cite !== false,
     },
     body: content,
     plainText,
@@ -379,10 +380,20 @@ export function unlistedWarnings(slug: string, written: unknown, featured: unkno
  * YAML, which leaves the links where they are, and the author should hear so.
  */
 export function shareWarnings(slug: string, written: unknown): string[] {
+  return switchWarnings(slug, 'share', written, 'the share links stay');
+}
+
+/** The same for `cite`, which takes the "Cite this post" block away. */
+export function citeWarnings(slug: string, written: unknown): string[] {
+  return switchWarnings(slug, 'cite', written, 'the citation block stays');
+}
+
+/** A section that is on unless a post writes `false`, told it was given something else. */
+function switchWarnings(slug: string, field: string, written: unknown, outcome: string): string[] {
   if (written === undefined || written === null || typeof written === 'boolean') return [];
   return [
-    `${slug}: \`share: ${JSON.stringify(written)}\` is not true or false, so the share links ` +
-      'stay. Write `share: false` to leave them off this post.',
+    `${slug}: \`${field}: ${JSON.stringify(written)}\` is not true or false, so ${outcome}. ` +
+      `Write \`${field}: false\` to leave it off this post.`,
   ];
 }
 

@@ -138,7 +138,7 @@ export function PostPage() {
 
       {post.share ? <ShareLinks post={post} /> : null}
 
-      <CiteBlock post={post} />
+      {post.cite ? <CiteBlock post={post} /> : null}
 
       {post.authors.map((author) => (
         <AuthorCard key={author.id} author={author} />

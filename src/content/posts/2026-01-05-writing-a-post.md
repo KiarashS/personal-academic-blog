@@ -47,6 +47,7 @@ doi: 10.5281/zenodo.123   # optional; linked from the post header
 banner: /figures/rig.jpg  # optional; see below
 comments: true            # optional; false, or readonly
 share: true               # optional; false hides the share links
+cite: true                # optional; false hides "Cite this post"
 ---
 ```
 
@@ -77,6 +78,10 @@ Bluesky and email and its Copy link and Print buttons, is on for every post.
 `share: false` leaves it off one post: no heading and no links. The value has
 to be the word `false`; `share: no` is a string in YAML, so the links stay and
 the build says why.
+
+`cite: false` does the same for the "Cite this post" block under it, the
+BibTeX, APA, IEEE and plain-text citations. It too is on unless a post says
+`false`.
 
 ### Banners
 

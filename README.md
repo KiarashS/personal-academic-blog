@@ -57,6 +57,7 @@ draft: false # drafts appear in dev, never in a build
 featured: false # pins the post to the top of the index
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
+cite: true # false: no "Cite this post" block
 series: Running this blog # optional; groups multi-part posts
 part: 1 # optional; position within the series
 revisions: # optional history; see below
@@ -164,6 +165,10 @@ built at render time so no share widget or script loads, then Copy link and
 Print. `share: false` in a post's frontmatter leaves the whole section off that
 post. It is on by default and only `false` turns it off: `share: no` is a
 string in YAML, so the links stay and the build warns.
+
+`cite: false` works the same way for the "Cite this post" block under it, the
+post's citation as BibTeX, APA, IEEE and plain text: on by default, off only
+for a written `false`, and the build warns about anything else.
 
 ### Pagination
 

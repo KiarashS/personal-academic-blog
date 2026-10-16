@@ -15,6 +15,7 @@ const post = (overrides: Partial<Post> = {}): Post => ({
   featured: false,
   unlisted: false,
   share: true,
+  cite: true,
   headings: [],
   ...overrides,
 });

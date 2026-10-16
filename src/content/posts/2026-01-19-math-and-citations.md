@@ -165,3 +165,7 @@ style asks for.
 The date cited is the date of the version being read, so a post that has been
 revised is cited by its revision. The point of all this is that someone quoting
 you does not reconstruct the fields by hand and get your name wrong.
+
+A post that is not meant to be cited, such as an announcement or a draft sent
+to co-authors, can leave the block off with `cite: false` in its frontmatter.
+Like the share links, it is on unless a post says `false`.

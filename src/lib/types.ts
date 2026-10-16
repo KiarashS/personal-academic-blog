@@ -249,6 +249,11 @@ export interface PostFrontmatter {
    * link and print. On unless this is `false`.
    */
   share?: boolean;
+  /**
+   * The "Cite this post" block at the foot of the post: BibTeX, APA, IEEE and
+   * plain text. On unless this is `false`.
+   */
+  cite?: boolean;
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
@@ -299,6 +304,8 @@ export interface PostMeta {
   unlisted: boolean;
   /** See `PostFrontmatter.share`. */
   share: boolean;
+  /** See `PostFrontmatter.cite`. */
+  cite: boolean;
   headings: Heading[];
 }
 
