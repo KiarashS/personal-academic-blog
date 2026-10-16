@@ -160,17 +160,20 @@ export function HomePage() {
   // The front page speaks for the person; the header's tagline speaks for the
   // writing. They are the same line until this one is filled in.
   const tagline = siteConfig.home.tagline || siteConfig.tagline;
+  const name = nameText.trim() || siteConfig.title;
+  // A name of more than one word is what needs the smaller heading to share a
+  // line with the greeting; one word fits at full size.
+  const nameClass =
+    nameStyle === 'signature'
+      ? 'banner__name'
+      : `banner__name banner__name--text${/\s/.test(name) ? ' banner__name--words' : ''}`;
 
   return (
     <div className="banner">
       <div className="banner__text">
-        <h1 className={nameStyle === 'text' ? 'banner__name banner__name--text' : 'banner__name'}>
+        <h1 className={nameClass}>
           {greeting ? <span className="banner__greeting">{greeting} </span> : null}
-          {nameStyle === 'signature' ? (
-            <Signature />
-          ) : (
-            <TypesetName text={nameText.trim() || siteConfig.title} />
-          )}
+          {nameStyle === 'signature' ? <Signature /> : <TypesetName text={name} />}
         </h1>
         <p className="banner__tagline">{tagline}</p>
         <HomeBody />

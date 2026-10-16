@@ -1947,9 +1947,9 @@ switches it. `'signature'` draws the file `signatureFile` names and writes it
 out as if by pen (below). `'text'` sets the name as type, which a visitor reads
 at a glance: on the same line as "Hi, I am" and at the same size, set apart by
 a heavier weight and a stroke of the accent drawn under its lower half the way
-a highlighter runs under a name. The heading is a step smaller in this style so
-the greeting and a two-word name fit on one line from a tablet up; a phone
-breaks after the first name. The stroke draws itself in once the page has settled, and is
+a highlighter runs under a name. A one-word name keeps the heading at full size.
+A longer one sets it a step smaller, so the greeting and a two-word name fit on
+one line from a tablet up; a phone breaks after the first name. The stroke draws itself in once the page has settled, and is
 simply there for a reader who asks for less motion. `nameText` is the words,
 the site's `title` when empty. Either way the heading's text is your full name,
 for a screen reader and a search engine.

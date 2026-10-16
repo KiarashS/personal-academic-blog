@@ -3195,11 +3195,12 @@ img.publication__media-item[width] {
 }
 
 /* With the name as type, the greeting and the name are one line at one size,
-   the name set apart by weight and the stroke under it. A step smaller than the
-   signature's heading, because at 48px "Hi, I am" and a two-word name come to
-   723px and the column is 616: at this size they fit from a tablet up, and a
-   phone breaks after the first name. */
-.banner__name--text {
+   the name set apart by weight and the stroke under it. A name of one word
+   keeps the full display size: "Hi, I am Kiarash" is 368px at 48px. A name of
+   more than one word is set a step smaller, because at 48px "Hi, I am" and a
+   two-word name come to 723px and the column is 616: at this size they fit
+   from a tablet up, and a phone breaks after the first name. */
+.banner__name--words {
   font-size: clamp(1.5rem, 0.9rem + 2.6vw, 2.5rem);
 }
 
@@ -3359,11 +3360,11 @@ img.publication__media-item[width] {
   /* A button keeps the browser's own 13px unless told otherwise, and `em`
      here has to mean the sentence's size for the circle to match its type. */
   font: inherit;
-  height: 1em;
+  height: 0.85em;
   margin-left: 0.18em;
   padding: 0;
-  vertical-align: -0.13em;
-  width: 1em;
+  vertical-align: -0.08em;
+  width: 0.85em;
 }
 
 .latest-posts__toggle svg {
