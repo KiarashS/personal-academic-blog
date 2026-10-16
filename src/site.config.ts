@@ -579,7 +579,8 @@ export const siteConfig: SiteConfig = {
     profileLinkStyle: 'icon', //both, icon, label
     // 'signature' draws the handwritten name; 'text' sets it as type.
     nameStyle: 'text',
-    nameText: '',
+    // the words for 'text'; empty uses your site title
+    nameText: 'Kiarash',
     signatureTilt: -3,
     avatar: '/avatar.jpg',
     news: 5,
@@ -592,6 +593,7 @@ export const siteConfig: SiteConfig = {
       title: 'Latest posts',
       dates: true,
       summaries: false,
+      // empty hides the link to the blog index
       allPostsLabel: 'All posts',
     },
   },
