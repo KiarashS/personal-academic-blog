@@ -578,7 +578,7 @@ export const siteConfig: SiteConfig = {
     profileLinks: true,
     profileLinkStyle: 'icon', //both, icon, label
     // 'signature' draws the handwritten name; 'text' sets it as type.
-    nameStyle: 'signature',
+    nameStyle: 'text',
     nameText: '',
     signatureTilt: -3,
     avatar: '/avatar.jpg',
