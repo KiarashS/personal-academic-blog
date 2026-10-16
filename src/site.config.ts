@@ -69,6 +69,33 @@ export type NavPlace = 'header' | 'footer' | 'both';
 export type ProfileLinkStyle = 'both' | 'icon' | 'label';
 
 /**
+ * How the front page writes the name after the greeting. `signature` draws the
+ * handwritten SVG and writes it out as if by pen; `text` sets the name as type,
+ * in the heading's semibold serif with a highlighter stroke drawn under it.
+ */
+export type NameStyle = 'signature' | 'text';
+
+/**
+ * The list of newest posts behind an (i) button on the front page, put where
+ * `{{latest_posts}}` stands in `src/content/home.md`. Hovering the button, or
+ * focusing it from the keyboard, opens it; a tap opens it on a phone. Take the
+ * placeholder out of `home.md`, or set `enabled` to false, and nothing shows.
+ */
+export interface LatestPostsConfig {
+  enabled: boolean;
+  /** How many posts the list holds, newest first. */
+  count: number;
+  /** The list's heading, and the button's name for a screen reader. */
+  title: string;
+  /** Each post's date beside its title. */
+  dates: boolean;
+  /** Each post's summary under its title. Off keeps the list to one line each. */
+  summaries: boolean;
+  /** The link to the blog index under the list. Empty leaves it out. */
+  allPostsLabel: string;
+}
+
+/**
  * The four places an author's profile links are rendered: the front page's
  * row, the contact page's list, the card under every post the author wrote,
  * and their card on the People page.
@@ -321,12 +348,14 @@ export interface HomeConfig {
    */
   profileLinkStyle: ProfileLinkStyle;
   /**
-   * Draw `src/content/signature.svg` in place of the name. It is inlined
-   * rather than loaded as an image so its ink follows the site's theme,
-   * including a manual light/dark choice, which an `img` cannot. Off renders
-   * the name as type.
+   * `signature` draws `src/content/signature-typeset.svg` in place of the name,
+   * inlined so its ink follows the site's theme. `text` sets the name as type,
+   * which a visitor reads at a glance; see `NameStyle`. Either way a screen
+   * reader and a search engine get the full name.
    */
-  signature: boolean;
+  nameStyle: NameStyle;
+  /** The words for `nameStyle: 'text'`. Empty is the site's `title`. */
+  nameText: string;
   /** Degrees to tilt the signature, the way a signed page is never quite square. */
   signatureTilt: number;
   /**
@@ -367,6 +396,8 @@ export interface HomeConfig {
    * site, because they are not the one arriving at it.
    */
   newsFreshMonths: number;
+  /** The newest posts behind an (i) button; see `LatestPostsConfig`. */
+  latestPosts: LatestPostsConfig;
 }
 
 /**
@@ -546,12 +577,23 @@ export const siteConfig: SiteConfig = {
     description: 'Kiarash Soleimanzadeh: a curious mind working on AI for health.',
     profileLinks: true,
     profileLinkStyle: 'icon', //both, icon, label
-    signature: true,
+    // 'signature' draws the handwritten name; 'text' sets it as type.
+    nameStyle: 'signature',
+    nameText: '',
     signatureTilt: -3,
     avatar: '/avatar.jpg',
     news: 5,
     newsRows: 3,
     newsFreshMonths: 12,
+    // Shown where {{latest_posts}} stands in src/content/home.md.
+    latestPosts: {
+      enabled: true,
+      count: 3,
+      title: 'Latest posts',
+      dates: true,
+      summaries: false,
+      allPostsLabel: 'All posts',
+    },
   },
   cv: '',
   /*

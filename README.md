@@ -1923,14 +1923,45 @@ home: {
   tagline: '',            // the line under the name; empty uses the site's
   description: '',        // what a link to `/` previews as; empty uses the site's
   profileLinks: true,     // ORCID, Scholar and the rest, under the lines
-  signature: true,        // write the name rather than set it as type
+  nameStyle: 'signature', // 'signature' writes the name; 'text' sets it as type
+  nameText: '',           // the words for 'text'; empty uses the site's title
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
   news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
   newsRows: 3,            // entries the block stands at before it scrolls; 0 to grow
   newsFreshMonths: 12,    // months of silence before the block retires itself
+  latestPosts: {          // the list behind {{latest_posts}} in home.md
+    enabled: true,
+    count: 3,             // posts, newest first
+    title: 'Latest posts',
+    dates: true,
+    summaries: false,
+    allPostsLabel: 'All posts', // the link to the blog index; empty for none
+  },
 },
 ```
+
+`home.nameStyle` is how the name after the greeting is written, and one word
+switches it. `'signature'` draws `src/content/signature-typeset.svg` and writes
+it out as if by pen (below). `'text'` sets the name as type, which a visitor
+reads at a glance: the heading's serif at a heavier weight, with a stroke of
+the accent drawn under its lower half the way a highlighter runs under a name,
+and "Hi, I am" moved to a small line of its own above it so the name has the
+column's width. The stroke draws itself in once the page has settled, and is
+simply there for a reader who asks for less motion. `nameText` is the words,
+the site's `title` when empty. Either way the heading's text is your full name,
+for a screen reader and a search engine.
+
+`{{latest_posts}}` in `src/content/home.md` puts an (i) button where it stands,
+and behind it a list of the newest posts: title, date, and a link to the blog
+index. The front page ships with it after "my blog". Hovering the button opens
+the list, and so does focusing it from the keyboard, with Tab moving into the
+links and Escape closing it; on a phone a tap opens it and a second tap, or one
+anywhere else, closes it. It is built into the page's HTML, so it works before
+any script runs. Take the placeholder out of `home.md`, or set
+`latestPosts.enabled` to `false`, and nothing shows; written inside backticks it
+is left as text. Unlisted posts and drafts are never in it, and with the blog
+switched off it is empty and the placeholder goes.
 
 `home.tagline` is the front page's own line. `siteConfig.tagline` describes the
 writing and sits under the site title in the header on every other page, and on
@@ -2224,7 +2255,7 @@ The file is inlined rather than loaded as an image, so `.ks-stroke`, `.ks-glyph`
 and `.ks-flourish` inside it take their ink from the page's own colour token. An
 `img` would keep whatever colour the file was drawn in, and a reader who picks
 dark mode on a light system would get dark ink on a dark page. Replace the file
-with your own drawing, or set `signature: false` and the name is set as type. It
+with your own drawing, or set `nameStyle: 'text'` and the name is set as type. It
 is sized in pixels per breakpoint, not in `em`: the drawing has to keep its
 proportions rather than wobble against the type beside it.
 

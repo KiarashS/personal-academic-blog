@@ -372,6 +372,10 @@
    and carried onto each line when a highlight wraps. */
 .prose mark {
   border-radius: 2px;
+
+  /* Safari reads only the prefixed name. */
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   padding: 0.05em 0.15em;
 }

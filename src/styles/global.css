@@ -3194,6 +3194,65 @@ img.publication__media-item[width] {
   font-weight: 400;
 }
 
+/*
+ * The name as type (`home.nameStyle: 'text'`). A heavier weight than the
+ * greeting it follows and tighter tracking, which is what display serif wants
+ * at this size, over a stroke of the accent through the lower half of the
+ * letters, like a highlighter run under a name on a page. The stroke is drawn
+ * in, left to right, once the page has settled; a reader who asks for less
+ * motion gets it already drawn. `clone` gives each line its own stroke when
+ * the name wraps on a phone.
+ */
+.banner__typeset {
+  --name-stroke: color-mix(in srgb, var(--accent) 24%, transparent);
+
+  animation: name-stroke 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.4s both;
+  background-image: linear-gradient(var(--name-stroke), var(--name-stroke));
+  background-position: 0 88%;
+  background-repeat: no-repeat;
+  background-size: 100% 0.34em;
+  border-radius: 0.1em;
+
+  /* Safari still reads only the prefixed name, and nothing in this build adds
+     prefixes. */
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  font-weight: 620;
+  letter-spacing: -0.018em;
+
+  /* The stroke runs a little past the letters at each end; the margin takes
+     that back, so the name still starts on the column's edge with the lines
+     above and below it. */
+  margin-left: -0.06em;
+  padding: 0 0.06em;
+}
+
+/* With the name as type, the greeting is a line of its own above it, small
+   and muted, so the name has the full width of the column: run in after "Hi,
+   I am" at display size, a two-word name broke across two lines even on a
+   wide screen. */
+.banner__name--text .banner__greeting {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.46em;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.2em;
+}
+
+@keyframes name-stroke {
+  from {
+    background-size: 0% 0.34em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner__typeset {
+    animation: none;
+  }
+}
+
 /* Sized against the type it stands in, at 3.667em — the 176px the drawing was
    drawn for, over the 48px the name reaches at its largest. The tilt is set
    inline, from the config.
@@ -3280,6 +3339,145 @@ img.publication__media-item[width] {
 
 .banner__lines a {
   font-weight: 400;
+}
+
+/* The newest posts, behind an (i) where `{{latest_posts}}` stands in home.md
+   (src/lib/latest-posts.ts). Opened on hover and on focus by these rules
+   alone, so it works before any script; HomePage adds a tap for a phone,
+   Escape, and `--latest-shift`, which moves it left when it would run past the
+   window's edge. `data-closed` is a close the reader asked for and outranks
+   hover and focus; `data-open` is a tap or a click and outranks neither. */
+.latest-posts {
+  position: relative;
+}
+
+.latest-posts__toggle {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.1em;
+  margin-left: 0.15em;
+  padding: 0;
+  vertical-align: -0.12em;
+  width: 1.1em;
+}
+
+.latest-posts__toggle svg {
+  height: 100%;
+  width: 100%;
+}
+
+.latest-posts__toggle:hover,
+.latest-posts[data-open] .latest-posts__toggle,
+.latest-posts:focus-within .latest-posts__toggle {
+  color: var(--accent);
+}
+
+.latest-posts__toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Out of the line's flow, so opening it moves nothing. The hide waits a
+   moment, which is the time a pointer needs to cross from the button to the
+   list without it vanishing on the way. */
+.latest-posts__panel {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 400;
+  left: -0.75rem;
+  line-height: 1.45;
+  opacity: 0;
+  padding: 0.75rem 0.9rem 0.8rem;
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  transform: translate(var(--latest-shift, 0), -4px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    visibility 0s linear 0.25s;
+  visibility: hidden;
+  width: min(22rem, calc(100vw - 24px));
+  z-index: 30;
+}
+
+.latest-posts:hover .latest-posts__panel,
+.latest-posts:focus-within .latest-posts__panel,
+.latest-posts[data-open] .latest-posts__panel {
+  opacity: 1;
+  transform: translate(var(--latest-shift, 0), 0);
+  transition-delay: 0s;
+  visibility: visible;
+}
+
+.latest-posts[data-closed] .latest-posts__panel {
+  opacity: 0;
+  transition-delay: 0s;
+  visibility: hidden;
+}
+
+.latest-posts__title {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.latest-posts__list {
+  display: block;
+}
+
+.latest-posts__item {
+  display: block;
+  padding: 0.3rem 0;
+}
+
+.latest-posts__item + .latest-posts__item {
+  border-top: 1px solid var(--rule);
+}
+
+.banner__lines .latest-posts__link {
+  font-weight: 500;
+}
+
+.latest-posts__date {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.latest-posts__summary {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.82rem;
+  margin-top: 0.1rem;
+}
+
+.latest-posts__all {
+  color: var(--text-muted);
+  display: inline-block;
+  font-size: 0.82rem;
+  margin-top: 0.45rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .latest-posts__panel {
+    transform: translate(var(--latest-shift, 0), 0);
+    transition: visibility 0s linear 0.25s;
+  }
 }
 
 /* Not the bordered chips the author cards use: those sit under a post as one
