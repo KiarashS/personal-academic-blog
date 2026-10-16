@@ -337,7 +337,8 @@ archive, the tag and category pages, search, related posts, the newer/older
 links, the feeds and the sitemap. Its page asks search engines not to index
 it. Use it for a page you mean to send by link — to reviewers, or alongside a
 talk — and nothing else. It is unlisted, not private: anyone with the address
-can read it.
+can read it. [An unlisted example](/blog/unlisted-example) shows one; this link
+is the only way to it.
 
 ## Structure
 
