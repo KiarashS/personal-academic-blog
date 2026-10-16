@@ -244,6 +244,11 @@ export interface PostFrontmatter {
    * link and nothing else.
    */
   unlisted?: boolean;
+  /**
+   * The share links at the foot of the post: LinkedIn, X, Bluesky, email, copy
+   * link and print. On unless this is `false`.
+   */
+  share?: boolean;
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
@@ -292,6 +297,8 @@ export interface PostMeta {
   featured: boolean;
   /** See `PostFrontmatter.unlisted`. */
   unlisted: boolean;
+  /** See `PostFrontmatter.share`. */
+  share: boolean;
   headings: Heading[];
 }
 

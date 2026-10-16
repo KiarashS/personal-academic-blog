@@ -289,6 +289,8 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       draft: data.draft === true,
       featured: data.featured === true,
       unlisted: data.unlisted === true,
+      // On by default: only a written `false` takes the links away.
+      share: data.share !== false,
     },
     body: content,
     plainText,
@@ -369,6 +371,19 @@ export function unlistedWarnings(slug: string, written: unknown, featured: unkno
     ];
   }
   return [];
+}
+
+/**
+ * What the build should say about a post's `share` setting. Like `unlisted`,
+ * only `true` and `false` mean anything: `share: no` is the string "no" in
+ * YAML, which leaves the links where they are, and the author should hear so.
+ */
+export function shareWarnings(slug: string, written: unknown): string[] {
+  if (written === undefined || written === null || typeof written === 'boolean') return [];
+  return [
+    `${slug}: \`share: ${JSON.stringify(written)}\` is not true or false, so the share links ` +
+      'stay. Write `share: false` to leave them off this post.',
+  ];
 }
 
 /**

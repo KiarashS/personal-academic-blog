@@ -56,6 +56,7 @@ summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
 featured: false # pins the post to the top of the index
 unlisted: false # true: published at its address, left out of every list
+share: true # false: no Share section (share links, copy link, print)
 series: Running this blog # optional; groups multi-part posts
 part: 1 # optional; position within the series
 revisions: # optional history; see below
@@ -155,6 +156,14 @@ an unlisted post is also kept out of the search index, not just the results.
 The value has to be `true`: `unlisted: yes` is a string in YAML and leaves the
 post listed, and the build says so, as it does for a post both `featured` and
 `unlisted` (it stays unlisted).
+
+### Share links
+
+Every post ends with a Share section: links to LinkedIn, X, Bluesky and email,
+built at render time so no share widget or script loads, then Copy link and
+Print. `share: false` in a post's frontmatter leaves the whole section off that
+post. It is on by default and only `false` turns it off: `share: no` is a
+string in YAML, so the links stay and the build warns.
 
 ### Pagination
 

@@ -9,6 +9,7 @@ import {
   seriesParts,
   slugFromPath,
   tableOfContents,
+  shareWarnings,
   unlistedWarnings,
 } from '../lib/post-builder';
 import { toPlainText, readingMinutes } from '../lib/markdown-text';
@@ -31,6 +32,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     draft: false,
     featured: false,
     unlisted: false,
+    share: true,
     headings: [],
     ...overrides,
   };
@@ -198,6 +200,27 @@ describe('unlisted', () => {
 
   it('says so when a post is both featured and unlisted', () => {
     expect(unlistedWarnings('p', true, true)[0]).toContain('stays unlisted');
+  });
+});
+
+describe('share', () => {
+  it('is on unless the frontmatter says false', () => {
+    const off = buildPost(post('a.md', '---\ntitle: A\nshare: false\n---\nBody.'));
+    const on = buildPost(post('b.md', '---\ntitle: B\nshare: true\n---\nBody.'));
+    const none = buildPost(post('c.md', '---\ntitle: C\n---\nBody.'));
+    const no = buildPost(post('d.md', '---\ntitle: D\nshare: no\n---\nBody.'));
+    expect(off.meta.share).toBe(false);
+    expect(on.meta.share).toBe(true);
+    expect(none.meta.share).toBe(true);
+    // `no` is a string in YAML, so the links stay, and the build says why.
+    expect(no.meta.share).toBe(true);
+  });
+
+  it('says so when the value is not a boolean', () => {
+    expect(shareWarnings('p', 'no')[0]).toContain('`share: "no"` is not true or false');
+    expect(shareWarnings('p', false)).toEqual([]);
+    expect(shareWarnings('p', true)).toEqual([]);
+    expect(shareWarnings('p', undefined)).toEqual([]);
   });
 });
 

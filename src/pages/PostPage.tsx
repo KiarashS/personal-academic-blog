@@ -136,7 +136,7 @@ export function PostPage() {
 
       <Revisions revisions={post.revisions} />
 
-      <ShareLinks post={post} />
+      {post.share ? <ShareLinks post={post} /> : null}
 
       <CiteBlock post={post} />
 

@@ -46,6 +46,7 @@ slug: custom-url          # optional override of the filename
 doi: 10.5281/zenodo.123   # optional; linked from the post header
 banner: /figures/rig.jpg  # optional; see below
 comments: true            # optional; false, or readonly
+share: true               # optional; false hides the share links
 ---
 ```
 
@@ -68,6 +69,14 @@ That last part is presentation rather than enforcement — giscus has no
 read-only mode, so the box is hidden by a stylesheet giscus loads for itself,
 and on its own the discussion on GitHub would still accept posts. The deploy
 locks it, if the post has one yet, which is what closes it.
+
+### Share links
+
+The Share section at the foot of a post, with its links to LinkedIn, X,
+Bluesky and email and its Copy link and Print buttons, is on for every post.
+`share: false` leaves it off one post: no heading and no links. The value has
+to be the word `false`; `share: no` is a string in YAML, so the links stay and
+the build says why.
 
 ### Banners
 

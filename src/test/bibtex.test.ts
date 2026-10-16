@@ -14,6 +14,7 @@ const post = (overrides: Partial<Post> = {}): Post => ({
   comments: 'on',
   featured: false,
   unlisted: false,
+  share: true,
   headings: [],
   ...overrides,
 });
