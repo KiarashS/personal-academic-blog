@@ -587,7 +587,7 @@ export const siteConfig: SiteConfig = {
     profileLinks: true,
     profileLinkStyle: 'icon', //both, icon, label
     // 'signature' draws the handwritten name; 'text' sets it as type.
-    nameStyle: 'signature',
+    nameStyle: 'text',
     // the words for 'text'; empty uses your site title
     nameText: 'Kiarash',
     // For 'signature': signature-typeset.svg, signature-script.svg or signature.svg.
