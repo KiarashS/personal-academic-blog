@@ -70,6 +70,20 @@ describe('fillLatestPosts', () => {
     expect(fillLatestPosts(html, list, { ...config, count: 0 })).not.toContain('latest-posts');
   });
 
+  it('keeps the button on the line of the words before it', () => {
+    const spaced = `<p>On <a href="/blog">my blog</a> ${LATEST_POSTS_PLACEHOLDER}.</p>`;
+    const out = fillLatestPosts(spaced, list, config);
+    expect(out).toContain('my blog</a>\u00a0<span class="latest-posts"');
+    // With nothing to show, the space before the full stop goes with it.
+    expect(fillLatestPosts(spaced, list, { ...config, enabled: false })).toBe(
+      '<p>On <a href="/blog">my blog</a>.</p>',
+    );
+    // Before a word it stays, or the two words would run together.
+    expect(fillLatestPosts(`<p>blog ${LATEST_POSTS_PLACEHOLDER} and more</p>`, [], config)).toBe(
+      '<p>blog  and more</p>',
+    );
+  });
+
   it('leaves HTML without the placeholder exactly as it was', () => {
     const plain = '<p>On <a href="/blog">my blog</a>.</p>';
     expect(fillLatestPosts(plain, list, config)).toBe(plain);
@@ -101,5 +115,12 @@ describe('latestPostsMarkup', () => {
     );
     expect(out).toContain('aria-label="Latest posts"');
     expect(out).toContain('role="list"');
+  });
+
+  it('draws a chevron, hidden from a screen reader, which reads the label', () => {
+    const out = latestPostsMarkup(list, config);
+    expect(out).toContain('<path d="M3.5 6 8 10.5 12.5 6"');
+    expect(out).toContain('aria-hidden="true"');
+    expect(out).not.toContain('<circle');
   });
 });

@@ -76,7 +76,7 @@ export type ProfileLinkStyle = 'both' | 'icon' | 'label';
 export type NameStyle = 'signature' | 'text';
 
 /**
- * The list of newest posts behind an (i) button on the front page, put where
+ * The list of newest posts behind a chevron button on the front page, put where
  * `{{latest_posts}}` stands in `src/content/home.md`. Hovering the button, or
  * focusing it from the keyboard, opens it; a tap opens it on a phone. Take the
  * placeholder out of `home.md`, or set `enabled` to false, and nothing shows.
@@ -405,7 +405,7 @@ export interface HomeConfig {
    * site, because they are not the one arriving at it.
    */
   newsFreshMonths: number;
-  /** The newest posts behind an (i) button; see `LatestPostsConfig`. */
+  /** The newest posts behind a chevron button; see `LatestPostsConfig`. */
   latestPosts: LatestPostsConfig;
 }
 

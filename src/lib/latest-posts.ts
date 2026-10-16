@@ -17,12 +17,15 @@ export interface LatestPost {
 const escape = (text: string): string =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** The (i): a circle with the letter in it, drawn in the text's own colour. */
-const INFO_ICON =
+/**
+ * A chevron: the mark for "a list opens here", the one on every dropdown, so a
+ * reader knows what the button does before trying it. It turns over while the
+ * list is open. Drawn in the text's own colour.
+ */
+const CHEVRON =
   '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">' +
-  '<circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" stroke-width="1.3"/>' +
-  '<path d="M8 7.1v4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
-  '<circle cx="8" cy="4.75" r="0.95" fill="currentColor"/>' +
+  '<path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+  'stroke-linecap="round" stroke-linejoin="round"/>' +
   '</svg>';
 
 /**
@@ -74,7 +77,7 @@ export function latestPostsMarkup(
   return (
     `<span class="latest-posts" data-latest-posts>` +
     `<button type="button" class="latest-posts__toggle" aria-expanded="false" aria-controls="${id}" ` +
-    `aria-label="${title}">${INFO_ICON}</button>` +
+    `aria-label="${title}">${CHEVRON}</button>` +
     `<span class="latest-posts__panel" id="${id}" role="group" aria-label="${title}">` +
     `<span class="latest-posts__title" aria-hidden="true">${title}</span>` +
     `<span class="latest-posts__list" role="list">${items}</span>${all}</span></span>`
@@ -86,6 +89,11 @@ export function latestPostsMarkup(
  * taken out when there is no list to show: the feature is off, or there are no
  * posts. A placeholder inside `code` or `pre` is left as written, so `home.md`
  * can mention the syntax it is using.
+ *
+ * A space written before the placeholder becomes a no-break space, so a narrow
+ * screen cannot put the button at the start of a line by itself, away from the
+ * words it belongs to. With nothing to show, a space between the words and
+ * the punctuation after the placeholder goes, so "my blog ." reads "my blog.".
  */
 export function fillLatestPosts(
   html: string,
@@ -103,7 +111,12 @@ export function fillLatestPosts(
         : piece.split(LATEST_POSTS_PLACEHOLDER).reduce((out, rest) => {
             const markup = latestPostsMarkup(list, config, count);
             count += 1;
-            return `${out}${markup}${rest}`;
+            const before = markup
+              ? out.replace(/[ \t\n]+$/, '\u00a0')
+              : /^[.,;:!?)]/.test(rest)
+                ? out.replace(/[ \t\n]+$/, '')
+                : out;
+            return `${before}${markup}${rest}`;
           }),
     )
     .join('');

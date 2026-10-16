@@ -3338,7 +3338,7 @@ img.publication__media-item[width] {
   font-weight: 400;
 }
 
-/* The newest posts, behind an (i) where `{{latest_posts}}` stands in home.md
+/* The newest posts, behind a chevron where `{{latest_posts}}` stands in home.md
    (src/lib/latest-posts.ts). Opened on hover and on focus by these rules
    alone, so it works before any script; HomePage adds a tap for a phone,
    Escape, and `--latest-shift`, which moves it left when it would run past the
@@ -3358,18 +3358,38 @@ img.publication__media-item[width] {
   display: inline-flex;
 
   /* A button keeps the browser's own 13px unless told otherwise, and `em`
-     here has to mean the sentence's size for the circle to match its type. */
+     here has to mean the sentence's size for the chevron to match its type. */
   font: inherit;
-  height: 0.85em;
-  margin-left: 0.18em;
+  height: 0.8em;
   padding: 0;
-  vertical-align: -0.08em;
-  width: 0.85em;
+
+  /* Sits the chevron across the x-height, the middle of the lowercase letters
+     beside it, rather than up at the capitals. */
+  vertical-align: -0.16em;
+  width: 0.8em;
 }
 
 .latest-posts__toggle svg {
   height: 100%;
+  transition: transform 0.2s ease;
   width: 100%;
+}
+
+/* Turned over while the list is open, on the same rules that open it. */
+.latest-posts:hover .latest-posts__toggle svg,
+.latest-posts:focus-within .latest-posts__toggle svg,
+.latest-posts[data-open] .latest-posts__toggle svg {
+  transform: rotate(180deg);
+}
+
+.latest-posts[data-closed] .latest-posts__toggle svg {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .latest-posts__toggle svg {
+    transition: none;
+  }
 }
 
 .latest-posts__toggle:hover,

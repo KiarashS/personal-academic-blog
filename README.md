@@ -1954,9 +1954,11 @@ simply there for a reader who asks for less motion. `nameText` is the words,
 the site's `title` when empty. Either way the heading's text is your full name,
 for a screen reader and a search engine.
 
-`{{latest_posts}}` in `src/content/home.md` puts an (i) button where it stands,
-and behind it a list of the newest posts: title, date, and a link to the blog
-index. The front page ships with it after "my blog". Hovering the button opens
+`{{latest_posts}}` in `src/content/home.md` puts a small chevron button where
+it stands, and behind it a list of the newest posts: title, date, and a link to
+the blog index. The front page ships with it after "my blog". The chevron turns
+over while the list is open, and a space before the placeholder is kept as a
+no-break space, so the button never starts a line on its own. Hovering the button opens
 the list, and so does focusing it from the keyboard, with Tab moving into the
 links and Escape closing it; on a phone a tap opens it and a second tap, or one
 anywhere else, closes it. It is built into the page's HTML, so it works before

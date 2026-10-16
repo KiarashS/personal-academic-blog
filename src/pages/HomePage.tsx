@@ -138,7 +138,7 @@ function TypesetName({ text }: { text: string }) {
  * The front page: a greeting, a name, a line about yourself, and the two or
  * three sentences in `home.md` that point at everything else. It fills the
  * window and stops there. The blog has its own index and the nav is one click
- * away; the newest posts are behind an (i) in `home.md`, not listed here.
+ * away; the newest posts are behind a chevron in `home.md`, not listed here.
  *
  * The exception is the news block, which is three dated lines rather than a
  * list of writing: what a visitor wants from a page like this is to know
