@@ -348,7 +348,7 @@ export interface HomeConfig {
    */
   profileLinkStyle: ProfileLinkStyle;
   /**
-   * `signature` draws `src/content/signature-typeset.svg` in place of the name,
+   * `signature` draws the file `signatureFile` names in place of the name,
    * inlined so its ink follows the site's theme. `text` sets the name as type,
    * which a visitor reads at a glance; see `NameStyle`. Either way a screen
    * reader and a search engine get the full name.
@@ -356,6 +356,15 @@ export interface HomeConfig {
   nameStyle: NameStyle;
   /** The words for `nameStyle: 'text'`. Empty is the site's `title`. */
   nameText: string;
+  /**
+   * Which drawing `nameStyle: 'signature'` writes: a file in `src/content`.
+   * The repo has three. `signature-typeset.svg` is the name set in a
+   * handwriting font, `signature-script.svg` is drawn as pen strokes, and
+   * `signature.svg` is traced from a real signature. Any other file works if
+   * it follows the same classes; see the README. A name that is not there
+   * stops the build and lists the ones that are.
+   */
+  signatureFile: string;
   /** Degrees to tilt the signature, the way a signed page is never quite square. */
   signatureTilt: number;
   /**
@@ -581,6 +590,8 @@ export const siteConfig: SiteConfig = {
     nameStyle: 'text',
     // the words for 'text'; empty uses your site title
     nameText: 'Kiarash',
+    // For 'signature': signature-typeset.svg, signature-script.svg or signature.svg.
+    signatureFile: 'signature-typeset.svg',
     signatureTilt: -3,
     avatar: '/avatar.jpg',
     news: 5,

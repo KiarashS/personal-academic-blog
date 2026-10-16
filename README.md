@@ -1925,6 +1925,7 @@ home: {
   profileLinks: true,     // ORCID, Scholar and the rest, under the lines
   nameStyle: 'signature', // 'signature' writes the name; 'text' sets it as type
   nameText: '',           // the words for 'text'; empty uses the site's title
+  signatureFile: 'signature-typeset.svg', // which drawing 'signature' writes, in src/content
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
   news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
@@ -1942,12 +1943,13 @@ home: {
 ```
 
 `home.nameStyle` is how the name after the greeting is written, and one word
-switches it. `'signature'` draws `src/content/signature-typeset.svg` and writes
-it out as if by pen (below). `'text'` sets the name as type, which a visitor
-reads at a glance: the heading's serif at a heavier weight, with a stroke of
-the accent drawn under its lower half the way a highlighter runs under a name,
-and "Hi, I am" moved to a small line of its own above it so the name has the
-column's width. The stroke draws itself in once the page has settled, and is
+switches it. `'signature'` draws the file `signatureFile` names and writes it
+out as if by pen (below). `'text'` sets the name as type, which a visitor reads
+at a glance: on the same line as "Hi, I am" and at the same size, set apart by
+a heavier weight and a stroke of the accent drawn under its lower half the way
+a highlighter runs under a name. The heading is a step smaller in this style so
+the greeting and a two-word name fit on one line from a tablet up; a phone
+breaks after the first name. The stroke draws itself in once the page has settled, and is
 simply there for a reader who asks for less motion. `nameText` is the words,
 the site's `title` when empty. Either way the heading's text is your full name,
 for a screen reader and a search engine.
@@ -2129,10 +2131,9 @@ node scripts/trace-signature.mjs src/content/signature-typeset.svg 19
 It emits one `.ks-glyph` path per glyph rather than one for the word, which is
 what makes the name arrive a letter at a time; a single path would be one shape
 and would arrive all at once. Ligatures and kerning are on, because a script
-face uses ligatures to make its joins meet. It prints the two numbers
-`.banner__signature` needs — the aspect ratio, and the share of the box hanging
-below the letters' baseline, which is what stops the name floating above the
-line of type beside it.
+face uses ligatures to make its joins meet. Its baseline is y=0, where the
+font puts it, which is what `plugins/signature.ts` assumes when it works out
+how far the box hangs below the line of type.
 
 The drawing is fixed at 560 units wide rather than at a type size, because a
 type size means nothing across fonts: an em is 2048 units in one face and 1000
@@ -2221,9 +2222,23 @@ the default region cut two thirds of it away. The viewBox is the region that is
 always right.
 
 The repo carries two other signatures, and `Signature.tsx` animates `.ks-pen`
-and `.ks-stroke` alike, so all three are swappable: change the import at the top
-of that file, and the two proportions in `.banner__signature`, and nothing else
-moves.
+and `.ks-stroke` alike, so all three are swappable with one line of config:
+
+```ts
+signatureFile: 'signature-typeset.svg', // the default, set from a font
+signatureFile: 'signature-script.svg',  // drawn as pen strokes
+signatureFile: 'signature.svg',         // traced from a real signature
+```
+
+Only the chosen file is built into the page. `plugins/signature.ts` reads it
+and works out the two proportions `.banner__signature` sizes the box with: the
+aspect ratio, from the viewBox, and the share of the drawing that hangs below
+the letters' baseline. The baseline is y=0 unless the root `<svg>` says
+otherwise with `data-baseline` (both files below carry `data-baseline="150"`),
+so a drawing of your own needs that attribute if its letters do not sit on
+y=0, and a filename in `src/content`. A name that is not there stops the build
+and lists the signatures that are. The writing speed is set for the default
+drawing, so the other two take the same 5.5 seconds.
 
 `src/content/signature-script.svg` is the name written as pen strokes to begin
 with — four of them, plus a swash — so the letters _are_ the path and no mask is

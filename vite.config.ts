@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { markdown } from './plugins/markdown';
 import { bibliography } from './plugins/bibliography';
 import { emojiContent } from './plugins/emoji-content';
+import { signature } from './plugins/signature';
 
 // The day the site was built, in UTC, for pages that list things until a date:
 // see `src/lib/today.ts`. The browser and server bundles are two `vite build`
@@ -14,7 +15,7 @@ const buildDate = process.env.BUILD_DATE ?? new Date().toISOString().slice(0, 10
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   define: { __BUILD_DATE__: JSON.stringify(buildDate) },
-  plugins: [react(), markdown(), bibliography(), emojiContent()],
+  plugins: [react(), markdown(), bibliography(), emojiContent(), signature()],
   test: {
     environment: 'node',
     include: ['src/test/**/*.test.ts'],

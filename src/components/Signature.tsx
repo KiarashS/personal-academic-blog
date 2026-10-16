@@ -1,21 +1,16 @@
 import { useEffect, useRef } from 'react';
-import signatureSource from '../content/signature-typeset.svg?raw';
+import { descent, markup, ratio } from 'virtual:signature';
 import { siteConfig } from '../site.config';
 
-/**
- * The file is stored exactly as it is published, `role="img"` included, which
- * axe reports as an image with no alternative text. The name belongs on the
- * wrapper, which is what a screen reader announces, so the inner element is
- * hidden from the accessibility tree here rather than by editing the drawing.
- */
-const markup = signatureSource.replace('role="img"', 'aria-hidden="true" focusable="false"');
-// One object for the life of the page; see src/lib/inner-html.ts.
+// One object for the life of the page; see src/lib/inner-html.ts. The markup is
+// the file `home.signatureFile` names, read by plugins/signature.ts.
 const inner = { __html: markup };
 
 /**
  * The name, a lift, and then the swash under it.
  *
- * At this size the drawing is close to life size on a desktop screen — 176px is
+ * The timing is worked out for `signature-typeset.svg`, the default. At this
+ * size the drawing is close to life size on a desktop screen — 176px is
  * about 4.7cm — and the pen lays down 2347 user units of ink, 693px or 18.3cm
  * of it, because script doubles back on itself and the width is not the
  * distance. Handwriting runs at a few centimetres a second and a signature
@@ -39,11 +34,11 @@ const FLOURISH_MS = 800;
  * their dash offsets writes the name in the order it was written. That is what
  * makes this look like writing rather than a wipe.
  *
- * The alternative in the repo, `signature.svg`, is a traced signature: filled
- * outlines, which cannot be drawn stroke-wise at all, so it carries a separate
- * centreline in `.ks-pen` and is revealed through it as a mask. Both classes
- * are animated the same way here, which is what makes the two files swappable
- * by changing the import above and nothing else.
+ * `signature.svg` is a traced signature, and `signature-typeset.svg` a name set
+ * in a font: filled outlines, which cannot be drawn stroke-wise at all, so
+ * each carries a separate centreline in `.ks-pen` and is revealed through it
+ * as a mask. Both classes are animated the same way here, which is what makes
+ * the files swappable with `home.signatureFile` and nothing else.
  *
  * It plays when the drawing comes into view and again on a click, and the SVG
  * is inlined so the ink comes from the page's own tokens — loaded as an image
@@ -172,7 +167,13 @@ export function Signature() {
       dangerouslySetInnerHTML={inner}
       ref={wrap}
       role="img"
-      style={{ transform: `rotate(${siteConfig.home.signatureTilt}deg)` }}
+      style={
+        {
+          '--signature-ratio': ratio,
+          '--signature-descent': descent,
+          transform: `rotate(${siteConfig.home.signatureTilt}deg)`,
+        } as React.CSSProperties
+      }
     />
   );
 }

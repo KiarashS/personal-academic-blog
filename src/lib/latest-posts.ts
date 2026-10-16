@@ -20,8 +20,8 @@ const escape = (text: string): string =>
 /** The (i): a circle with the letter in it, drawn in the text's own colour. */
 const INFO_ICON =
   '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">' +
-  '<circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
-  '<path d="M8 7.1v4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+  '<circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" stroke-width="1.3"/>' +
+  '<path d="M8 7.1v4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
   '<circle cx="8" cy="4.75" r="0.95" fill="currentColor"/>' +
   '</svg>';
 

@@ -26,5 +26,17 @@ declare module 'virtual:emoji-map' {
   export const EMOJI: Record<string, string>;
 }
 
+declare module 'virtual:signature' {
+  /**
+   * The drawing `home.signatureFile` names, built by `plugins/signature.ts`:
+   * its markup, ready to inline, and the two proportions that size its box.
+   */
+  export const markup: string;
+  /** Height over width, from the viewBox. */
+  export const ratio: number;
+  /** The share of the drawing's height below the letters' baseline. */
+  export const descent: number;
+}
+
 /** The build's day in UTC, `YYYY-MM-DD`; set in `vite.config.ts`. */
 declare const __BUILD_DATE__: string;

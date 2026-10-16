@@ -113,10 +113,6 @@ console.log(
   `wrote ${OUT}: "${NAME}" in ${font.names.fullName?.en ?? basename(FONT)}, ` +
     `${paths.length} glyphs, ${n(width)}×${n(height)} units, ${file.length} bytes`,
 );
-// Both go into .banner__signature. The second is the share of the box that
-// hangs below the letters' baseline: the box bottom is what sits on the line of
-// type beside it, so without that offset the name floats above the line by the
-// depth of its own descenders.
-console.log(`  --signature-ratio: ${(height / width).toFixed(4)};`);
-console.log(`  --signature-descent: ${((top + height) / height).toFixed(4)};`);
+// The baseline is y=0, where the font puts it, so the file needs no
+// `data-baseline`; plugins/signature.ts reads the proportions off the viewBox.
 console.log(`now: node scripts/trace-signature.mjs ${OUT}`);

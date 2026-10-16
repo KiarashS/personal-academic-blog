@@ -3194,6 +3194,15 @@ img.publication__media-item[width] {
   font-weight: 400;
 }
 
+/* With the name as type, the greeting and the name are one line at one size,
+   the name set apart by weight and the stroke under it. A step smaller than the
+   signature's heading, because at 48px "Hi, I am" and a two-word name come to
+   723px and the column is 616: at this size they fit from a tablet up, and a
+   phone breaks after the first name. */
+.banner__name--text {
+  font-size: clamp(1.5rem, 0.9rem + 2.6vw, 2.5rem);
+}
+
 /*
  * The name as type (`home.nameStyle: 'text'`). A heavier weight than the
  * greeting it follows and tighter tracking, which is what display serif wants
@@ -3226,19 +3235,6 @@ img.publication__media-item[width] {
      above and below it. */
   margin-left: -0.06em;
   padding: 0 0.06em;
-}
-
-/* With the name as type, the greeting is a line of its own above it, small
-   and muted, so the name has the full width of the column: run in after "Hi,
-   I am" at display size, a two-word name broke across two lines even on a
-   wide screen. */
-.banner__name--text .banner__greeting {
-  color: var(--text-muted);
-  display: block;
-  font-size: 0.46em;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  margin-bottom: 0.2em;
 }
 
 @keyframes name-stroke {
@@ -3278,13 +3274,13 @@ img.publication__media-item[width] {
 .banner__signature {
   --signature-width: 3.667em;
 
-  /* The drawing's proportions, both printed by scripts/set-signature.mjs.
-     The descent is the share of the box hanging below the letters' baseline,
-     and it is why this is not plain `vertical-align: baseline`: it is the box
-     bottom that sits on the line of type, so without the offset the name floats
-     above the line by the depth of its own descenders. */
-  --signature-ratio: 0.5806;
-  --signature-descent: 0.3338;
+  /* `--signature-ratio` and `--signature-descent`, the drawing's proportions,
+     are set inline from whichever file `home.signatureFile` names; see
+     plugins/signature.ts. The descent is the share of the box hanging below
+     the letters' baseline, and it is why this is not plain
+     `vertical-align: baseline`: it is the box bottom that sits on the line of
+     type, so without the offset the name floats above the line by the depth
+     of its own descenders. */
 
   cursor: pointer;
   display: inline-block;
@@ -3359,11 +3355,15 @@ img.publication__media-item[width] {
   color: var(--text-muted);
   cursor: pointer;
   display: inline-flex;
-  height: 1.1em;
-  margin-left: 0.15em;
+
+  /* A button keeps the browser's own 13px unless told otherwise, and `em`
+     here has to mean the sentence's size for the circle to match its type. */
+  font: inherit;
+  height: 1em;
+  margin-left: 0.18em;
   padding: 0;
-  vertical-align: -0.12em;
-  width: 1.1em;
+  vertical-align: -0.13em;
+  width: 1em;
 }
 
 .latest-posts__toggle svg {
