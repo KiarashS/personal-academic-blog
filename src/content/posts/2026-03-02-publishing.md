@@ -15,8 +15,8 @@ server, no database, no build step at request time.
 
 ## One file per route
 
-Every route is prerendered, so `/posts/publishing` is a real
-`posts/publishing/index.html` with the post's title in `<title>`, its summary in
+Every route is prerendered, so `/blog/publishing` is a real
+`blog/publishing/index.html` with the post's title in `<title>`, its summary in
 the description, and Open Graph and Twitter tags pointing at the canonical URL.
 Three things follow from that. Links unfurl correctly in Slack, Mastodon and
 Bluesky, which do not run JavaScript. Deep links return HTTP 200 rather than a
@@ -36,8 +36,9 @@ date.
 
 ## Keyboard
 
-`/` searches, `j` and `k` walk a list of posts, `t` cycles the theme, and `?`
-shows the list — also reachable from the footer, since a shortcut nobody knows
+`/` searches, `j` and `k` walk a list of posts, `[` and `]` turn the page or
+step to the newer and older post, `b` goes back to the blog index, `t` cycles
+the theme, and `?` shows the list — also reachable from the footer, since a shortcut nobody knows
 about is not a shortcut. Keys stay out of the way while you are typing.
 
 ## Comments
@@ -60,7 +61,7 @@ a longer word should still find what you meant.
 ## Sharing
 
 Each post ends with links to LinkedIn, X, Bluesky and email, plus a button that
-copies the canonical URL. They are ordinary links built when the page is
+copies the canonical URL, unless its frontmatter says `share: false`. They are ordinary links built when the page is
 rendered: no share widget, no script from anyone else, and nothing that counts
 who clicked.
 

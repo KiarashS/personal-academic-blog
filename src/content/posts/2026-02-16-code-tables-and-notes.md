@@ -91,14 +91,17 @@ anything read from the top down: a table, a listing, a notebook.
 Wide tables scroll inside their own box instead of pushing the page sideways.
 A table's caption goes above it, as in a journal.
 
-| Stage | What it does | Runs |
-| --- | --- | --- |
-| `render-diagrams` | Mermaid to SVG, light and dark | build only |
-| `vite build` | Client bundle | build |
-| `vite build --ssr` | Server bundle | build |
-| `prerender` | One HTML file per route, plus feeds and sitemap | build |
+| Stage | What it does |
+| --- | --- |
+| `render-diagrams` | Mermaid to SVG, light and dark |
+| `tsc --noEmit` | Type-checks the code |
+| `vite build` | Client bundle |
+| `vite build --ssr` | Server bundle |
+| `render-cards` | A social-card image for each post |
+| `render-avatar` | The front page's portrait, resized |
+| `prerender` | One HTML file per route, plus feeds and sitemap |
 
-Caption: The five stages of `npm run build`, in the order they run.
+Caption: The seven stages of `npm run build`, in the order they run.
 
 ## Notebooks
 
@@ -134,12 +137,13 @@ referenced.[^pipeline] Task lists render as checkboxes:
 - [x] Feed and sitemap
 - [ ] Whatever you add next
 
-[^pipeline]: The pipeline is remark-parse, remark-gfm, remark-math,
-    remark-rehype, then rehype-raw, rehype-slug, the alert step,
-    rehype-citation, the notebook and diagram steps, rehype-highlight,
-    rehype-katex and finally the figure and caption steps. Order matters: raw HTML is parsed first, notebooks and
-    diagrams are expanded before the highlighter sees them, and captions are
-    numbered last, once every block that can take one exists.
+[^pipeline]: The pipeline is remark-parse, remark-gfm, the emoji step,
+    remark-math, remark-rehype, then rehype-raw, rehype-slug, the alert step,
+    rehype-citation, the notebook and diagram steps, rehype-highlight, equation
+    numbering, rehype-katex and finally the figure and caption steps. Order
+    matters: raw HTML is parsed first, notebooks and diagrams are expanded
+    before the highlighter sees them, and captions are numbered last, once
+    every block that can take one exists.
 
 ## Inline formatting
 
@@ -232,7 +236,7 @@ Class01 <|-- AveryLongClass : Cool
 Class03 *-- Class04
 Class05 o-- Class06
 Class07 .. Class08
-Class09 --> C2 : Where am i?
+Class09 --> C2 : Where am I?
 Class09 --* C3
 Class09 --|> Class07
 Class07 : equals()
@@ -250,12 +254,12 @@ markers becomes a callout:
 
 ```markdown
 > [!NOTE]
-> **Key Takeaway:** Self-supervised learning can reduce the need for labeled
+> **Key Takeaway:** Self-supervised learning can reduce the need for labelled
 > IMU data.
 ```
 
 > [!NOTE]
-> **Key Takeaway:** Self-supervised learning can reduce the need for labeled IMU data.
+> **Key Takeaway:** Self-supervised learning can reduce the need for labelled IMU data.
 
 > [!TIP]
 > Helpful advice for doing something better or more easily.

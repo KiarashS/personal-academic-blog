@@ -693,7 +693,7 @@ the path becomes its caption:
 
 Put images under `public/` and reference them from the root; the deployment's
 base path is added at build time. Files belonging to one post go in
-`public/posts/<slug>/`, a folder named after the post's URL:
+`public/posts/<slug>/`, a folder named after the post's slug:
 
 ```
 public/
@@ -705,9 +705,10 @@ public/
   figures/            # shared across posts
 ```
 
-That folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
-served at `/posts/writing-a-post/diagram.svg` and lands beside the post's own
-`index.html` in the build. Deleting a post is deleting one folder, and two
+Everything under `public/` is served at the same path, so
+`public/posts/writing-a-post/diagram.svg` is at
+`/posts/writing-a-post/diagram.svg`, whether the post itself is at `/blog/` or
+`/posts/`. Deleting a post is deleting one folder, and two
 posts can each have a `plot.png` without colliding. The cost is that renaming a
 post's slug means renaming its folder; put anything shared between posts in
 `public/figures/` instead.

@@ -76,11 +76,6 @@ p(\theta \mid y) = \frac{p(y \mid \theta)\, p(\theta)}{p(y)}
 \label{bayes}
 $$
 
-$$
-p(\theta \mid y) = \frac{p(y \mid \theta)\, p(\theta)}{p(y)}
-\label{bits}
-$$
-
 Refer to it with `\eqref{bayes}` and the reference becomes a link to the
 equation carrying its number: substituting \eqref{bayes} into the likelihood is
 the usual first step. The numbers are assigned in document order at build time,

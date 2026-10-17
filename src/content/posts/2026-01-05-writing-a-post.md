@@ -22,7 +22,8 @@ revisions:
 
 A post is one Markdown file in `src/content/posts/`. The filename sets the URL,
 with a leading date stripped: `2026-01-05-writing-a-post.md` is served at
-`/posts/writing-a-post`.
+`/blog/writing-a-post`, or at `/posts/writing-a-post` on a site with the front
+page switched off.
 
 ## Frontmatter
 
@@ -37,6 +38,7 @@ summary: One or two sentences for the index and search results.
 category: Tutorials       # one of the site's categories; optional
 draft: false              # drafts appear in dev, never in a build
 featured: false           # pins the post to the top of the index
+unlisted: false           # true leaves it out of every list; see below
 revisions:                # optional; see below
   - date: 2026-01-12
     note: What changed, in a line.
@@ -127,7 +129,7 @@ renders a byline using the id itself, so a typo degrades instead of vanishing.
 ## Files that belong to one post
 
 Anything a post needs — figures, a preprint, slides, a data appendix — goes in
-`public/posts/<slug>/`, a folder named after the post's URL. Reference it from
+`public/posts/<slug>/`, a folder named after the post's slug. Reference it from
 the root:
 
 ```markdown
@@ -163,10 +165,10 @@ Put `#frame` on the end of the path and it gets a hairline border:
 Plots and diagrams are left without one, since a box round a figure on a
 transparent background is a box round empty space.
 
-The folder mirrors the URL, so `public/posts/writing-a-post/diagram.svg` is
-served at `/posts/writing-a-post/diagram.svg` and lands next to the post's own
-`index.html` in the build. Deleting a post means deleting one folder, and two
-posts can both have a `plot.png` without colliding.
+Everything under `public/` is served at the same path, so
+`public/posts/writing-a-post/diagram.svg` is at
+`/posts/writing-a-post/diagram.svg`. Deleting a post means deleting one folder,
+and two posts can both have a `plot.png` without colliding.
 
 Write the path from the root, starting with `/`. That is what lets the build
 read the file to set the image's width and height, pick up a `.dark` sibling,
@@ -185,8 +187,8 @@ an interactive figure, a demo. Give it a `width`, a `height` and a `title`:
 ```
 
 The frame fills the column, and the two numbers set its shape rather than its
-size, so this one is 800 by 450 in proportion on any screen: about 612 by 344
-here, 350 by 197 on a phone. Leave them out and it is 16:9. The title is what a
+size, so this one is 800 by 450 in proportion on any screen: about 700 by 390
+on a desktop, 335 by 190 on a phone. Leave them out and it is 16:9. The title is what a
 screen reader announces, and the frame loads only as the reader nears it:
 
 <iframe src="/projects/example/" width="800" height="450" title="The example project page"></iframe>
@@ -338,7 +340,9 @@ sequenceDiagram
 ## Featured posts
 
 `featured: true` pins a post to the top of the index and marks its card. This
-post is pinned, which is why the oldest of the samples leads the front page.
+post and [Code, tables and notes](/blog/code-tables-and-notes) are both pinned,
+which is why they lead the blog index, newest first, ahead of posts written
+after them.
 Only the index is reordered: the feed, the archive, the tag pages and the
 newer/older links at the foot of a post stay in date order, so a pinned post
 does not follow the reader everywhere.
@@ -346,7 +350,7 @@ does not follow the reader everywhere.
 ## Unlisted posts
 
 `unlisted: true` is the opposite of pinning. The post keeps its page and its
-address, and drops out of everything that lists posts: this index, the
+address, and drops out of everything that lists posts: the blog index, the
 archive, the tag and category pages, search, related posts, the newer/older
 links, the feeds and the sitemap. Its page asks search engines not to index
 it. Use it for a page you mean to send by link — to reviewers, or alongside a
