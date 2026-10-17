@@ -21,6 +21,7 @@ import {
   todayUtc,
   citeWarnings,
   shareWarnings,
+  tagWarnings,
   unlistedWarnings,
 } from '../src/lib/post-builder';
 import { commentWarnings } from '../src/lib/comments';
@@ -251,6 +252,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         ...unlistedWarnings(built.meta.slug, frontmatter.unlisted, frontmatter.featured),
         ...shareWarnings(built.meta.slug, frontmatter.share),
         ...citeWarnings(built.meta.slug, frontmatter.cite),
+        ...tagWarnings(built.meta.slug, frontmatter.tags),
       ]) {
         bannerProblems.add(message);
       }

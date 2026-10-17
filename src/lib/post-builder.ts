@@ -2,6 +2,7 @@ import { parseFrontmatter } from './frontmatter';
 import { excerpt, readingMinutes, toPlainText } from './markdown-text';
 import { RESERVED_SLUGS } from './routes';
 import { commentState } from './comments';
+import { tagSlug } from './format';
 import { mediaKind } from './media';
 import type {
   Banner,
@@ -279,7 +280,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
         typeof data.category === 'string' && data.category.trim()
           ? categorySlug(data.category)
           : undefined,
-      tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+      tags: readTags(data.tags).tags,
       authorIds: Array.isArray(data.authors) ? data.authors.map(String) : [],
       summary: data.summary ?? excerpt(plainText),
       readingMinutes: readingMinutes(plainText),
@@ -372,6 +373,56 @@ export function unlistedWarnings(slug: string, written: unknown, featured: unkno
     ];
   }
   return [];
+}
+
+/**
+ * A post's tags, read the way they were meant rather than the way YAML parsed
+ * them, and what was left out on the way.
+ *
+ * `tags: guide` is a string in YAML, not a list of one, and `tags: guide,
+ * writing` is one string with a comma in it; both are taken as the tags they
+ * name. From a list, an empty item, a `null` (a bare `-`, or `[guide, null]`)
+ * and anything that is not a word or a number are dropped, as is a tag with no
+ * letter or digit a URL can carry, which would otherwise link to `/tags/`, and
+ * a second spelling of a tag already there (`ML` after `ml`), which would be
+ * the same page twice.
+ */
+export function readTags(value: unknown): { tags: string[]; dropped: string[] } {
+  if (value === undefined || value === null) return { tags: [], dropped: [] };
+  const items: unknown[] = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : [value];
+  const tags: string[] = [];
+  const dropped: string[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (typeof item !== 'string' && typeof item !== 'number') {
+      dropped.push(`${JSON.stringify(item) ?? String(item)} (not a word)`);
+      continue;
+    }
+    const tag = String(item).trim();
+    const slug = tagSlug(tag);
+    if (!tag) dropped.push('an empty tag');
+    else if (!slug) dropped.push(`"${tag}" (no letter or digit for its address)`);
+    else if (seen.has(slug)) dropped.push(`"${tag}" (the same tag as one before it)`);
+    else {
+      seen.add(slug);
+      tags.push(tag);
+    }
+  }
+  return { tags, dropped };
+}
+
+/** What the build should say about a post's tags: anything `readTags` dropped. */
+export function tagWarnings(slug: string, written: unknown): string[] {
+  const { dropped } = readTags(written);
+  if (dropped.length === 0) return [];
+  return [
+    `${slug}: left out of \`tags\`: ${dropped.join(', ')}. ` +
+      'Write them as a list of words, `tags: [guide, writing]`.',
+  ];
 }
 
 /**

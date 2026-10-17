@@ -122,6 +122,10 @@ ignored for anyone whose system asks for less motion. A YouTube banner is drawn
 as its still until someone clicks it, so the post asks Google for nothing until
 then — `poster` avoids even the still, and is also what a shared link shows.
 
+A post can have no tags at all, and then shows no Tags section. A single tag
+needs no brackets, `tags: guide`; an empty or repeated tag is dropped, and the
+build says so.
+
 Leave `summary` out and the opening prose is used instead. Leave `date` out and
 the filename supplies it. An author id with no record in `authors.ts` still
 renders a byline using the id itself, so a typo degrades instead of vanishing.

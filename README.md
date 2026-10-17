@@ -70,6 +70,12 @@ doi: 10.5281/zenodo.123 # optional, linked from the post header
 Body text.
 ```
 
+`tags` can be empty or left out, and the post simply has none: no Tags section
+at its foot and no tag row on its card. A single tag needs no brackets,
+`tags: guide`, and `tags: guide, writing` is two. An empty item, a `null`, a
+tag with no letter or digit for its address (a-z, 0-9) and a second spelling of
+one already listed (`ML` after `ml`) are dropped, and the build says which.
+
 Leave `summary` out and the opening prose is used instead. Drafts and posts
 dated in the future are visible with `npm run dev` and excluded from builds, so
 you can queue posts ahead of time. A build strips their text, title and summary

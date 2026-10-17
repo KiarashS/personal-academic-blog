@@ -10,7 +10,9 @@ import {
   slugFromPath,
   tableOfContents,
   citeWarnings,
+  readTags,
   shareWarnings,
+  tagWarnings,
   unlistedWarnings,
 } from '../lib/post-builder';
 import { toPlainText, readingMinutes } from '../lib/markdown-text';
@@ -514,5 +516,45 @@ describe('the publication block', () => {
 
   it('is not created by a kind alone, which describes nothing', () => {
     expect(built(['publication:', '  kind: project'].join('\n'))).toBeUndefined();
+  });
+});
+
+describe('tags', () => {
+  const tagsOf = (fm: string) =>
+    buildPost(post('t.md', `---\ntitle: T\n${fm}\n---\nBody.`)).meta.tags;
+
+  it('is an empty list when the post has none, however that is written', () => {
+    expect(tagsOf('')).toEqual([]);
+    expect(tagsOf('tags:')).toEqual([]);
+    expect(tagsOf('tags: []')).toEqual([]);
+  });
+
+  it('takes a single word, or words with commas, as the tags they name', () => {
+    expect(tagsOf('tags: guide')).toEqual(['guide']);
+    expect(tagsOf('tags: guide, writing')).toEqual(['guide', 'writing']);
+    expect(tagsOf('tags: "machine learning"')).toEqual(['machine learning']);
+    expect(tagsOf('tags: 2026')).toEqual(['2026']);
+  });
+
+  it('drops empty, null and nameless tags, and a second spelling of one', () => {
+    expect(tagsOf('tags: [guide, ""]')).toEqual(['guide']);
+    expect(tagsOf('tags: [guide, null]')).toEqual(['guide']);
+    expect(tagsOf('tags:\n  - guide\n  -')).toEqual(['guide']);
+    expect(tagsOf('tags: [guide, "!!"]')).toEqual(['guide']);
+    expect(tagsOf('tags: [ML, ml, " ml "]')).toEqual(['ML']);
+    expect(tagsOf('tags: [guide, {a: 1}, [x]]')).toEqual(['guide']);
+    expect(tagsOf('tags: [" spaced "]')).toEqual(['spaced']);
+  });
+
+  it('says what it left out, and nothing when it left out nothing', () => {
+    expect(tagWarnings('p', ['guide', 'writing'])).toEqual([]);
+    expect(tagWarnings('p', 'guide')).toEqual([]);
+    expect(tagWarnings('p', undefined)).toEqual([]);
+    const [message] = tagWarnings('p', ['guide', '', null, 'ML', 'ml']);
+    expect(message).toContain('p: left out of `tags`');
+    expect(message).toContain('an empty tag');
+    expect(message).toContain('null (not a word)');
+    expect(message).toContain('"ml" (the same tag as one before it)');
+    expect(readTags(['یادگیری']).dropped[0]).toContain('no letter or digit for its address');
   });
 });
