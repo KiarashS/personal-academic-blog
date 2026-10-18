@@ -53,7 +53,9 @@ describe('the ranges', () => {
   // never uses or misses the one it does.
   const css = readFileSync(new URL('../styles/fonts.css', import.meta.url), 'utf8');
   const declared = (subset: string): string[] => {
-    const faces = css.split('@font-face').filter((face) => face.includes(`-${subset}-wght-`));
+    const faces = css
+      .split('@font-face')
+      .filter((face) => face.includes(`source-serif-4-${subset}-wght-`));
     expect(faces.length).toBe(2);
     return faces.map(
       (face) => /unicode-range:([^;]+);/.exec(face)?.[1].replace(/\s+/g, '').toUpperCase() ?? '',

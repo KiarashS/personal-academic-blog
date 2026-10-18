@@ -39,6 +39,8 @@ const {
   webManifest,
   CACHE_PREFIX,
   fontSubsetsFor,
+  SECTION_FONTS,
+  sectionFontsIn,
 } = await import(serverEntry);
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
@@ -104,6 +106,20 @@ const subsetPreloads = {
   'latin-ext': await fontPreload('source-serif-4-latin-ext-wght-normal'),
   greek: await fontPreload('source-serif-4-greek-wght-normal'),
 };
+
+/*
+ * The passage faces (`src/lib/fonts.ts`), each wanted only by a page with text
+ * set in it. Without the preload the passage is laid out in Source Serif and
+ * swaps when the file arrives, which moves everything under it.
+ */
+const sectionFontPreloads = Object.fromEntries(
+  await Promise.all(
+    Object.entries(SECTION_FONTS).map(async ([name, font]) => [
+      name,
+      await fontPreload(font.preload),
+    ]),
+  ),
+);
 
 /*
  * Cloudflare Web Analytics, when a token is configured: one deferred script
@@ -248,8 +264,11 @@ function document(html, meta, { fallback = false } = {}) {
   const subsets = fontSubsetsFor(html)
     .map((name) => subsetPreloads[name])
     .join('');
+  const faces = sectionFontsIn(html)
+    .map((name) => sectionFontPreloads[name])
+    .join('');
   return template
-    .replace(TITLE_TAG, head(meta, diagrams + subsets + portraitPreload(html)))
+    .replace(TITLE_TAG, head(meta, diagrams + subsets + faces + portraitPreload(html)))
     .replace(
       '<div id="root"></div>',
       `<div id="root"${fallback ? ' data-fallback' : ''}>${html}</div>`,

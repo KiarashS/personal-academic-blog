@@ -24,6 +24,7 @@ import { tableOfContents } from '../lib/post-builder';
 import { canonicalUrl } from '../lib/urls';
 import { NotFoundPage } from './NotFoundPage';
 import { postPath } from '../lib/routes';
+import { fontClass } from '../lib/fonts';
 
 export function PostPage() {
   const { slug } = useParams();
@@ -55,7 +56,10 @@ export function PostPage() {
       {post.banner ? <PostBanner banner={post.banner} /> : null}
       {/* The reading matter, which is what the progress bar measures: the tags,
           share row, citation, comments and related posts below are not reading. */}
-      <div className="post-reading" ref={article}>
+      <div
+        className={post.font ? `post-reading ${fontClass(post.font)}` : 'post-reading'}
+        ref={article}
+      >
         <header className="post-header">
           <h1>{post.title}</h1>
           <p className="meta">

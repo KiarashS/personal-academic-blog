@@ -56,6 +56,7 @@ export { canonicalUrl, withBase } from './lib/urls';
 export { AVATAR_WIDTH, CREDIT_WIDTH, PHOTO_WIDTH, avatarCopyPath, isUrl } from './lib/avatar';
 export { footerCredit } from './lib/credit';
 export { fontSubsetsFor } from './lib/font-subsets';
+export { SECTION_FONTS, sectionFontsIn } from './lib/fonts';
 export { commentTerm, commentsConfigured } from './lib/comments';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';

@@ -1,6 +1,6 @@
 # Fonts
 
-Two faces, both vendored here rather than fetched from a CDN so that reading
+Two faces for the site, both vendored here rather than fetched from a CDN so that reading
 the blog does not announce the reader to a third party. Both come from
 [fontsource](https://www.npmjs.com/org/fontsource-variable) 5.3.0, variable
 weight axis, and both are licensed under the SIL Open Font License 1.1 — see `LICENSE`, which the licence requires to travel with the
@@ -48,3 +48,20 @@ Naming one face on both sides makes the measured width the displayed width.
 fails the build if it cannot, and `.mermaid-figure foreignObject` is set to
 `overflow: visible` so that a label is never cut in half in the moment before
 the file arrives, or if it never does.
+
+## EB Garamond and Libertinus Serif — passages
+
+Set where a post asks for them, with `font="garamond"` or `font="libertinus"`
+on an element or `font:` in its frontmatter (`src/lib/fonts.ts`). A browser
+fetches them only for a page with text in them, and the prerenderer preloads
+the basic Latin roman of each on those pages.
+
+| Face             | Files                                                                                      | Licence                    |
+| ---------------- | ------------------------------------------------------------------------------------------ | -------------------------- |
+| EB Garamond      | variable weight, roman and italic, `latin` and `latin-ext`                                 | `LICENSE-eb-garamond`      |
+| Libertinus Serif | 400, 600 and 700 roman, 400 and 700 italic in `latin`; 400 roman and italic in `latin-ext` | `LICENSE-libertinus-serif` |
+
+From fontsource 5.3.0 (`@fontsource-variable/eb-garamond`,
+`@fontsource/libertinus-serif`), OFL-1.1, each with the licence file that
+package ships. Libertinus is static, so a weight between the vendored ones
+renders at the nearest of them.

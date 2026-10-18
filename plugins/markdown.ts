@@ -14,6 +14,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
+import { rehypeSectionFonts } from './fonts';
 import {
   bannerWarnings,
   buildPost,
@@ -22,6 +23,7 @@ import {
   citeWarnings,
   shareWarnings,
   tagWarnings,
+  fontWarnings as postFontWarnings,
   unlistedWarnings,
 } from '../src/lib/post-builder';
 import { commentWarnings } from '../src/lib/comments';
@@ -92,6 +94,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
+  const fontWarnings = new Set<string>();
   const featureLinkWarnings = new Set<string>();
   // Frontmatter that says something the renderer cannot act on.
   const bannerProblems = new Set<string>();
@@ -139,6 +142,11 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(remarkMath)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
+      // Straight after the HTML is parsed: `font="…"` is an attribute on an
+      // element the author wrote, and nothing later needs to see it.
+      .use(rehypeSectionFonts, {
+        onWarn: (message: string) => fontWarnings.add(`${relative(root, file)}: ${message}`),
+      })
       .use(rehypeSlug)
       // Between the two: rehype-slug has just made the ids, and the
       // contents list should record the one the reader will land on.
@@ -216,6 +224,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       missingDiagrams.clear();
       missingImages.clear();
       equationWarnings.clear();
+      fontWarnings.clear();
       featureLinkWarnings.clear();
       bannerProblems.clear();
     },
@@ -253,6 +262,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         ...shareWarnings(built.meta.slug, frontmatter.share),
         ...citeWarnings(built.meta.slug, frontmatter.cite),
         ...tagWarnings(built.meta.slug, frontmatter.tags),
+        ...postFontWarnings(built.meta.slug, frontmatter.font),
       ]) {
         bannerProblems.add(message);
       }
@@ -349,6 +359,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     buildEnd() {
       for (const message of missingImages) this.warn(message);
       for (const message of equationWarnings) this.warn(message);
+      for (const message of fontWarnings) this.warn(message);
       for (const message of featureLinkWarnings) this.warn(message);
       for (const message of bannerProblems) this.warn(message);
 

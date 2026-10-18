@@ -58,6 +58,7 @@ featured: false # pins the post to the top of the index
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
 cite: true # false: no "Cite this post" block
+font: garamond # optional: the whole post in another face, below
 series: Running this blog # optional; groups multi-part posts
 part: 1 # optional; position within the series
 revisions: # optional history; see below
@@ -1279,6 +1280,48 @@ Printing is styled rather than left to chance: the chrome goes, the palette is
 forced light whatever the reader chose, external links print their target after
 the text, and figures, tables and code blocks are not allowed to break across a
 page.
+
+### Another face for a passage
+
+Two more faces are vendored for setting part of a post apart: EB Garamond, a
+revival of Claude Garamond's sixteenth-century roman, and Libertinus Serif,
+the maintained fork of Linux Libertine, which ACM's paper template is set in.
+`font=` on any HTML element in Markdown picks one by name, block or inline:
+
+```markdown
+<div font="garamond">
+
+A passage in EB Garamond. Markdown works inside, given a blank line after the
+opening tag and another before the closing one.
+
+</div>
+
+A few words <span font="libertinus">in Libertinus</span>.
+```
+
+`font: garamond` in a post's frontmatter sets the whole post, title included.
+`data-font` works the same as `font`, and the names are not case-sensitive. A
+name the site does not have leaves the text in Source Serif, and the build
+warns with the names it does have.
+
+Only the serif changes: code stays monospace, maths stays KaTeX, and anything
+set in the sans stays there. Each face is scaled with `size-adjust` in
+`src/styles/fonts.css` to sit at the size of the text around it (Garamond
+112%, Libertinus 108%; the reasoning is in that file), so a passage changes its
+letters and not its size. A page downloads a face only when it has text set in
+it, and the prerenderer preloads the basic Latin roman on those pages so the
+passage does not reflow when the file arrives. Basic Latin and Latin Extended
+are vendored for both, roman and italic; a character outside them comes from
+Source Serif.
+
+KaTeX's own Computer Modern is not offered for prose. Its files have no
+kerning and no ligatures, which is fine for maths and shows in a paragraph:
+"AV" and "To" sit apart.
+
+To add a face: its `.woff2` files in `src/styles/fonts/` with their licence,
+`@font-face` rules in `src/styles/fonts.css`, an entry in `SECTION_FONTS` in
+`src/lib/fonts.ts`, and a `.font-<name>` rule in `src/styles/prose.css` that
+sets `--serif`. A test checks the last three agree.
 
 ## Leaving a post
 

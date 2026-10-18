@@ -50,6 +50,7 @@ banner: /figures/rig.jpg  # optional; see below
 comments: true            # optional; false, or readonly
 share: true               # optional; false hides the share links
 cite: true                # optional; false hides "Cite this post"
+font: garamond            # optional; the whole post in another face
 ---
 ```
 

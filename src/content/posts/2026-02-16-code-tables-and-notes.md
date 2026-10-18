@@ -157,6 +157,42 @@ A colour written as inline code gets a swatch of itself: `#c0573e`,
 over a checkerboard. Only a code span holding the colour and nothing else
 counts, so `color: #c0573e` stays as written.
 
+### Another typeface
+
+Two other faces can set a passage: EB Garamond, a revival of the sixteenth-century
+roman of Claude Garamond, and Libertinus Serif, the maintained fork of Linux
+Libertine, which ACM's paper template is set in. Put `font=` on any HTML
+element, with blank lines inside a block so Markdown keeps working:
+
+```html
+<div font="garamond">
+
+A passage in EB Garamond, with *italic*, **bold** and the figures 1625.
+
+</div>
+```
+
+<div font="garamond">
+
+A passage in EB Garamond, with *italic*, **bold** and the figures 1625. The
+face is scaled to sit beside the text around it, so the passage changes its
+letters and not its size. Code stays `monospace` and maths stays $e^{i\pi}$.
+
+</div>
+
+<div font="libertinus">
+
+The same in Libertinus Serif, with *italic*, **bold** and the figures 1625.
+It is narrower than the body face and looks like the page of a paper.
+
+</div>
+
+Inline, `<span font="libertinus">a few words</span>` sets
+<span font="libertinus">a few words</span> in it. `font: garamond` in the
+frontmatter sets a whole post, title included. A name the site does not have
+leaves the text in the body face, and the build says which names it has. A
+face is downloaded only by a page that uses it.
+
 ### Definitions and abbreviations
 
 Markdown has no syntax for either, so both are HTML. A definition list is

@@ -3,6 +3,7 @@ import { excerpt, readingMinutes, toPlainText } from './markdown-text';
 import { RESERVED_SLUGS } from './routes';
 import { commentState } from './comments';
 import { tagSlug } from './format';
+import { FONT_NAMES, sectionFont } from './fonts';
 import { mediaKind } from './media';
 import type {
   Banner,
@@ -293,6 +294,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       // On by default: only a written `false` takes the links away.
       share: data.share !== false,
       cite: data.cite !== false,
+      font: sectionFont(data.font),
     },
     body: content,
     plainText,
@@ -437,6 +439,18 @@ export function shareWarnings(slug: string, written: unknown): string[] {
 /** The same for `cite`, which takes the "Cite this post" block away. */
 export function citeWarnings(slug: string, written: unknown): string[] {
   return switchWarnings(slug, 'cite', written, 'the citation block stays');
+}
+
+/**
+ * What the build should say about a post's `font`: only a name it does not
+ * have, since the post is then left in the body face.
+ */
+export function fontWarnings(slug: string, written: unknown): string[] {
+  if (written === undefined || written === null || sectionFont(written)) return [];
+  return [
+    `${slug}: \`font: ${JSON.stringify(written)}\` is not a font this site has, so the post ` +
+      `stays in the body face. The names are: ${FONT_NAMES.join(', ')}.`,
+  ];
 }
 
 /** A section that is on unless a post writes `false`, told it was given something else. */

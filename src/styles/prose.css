@@ -1206,3 +1206,26 @@
 .prose .nb-output--html table {
   font-size: 0.8rem;
 }
+
+/*
+ * A passage in another face (`src/lib/fonts.ts`): `font="garamond"` on an
+ * element, or `font:` in a post's frontmatter. Each class swaps the serif and
+ * nothing else, so code stays monospace, maths stays KaTeX and captions stay
+ * in the sans. Setting `--serif` as well as `font-family` is what reaches the
+ * headings and quotations that name the serif for themselves. Source Serif
+ * stays in the stack behind each face, for a character the face lacks.
+ *
+ * The faces are scaled in `fonts.css` (`size-adjust`) to sit at the size of
+ * the text around them.
+ */
+.font-garamond {
+  --serif: 'EB Garamond Variable', 'Source Serif 4 Variable', georgia, serif;
+
+  font-family: var(--serif);
+}
+
+.font-libertinus {
+  --serif: 'Libertinus Serif', 'Source Serif 4 Variable', georgia, serif;
+
+  font-family: var(--serif);
+}

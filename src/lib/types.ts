@@ -1,4 +1,5 @@
 import type { CommentState } from '../site.config';
+import type { SectionFontName } from './fonts';
 export interface Author {
   id: string;
   name: string;
@@ -254,6 +255,11 @@ export interface PostFrontmatter {
    * plain text. On unless this is `false`.
    */
   cite?: boolean;
+  /**
+   * Sets the whole post, title included, in one of the faces in
+   * `src/lib/fonts.ts`: `font: garamond`. Left out, the body face.
+   */
+  font?: string;
   slug?: string;
   /** Optional DOI or arXiv id for posts that accompany a paper. */
   doi?: string;
@@ -306,6 +312,8 @@ export interface PostMeta {
   share: boolean;
   /** See `PostFrontmatter.cite`. */
   cite: boolean;
+  /** See `PostFrontmatter.font`; absent for the body face. */
+  font?: SectionFontName;
   headings: Heading[];
 }
 
