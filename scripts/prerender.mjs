@@ -108,6 +108,19 @@ const subsetPreloads = {
 };
 
 /*
+ * The code face, wanted by a page with code, a key or a notebook in its text.
+ * Inline code is in most posts, and a word that swaps from Menlo to JetBrains
+ * Mono after the page is up moves the rest of its line.
+ */
+const monoPreload = await fontPreload('jetbrains-mono-latin-wght-normal');
+// The shortcuts dialog is in every page, keys and all, and opens only on `?`;
+// its keys are no reason to preload anything.
+const hasCode = (html) =>
+  /<(code|pre|kbd|samp)[\s>]/.test(
+    html.replace(/<dialog class="shortcuts"[\s\S]*?<\/dialog>/g, ''),
+  );
+
+/*
  * The passage faces (`src/lib/fonts.ts`), each wanted only by a page with text
  * set in it. Without the preload the passage is laid out in Source Serif and
  * swaps when the file arrives, which moves everything under it.
@@ -264,11 +277,12 @@ function document(html, meta, { fallback = false } = {}) {
   const subsets = fontSubsetsFor(html)
     .map((name) => subsetPreloads[name])
     .join('');
+  const mono = hasCode(html) ? monoPreload : '';
   const faces = sectionFontsIn(html)
     .map((name) => sectionFontPreloads[name])
     .join('');
   return template
-    .replace(TITLE_TAG, head(meta, diagrams + subsets + faces + portraitPreload(html)))
+    .replace(TITLE_TAG, head(meta, diagrams + subsets + mono + faces + portraitPreload(html)))
     .replace(
       '<div id="root"></div>',
       `<div id="root"${fallback ? ' data-fallback' : ''}>${html}</div>`,

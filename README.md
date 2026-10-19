@@ -1260,6 +1260,14 @@ and the reader have to agree on one or the labels are clipped; see
 `src/styles/fonts/README.md`. Only routes that actually contain a diagram
 preload it, which the prerenderer decides from the rendered HTML.
 
+Code is set in JetBrains Mono, vendored too, about 40 kB for the roman a page
+with code fetches. Before it, code was in the reader's own monospace face
+(SF Mono, Menlo, Consolas, or whatever Android and Linux had), so a listing's
+width and whether `0` and `O` or `l` and `1` could be told apart depended on
+the machine. It is scaled to the x-height of the faces it replaced, so code
+keeps its size against the serif, and ligatures are off for code, so `!=` is
+two characters on screen as it is in the copy.
+
 Prose runs the width of the column, about 80 characters on a laptop. It is
 hyphenated, since on a phone the column collapses to about 340px, where
 unhyphenated technical vocabulary leaves large holes.

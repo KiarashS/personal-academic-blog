@@ -288,3 +288,74 @@
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/*
+ * JetBrains Mono, for code, keys and notebooks: everything set in `--mono`.
+ * It replaced the system stack, which was a different face on every platform
+ * (SF Mono, Menlo, Consolas, and on Android and Linux whatever was installed),
+ * so a listing's alignment, its width and whether 0 and O or l and 1 could be
+ * told apart depended on the reader's machine. This one tells them apart, and
+ * its advance is 0.6em like Menlo's, so a line holds what it held before.
+ *
+ * `size-adjust: 94%` because its x-height is 0.56 of the em against 0.53 for
+ * the system faces it replaces. Code is set at 0.85em so that its lowercase
+ * sits just under the serif's (see `.prose code`), and scaling the face keeps
+ * that rather than retuning every size that names the stack.
+ *
+ * Fetched only by a page with code on it, and preloaded on those by the
+ * prerenderer. JetBrains Mono's full release draws `!=`, `=>` and `->` as
+ * single glyphs; the fontsource files vendored here render them as separate
+ * characters, checked side by side with ligatures on and off, and
+ * `font-variant-ligatures: none` in `global.css` keeps it that way if the files
+ * are ever swapped for the full release. A reader copying code should see the
+ * characters they are copying.
+ */
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  size-adjust: 94%;
+  src: url('./fonts/jetbrains-mono-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  size-adjust: 94%;
+  src: url('./fonts/jetbrains-mono-latin-ext-wght-italic.woff2') format('woff2-variations');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  size-adjust: 94%;
+  src: url('./fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 800;
+  size-adjust: 94%;
+  src: url('./fonts/jetbrains-mono-latin-wght-italic.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

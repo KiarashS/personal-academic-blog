@@ -1,10 +1,12 @@
 # Fonts
 
-Two faces for the site, both vendored here rather than fetched from a CDN so that reading
-the blog does not announce the reader to a third party. Both come from
-[fontsource](https://www.npmjs.com/org/fontsource-variable) 5.3.0, variable
-weight axis, and both are licensed under the SIL Open Font License 1.1 — see `LICENSE`, which the licence requires to travel with the
-files. Replacing a face means replacing the licence too.
+Five faces, all vendored here rather than fetched from a CDN so that reading
+the blog does not announce the reader to a third party: the body serif, a sans
+for diagrams, a mono for code, and two faces a post can set a passage in. All
+come from [fontsource](https://www.npmjs.com/org/fontsource) 5.3.0 and all are
+licensed under the SIL Open Font License 1.1. The licence travels with the
+files, as it requires: `LICENSE` for Source Serif and Source Sans, and a
+`LICENSE-<face>` for each of the others. Replacing a face means replacing the licence too.
 
 ## Source Serif 4 — body text
 
@@ -65,3 +67,13 @@ From fontsource 5.3.0 (`@fontsource-variable/eb-garamond`,
 `@fontsource/libertinus-serif`), OFL-1.1, each with the licence file that
 package ships. Libertinus is static, so a weight between the vendored ones
 renders at the nearest of them.
+
+## JetBrains Mono — code
+
+Everything set in `--mono`: code, inline and fenced, keys, notebooks. Variable
+weight, roman and italic (comments are italic), `latin` and `latin-ext`, about
+115 kB in all; a page fetches the basic Latin roman when it has code and the
+prerenderer preloads it there. fontsource 5.3.0
+(`@fontsource-variable/jetbrains-mono`), OFL-1.1, `LICENSE-jetbrains-mono`.
+Scaled with `size-adjust: 94%` to the x-height of the system faces it
+replaced, with ligatures off; `fonts.css` says why.

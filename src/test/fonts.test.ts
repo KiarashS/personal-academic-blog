@@ -94,3 +94,14 @@ describe('font in frontmatter', () => {
     expect(fontWarnings('p', undefined)).toEqual([]);
   });
 });
+
+describe('the code face', () => {
+  it('leads the mono stack and is declared, with its ligatures off where it is used', () => {
+    const global = readFileSync(new URL('../styles/global.css', import.meta.url), 'utf8');
+    const fonts = readFileSync(new URL('../styles/fonts.css', import.meta.url), 'utf8');
+    expect(global).toMatch(/--mono:\s*'JetBrains Mono Variable',/);
+    expect(fonts).toContain("font-family: 'JetBrains Mono Variable';");
+    expect(fonts).toContain('./fonts/jetbrains-mono-latin-wght-normal.woff2');
+    expect(global).toMatch(/code,\s*kbd,\s*pre,\s*samp\s*\{\s*font-variant-ligatures: none;/);
+  });
+});

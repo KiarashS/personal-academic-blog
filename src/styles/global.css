@@ -4,7 +4,9 @@
     serif;
   --sans:
     -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', arial, sans-serif;
-  --mono: ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas, 'Liberation Mono', monospace;
+  --mono:
+    'JetBrains Mono Variable', ui-monospace, sfmono-regular, 'SF Mono', menlo, consolas,
+    'Liberation Mono', monospace;
 
   /* Both palettes are defined once here; the rules below only choose between
      them, so a colour is never edited in two places. */
@@ -162,6 +164,15 @@ html {
      phones and a default Mac are unaffected. */
   scrollbar-gutter: stable;
   text-size-adjust: 100%;
+}
+
+/* Code is copied as well as read, so no ligatures: JetBrains Mono's full
+   release would draw `!=` as one glyph. See `fonts.css`. */
+code,
+kbd,
+pre,
+samp {
+  font-variant-ligatures: none;
 }
 
 body {
