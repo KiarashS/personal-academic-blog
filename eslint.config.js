@@ -8,19 +8,7 @@ export default tseslint.config(
   // `public/projects` holds whole pages served verbatim, scripts included, and
   // some of them will be someone else's. Linting a vendored bundle against this
   // project's rules fails the build over code nobody here is going to change.
-  // `src/mdxcn/registry` is the mdxcn library as its CLI copies it, kept
-  // byte for byte so an update is a straight copy; it is type-checked with
-  // the rest of `src`, not held to this project's lint rules.
-  {
-    ignores: [
-      'dist',
-      'dist-server',
-      'node_modules',
-      '.cache',
-      'public/projects',
-      'src/mdxcn/registry',
-    ],
-  },
+  { ignores: ['dist', 'dist-server', 'node_modules', '.cache', 'public/projects'] },
 
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

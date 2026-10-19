@@ -7,6 +7,3 @@ public/figures
 
 # Projects are files served as they are, including ones you did not write.
 public/projects
-
-# The mdxcn library, vendored as its CLI writes it; see src/mdxcn/README.md.
-src/mdxcn/registry

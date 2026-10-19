@@ -15,7 +15,6 @@ import {
 import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
 import { useInnerHtml } from '../lib/inner-html';
-import { useMdxcnFigures } from '../lib/mdxcn-figures';
 
 /**
  * Renders a post body. The HTML was produced by the build — math, highlighting,
@@ -31,7 +30,6 @@ export function PostBody({ slug }: { slug: string }) {
   // The diagram the viewer is showing, as markup. Null is closed.
   const [viewing, setViewing] = useState<string | null>(null);
   const viewed = useRef(0);
-  useMdxcnFigures(containerRef, html);
 
   useEffect(() => {
     const container = containerRef.current;

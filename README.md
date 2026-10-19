@@ -841,58 +841,6 @@ the fence numbers it as Notebook 1, 2, 3 and sits above it, since a notebook is
 read from the top down. A missing file or malformed JSON warns and
 leaves the fence as it was rather than failing the build.
 
-### mdxcn figures
-
-[mdxcn](https://mdxcn.dev) is a set of 46 figures drawn in characters, inside
-a dashed frame with the title on its top edge: timelines, trees, tables,
-checklists, charts, a terminal, a changelog, an FAQ. They work in any post or
-Markdown page, written as mdxcn writes them for MDX: the tag, a blank line,
-Markdown, a blank line, the closing tag.
-
-```markdown
-<GraphTimeline title="NIGHT">
-
-- 14:02: p95 crossed 800ms
-- **14:11: rolled back the cache flag**
-- _14:40: write the postmortem_
-
-</GraphTimeline>
-```
-
-The Markdown inside is the data, read by one grammar across the set: bold is
-now or chosen, italic is next or rejected, `- label: value` is a row, text
-after an em dash is a note. Attributes are props; HTML has only text, so `[…]`
-and `{…}` are read as JSON, `true` and `false` as booleans. The blank lines
-matter: without them CommonMark reads the whole block as HTML and the Markdown
-inside is not parsed. `src/content/posts/2026-04-13-mdxcn-figures.md` uses all
-46, each with its source under it, and is the place to copy from.
-
-How it is put together, since nothing else on the site works this way:
-
-- The components are mdxcn's own React source, copied as its shadcn CLI copies
-  them into `src/mdxcn/registry/` and left unedited (MIT, `src/mdxcn/LICENSE`).
-  Their styles are Tailwind, compiled from `src/mdxcn/mdxcn.css` for those files
-  alone. The site's own CSS is not Tailwind and nothing in it changed.
-- The build (`plugins/mdxcn.ts`) turns each tag into an `<mdxcn-figure>` that
-  names the component and holds the Markdown inside as plain HTML, which is
-  what a feed reader shows. That Markdown skips the rest of the pipeline, so a
-  fence reaches Terminal as a fence and a `###` in Faq gets no anchor. The cost
-  is that maths inside a figure is not rendered.
-- The prerenderer draws each figure into a declarative shadow root, so it is on
-  the page, finished, before any script runs. The shadow root keeps the prose
-  styles out of the figure and Tailwind's out of the prose, and the site's
-  colour tokens inherit through it, so figures follow light, dark and the
-  toggle. The face is the site's code face.
-- In the browser, a page with figures fetches one chunk (the components,
-  motion and the stylesheet) and hydrates them; a page without loads none of
-  it. A figure that arrives with a navigation is drawn fresh and animates in,
-  as mdxcn intends; a prerendered one does not move.
-- Table, Sheet, Compare, Matrix, Invoice and Annotate are wider than a phone;
-  their bodies scroll inside the frame there, and take keyboard focus when
-  they do.
-
-`src/mdxcn/README.md` says how to update the copied source.
-
 ### Publications
 
 `/publications` is generated from `src/content/publications.bib`, grouped by

@@ -40,8 +40,6 @@ const {
   CACHE_PREFIX,
   fontSubsetsFor,
   SECTION_FONTS,
-  fillFigures,
-  FIGURE_CSS,
   sectionFontsIn,
 } = await import(serverEntry);
 
@@ -272,28 +270,7 @@ function portraitPreload(html) {
   return `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />`;
 }
 
-/*
- * mdxcn figures (`src/mdxcn`): drawn into declarative shadow roots here, on the
- * finished page, so they are on screen before any script. Each root links one
- * stylesheet, built from `src/mdxcn/mdxcn.css`; the head preloads it on pages
- * with a figure, so it is not found only once the parser reaches the first
- * shadow root. A page that names a stylesheet the client build did not write
- * would show its figures unstyled, so that stops the build.
- */
-function figures(html) {
-  if (!html.includes('<mdxcn-figure')) return { html, preload: '' };
-  const root = withBase('/');
-  if (!FIGURE_CSS.startsWith(root) || !existsSync(join(dist, FIGURE_CSS.slice(root.length)))) {
-    throw new Error(`The mdxcn figures link ${FIGURE_CSS}, which is not in dist/.`);
-  }
-  return {
-    html: fillFigures(html),
-    preload: `\n    <link rel="preload" as="style" href="${escapeXml(FIGURE_CSS)}" />`,
-  };
-}
-
-function document(rendered, meta, { fallback = false } = {}) {
-  const { html, preload: figureCss } = figures(rendered);
+function document(html, meta, { fallback = false } = {}) {
   // Only a page that has a diagram in it asks for the face the diagrams were
   // measured in, which is the class the build writes around every one.
   const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
@@ -305,10 +282,7 @@ function document(rendered, meta, { fallback = false } = {}) {
     .map((name) => sectionFontPreloads[name])
     .join('');
   return template
-    .replace(
-      TITLE_TAG,
-      head(meta, diagrams + subsets + mono + faces + figureCss + portraitPreload(html)),
-    )
+    .replace(TITLE_TAG, head(meta, diagrams + subsets + mono + faces + portraitPreload(html)))
     .replace(
       '<div id="root"></div>',
       `<div id="root"${fallback ? ' data-fallback' : ''}>${html}</div>`,
