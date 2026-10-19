@@ -294,13 +294,15 @@
  * It replaced the system stack, which was a different face on every platform
  * (SF Mono, Menlo, Consolas, and on Android and Linux whatever was installed),
  * so a listing's alignment, its width and whether 0 and O or l and 1 could be
- * told apart depended on the reader's machine. This one tells them apart, and
- * its advance is 0.6em like Menlo's, so a line holds what it held before.
+ * told apart depended on the reader's machine. This one tells them apart.
  *
  * `size-adjust: 94%` because its x-height is 0.56 of the em against 0.53 for
  * the system faces it replaces. Code is set at 0.85em so that its lowercase
  * sits just under the serif's (see `.prose code`), and scaling the face keeps
- * that rather than retuning every size that names the stack.
+ * that rather than retuning every size that names the stack. Its advance is
+ * 0.6em, like Menlo's and Liberation Mono's, so at 94% a line of code is about
+ * 6% shorter than it was: measured on the bootstrap listing, a little less
+ * sideways scrolling on a phone.
  *
  * Fetched only by a page with code on it, and preloaded on those by the
  * prerenderer. JetBrains Mono's full release draws `!=`, `=>` and `->` as
