@@ -1229,3 +1229,12 @@
 
   font-family: var(--serif);
 }
+
+/*
+ * An mdxcn figure (`src/mdxcn`). The element draws itself in a shadow root;
+ * this is only its box, and the plain HTML fallback a browser without
+ * declarative shadow DOM shows until the script mounts it.
+ */
+mdxcn-figure {
+  display: block;
+}

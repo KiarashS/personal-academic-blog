@@ -15,6 +15,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { rehypeSectionFonts } from './fonts';
+import { rehypeMdxcn, rehypeMdxcnRestore } from './mdxcn';
 import {
   bannerWarnings,
   buildPost,
@@ -95,6 +96,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
   const fontWarnings = new Set<string>();
+  const mdxcnWarnings = new Set<string>();
   const featureLinkWarnings = new Set<string>();
   // Frontmatter that says something the renderer cannot act on.
   const bannerProblems = new Set<string>();
@@ -147,6 +149,11 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(rehypeSectionFonts, {
         onWarn: (message: string) => fontWarnings.add(`${relative(root, file)}: ${message}`),
       })
+      // Also straight after: an mdxcn tag's children are taken out here, as
+      // the author wrote them, and put back last (see plugins/mdxcn.ts).
+      .use(rehypeMdxcn, {
+        onWarn: (message: string) => mdxcnWarnings.add(`${relative(root, file)}: ${message}`),
+      })
       .use(rehypeSlug)
       // Between the two: rehype-slug has just made the ids, and the
       // contents list should record the one the reader will land on.
@@ -196,6 +203,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onWarn: (message: string) => missingImages.add(message),
       })
       .use(rehypeCaptions)
+      .use(rehypeMdxcnRestore)
       .use(rehypeStringify, { allowDangerousHtml: true });
 
     const result = await processor.process(body);
@@ -225,6 +233,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       missingImages.clear();
       equationWarnings.clear();
       fontWarnings.clear();
+      mdxcnWarnings.clear();
       featureLinkWarnings.clear();
       bannerProblems.clear();
     },
@@ -360,6 +369,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       for (const message of missingImages) this.warn(message);
       for (const message of equationWarnings) this.warn(message);
       for (const message of fontWarnings) this.warn(message);
+      for (const message of mdxcnWarnings) this.warn(message);
       for (const message of featureLinkWarnings) this.warn(message);
       for (const message of bannerProblems) this.warn(message);
 

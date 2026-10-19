@@ -1,0 +1,100 @@
+/*
+ * The mdxcn figures' stylesheet: Tailwind, compiled from the components in
+ * `./registry` and nothing else, and used only inside each figure's shadow
+ * root (`src/mdxcn/island.tsx`). The rest of the site is not Tailwind, and
+ * this file never reaches it: no utility here can match an element outside a
+ * figure, and none of the site's prose styles can reach in.
+ *
+ * Colours are the site's own tokens, which inherit through the shadow
+ * boundary, so a figure follows the light and dark themes and the manual
+ * toggle exactly as the prose around it does. mdxcn's defaults are an
+ * oklch blue on neutral greys; here the accent is the site's, and the
+ * greys are the text colour mixed into the background.
+ */
+@import 'tailwindcss' source(none);
+@source './registry';
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-destructive: var(--alert-caution);
+  --color-graph-accent: var(--graph-accent);
+  --color-graph-accent-2: var(--graph-accent-2);
+  --color-graph-accent-3: var(--graph-accent-3);
+  --color-graph-frame: var(--graph-frame);
+  --color-graph-muted: var(--graph-muted);
+  --color-graph-faint: var(--graph-faint);
+  --color-contrast-14: var(--contrast-14);
+  --color-contrast-23: var(--contrast-23);
+  --color-contrast-45: var(--contrast-45);
+  --color-contrast-70: var(--contrast-70);
+  --font-sans: var(--sans);
+  --font-mono: var(--mono);
+}
+
+:host {
+  --graph-accent: var(--accent);
+  --graph-accent-2: var(--hl-title);
+  --graph-accent-3: var(--hl-string);
+  --graph-frame: color-mix(in srgb, var(--text) 30%, transparent);
+  --graph-muted: var(--text-muted);
+  --graph-faint: color-mix(in srgb, var(--text) 18%, var(--bg));
+  --contrast-14: color-mix(in srgb, var(--text) 14%, var(--bg));
+  --contrast-23: color-mix(in srgb, var(--text) 23%, var(--bg));
+  --contrast-45: color-mix(in srgb, var(--text) 45%, var(--bg));
+  --contrast-70: color-mix(in srgb, var(--text) 70%, var(--bg));
+
+  color: var(--text);
+  display: block;
+  font-family: var(--mono);
+  margin: 2rem 0;
+}
+
+@utility graph-frame {
+  background-image:
+    repeating-linear-gradient(to right, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to bottom, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to right, var(--graph-frame) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(to bottom, var(--graph-frame) 0 2px, transparent 2px 7px);
+  background-position:
+    0 0,
+    100% 0,
+    0 100%,
+    0 0;
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+  background-size:
+    100% 1px,
+    1px 100%,
+    100% 1px,
+    1px 100%;
+}
+
+@utility graph-rule {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--graph-frame) 0 2px,
+    transparent 2px 7px
+  );
+  height: 1px;
+}
+
+@utility graph-rule-y {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--graph-frame) 0 2px,
+    transparent 2px 7px
+  );
+  width: 1px;
+}
+
+/*
+ * Table, Sheet, Compare, Matrix and Invoice set a 32rem minimum width, and
+ * Annotate sizes to its longest line, so on a phone they are wider than the
+ * column. mdxcn leaves that to the page; here the body of the frame scrolls
+ * inside it, as a wide table or a code block does elsewhere on the site, and
+ * the frame and its corners stay on screen. `client.tsx` makes a body that
+ * does scroll focusable, so it can be scrolled from the keyboard.
+ */
+.mdxcn-root > figure > div {
+  overflow-x: auto;
+}

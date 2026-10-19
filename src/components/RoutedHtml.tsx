@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useInnerHtml } from '../lib/inner-html';
 import { routerPath, shouldRoute } from '../lib/internal-links';
+import { useMdxcnFigures } from '../lib/mdxcn-figures';
 
 interface RoutedHtmlProps {
   html: string;
@@ -21,6 +22,7 @@ export function RoutedHtml({ html, className }: RoutedHtmlProps) {
   const container = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const inner = useInnerHtml(html);
+  useMdxcnFigures(container, html);
 
   useEffect(() => {
     const root = container.current;

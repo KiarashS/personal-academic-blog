@@ -16,7 +16,11 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/registry/*": ["./src/mdxcn/registry/*"],
+      "@/lib/utils": ["./src/mdxcn/lib/utils.ts"]
+    }
   },
   "include": ["src", "plugins", "scripts", "vite.config.ts"]
 }

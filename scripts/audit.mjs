@@ -71,6 +71,8 @@ const routes = [
     `${blogIndexPath().replace(/\/$/, '')}/`,
     `${postPath('code-tables-and-notes')}/`,
     `${postPath('writing-a-post')}/`,
+    // Every mdxcn figure, each in a shadow root, which axe reads into.
+    `${postPath('mdxcn-figures')}/`,
     '/publications/',
     '/archive/',
     '/tags/',
