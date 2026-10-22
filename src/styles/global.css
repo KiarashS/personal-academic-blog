@@ -4384,7 +4384,40 @@ a.work-card:focus-visible {
   white-space: nowrap;
 }
 
+/* Arriving, the cards rise in one after another: each fades up from 8px
+   below, 50ms after the one before it, starting as the banner's own fade is
+   under way. In the stylesheet, not a script, so it plays on the prerendered
+   page before anything has loaded, and hydrating does not start it again.
+   `both` holds a card at its first frame through its wait, or it would show,
+   vanish and rise. Like the banner's fade it is for arriving: a reader coming
+   back from a post (`data-navigated`), and one who asked for less motion,
+   get the cards where they end. */
+.selected-work__list > li {
+  animation: work-card-in 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(0.15s + var(--card, 0) * 50ms);
+}
+
+@keyframes work-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:root[data-navigated] .selected-work__list > li {
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .selected-work__list > li {
+    animation: none;
+  }
+
   .work-card {
     transition: none;
   }

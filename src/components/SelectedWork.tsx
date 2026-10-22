@@ -1,4 +1,4 @@
-import { useRef, type ReactNode, type RefObject } from 'react';
+import { useRef, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import entries from '../content/publications.bib';
 import { isEnabled, isExternal } from '../lib/features';
@@ -130,8 +130,10 @@ export function SelectedWork() {
         ) : null}
       </div>
       <ul className="selected-work__list">
-        {cards.map((work) => (
-          <li key={work.key}>
+        {/* `--card` is the card's place in the row, which the stylesheet turns
+            into how long it waits before rising in. */}
+        {cards.map((work, index) => (
+          <li key={work.key} style={{ '--card': index } as CSSProperties}>
             <Card work={work} />
           </li>
         ))}
