@@ -55,6 +55,8 @@ export { CACHE_PREFIX } from './lib/cache-name';
 export { canonicalUrl, withBase } from './lib/urls';
 export { AVATAR_WIDTH, CREDIT_WIDTH, PHOTO_WIDTH, avatarCopyPath, isUrl } from './lib/avatar';
 export { footerCredit } from './lib/credit';
+export { configuredSelectedWorkWarnings } from './lib/selected-work-config';
+export { configuredLlmsTxt } from './lib/llms-config';
 export { fontSubsetsFor } from './lib/font-subsets';
 export { SECTION_FONTS, sectionFontsIn } from './lib/fonts';
 export { commentTerm, commentsConfigured } from './lib/comments';

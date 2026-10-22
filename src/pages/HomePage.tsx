@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Avatar } from '../components/Avatar';
+import { SelectedWork } from '../components/SelectedWork';
 import { HomeNews } from '../components/HomeNews';
 import { ProfileIcon } from '../components/ProfileIcon';
 import { RoutedHtml } from '../components/RoutedHtml';
@@ -206,6 +207,7 @@ export function HomePage() {
         ) : null}
       </div>
       {avatar ? <Avatar src={avatar} /> : null}
+      <SelectedWork />
       <HomeNews />
     </div>
   );

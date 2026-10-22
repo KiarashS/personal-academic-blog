@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import entries from '../content/publications.bib';
 import { CopyButton } from '../components/CopyButton';
+import { publicationAnchor } from '../components/SelectedWork';
 import { bibAuthors, bibUrl, bibVenue, bibYear, formatBib } from '../lib/bib-parse';
 import { isExternal } from '../lib/features';
 import { useReducedMotion } from '../lib/reduced-motion';
@@ -116,7 +117,10 @@ function Publication({ entry }: { entry: BibEntry }) {
     .join(', ');
 
   return (
-    <li className={`publication${entry.media ? ' publication--media' : ''}`}>
+    <li
+      className={`publication${entry.media ? ' publication--media' : ''}`}
+      id={publicationAnchor(entry.key)}
+    >
       <div className="publication__text">
         <p className="publication__title">
           {url ? (

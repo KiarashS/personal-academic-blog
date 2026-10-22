@@ -3040,7 +3040,13 @@ img.publication__media-item[width] {
 }
 
 .banner .news {
-  grid-area: 2 / 1;
+  grid-area: 3 / 1;
+}
+
+/* Under the introduction and the portrait both, the width of the banner,
+   because four cards in the words' column alone would be stamps. */
+.banner .selected-work {
+  grid-area: 2 / 1 / 3 / -1;
 }
 
 /* The rim is the container's own padding; the highlight below travels around
@@ -3156,8 +3162,12 @@ img.publication__media-item[width] {
     margin-top: 1.5rem;
   }
 
-  .banner .news {
+  .banner .selected-work {
     grid-area: 3 / 1;
+  }
+
+  .banner .news {
+    grid-area: 4 / 1;
   }
 }
 
@@ -4238,5 +4248,177 @@ img.publication__media-item[width] {
   h2,
   h3 {
     break-after: avoid;
+  }
+}
+
+/*
+ * Selected work (`SelectedWork.tsx`, `home.selectedWork`): a row of cards for
+ * a few papers, between the introduction and the news. The heading is the
+ * news block's, so the two read as one kind of thing.
+ *
+ * Each card is one link, picture over words: the teaser in a fixed 16:10 box
+ * so a row of different shapes lines up, `contain` so nothing of a figure is
+ * cropped away, then the title in the serif and the venue and year in the
+ * sans, muted. An entry with no teaser shows its year in the box instead.
+ *
+ * On hover or focus the card rises 2px and its shadow deepens, and a clip
+ * teaser plays; a reader who asked for less motion gets the shadow alone.
+ */
+.selected-work {
+  margin-top: 2.25rem;
+  min-width: 0;
+}
+
+.selected-work__head {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.selected-work__head .section-heading {
+  font-size: 0.72rem;
+  margin-bottom: 0.7rem;
+}
+
+.selected-work__all {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  text-decoration-color: var(--link-rule);
+  text-underline-offset: 0.2em;
+}
+
+.selected-work__list {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.work-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  text-decoration: none;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+a.work-card:hover,
+a.work-card:focus-visible {
+  border-color: var(--rule-strong);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 10%);
+  transform: translateY(-2px);
+}
+
+a.work-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.work-card__media {
+  align-items: center;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.work-card__media img,
+.work-card__media video {
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.work-card__media--year {
+  color: var(--text-muted);
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.work-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.65rem 0.75rem 0.75rem;
+}
+
+/* Two lines and an ellipsis: a title is long more often than not, and the
+   row reads as a row only while the cards are one height. The whole title is
+   still the link's name for a screen reader. */
+.work-card__title {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  line-height: 1.3;
+  overflow: hidden;
+}
+
+.work-card__meta {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-card {
+    transition: none;
+  }
+
+  a.work-card:hover,
+  a.work-card:focus-visible {
+    transform: none;
+  }
+}
+
+/* A phone: one row that swipes, each card most of the screen wide so the
+   next one shows at the edge and says there is more. Snapping keeps a card,
+   not half of two, in view when the swipe ends. */
+@media (width <= 46rem) {
+  .selected-work__list {
+    display: flex;
+    margin-inline: -1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 0.25rem 1rem 0.75rem;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .selected-work__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* `min-width: 0`, or a flex item is never narrower than its content, and a
+     teaser's own pixel width would size the card instead of the 72%. */
+  .selected-work__list > li {
+    flex: 0 0 72%;
+    min-width: 0;
+    scroll-snap-align: start;
   }
 }

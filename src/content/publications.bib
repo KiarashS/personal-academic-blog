@@ -4,14 +4,15 @@
 % of what the fields do, drawn for this site: they are not the papers' own
 % figures, and the badges make no claim about the papers.
 %
-% A picture, GIF or short video beside an entry on the Publications page, and
-% a badge under it, take four fields of the site's own, which are left out of
-% the BibTeX the page offers to copy:
+% A picture, GIF or short video beside an entry on the Publications page, a
+% badge under it, and a card for it on the front page take five fields of the
+% site's own, which are left out of the BibTeX the page offers to copy:
 %
 %   teaser       = {/publications/knuth1984.gif},   % under public/, or a URL
 %   teaseralt    = {What the picture shows},        % optional
 %   teaserposter = {/publications/knuth1984.jpg},   % optional; a video's still
 %   badge        = {🏆 Best paper award},           % optional; emoji welcome
+%   selected     = {true},                          % optional; a card on the front page
 %
 % A teaser sits on the page unboxed. Put #frame on the end of its path for a
 % hairline border, as on a figure in a post, when the picture's own edge would
@@ -51,7 +52,8 @@
   archiveprefix = {arXiv},
   teaser        = {/publications/attention.gif#frame},
   teaseralt     = {Each word of a sentence in turn, drawing lines to the others, thicker where it attends more},
-  badge         = {🏆 Example badge: an award, a talk, or “to appear”}
+  badge         = {🏆 Example badge: an award, a talk, or “to appear”},
+  selected      = {true}
 }
 
 @inproceedings{he2016deep,
@@ -62,7 +64,8 @@
   year      = {2016},
   doi       = {10.1109/CVPR.2016.90},
   teaser    = {/publications/resnet.png#frame},
-  teaseralt = {Four layers in a row, with dashed connections skipping over pairs of them}
+  teaseralt = {Four layers in a row, with dashed connections skipping over pairs of them},
+  selected  = {true}
 }
 
 @inproceedings{kingma2015adam,
@@ -75,7 +78,8 @@
   teaser        = {/publications/adam.webm#frame},
   teaserposter  = {/publications/adam-poster.jpg},
   teaseralt     = {A point stepping down a loss surface towards its minimum},
-  badge         = {🎬 Example badge: this entry's teaser is a video}
+  badge         = {🎬 Example badge: this entry's teaser is a video},
+  selected      = {true}
 }
 
 @article{lecun2015deep,
@@ -87,7 +91,8 @@
   pages   = {436--444},
   year    = {2015},
   doi     = {10.1038/nature14539},
-  badge   = {📌 Example badge, on an entry with no teaser}
+  badge   = {📌 Example badge, on an entry with no teaser},
+  selected = {true}
 }
 
 @article{shannon1948mathematical,

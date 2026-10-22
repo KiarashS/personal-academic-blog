@@ -76,6 +76,44 @@ export type ProfileLinkStyle = 'both' | 'icon' | 'label';
 export type NameStyle = 'signature' | 'text';
 
 /**
+ * `/llms.txt`, written by the build (https://llmstxt.org): your name, the
+ * site's description, your record from `authors.ts`, the pages that are on,
+ * your publications and your listed posts, as Markdown a language model reads
+ * when asked about you. Off writes no file.
+ */
+export interface LlmsConfig {
+  enabled: boolean;
+  /**
+   * A paragraph of your own under the introduction, as Markdown: how you
+   * would like your work cited, what you are working on now. Empty leaves it
+   * out.
+   */
+  note: string;
+}
+
+/**
+ * A row of cards on the front page, between the introduction and the news: a
+ * few papers to start from, each with its teaser, title, venue and year, and
+ * a link to the paper. The papers are the entries in
+ * `src/content/publications.bib` with `selected = {true}`, newest first, or
+ * the ones `keys` names, in that order.
+ */
+export interface SelectedWorkConfig {
+  enabled: boolean;
+  /** The row's heading. */
+  title: string;
+  /** How many cards at most. */
+  count: number;
+  /**
+   * BibTeX keys, in the order the cards should take. Empty uses every entry
+   * marked `selected = {true}`, newest first.
+   */
+  keys: string[];
+  /** The link to the Publications page beside the heading. Empty leaves it out. */
+  allLabel: string;
+}
+
+/**
  * The list of newest posts behind a chevron button on the front page, put where
  * `{{latest_posts}}` stands in `src/content/home.md`. Hovering the button, or
  * focusing it from the keyboard, opens it; a tap opens it on a phone. Take the
@@ -407,6 +445,8 @@ export interface HomeConfig {
   newsFreshMonths: number;
   /** The newest posts behind a chevron button; see `LatestPostsConfig`. */
   latestPosts: LatestPostsConfig;
+  /** Cards for a few papers under the introduction; see `SelectedWorkConfig`. */
+  selectedWork: SelectedWorkConfig;
 }
 
 /**
@@ -509,6 +549,8 @@ export interface SiteConfig {
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
    */
   cv: string;
+  /** `/llms.txt`, the site described for language models; see `LlmsConfig`. */
+  llms: LlmsConfig;
   /** The line at the foot of every page that says who made the site; see `CreditConfig`. */
   credit: CreditConfig;
   /**
@@ -607,8 +649,24 @@ export const siteConfig: SiteConfig = {
       // empty hides the link to the blog index
       allPostsLabel: 'All posts',
     },
+    // Cards for the entries in publications.bib with selected = {true}.
+    selectedWork: {
+      enabled: true,
+      title: 'Selected work',
+      count: 4,
+      // BibTeX keys in the order you want them; empty uses selected = {true}, newest first
+      keys: [],
+      // empty hides the link to the Publications page
+      allLabel: 'All publications',
+    },
   },
   cv: '',
+  // /llms.txt for AI tools, from your record, pages, publications and posts.
+  llms: {
+    enabled: true,
+    // a paragraph of your own, e.g. how to cite your work; empty for none
+    note: '',
+  },
   /*
    * Please leave this block as it is. If you fork or reuse this site, keep the
    * text, the name, the photo URL and the link unchanged, and don't remove or

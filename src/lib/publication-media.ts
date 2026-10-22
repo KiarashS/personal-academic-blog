@@ -34,11 +34,33 @@ export interface PublicationMedia {
 export const MEDIA_FIELDS = ['teaser', 'teaseralt', 'teaserposter'] as const;
 
 /**
- * Every field of the site's own: the teaser's three, and `badge`, a short
- * note shown as a pill under the venue — an award, "to appear", a talk —
- * emoji and all: `badge = {🏆 Best paper award}`.
+ * Every field of the site's own: the teaser's three; `badge`, a short note
+ * shown as a pill under the venue — an award, "to appear", a talk — emoji and
+ * all: `badge = {🏆 Best paper award}`; and `selected = {true}`, which puts
+ * the entry among the front page's selected work.
  */
-export const SITE_FIELDS = [...MEDIA_FIELDS, 'badge'] as const;
+export const SITE_FIELDS = [...MEDIA_FIELDS, 'badge', 'selected'] as const;
+
+/**
+ * `selected` as the yes or no it means. BibTeX has no booleans, so `true`,
+ * `yes` and `1` are yes, `false`, `no` and `0` are no, and anything else is a
+ * problem the build reports, read as no.
+ */
+export function selectedField(
+  key: string,
+  value: string | undefined,
+): { selected: boolean; problem?: string } {
+  if (value === undefined) return { selected: false };
+  const written = value.trim().toLowerCase();
+  if (['true', 'yes', '1'].includes(written)) return { selected: true };
+  if (['false', 'no', '0', ''].includes(written)) return { selected: false };
+  return {
+    selected: false,
+    problem:
+      `publications: ${key}: selected = {${value}} is not true or false, so the entry is ` +
+      'not among the selected work. Write selected = {true}.',
+  };
+}
 
 const isUrl = (value: string): boolean => /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(value);
 

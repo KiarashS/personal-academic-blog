@@ -30,6 +30,8 @@ const {
   structuredDataFor,
   serialiseJsonLd,
   configuredNewsWarnings,
+  configuredSelectedWorkWarnings,
+  configuredLlmsTxt,
   noticeWarnings,
   researchWarnings,
   peopleWarnings,
@@ -519,6 +521,11 @@ self.addEventListener('fetch', (event) => {
   );
 }
 
+// The site described for language models (https://llmstxt.org), from the
+// same records the pages are built from; see `src/lib/llms.ts`.
+const llms = configuredLlmsTxt();
+if (llms) await write('llms.txt', llms);
+
 await write(
   'robots.txt',
   ['User-agent: *', 'Allow: /', `Sitemap: ${canonicalUrl('/sitemap.xml')}`, ''].join('\n'),
@@ -531,6 +538,7 @@ await write(
 for (const message of [
   ...blogWarnings(),
   ...configuredNewsWarnings(),
+  ...configuredSelectedWorkWarnings(),
   ...noticeWarnings(),
   ...researchWarnings(),
   ...peopleWarnings(),
@@ -541,6 +549,7 @@ for (const message of [
 
 console.log(
   `prerendered ${allRoutes().length} routes, 404.html, ${blog ? 'feeds, ' : ''}sitemap.xml, robots.txt` +
+    (llms ? ', llms.txt' : '') +
     (installable
       ? `, site.webmanifest and sw.js (${buildStamp})`
       : '; pwa off, no manifest or worker'),

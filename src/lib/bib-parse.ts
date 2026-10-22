@@ -8,6 +8,8 @@ export interface BibEntry {
   media?: PublicationMedia;
   /** The site's own `badge` field: a short note shown under the venue. */
   badge?: string;
+  /** The site's own `selected` field: among the front page's selected work. */
+  selected?: boolean;
 }
 
 const ENTRY = /@(\w+)\s*\{\s*([^,\s]+)\s*,/g;

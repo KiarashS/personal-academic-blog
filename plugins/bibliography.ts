@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import { parseBib } from '../src/lib/bib-parse';
 import { imageSize } from '../src/lib/image-size';
-import { bibFieldsOnly, publicationMedia } from '../src/lib/publication-media';
+import { bibFieldsOnly, publicationMedia, selectedField } from '../src/lib/publication-media';
 
 /** A file under `public/`, measured, or nothing if it is not there. */
 function sizeOf(src: string) {
@@ -18,7 +18,8 @@ function sizeOf(src: string) {
  * Turns an imported `.bib` file into parsed entries at build time, so the
  * publications page ships data rather than a parser.
  *
- * An entry's own fields (`teaser`, `teaseralt`, `teaserposter`, `badge`) come off
+ * An entry's own fields (`teaser`, `teaseralt`, `teaserposter`, `badge`,
+ * `selected`) come off
  * the entry here and arrive as its `media`, measured, so the page can hold
  * the picture's space before it loads and the BibTeX a reader copies is the
  * entry and nothing of the site's. A teaser the page cannot show is said out
@@ -37,11 +38,14 @@ export function bibliography(): Plugin {
         const { media, problems } = publicationMedia(entry.key, entry.fields, sizeOf);
         for (const problem of problems) this.warn(problem);
         const badge = entry.fields.badge?.trim();
+        const { selected, problem } = selectedField(entry.key, entry.fields.selected);
+        if (problem) this.warn(problem);
         return {
           ...entry,
           fields: bibFieldsOnly(entry.fields),
           ...(media ? { media } : {}),
           ...(badge ? { badge } : {}),
+          ...(selected ? { selected } : {}),
         };
       });
       return { code: `export default ${JSON.stringify(entries)};`, map: null };

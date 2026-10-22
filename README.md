@@ -849,7 +849,7 @@ disclosure. It ships with two well-known papers as samples — replace them.
 
 An entry can carry a teaser: a picture, a GIF or a short video beside it, in
 a column to the right of the words on a wide screen and under them on a phone.
-Three fields of the site's own, on the entry in the `.bib` file:
+Fields of the site's own, on the entry in the `.bib` file:
 
 ```bibtex
 @inproceedings{you2026thing,
@@ -859,6 +859,7 @@ Three fields of the site's own, on the entry in the `.bib` file:
   teaseralt    = {The interface, mid-gesture},
   teaserposter = {/publications/you2026thing.jpg},
   badge        = {🏆 Best paper award},
+  selected     = {true},
 }
 ```
 
@@ -867,8 +868,9 @@ Three fields of the site's own, on the entry in the `.bib` file:
 describes it; leave it out when the picture only decorates the title beside
 it. `teaserposter` is the still a video shows before it starts. `badge` is a
 short note shown as a pill under the venue (an award, a talk, "to appear"),
-with any emoji you type into it. None of the four appears in the BibTeX the
-page offers to copy.
+with any emoji you type into it. `selected = {true}` puts the entry among the
+cards on the front page (Selected work, below). None of these appears in the
+BibTeX the page offers to copy.
 
 A teaser sits on the page unboxed. When its own edge would run into the page,
 such as a light screenshot on the light theme or a dark figure on the dark
@@ -910,9 +912,30 @@ page the address asks for in its place.
 
 Alongside them: `feed.xml` (Atom, full text, linked from every page's head), a
 per-tag feed at `/tags/<tag>/feed.xml` advertised on that tag's page,
-`sitemap.xml`, `robots.txt`, and a 1200x630 social card per post under `/og/`
-referenced by `og:image`. With `pwa.enabled` on, also `site.webmanifest` and
+`sitemap.xml`, `robots.txt`, `llms.txt` (below), and a 1200x630 social card
+per post under `/og/` referenced by `og:image`. With `pwa.enabled` on, also `site.webmanifest` and
 `sw.js`; see Install to home screen.
+
+### llms.txt
+
+`/llms.txt` describes the site for a language model, in the format
+[llmstxt.org](https://llmstxt.org) proposes: your name, the front page's
+description as a one-line summary, your record from `authors.ts` (role,
+affiliation, tagline, bio and interests), then lists of links: your profiles,
+the pages that are switched on, your selected work, every publication with its
+authors, venue and year, and every listed post with its date and summary. A
+tool asked about you that reads it describes your work from your words rather
+than from guesses. Unlisted posts and drafts are never in it, and your email
+address is left out.
+
+```ts
+llms: {
+  enabled: true, // false writes no file
+  note: '',      // a paragraph of your own: how to cite you, what you work on now
+},
+```
+
+The file is rebuilt with the site, so it is never out of date with it.
 
 ## Themes
 
@@ -1997,6 +2020,13 @@ home: {
     summaries: false,
     allPostsLabel: 'All posts', // the link to the blog index; empty for none
   },
+  selectedWork: {         // cards for a few papers, under the introduction
+    enabled: true,
+    title: 'Selected work',
+    count: 4,             // cards at most
+    keys: [],             // BibTeX keys in order; empty uses selected = {true}, newest first
+    allLabel: 'All publications', // the link to /publications; empty for none
+  },
 },
 ```
 
@@ -2024,6 +2054,20 @@ any script runs. Take the placeholder out of `home.md`, or set
 `latestPosts.enabled` to `false`, and nothing shows; written inside backticks it
 is left as text. Unlisted posts and drafts are never in it, and with the blog
 switched off it is empty and the placeholder goes.
+
+Selected work is a row of cards between the introduction and the news, one per
+paper: its teaser at the top, then the title, venue and year, the whole card a
+link to the paper (the DOI, the arXiv page or `url`), or to its place on the
+Publications page when it has none. Mark an entry in
+`src/content/publications.bib` with `selected = {true}` and it is a card; the
+newest come first. To choose the order yourself, list the keys in
+`selectedWork.keys` instead, and those are the cards whether marked or not.
+An entry without a teaser shows its year in the picture's place. A video
+teaser shows its poster and plays while the card is under the pointer or has
+focus, so the front page is still until someone reaches for a card. On a
+phone the cards are one row that swipes, with the next card showing at the
+edge. The build warns about a key that is not in the file, and about a row
+that is on with nothing in it.
 
 `home.tagline` is the front page's own line. `siteConfig.tagline` describes the
 writing and sits under the site title in the header on every other page, and on
