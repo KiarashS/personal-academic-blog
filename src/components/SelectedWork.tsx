@@ -109,6 +109,7 @@ function Card({ work }: { work: WorkCard }) {
     return (
       <Link
         className="work-card"
+        data-card={anchor}
         to={to}
         onClick={onClick}
         onPointerEnter={() => {

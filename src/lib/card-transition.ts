@@ -15,6 +15,8 @@
  *
  * Where the API is missing, or the reader asked for less motion, nothing is
  * done here and the link navigates as any link does.
+ *
+ * Back from the entry plays it in reverse; see `installBackTransition`.
  */
 
 export const TEASER_NAME = 'publication-teaser';
@@ -55,11 +57,99 @@ const pause = (ms: number): Promise<void> =>
  * view as the site does for any link to a fragment, and then lets the browser
  * take its second picture.
  */
+/** The card's teaser and title, named or unnamed for a transition. */
+function name(card: Element, on: boolean): void {
+  for (const [part, value] of [
+    ['teaser', TEASER_NAME],
+    ['title', TITLE_NAME],
+  ] as const) {
+    const element = card.querySelector<HTMLElement>(`[data-transition="${part}"]`);
+    if (!element) continue;
+    if (on) element.style.viewTransitionName = value;
+    else element.style.removeProperty('view-transition-name');
+  }
+}
+
+/** Holds a transition's update until `picture` has decoded, for at most 400ms. */
+async function decoded(picture: HTMLImageElement | null | undefined): Promise<void> {
+  if (picture) await Promise.race([picture.decode().catch(() => {}), pause(400)]);
+}
+
+/** The entry a card last turned into, and the address the card was on. */
+let pending: { anchor: string; from: string } | null = null;
+
+/**
+ * Back, from the entry a card turned into, to the page the card was on: the
+ * same flight the other way, the entry's teaser and title landing on the
+ * card's.
+ *
+ * Back is a `popstate`, and React Router answers it the moment it fires, by
+ * rendering the front page, which is too soon: a transition takes its first
+ * picture at the next frame, by when the entry would be gone. So this listener
+ * has to hear the event before the router does, hold it back, start the
+ * transition, and inside the transition's update hand the router the same
+ * `popstate` again. The address has already changed by then, so the router
+ * renders the front page exactly as it would have.
+ *
+ * Before the router means registered before it: listeners on `window` are
+ * called in the order they were added. `main.tsx` calls this once, ahead of
+ * rendering the app. It answers one Back only, from a page with the entry on
+ * it to the address the card was clicked on; any other `popstate` passes
+ * straight through.
+ */
+export function installBackTransition(): void {
+  window.addEventListener(
+    'popstate',
+    (event) => {
+      if (replayed.has(event) || !pending) return;
+      const { anchor, from } = pending;
+      // One Back or Forward, whichever it was, and the browser has its own
+      // scrolling back; a transition still pending after it would be a
+      // different page's.
+      pending = null;
+      releaseScroll();
+      if (!document.getElementById(anchor) || `${location.pathname}${location.search}` !== from) {
+        return;
+      }
+      if (prefersLessMotion() || !canTransition()) return;
+
+      event.stopImmediatePropagation();
+      const transition = document.startViewTransition(async () => {
+        const again = new PopStateEvent('popstate', { state: event.state as unknown });
+        replayed.add(again);
+        window.dispatchEvent(again);
+        const card = await waitFor(
+          () => document.querySelector<HTMLElement>(`[data-card="${anchor}"]`),
+          2500,
+        );
+        if (card) {
+          name(card, true);
+          card.scrollIntoView({ block: 'nearest' });
+          await decoded(card.querySelector('img'));
+        }
+      });
+      void transition.finished.finally(() => {
+        const card = document.querySelector(`[data-card="${anchor}"]`);
+        if (card) name(card, false);
+      });
+    },
+    true,
+  );
+}
+
+/**
+ * The `popstate`s handed on to the router, which this module must not catch
+ * again. A set rather than a subclass, which would be evaluated on the server
+ * where there is no `PopStateEvent`.
+ */
+const replayed = new WeakSet<Event>();
+
+const prefersLessMotion = (): boolean =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export function transitionTo(card: HTMLElement, anchor: string, navigate: () => void): void {
-  const teaser = card.querySelector<HTMLElement>('[data-transition="teaser"]');
-  const title = card.querySelector<HTMLElement>('[data-transition="title"]');
-  if (teaser) teaser.style.viewTransitionName = TEASER_NAME;
-  if (title) title.style.viewTransitionName = TITLE_NAME;
+  const from = `${location.pathname}${location.search}`;
+  name(card, true);
 
   const transition = document.startViewTransition(async () => {
     navigate();
@@ -69,14 +159,27 @@ export function transitionTo(card: HTMLElement, anchor: string, navigate: () => 
     // the picture pops in after it. The card has already fetched the same
     // file, so this is a decode from the cache, not a download; a short limit
     // keeps a slow one from holding the page.
-    const picture = target?.querySelector('img');
-    if (picture) await Promise.race([picture.decode().catch(() => {}), pause(400)]);
+    await decoded(target?.querySelector('img'));
   });
 
   // The card is gone once the page has changed; if the transition is skipped
   // before that, it must not keep names a later one would find twice.
-  void transition.finished.finally(() => {
-    teaser?.style.removeProperty('view-transition-name');
-    title?.style.removeProperty('view-transition-name');
-  });
+  void transition.finished.finally(() => name(card, false));
+  pending = { anchor, from };
+  // The browser restores the scroll position it saved for an address on
+  // Back, and does it before the `popstate`: the entry would be moved to the
+  // front page's position, at the top of the page, before the transition took
+  // its first picture, and fly from there. The site's own scrolling decides
+  // where a Back lands (`Layout`'s ScrollToTop), so the browser's is only
+  // switched off while a Back may play this, and switched on again after.
+  restoration ??= history.scrollRestoration;
+  history.scrollRestoration = 'manual';
+}
+
+/** What `history.scrollRestoration` was before a card held it. */
+let restoration: ScrollRestoration | null = null;
+
+function releaseScroll(): void {
+  if (restoration) history.scrollRestoration = restoration;
+  restoration = null;
 }

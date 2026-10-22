@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
+import { installBackTransition } from './lib/card-transition';
 import { looksLikeMissingChunk, recoverFromMissingChunk } from './lib/recover';
 import { syncServiceWorker } from './lib/pwa-client';
 import { siteConfig } from './site.config';
@@ -10,6 +11,10 @@ import 'katex/dist/katex.min.css';
 import './styles/fonts.css';
 import './styles/global.css';
 import './styles/prose.css';
+
+// Before the router is rendered, so this hears a Back before the router does;
+// see `lib/card-transition.ts`.
+installBackTransition();
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Missing #root element');

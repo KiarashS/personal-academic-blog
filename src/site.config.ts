@@ -606,7 +606,7 @@ export const siteConfig: SiteConfig = {
     // the blog stays and the build says why.
     blog: true,
     about: true,
-    publications: true,
+    publications: false,
     archive: true,
     categories: false,
     // On once `nav`'s Projects group lists work of yours rather than the
@@ -657,7 +657,7 @@ export const siteConfig: SiteConfig = {
     },
     // Cards for the entries in publications.bib with selected = {true}.
     selectedWork: {
-      enabled: true,
+      enabled: false,
       title: 'Selected work',
       count: 4,
       // BibTeX keys in the order you want them; empty uses selected = {true}, newest first
