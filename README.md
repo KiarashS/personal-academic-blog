@@ -2026,6 +2026,7 @@ home: {
     count: 4,             // cards at most
     keys: [],             // BibTeX keys in order; empty uses selected = {true}, newest first
     allLabel: 'All publications', // the link to /publications; empty for none
+    linkTo: 'publications', // or 'paper': the DOI, arXiv page or url, in a new tab
   },
 },
 ```
@@ -2057,8 +2058,14 @@ switched off it is empty and the placeholder goes.
 
 Selected work is a row of cards between the introduction and the news, one per
 paper: its teaser at the top, then the title, venue and year, the whole card a
-link to the paper (the DOI, the arXiv page or `url`), or to its place on the
-Publications page when it has none. Mark an entry in
+link to the paper's entry on the Publications page. The card turns into the
+entry on the way there: its teaser and title fly to where the entry's are
+while the rest of the page cross-fades, with the View Transitions API, in a
+browser that has it (Chrome, Edge and Safari 18 do), and the page scrolls to
+the entry. Elsewhere, and for a reader who asked for less motion, the link
+simply goes there. `linkTo: 'paper'` sends a card to the paper itself instead
+(the DOI, the arXiv page or `url`, in a new tab), with no transition; a card
+whose entry has no link goes to the Publications page either way. Mark an entry in
 `src/content/publications.bib` with `selected = {true}` and it is a card; the
 newest come first. To choose the order yourself, list the keys in
 `selectedWork.keys` instead, and those are the cards whether marked or not.

@@ -2859,11 +2859,6 @@ h1 + .author-card {
   border: 1px solid var(--rule);
 }
 
-/* A measured image keeps its own shape, from its width and height. */
-img.publication__media-item[width] {
-  aspect-ratio: auto;
-}
-
 .publication__media a:hover .publication__media-item {
   border-color: var(--link-rule);
 }
@@ -4336,12 +4331,16 @@ a.work-card:focus-visible {
   overflow: hidden;
 }
 
+/* The picture at its own shape inside the box, rather than stretched to the
+   box and letterboxed with `object-fit`: the element is then exactly the
+   picture, which is what the view transition to the Publications page
+   lifts and flies (`lib/card-transition.ts`). */
 .work-card__media img,
 .work-card__media video {
-  height: 100%;
+  height: auto;
+  max-height: 100%;
   max-width: 100%;
-  object-fit: contain;
-  width: 100%;
+  width: auto;
 }
 
 .work-card__media--year {
@@ -4453,5 +4452,30 @@ a.work-card:focus-visible {
     flex: 0 0 72%;
     min-width: 0;
     scroll-snap-align: start;
+  }
+}
+
+/*
+ * A card becoming its entry on the Publications page (`lib/card-transition.ts`).
+ * The teaser and the title fly from the card to the entry; the rest of the page
+ * cross-fades, quicker, so the flight is what the eye follows. The curve is the
+ * cards' own rise: quick off the mark, slow to settle.
+ */
+::view-transition-group(publication-teaser),
+::view-transition-group(publication-title) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
   }
 }

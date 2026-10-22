@@ -1,8 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useLocation } from 'react-router-dom';
 import entries from '../content/publications.bib';
 import { CopyButton } from '../components/CopyButton';
 import { publicationAnchor } from '../components/SelectedWork';
 import { bibAuthors, bibUrl, bibVenue, bibYear, formatBib } from '../lib/bib-parse';
+import { TEASER_NAME, TITLE_NAME } from '../lib/card-transition';
 import { isExternal } from '../lib/features';
 import { useReducedMotion } from '../lib/reduced-motion';
 import { withBase } from '../lib/urls';
@@ -24,7 +26,26 @@ const itemClass = (media: PublicationMedia): string =>
     ? 'publication__media-item publication__media-item--framed'
     : 'publication__media-item';
 
-function TeaserVideo({ media }: { media: PublicationMedia }) {
+/**
+ * The view-transition name for an entry a front-page card is turning into
+ * (`lib/card-transition.ts`): on the one entry the address points at, and on
+ * nothing else, since a name may be on one element at a time.
+ */
+const noChanges = () => () => {};
+
+/**
+ * A measured picture's own shape, so its box is the right height before the
+ * file arrives. The stylesheet's 16:10 is for a teaser the build could not
+ * measure; an `aspect-ratio: auto` there would throw away the shape the
+ * browser takes from `width` and `height`, leave the box 0px tall until the
+ * picture loaded, and move every entry under it when it did.
+ */
+const shape = (media: PublicationMedia) =>
+  media.width && media.height ? { aspectRatio: `${media.width} / ${media.height}` } : undefined;
+
+const named = (name: string, on: boolean) => (on ? { viewTransitionName: name } : undefined);
+
+function TeaserVideo({ media, target }: { media: PublicationMedia; target: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
   const still = useReducedMotion();
 
@@ -43,6 +64,7 @@ function TeaserVideo({ media }: { media: PublicationMedia }) {
     <video
       ref={video}
       className={itemClass(media)}
+      style={named(TEASER_NAME, target)}
       src={address(media.src)}
       poster={media.poster ? address(media.poster) : undefined}
       aria-label={media.alt || undefined}
@@ -61,18 +83,27 @@ function TeaserVideo({ media }: { media: PublicationMedia }) {
  * hidden from screen readers when the picture has no description of its own,
  * which would otherwise be a link with no name.
  */
-function Teaser({ media, url }: { media: PublicationMedia; url?: string }) {
+function Teaser({
+  media,
+  url,
+  target,
+}: {
+  media: PublicationMedia;
+  url?: string;
+  target: boolean;
+}) {
   const picture =
     media.kind === 'video' ? (
-      <TeaserVideo media={media} />
+      <TeaserVideo media={media} target={target} />
     ) : (
       <img
         className={itemClass(media)}
+        style={{ ...shape(media), ...named(TEASER_NAME, target) }}
         src={address(media.src)}
         alt={media.alt}
         width={media.width}
         height={media.height}
-        loading="lazy"
+        loading={target ? 'eager' : 'lazy'}
         decoding="async"
       />
     );
@@ -107,7 +138,7 @@ function byYear(list: BibEntry[]): [number, BibEntry[]][] {
   return [...groups.entries()].sort((a, b) => b[0] - a[0]);
 }
 
-function Publication({ entry }: { entry: BibEntry }) {
+function Publication({ entry, target }: { entry: BibEntry; target: boolean }) {
   const authors = bibAuthors(entry);
   const venue = bibVenue(entry);
   const url = bibUrl(entry);
@@ -122,7 +153,7 @@ function Publication({ entry }: { entry: BibEntry }) {
       id={publicationAnchor(entry.key)}
     >
       <div className="publication__text">
-        <p className="publication__title">
+        <p className="publication__title" style={named(TITLE_NAME, target)}>
           {url ? (
             <a href={url} target="_blank" rel="noopener noreferrer">
               {entry.fields.title}
@@ -152,13 +183,24 @@ function Publication({ entry }: { entry: BibEntry }) {
           </div>
         </details>
       </div>
-      {entry.media ? <Teaser media={entry.media} url={url} /> : null}
+      {entry.media ? <Teaser media={entry.media} url={url} target={target} /> : null}
     </li>
   );
 }
 
 export function PublicationsPage() {
   const grouped = byYear(entries);
+  // The entry a link named, which a card from the front page may be turning
+  // into. The server never sees the fragment, so hydrating a page opened at
+  // `#publication-…` reads it as empty first, as the server did, rather than
+  // disagreeing with the markup; a page mounted by a navigation, which is the
+  // one a card animates into, has it from the first render.
+  const { hash } = useLocation();
+  const target = useSyncExternalStore(
+    noChanges,
+    () => decodeURIComponent(hash.slice(1)),
+    () => '',
+  );
 
   return (
     <>
@@ -179,7 +221,11 @@ export function PublicationsPage() {
               <h2 className="section-heading">{year || 'Undated'}</h2>
               <ol className="publication-list">
                 {list.map((entry) => (
-                  <Publication key={entry.key} entry={entry} />
+                  <Publication
+                    key={entry.key}
+                    entry={entry}
+                    target={target === publicationAnchor(entry.key)}
+                  />
                 ))}
               </ol>
             </section>

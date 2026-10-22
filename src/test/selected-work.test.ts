@@ -24,6 +24,7 @@ const config: SelectedWorkConfig = {
   count: 4,
   keys: [],
   allLabel: 'All publications',
+  linkTo: 'publications',
 };
 
 describe('selectedWork', () => {

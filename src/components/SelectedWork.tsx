@@ -1,7 +1,9 @@
-import { useRef, type CSSProperties, type ReactNode, type RefObject } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, type CSSProperties, type MouseEvent, type ReactNode, type RefObject } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import entries from '../content/publications.bib';
+import { canTransition, transitionTo } from '../lib/card-transition';
 import { isEnabled, isExternal } from '../lib/features';
+import { shouldRoute } from '../lib/internal-links';
 import { useReducedMotion } from '../lib/reduced-motion';
 import { selectedWork, type WorkCard } from '../lib/selected-work';
 import { withBase } from '../lib/urls';
@@ -37,6 +39,7 @@ function CardMedia({ work, video }: { work: WorkCard; video: RefObject<HTMLVideo
       {media.kind === 'video' ? (
         <video
           ref={video}
+          data-transition="teaser"
           src={address(media.src)}
           poster={media.poster ? address(media.poster) : undefined}
           muted
@@ -48,6 +51,7 @@ function CardMedia({ work, video }: { work: WorkCard; video: RefObject<HTMLVideo
         />
       ) : (
         <img
+          data-transition="teaser"
           src={address(media.src)}
           alt=""
           width={media.width}
@@ -63,6 +67,7 @@ function CardMedia({ work, video }: { work: WorkCard; video: RefObject<HTMLVideo
 function Card({ work }: { work: WorkCard }) {
   const video = useRef<HTMLVideoElement>(null);
   const still = useReducedMotion();
+  const navigate = useNavigate();
   const play = () => {
     if (!still) void video.current?.play().catch(() => {});
   };
@@ -72,7 +77,9 @@ function Card({ work }: { work: WorkCard }) {
     <>
       <CardMedia work={work} video={video} />
       <span className="work-card__text">
-        <span className="work-card__title">{work.title}</span>
+        <span className="work-card__title" data-transition="title">
+          {work.title}
+        </span>
         <span className="work-card__meta">
           {[work.venue, work.year || ''].filter(Boolean).join(' · ')}
         </span>
@@ -81,8 +88,44 @@ function Card({ work }: { work: WorkCard }) {
   );
   const events = { onPointerEnter: play, onPointerLeave: pause, onFocus: play, onBlur: pause };
 
-  // The paper, where the entry links one; else its place on the Publications
-  // page; else a card that is not a link.
+  // Where a card goes. `linkTo: 'publications'` (the default) is the entry on
+  // the Publications page, which the card turns into on the way there; the
+  // paper is one more click, from the entry. `'paper'` is the paper itself.
+  // A card falls back to the other when its first choice is not there.
+  const toPublications =
+    isEnabled('publications') && (siteConfig.home.selectedWork.linkTo !== 'paper' || !work.url);
+
+  if (toPublications) {
+    const anchor = publicationAnchor(work.key);
+    const to = `/publications#${anchor}`;
+    const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
+      if (still || !canTransition() || !shouldRoute(event.currentTarget, event)) return;
+      event.preventDefault();
+      transitionTo(event.currentTarget, anchor, () => void navigate(to));
+    };
+    // The page the card goes to, fetched as soon as the reader reaches for it,
+    // so the transition is not left waiting on the network.
+    const prefetch = () => void import('../pages/PublicationsPage');
+    return (
+      <Link
+        className="work-card"
+        to={to}
+        onClick={onClick}
+        onPointerEnter={() => {
+          play();
+          prefetch();
+        }}
+        onPointerLeave={pause}
+        onFocus={() => {
+          play();
+          prefetch();
+        }}
+        onBlur={pause}
+      >
+        {body}
+      </Link>
+    );
+  }
   if (work.url) {
     return (
       <a
@@ -94,13 +137,6 @@ function Card({ work }: { work: WorkCard }) {
       >
         {body}
       </a>
-    );
-  }
-  if (isEnabled('publications')) {
-    return (
-      <Link className="work-card" to={`/publications#${publicationAnchor(work.key)}`} {...events}>
-        {body}
-      </Link>
     );
   }
   return <div className="work-card">{body}</div>;

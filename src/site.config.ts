@@ -111,6 +111,12 @@ export interface SelectedWorkConfig {
   keys: string[];
   /** The link to the Publications page beside the heading. Empty leaves it out. */
   allLabel: string;
+  /**
+   * Where a card goes. `publications`: the paper's entry on the Publications
+   * page, which the card turns into on the way, in a browser that can. `paper`:
+   * the paper itself, by its DOI, arXiv page or `url`, in a new tab.
+   */
+  linkTo: 'publications' | 'paper';
 }
 
 /**
@@ -658,6 +664,8 @@ export const siteConfig: SiteConfig = {
       keys: [],
       // empty hides the link to the Publications page
       allLabel: 'All publications',
+      // 'publications': the card turns into the paper's entry there; 'paper': the paper itself
+      linkTo: 'publications',
     },
   },
   cv: '',
