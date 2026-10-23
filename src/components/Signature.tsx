@@ -104,13 +104,17 @@ export function Signature() {
      * far along it the pen is at each of a run of equal moments, which is
      * what lets the pen slow into the turns. See
      * scripts/pace-signature.mjs. A CSS transition has one easing per
-     * stroke and cannot follow that, so these are drawn frame by frame.
+     * stroke and cannot follow that, so these are drawn frame by frame. A
+     * swash with a timetable of its own is one more stroke on it.
      */
-    const timetable = pens.every((pen) => pen.dataset.ms)
-      ? pens.map((pen) => ({
-          at: Number(pen.dataset.at ?? 0),
-          ms: Number(pen.dataset.ms),
-          pace: [0, ...(pen.dataset.pace ?? '').split(' ').filter(Boolean).map(Number), 1],
+    const timed = flourish?.dataset.ms ? [...pens, flourish] : pens;
+    const timetable = timed.every((path) => path.dataset.ms)
+      ? timed.map((path) => ({
+          path,
+          length: path.getTotalLength(),
+          at: Number(path.dataset.at ?? 0),
+          ms: Number(path.dataset.ms),
+          pace: [0, ...(path.dataset.pace ?? '').split(' ').filter(Boolean).map(Number), 1],
         }))
       : null;
 
@@ -128,11 +132,13 @@ export function Signature() {
       window.cancelAnimationFrame(frame);
       pens.forEach((pen, index) => {
         load(pen, lengths[index]);
-        // A round cap is drawn even on a dash pushed entirely off the path,
-        // as a dot where the stroke begins; hidden until the pen gets there.
-        if (timetable) pen.style.opacity = '0';
       });
       if (flourish) load(flourish, flourish.getTotalLength());
+      // A round cap is drawn even on a dash pushed entirely off the path, as a
+      // dot where the stroke begins; hidden until the pen gets there.
+      timetable?.forEach(({ path }) => {
+        path.style.opacity = '0';
+      });
       // Read the layout back, so the browser starts the next transition from
       // here rather than folding both changes into one frame and showing
       // nothing at all.
@@ -143,7 +149,7 @@ export function Signature() {
       if (!timetable) return;
       const elapsed = now - started;
       let busy = false;
-      timetable.forEach(({ at, ms, pace }, index) => {
+      timetable.forEach(({ path, length, at, ms, pace }) => {
         const local = (elapsed - at) / ms;
         if (local <= 0) {
           busy = true;
@@ -152,8 +158,8 @@ export function Signature() {
         const step = Math.min(local, 1) * (pace.length - 1);
         const below = Math.min(Math.floor(step), pace.length - 2);
         const share = pace[below] + (pace[below + 1] - pace[below]) * (step - below);
-        pens[index].style.opacity = '1';
-        pens[index].style.strokeDashoffset = String(lengths[index] * (1 - share));
+        path.style.opacity = '1';
+        path.style.strokeDashoffset = String(length * (1 - share));
         if (local < 1) busy = true;
       });
       if (busy) frame = window.requestAnimationFrame((next) => write(started, next));

@@ -48,6 +48,9 @@ const FILE = process.argv[2] || 'src/content/signature-sacramento.svg';
 const WRITE_MS = 4400;
 // Pen up, moved, and down again.
 const LIFT_MS = 240;
+// The pause after the name before the swash, and how long the swash takes.
+const SWASH_LIFT_MS = 320;
+const SWASH_MS = 650;
 // How much faster the pen goes back over its own ink.
 const TRAVEL = 3;
 const PACE_STEPS = 32;
@@ -55,113 +58,120 @@ const PACE_STEPS = 32;
 /*
  * The plans. A piece is [run, from, to] or [run, from, to, 'retrace']; `from`
  * and `to` are points in the drawing's units, snapped to the nearest knot of
- * that run, or 'start' and 'end'. A plan is a list of strokes.
+ * that run, or 'start' and 'end'. A plan is a list of strokes, and the width
+ * of the swash drawn under the name once it is written.
  */
 const plans = {
-  'signature-sacramento.svg': [
-    // K: the swash in from its curled tail, across the top to the tip, back
-    // and down the stem to the junction, and on down to the foot.
-    [
-      [6, 'end', 'start'],
-      [5, 'end', 'start'],
-      [4, 'end', 'start'],
-      [0, [86.3, -60.8], 'start'],
+  'signature-sacramento.svg': {
+    swash: 5,
+    strokes: [
+      // K: the swash in from its curled tail, across the top to the tip, back
+      // and down the stem to the junction, and on down to the foot.
+      [
+        [6, 'end', 'start'],
+        [5, 'end', 'start'],
+        [4, 'end', 'start'],
+        [0, [86.3, -60.8], 'start'],
+      ],
+      // K: the arms, from the tip down to the stem and out along the leg.
+      [
+        [0, 'end', [116, -59]],
+        [0, [116, -59], [86.3, -60.8]],
+        [0, [86.3, -60.8], [116, -59], 'retrace'],
+        [2, 'start', 'end'],
+      ],
+      // i, and the join into the a.
+      // a: round the bowl clockwise from where the join meets it, back over
+      // the top, down and round the bottom, up the stem and away to the r.
+      // r: up into its loop, over the shoulder, down, and the join to the a.
+      // a: as the first.
+      // s: up its left side to the point, down the belly, round the foot and
+      // back, and the join to the h.
+      // h: the whole letter, which the tracer walked backwards.
+      [
+        [7, 'start', 'end'],
+        [11, [257.7, -26.2], 'end'],
+        [11, 'end', [257.7, -26.2], 'retrace'],
+        [11, [257.7, -26.2], 'start'],
+        [9, [284.3, -12.5], 'start'],
+        [9, 'start', [284.3, -12.5], 'retrace'],
+        [9, [284.3, -12.5], 'end'],
+        [12, 'start', 'end'],
+        [14, 'start', 'end'],
+        [17, [377.2, -26.3], 'end'],
+        [17, 'end', [377.2, -26.3], 'retrace'],
+        [17, [377.2, -26.3], 'start'],
+        [15, [403.5, -12.5], 'start'],
+        [15, 'start', [403.5, -12.5], 'retrace'],
+        [15, [403.5, -12.5], 'end'],
+        [22, [440.3, -26.2], 'start'],
+        [20, [446.8, -35.5], 'end'],
+        [20, 'end', [446.8, -35.5], 'retrace'],
+        [20, [446.8, -35.5], 'start'],
+        [18, [453.2, -1.7], 'start'],
+        [22, 'end', [440.3, -26.2]],
+        [22, [440.3, -26.2], 'end', 'retrace'],
+        [18, 'start', [453.2, -1.7], 'retrace'],
+        [18, [453.2, -1.7], 'end'],
+        [23, 'end', 'start'],
+      ],
+      // The dot, last.
+      [[8, 'start', 'end']],
     ],
-    // K: the arms, from the tip down to the stem and out along the leg.
-    [
-      [0, 'end', [116, -59]],
-      [0, [116, -59], [86.3, -60.8]],
-      [0, [86.3, -60.8], [116, -59], 'retrace'],
-      [2, 'start', 'end'],
-    ],
-    // i, and the join into the a.
-    // a: round the bowl clockwise from where the join meets it, back over
-    // the top, down and round the bottom, up the stem and away to the r.
-    // r: up into its loop, over the shoulder, down, and the join to the a.
-    // a: as the first.
-    // s: up its left side to the point, down the belly, round the foot and
-    // back, and the join to the h.
-    // h: the whole letter, which the tracer walked backwards.
-    [
-      [7, 'start', 'end'],
-      [11, [257.7, -26.2], 'end'],
-      [11, 'end', [257.7, -26.2], 'retrace'],
-      [11, [257.7, -26.2], 'start'],
-      [9, [284.3, -12.5], 'start'],
-      [9, 'start', [284.3, -12.5], 'retrace'],
-      [9, [284.3, -12.5], 'end'],
-      [12, 'start', 'end'],
-      [14, 'start', 'end'],
-      [17, [377.2, -26.3], 'end'],
-      [17, 'end', [377.2, -26.3], 'retrace'],
-      [17, [377.2, -26.3], 'start'],
-      [15, [403.5, -12.5], 'start'],
-      [15, 'start', [403.5, -12.5], 'retrace'],
-      [15, [403.5, -12.5], 'end'],
-      [22, [440.3, -26.2], 'start'],
-      [20, [446.8, -35.5], 'end'],
-      [20, 'end', [446.8, -35.5], 'retrace'],
-      [20, [446.8, -35.5], 'start'],
-      [18, [453.2, -1.7], 'start'],
-      [22, 'end', [440.3, -26.2]],
-      [22, [440.3, -26.2], 'end', 'retrace'],
-      [18, 'start', [453.2, -1.7], 'retrace'],
-      [18, [453.2, -1.7], 'end'],
-      [23, 'end', 'start'],
-    ],
-    // The dot, last.
-    [[8, 'start', 'end']],
-  ],
+  },
 
   // node scripts/set-signature.mjs Damion-Regular.ttf Kiarash src/content/signature-damion.svg
   // node scripts/trace-signature.mjs src/content/signature-damion.svg 22
-  'signature-damion.svg': [
-    // K: the stem from the top down to its curled foot.
-    [[0, 'end', 'start']],
-    // K: the arm down to the stem, and the leg out.
-    [
-      [2, 'end', 'start'],
-      [4, 'start', 'end'],
+  'signature-damion.svg': {
+    swash: 6,
+    strokes: [
+      // K: the stem from the top down to its curled foot.
+      [[0, 'end', 'start']],
+      // K: the arm down to the stem, and the leg out.
+      [
+        [2, 'end', 'start'],
+        [4, 'start', 'end'],
+      ],
+      // i, and the join into the a.
+      // a: up its left side and over to the top, back, down and round the
+      // bottom, up the stem and down again, and away to the r.
+      // r: down the little foot its join leaves and back, up and over the top,
+      // down its right side, and the join to the a.
+      // a: as the first, and its join towards the s.
+      [
+        [5, 'start', 'end'],
+        [9, [196.4, -29.3], 'end'],
+        [9, 'end', [196.4, -29.3], 'retrace'],
+        [9, [196.4, -29.3], 'start'],
+        [7, [241.5, -25.6], 'start'],
+        [7, 'start', [241.5, -25.6], 'retrace'],
+        [7, [241.5, -25.6], 'end'],
+        [12, [282.4, -29.4], 'end'],
+        [12, 'end', [282.4, -29.4], 'retrace'],
+        [12, [282.4, -29.4], 'start'],
+        [10, [326.2, -47.9], 'end'],
+        [15, [358, -31.8], 'end'],
+        [15, 'end', [358, -31.8], 'retrace'],
+        [15, [358, -31.8], 'start'],
+        [13, [400.9, -25.6], 'start'],
+        [13, 'start', [400.9, -25.6], 'retrace'],
+        [13, [400.9, -25.6], 'end'],
+      ],
+      // s: from its hook at the top, down the belly and round to its foot.
+      [
+        [17, 'end', 'start'],
+        [16, 'end', 'start'],
+      ],
+      // h: down the ascender, back up to the shoulder, over the arch and out.
+      [
+        [18, 'end', 'start'],
+        [18, 'start', [508.7, -48.3], 'retrace'],
+        [20, 'start', 'end'],
+      ],
+      // The dot, last.
+      [[6, 'start', 'end']],
     ],
-    // i, and the join into the a.
-    // a: up its left side and over to the top, back, down and round the
-    // bottom, up the stem and down again, and away to the r.
-    // r: down the little foot its join leaves and back, up and over the top,
-    // down its right side, and the join to the a.
-    // a: as the first, and its join towards the s.
-    [
-      [5, 'start', 'end'],
-      [9, [196.4, -29.3], 'end'],
-      [9, 'end', [196.4, -29.3], 'retrace'],
-      [9, [196.4, -29.3], 'start'],
-      [7, [241.5, -25.6], 'start'],
-      [7, 'start', [241.5, -25.6], 'retrace'],
-      [7, [241.5, -25.6], 'end'],
-      [12, [282.4, -29.4], 'end'],
-      [12, 'end', [282.4, -29.4], 'retrace'],
-      [12, [282.4, -29.4], 'start'],
-      [10, [326.2, -47.9], 'end'],
-      [15, [358, -31.8], 'end'],
-      [15, 'end', [358, -31.8], 'retrace'],
-      [15, [358, -31.8], 'start'],
-      [13, [400.9, -25.6], 'start'],
-      [13, 'start', [400.9, -25.6], 'retrace'],
-      [13, [400.9, -25.6], 'end'],
-    ],
-    // s: from its hook at the top, down the belly and round to its foot.
-    [
-      [17, 'end', 'start'],
-      [16, 'end', 'start'],
-    ],
-    // h: down the ascender, back up to the shoulder, over the arch and out.
-    [
-      [18, 'end', 'start'],
-      [18, 'start', [508.7, -48.3], 'retrace'],
-      [20, 'start', 'end'],
-    ],
-    // The dot, last.
-    [[6, 'start', 'end']],
-  ],
+  },
 };
 
 const plan = plans[basename(FILE)];
@@ -170,6 +180,9 @@ if (!plan) throw new Error(`no plan for ${basename(FILE)}; add one to ${import.m
 const svg = await readFile(FILE, 'utf8');
 const mask = /<mask id="ks-write"[^>]*>([\s\S]*?)<\/mask>/.exec(svg);
 if (!mask) throw new Error(`${FILE} has no ks-write mask; run trace-signature.mjs first`);
+// The plan counts the tracer's runs, which a paced file no longer has.
+if (mask[1].includes('data-pace'))
+  throw new Error(`${FILE} is already paced; set and trace it again first`);
 const width = /stroke-width="([^"]+)"/.exec(mask[1])[1];
 
 // Each run as its knots and the cubic segments between them.
@@ -270,7 +283,7 @@ function timeStroke(pieces) {
   return { pts, time };
 }
 
-const strokes = plan.map((spec) => {
+const strokes = plan.strokes.map((spec) => {
   const pieces = [];
   for (const item of spec) {
     const segments = piece(item);
@@ -295,6 +308,23 @@ const d = (segments) =>
   `M${n(segments[0][0][0])} ${n(segments[0][0][1])}` +
   segments.map(([, c1, c2, p]) => `C${[...c1, ...c2, ...p].map(n).join(' ')}`).join('');
 
+// The share of a stretch of samples drawn at each of PACE_STEPS equal moments.
+function paceOf(own) {
+  const t0 = own[0].t;
+  const t1 = own[own.length - 1].t;
+  const s0 = own[0].s;
+  const length = own[own.length - 1].s - s0 || 1;
+  const pace = [];
+  let j = 0;
+  for (let step = 1; step < PACE_STEPS; step += 1) {
+    const goal = t0 + ((t1 - t0) * step) / PACE_STEPS;
+    while (j < own.length - 2 && own[j + 1].t < goal) j += 1;
+    const f = (goal - own[j].t) / (own[j + 1].t - own[j].t || 1);
+    pace.push(Math.round(((own[j].s + f * (own[j + 1].s - own[j].s) - s0) / length) * 1000) / 1000);
+  }
+  return pace.join(' ');
+}
+
 let clock = 0;
 const pens = [];
 for (const { pieces, pts, time } of strokes) {
@@ -302,31 +332,63 @@ for (const { pieces, pts, time } of strokes) {
     const own = pts.map((pt, i) => ({ ...pt, t: time[i] })).filter((pt) => pt.k === k);
     const t0 = own[0].t;
     const t1 = own[own.length - 1].t;
-    const s0 = own[0].s;
-    const length = own[own.length - 1].s - s0 || 1;
-    const pace = [];
-    let j = 0;
-    for (let step = 1; step < PACE_STEPS; step += 1) {
-      const goal = t0 + ((t1 - t0) * step) / PACE_STEPS;
-      while (j < own.length - 2 && own[j + 1].t < goal) j += 1;
-      const f = (goal - own[j].t) / (own[j + 1].t - own[j].t || 1);
-      pace.push(
-        Math.round(((own[j].s + f * (own[j + 1].s - own[j].s) - s0) / length) * 1000) / 1000,
-      );
-    }
     pens.push(
       `<path class="ks-pen"${p.retrace ? ' data-retrace="true"' : ''} ` +
         `data-at="${Math.round(clock + t0 * scale)}" data-ms="${Math.max(1, Math.round((t1 - t0) * scale))}" ` +
-        `data-pace="${pace.join(' ')}" fill="none" stroke="#fff" stroke-width="${width}" ` +
+        `data-pace="${paceOf(own)}" fill="none" stroke="#fff" stroke-width="${width}" ` +
         `stroke-linecap="round" stroke-linejoin="round" d="${d(p.segments)}"></path>`,
     );
   });
   clock += time[time.length - 1] * scale + LIFT_MS;
 }
 
-const next = svg.replace(mask[1], pens.join(''));
+/*
+ * The swash: one curve under the lower case, drawn once the name is written
+ * and the pen has lifted off the dot. It runs from just before the i to just
+ * past the last letter, sags a little and rises at the end, which is the flick
+ * of a hand underlining something it has just signed. It is quicker than the
+ * writing, as a flick is, and paced the same way, so it leaves from rest and
+ * slows as it lifts.
+ *
+ * It is a plain stroke, `.ks-flourish`, inked by the page like the letters, so
+ * the viewBox is let out to hold it.
+ */
+const glyphBoxes = [...svg.matchAll(/<path class="ks-glyph"[^>]*\sd="([^"]+)"/g)].map(
+  ([, path]) => {
+    const v = path.match(/-?\d*\.?\d+/g).map(Number);
+    const xs = v.filter((_, i) => i % 2 === 0);
+    const ys = v.filter((_, i) => i % 2 === 1);
+    return { x1: Math.min(...xs), x2: Math.max(...xs), y2: Math.max(...ys) };
+  },
+);
+const lower = glyphBoxes.slice(1);
+const from = Math.min(...lower.map((b) => b.x1)) - 10;
+const to = Math.max(...lower.map((b) => b.x2)) + 6;
+const under = Math.max(...lower.map((b) => b.y2)) + 14;
+const span = to - from;
+const swash = [
+  [from, under - 2],
+  [from + span * 0.3, under + 10],
+  [from + span * 0.7, under + 8],
+  [to, under - 8],
+];
+const swashed = timeStroke([{ segments: [swash], retrace: false }]);
+const swashAt = Math.round(clock - LIFT_MS + SWASH_LIFT_MS);
+pens.push(
+  `<path class="ks-flourish" data-at="${swashAt}" data-ms="${SWASH_MS}" ` +
+    `data-pace="${paceOf(swashed.pts.map((pt, i) => ({ ...pt, t: swashed.time[i] })))}" ` +
+    `fill="none" stroke="#1a2b4a" stroke-width="${plan.swash}" stroke-linecap="round" d="${d([swash])}"></path>`,
+);
+const bottom = Math.max(...swashed.pts.map(({ p }) => p[1])) + plan.swash / 2 + 4;
+
+const flourish = pens.pop();
+const [vx, vy, vw, vh] = /viewBox="([^"]+)"/.exec(svg)[1].split(/\s+/).map(Number);
+const next = svg
+  .replace(mask[1], pens.join(''))
+  .replace(/viewBox="[^"]+"/, `viewBox="${vx} ${vy} ${vw} ${n(Math.max(vy + vh, bottom) - vy)}"`)
+  .replace('</svg>', `${flourish}</svg>`);
 await writeFile(FILE, next);
 console.log(
-  `paced ${FILE}: ${strokes.length} strokes, ${pens.length} pieces, ` +
-    `${Math.round(clock - LIFT_MS)}ms from first touch to last lift`,
+  `paced ${FILE}: ${strokes.length} strokes, ${pens.length} pieces and the swash, ` +
+    `${swashAt + SWASH_MS}ms from first touch to last lift`,
 );
