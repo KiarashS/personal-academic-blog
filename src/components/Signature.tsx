@@ -99,11 +99,11 @@ export function Signature() {
     }, 0);
 
     /**
-     * A drawing can carry its own timetable instead, as `signature-hello.svg`
+     * A drawing can carry its own timetable instead, as `signature-sacramento.svg`
      * does: when each stroke starts, how long it takes, and in `data-pace` how
      * far along it the pen is at each of a run of equal moments, which is
      * what lets the pen slow into the turns. See
-     * scripts/draw-signature-hello.mjs. A CSS transition has one easing per
+     * scripts/pace-signature.mjs. A CSS transition has one easing per
      * stroke and cannot follow that, so these are drawn frame by frame.
      */
     const timetable = pens.every((pen) => pen.dataset.ms)

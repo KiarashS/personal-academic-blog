@@ -5,8 +5,13 @@ import opentype from 'opentype.js';
 /*
  * Sets a name in a handwriting font and writes it out as `.ks-glyph` outlines.
  *
- *   node scripts/set-signature.mjs <font file> [name] [out.svg]
+ *   node scripts/set-signature.mjs <font file> [name] [out.svg] [weight]
  *   node scripts/set-signature.mjs ~/fonts/TheRichJullietta.ttf
+ *
+ * `weight` is the stroke drawn round every outline, in user units, 1.4 if it is
+ * left out. More than that thickens a face: Sacramento is set at 3 for
+ * `signature-sacramento.svg`, which takes its hairline to the weight of the
+ * line in Apple's "hello".
  *
  * The font is not in this repo and must not be: "The Rich Jullietta" is a demo
  * released for personal use only, and a font served from a public site is a
@@ -25,9 +30,10 @@ import opentype from 'opentype.js';
 const FONT = process.argv[2];
 const NAME = process.argv[3] || 'Kiarash';
 const OUT = process.argv[4] || 'src/content/signature-typeset.svg';
+const WEIGHT = Number(process.argv[5]) || 1.4;
 
 if (!FONT) {
-  console.error('usage: node scripts/set-signature.mjs <font file> [name] [out.svg]');
+  console.error('usage: node scripts/set-signature.mjs <font file> [name] [out.svg] [weight]');
   process.exit(1);
 }
 
@@ -93,14 +99,15 @@ const height = Math.max(...boxes.map((b) => b.y2)) + PAD - top;
  * tens of kilobytes of outline whatever you do, and there is no reason to spend
  * a digit of it on nothing.
  *
- * The 1.4 stroke is what the tracer rasterises the glyph with, so it is carried
- * on the element rather than left to the tracer to assume.
+ * The stroke is what the tracer rasterises the glyph with, so it is carried on
+ * the element rather than left to the tracer to assume. Its joins are round so
+ * a thickened outline keeps the face's round corners.
  */
 const glyphs = paths
   .map(
     (path) =>
       `<path class="ks-glyph" d="${path.toPathData(1)}" ` +
-      `fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"></path>`,
+      `fill="#1a2b4a" stroke="#1a2b4a" stroke-width="${WEIGHT}" stroke-linejoin="round"></path>`,
   )
   .join('');
 

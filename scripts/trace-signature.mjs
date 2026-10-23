@@ -90,7 +90,11 @@ function toBezier(points) {
 
 const svg = await readFile(FILE, 'utf8');
 const view = /viewBox="([^"]+)"/.exec(svg)[1].split(/\s+/).map(Number);
-const glyphs = [...svg.matchAll(/<path[^>]*class="ks-glyph"[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
+// Each glyph with the stroke it is drawn with, which thickens the outline.
+const glyphs = [...svg.matchAll(/<path[^>]*class="ks-glyph"[^>]*>/g)].map(([tag]) => ({
+  d: /\sd="([^"]+)"/.exec(tag)[1],
+  weight: Number(/\sstroke-width="([^"]+)"/.exec(tag)?.[1] ?? 0),
+}));
 if (glyphs.length === 0) throw new Error(`no .ks-glyph paths in ${FILE}`);
 
 const browser = await launchChromium();
@@ -98,8 +102,8 @@ const page = await browser.newPage();
 await page.setContent('<canvas id="c"></canvas>');
 
 const strokes = [];
-for (const [index, d] of glyphs.entries()) {
-  const result = await trace(page, d, view);
+for (const [index, { d, weight }] of glyphs.entries()) {
+  const result = await trace(page, d, weight, view);
   for (const stroke of result.strokes) strokes.push(stroke);
   console.log(
     `glyph ${index}: ${result.pixelCount} skeleton pixels → ${result.strokes.length} run(s), ` +
@@ -167,14 +171,14 @@ console.log(
 );
 
 /** Rasterises one glyph, thins it, and returns its strokes in user units. */
-function trace(page, d, view) {
+function trace(page, d, weight, view) {
   return page.evaluate(
-    async ({ d, view, SCALE }) => {
+    async ({ d, weight, view, SCALE }) => {
       const [vx, vy, vw, vh] = view;
       const W = Math.ceil(vw * SCALE);
       const H = Math.ceil(vh * SCALE);
 
-      // Draw the glyph exactly as the page draws it: filled, plus its 1.4 stroke.
+      // Draw the glyph exactly as the page draws it: filled, plus its stroke.
       const canvas = document.getElementById('c');
       canvas.width = W;
       canvas.height = H;
@@ -184,9 +188,10 @@ function trace(page, d, view) {
       const path = new Path2D(d);
       ctx.fillStyle = '#000';
       ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1.4;
+      ctx.lineWidth = weight;
+      ctx.lineJoin = 'round';
       ctx.fill(path);
-      ctx.stroke(path);
+      if (weight > 0) ctx.stroke(path);
 
       const data = ctx.getImageData(0, 0, W, H).data;
       let on = new Uint8Array(W * H);
@@ -529,6 +534,6 @@ function trace(page, d, view) {
 
       return { strokes, pixelCount: pixels.length };
     },
-    { d, view, SCALE },
+    { d, weight, view, SCALE },
   );
 }
