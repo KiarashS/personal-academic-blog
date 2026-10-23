@@ -9,7 +9,8 @@ const inner = { __html: markup };
 /**
  * The name, a lift, and then the swash under it.
  *
- * The timing is worked out for `signature-typeset.svg`, the default. At this
+ * This timing is for a drawing without a timetable of its own (see below), and
+ * is worked out for `signature-typeset.svg`, the previous default. At this
  * size the drawing is close to life size on a desktop screen — 176px is
  * about 4.7cm — and the pen lays down 2347 user units of ink, 693px or 18.3cm
  * of it, because script doubles back on itself and the width is not the

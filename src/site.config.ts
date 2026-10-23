@@ -402,9 +402,12 @@ export interface HomeConfig {
   nameText: string;
   /**
    * Which drawing `nameStyle: 'signature'` writes: a file in `src/content`.
-   * The repo has three. `signature-typeset.svg` is the name set in a
-   * handwriting font, `signature-script.svg` is drawn as pen strokes, and
-   * `signature.svg` is traced from a real signature. Any other file works if
+   * The repo has five. `signature-damion.svg` and `signature-sacramento.svg`
+   * are the name set in those fonts and written at the pace of Apple's
+   * "hello", with a smile under it; `signature-typeset.svg` is the name set
+   * in another handwriting font, `signature-script.svg` is drawn as pen
+   * strokes, and `signature.svg` is traced from a real signature. Any other
+   * file works if
    * it follows the same classes; see the README. A name that is not there
    * stops the build and lists the ones that are.
    */
@@ -635,11 +638,12 @@ export const siteConfig: SiteConfig = {
     profileLinks: true,
     profileLinkStyle: 'icon', //both, icon, label
     // 'signature' draws the handwritten name; 'text' sets it as type.
-    nameStyle: 'text',
+    nameStyle: 'signature',
     // the words for 'text'; empty uses your site title
     nameText: 'Kiarash',
-    // For 'signature': signature-typeset.svg, signature-script.svg or signature.svg.
-    signatureFile: 'signature-typeset.svg',
+    // For 'signature': signature-damion.svg, signature-sacramento.svg,
+    // signature-typeset.svg, signature-script.svg or signature.svg.
+    signatureFile: 'signature-damion.svg',
     signatureTilt: -3,
     avatar: '/avatar.jpg',
     news: 5,

@@ -2006,7 +2006,7 @@ home: {
   profileLinks: true,     // ORCID, Scholar and the rest, under the lines
   nameStyle: 'signature', // 'signature' writes the name; 'text' sets it as type
   nameText: '',           // the words for 'text'; empty uses the site's title
-  signatureFile: 'signature-typeset.svg', // which drawing 'signature' writes, in src/content
+  signatureFile: 'signature-damion.svg', // which drawing 'signature' writes, in src/content
   signatureTilt: -3,      // degrees, the way a signed page is never square
   avatar: '/avatar.jpg',  // a portrait beside the text; empty for words alone
   news: 3,                // dated one-liners under the lines; 0 for none, /news unaffected
@@ -2208,11 +2208,28 @@ characters, narrower than anything else here. The whole page widens together,
 header and footer included, so the nav still ends on the line the portrait
 does. Everything else keeps the reading measure.
 
-The signature writes itself. It is the name set in a handwriting font, revealed
-along the line a pen would take through it, over 5.5s, and the pen is never
-picked up and put down anywhere except between letters.
+The signature writes itself, at the pace of the "hello" Apple shows when a Mac
+or an iPhone is first switched on. It is "Kiarash" set in Damion, a script by
+Vernon Adams under the SIL Open Font License, revealed along the line a pen
+takes through it: the K's stem from the top, then its arms, "iara" in one
+movement, the s, the h, the dot, and last a smile underneath, thick where the
+pen lands and thin where it lifts. It takes 6.6 seconds.
 
-Those durations are a hand's, not a designer's. At this size the drawing is
+The pen does not move at one speed. It slows into every turn and runs along the
+straights, which is the two-thirds power law from the motor-control literature
+(Lacquaniti, Terzuolo and Viviani, 1983): a hand drawing a curve moves at a
+speed proportional to the cube root of the curve's radius. Each stroke starts
+and ends at rest, and travel back over ink already down goes three times as
+fast, since nothing new appears. `scripts/pace-signature.mjs` works that out
+from the pen path and writes it onto every run as `data-at`, `data-ms` and
+`data-pace` (the share of the run drawn at each of 32 equal moments), and
+`Signature.tsx` plays a drawing that carries them frame by frame, because a CSS
+transition has one easing per element and cannot follow it.
+
+A drawing without that timetable is written at one rate, and the rate was worked
+out for `signature-typeset.svg`, the previous default: 5.5s, with the pen never
+picked up and put down anywhere except between letters. Those durations are a
+hand's, not a designer's. At this size the drawing is
 close to life size on a desktop screen — 176px is about 4.7cm — and the pen
 lays down 2347 user units of ink, 693px or 18.3cm of it, because script doubles
 back on itself and the width is not the distance. Handwriting runs at a few
@@ -2238,6 +2255,32 @@ whatever font you want the name written in:
 node scripts/set-signature.mjs "~/fonts/Amsterdam Handwriting.ttf"
 node scripts/trace-signature.mjs src/content/signature-typeset.svg 19
 ```
+
+The Damion and Sacramento drawings are made the same way, from the fonts'
+releases on Google Fonts, and then paced:
+
+```
+node scripts/set-signature.mjs Damion-Regular.ttf Kiarash src/content/signature-damion.svg
+node scripts/trace-signature.mjs src/content/signature-damion.svg 22
+node scripts/pace-signature.mjs src/content/signature-damion.svg
+
+node scripts/set-signature.mjs Sacramento-Regular.ttf Kiarash src/content/signature-sacramento.svg 3
+node scripts/trace-signature.mjs src/content/signature-sacramento.svg 12
+node scripts/pace-signature.mjs src/content/signature-sacramento.svg
+```
+
+The OFL allows this, and as with the typeset one only the outlines ship. The
+trailing 3 is an outline weight: a stroke drawn round every letter, which takes
+Sacramento's hairline up to an even line.
+
+The pacing step needs a plan, written per drawing in `pace-signature.mjs`,
+because the tracer walks each glyph from wherever its walk happens to start:
+Damion's K came out foot first and Sacramento's h from its exit stroke
+backwards. A plan lists the pieces of the tracer's runs in writing order, which
+run, from which point to which, and whether the pen is only going back over its
+own ink. It names the runs by position, so it holds only for the trace it was
+written against. Set and trace again before pacing; the script refuses a file it
+has already paced.
 
 It emits one `.ks-glyph` path per glyph rather than one for the word, which is
 what makes the name arrive a letter at a time; a single path would be one shape
@@ -2332,13 +2375,15 @@ name set from a font has its baseline at y=0 and all its letters above it, so
 the default region cut two thirds of it away. The viewBox is the region that is
 always right.
 
-The repo carries two other signatures, and `Signature.tsx` animates `.ks-pen`
-and `.ks-stroke` alike, so all three are swappable with one line of config:
+The repo carries five signatures, and `Signature.tsx` animates `.ks-pen` and
+`.ks-stroke` alike, so any of them is one line of config:
 
 ```ts
-signatureFile: 'signature-typeset.svg', // the default, set from a font
-signatureFile: 'signature-script.svg',  // drawn as pen strokes
-signatureFile: 'signature.svg',         // traced from a real signature
+signatureFile: 'signature-damion.svg',     // the default: Damion, paced, with a smile
+signatureFile: 'signature-sacramento.svg', // Sacramento, paced, with a smile
+signatureFile: 'signature-typeset.svg',    // set from a personal-use font
+signatureFile: 'signature-script.svg',     // drawn as pen strokes
+signatureFile: 'signature.svg',            // traced from a real signature
 ```
 
 Only the chosen file is built into the page. `plugins/signature.ts` reads it
@@ -2348,8 +2393,8 @@ the letters' baseline. The baseline is y=0 unless the root `<svg>` says
 otherwise with `data-baseline` (both files below carry `data-baseline="150"`),
 so a drawing of your own needs that attribute if its letters do not sit on
 y=0, and a filename in `src/content`. A name that is not there stops the build
-and lists the signatures that are. The writing speed is set for the default
-drawing, so the other two take the same 5.5 seconds.
+and lists the signatures that are. A drawing without a timetable takes 5.5
+seconds, whatever it is.
 
 `src/content/signature-script.svg` is the name written as pen strokes to begin
 with — four of them, plus a swash — so the letters _are_ the path and no mask is
