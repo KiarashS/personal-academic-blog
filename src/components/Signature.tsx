@@ -98,7 +98,24 @@ export function Signature() {
       return run + weight;
     }, 0);
 
+    /**
+     * A drawing can carry its own timetable instead, as `signature-hello.svg`
+     * does: when each stroke starts, how long it takes, and in `data-pace` how
+     * far along it the pen is at each of a run of equal moments, which is
+     * what lets the pen slow into the turns. See
+     * scripts/draw-signature-hello.mjs. A CSS transition has one easing per
+     * stroke and cannot follow that, so these are drawn frame by frame.
+     */
+    const timetable = pens.every((pen) => pen.dataset.ms)
+      ? pens.map((pen) => ({
+          at: Number(pen.dataset.at ?? 0),
+          ms: Number(pen.dataset.ms),
+          pace: [0, ...(pen.dataset.pace ?? '').split(' ').filter(Boolean).map(Number), 1],
+        }))
+      : null;
+
     let timer = 0;
+    let frame = 0;
 
     const load = (path: SVGPathElement, length: number) => {
       path.style.transition = 'none';
@@ -108,8 +125,12 @@ export function Signature() {
 
     const hide = () => {
       window.clearTimeout(timer);
+      window.cancelAnimationFrame(frame);
       pens.forEach((pen, index) => {
         load(pen, lengths[index]);
+        // A round cap is drawn even on a dash pushed entirely off the path,
+        // as a dot where the stroke begins; hidden until the pen gets there.
+        if (timetable) pen.style.opacity = '0';
       });
       if (flourish) load(flourish, flourish.getTotalLength());
       // Read the layout back, so the browser starts the next transition from
@@ -118,8 +139,33 @@ export function Signature() {
       void root.getBoundingClientRect();
     };
 
+    const write = (started: number, now: number) => {
+      if (!timetable) return;
+      const elapsed = now - started;
+      let busy = false;
+      timetable.forEach(({ at, ms, pace }, index) => {
+        const local = (elapsed - at) / ms;
+        if (local <= 0) {
+          busy = true;
+          return;
+        }
+        const step = Math.min(local, 1) * (pace.length - 1);
+        const below = Math.min(Math.floor(step), pace.length - 2);
+        const share = pace[below] + (pace[below + 1] - pace[below]) * (step - below);
+        pens[index].style.opacity = '1';
+        pens[index].style.strokeDashoffset = String(lengths[index] * (1 - share));
+        if (local < 1) busy = true;
+      });
+      if (busy) frame = window.requestAnimationFrame((next) => write(started, next));
+    };
+
     const play = () => {
       hide();
+
+      if (timetable) {
+        frame = window.requestAnimationFrame((now) => write(now, now));
+        return;
+      }
 
       pens.forEach((pen, index) => {
         const duration = (weights[index] / total) * NAME_MS;
@@ -155,6 +201,7 @@ export function Signature() {
 
     return () => {
       window.clearTimeout(timer);
+      window.cancelAnimationFrame(frame);
       observer.disconnect();
       root.removeEventListener('click', play);
     };
