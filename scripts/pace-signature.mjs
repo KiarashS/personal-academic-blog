@@ -343,15 +343,18 @@ for (const { pieces, pts, time } of strokes) {
 }
 
 /*
- * The swash: one curve under the lower case, drawn once the name is written
- * and the pen has lifted off the dot. It runs from just before the i to just
- * past the last letter, sags a little and rises at the end, which is the flick
- * of a hand underlining something it has just signed. It is quicker than the
- * writing, as a flick is, and paced the same way, so it leaves from rest and
- * slows as it lifts.
+ * The swash: a smile under the lower case, drawn once the name is written and
+ * the pen has lifted off the dot. It runs from just before the i to just past
+ * the last letter, dips in the middle and turns up at both ends. It is quicker
+ * than the writing, as a flick is, and paced the same way, so it leaves from
+ * rest and slows as it lifts.
  *
- * It is a plain stroke, `.ks-flourish`, inked by the page like the letters, so
- * the viewBox is let out to hold it.
+ * The pen presses as it lands and eases off as it goes, so the line is
+ * thickest where it starts and thins to a point where it lifts. A stroke has
+ * one width, so the ink is a filled outline, `.ks-glyph` like the letters,
+ * and the curve it is built round is one more `.ks-pen` in the mask: the swash
+ * is revealed exactly as the letters are, last. The viewBox and the mask are
+ * let out to hold it.
  */
 const glyphBoxes = [...svg.matchAll(/<path class="ks-glyph"[^>]*\sd="([^"]+)"/g)].map(
   ([, path]) => {
@@ -364,31 +367,69 @@ const glyphBoxes = [...svg.matchAll(/<path class="ks-glyph"[^>]*\sd="([^"]+)"/g)
 const lower = glyphBoxes.slice(1);
 const from = Math.min(...lower.map((b) => b.x1)) - 10;
 const to = Math.max(...lower.map((b) => b.x2)) + 6;
-const under = Math.max(...lower.map((b) => b.y2)) + 14;
+const under = Math.max(...lower.map((b) => b.y2)) + 26;
 const span = to - from;
 const swash = [
-  [from, under - 2],
-  [from + span * 0.3, under + 10],
-  [from + span * 0.7, under + 8],
-  [to, under - 8],
+  [from, under - 16],
+  [from + span * 0.25, under + 10],
+  [from + span * 0.7, under + 10],
+  [to, under - 22],
 ];
 const swashed = timeStroke([{ segments: [swash], retrace: false }]);
 const swashAt = Math.round(clock - LIFT_MS + SWASH_LIFT_MS);
 pens.push(
-  `<path class="ks-flourish" data-at="${swashAt}" data-ms="${SWASH_MS}" ` +
+  `<path class="ks-pen" data-at="${swashAt}" data-ms="${SWASH_MS}" ` +
     `data-pace="${paceOf(swashed.pts.map((pt, i) => ({ ...pt, t: swashed.time[i] })))}" ` +
-    `fill="none" stroke="#1a2b4a" stroke-width="${plan.swash}" stroke-linecap="round" d="${d([swash])}"></path>`,
+    `fill="none" stroke="#fff" stroke-width="${width}" stroke-linecap="round" ` +
+    `stroke-linejoin="round" d="${d([swash])}"></path>`,
 );
-const bottom = Math.max(...swashed.pts.map(({ p }) => p[1])) + plan.swash / 2 + 4;
 
-const flourish = pens.pop();
+// The ink: the curve offset either side by half its width, out along one side
+// and back along the other, with a round end at each tip.
+const thick = plan.swash * 1.25;
+const thin = plan.swash * 0.3;
+const STEPS = 120;
+const centre = Array.from({ length: STEPS + 1 }, (_, i) => cubic(swash, i / STEPS));
+const sides = centre.map((p, i) => {
+  const a = centre[Math.max(i - 1, 0)];
+  const b = centre[Math.min(i + 1, STEPS)];
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+  const [nx, ny] = [-(b[1] - a[1]) / len, (b[0] - a[0]) / len];
+  const half = (thin + (thick - thin) * (1 - i / STEPS) ** 0.9) / 2;
+  return {
+    p,
+    half,
+    left: [p[0] + nx * half, p[1] + ny * half],
+    right: [p[0] - nx * half, p[1] - ny * half],
+  };
+});
+const cap = ({ p, half }, from) => {
+  const a0 = Math.atan2(from[1] - p[1], from[0] - p[0]);
+  return Array.from({ length: 7 }, (_, k) => {
+    const a = a0 - (Math.PI * (k + 1)) / 8;
+    return [p[0] + half * Math.cos(a), p[1] + half * Math.sin(a)];
+  });
+};
+const ring = [
+  ...sides.map((side) => side.left),
+  ...cap(sides[STEPS], sides[STEPS].left),
+  ...sides.map((side) => side.right).reverse(),
+  ...cap(sides[0], sides[0].right),
+];
+const ribbon =
+  `<path class="ks-glyph" mask="url(#ks-write)" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="0" ` +
+  `d="M${ring.map(([x, y]) => `${Math.round(x * 10) / 10} ${Math.round(y * 10) / 10}`).join('L')}Z"></path>`;
+const bottom = Math.max(...ring.map(([, y]) => y)) + 4;
+
 const [vx, vy, vw, vh] = /viewBox="([^"]+)"/.exec(svg)[1].split(/\s+/).map(Number);
+const height = n(Math.max(vy + vh, bottom) - vy);
 const next = svg
   .replace(mask[1], pens.join(''))
-  .replace(/viewBox="[^"]+"/, `viewBox="${vx} ${vy} ${vw} ${n(Math.max(vy + vh, bottom) - vy)}"`)
-  .replace('</svg>', `${flourish}</svg>`);
+  .replace(/viewBox="[^"]+"/, `viewBox="${vx} ${vy} ${vw} ${height}"`)
+  .replace(/(<mask id="ks-write"[^>]*\sheight=")[^"]+"/, `$1${height}"`)
+  .replace('</svg>', `${ribbon}</svg>`);
 await writeFile(FILE, next);
 console.log(
-  `paced ${FILE}: ${strokes.length} strokes, ${pens.length} pieces and the swash, ` +
+  `paced ${FILE}: ${strokes.length} strokes, ${pens.length - 1} pieces and the swash, ` +
     `${swashAt + SWASH_MS}ms from first touch to last lift`,
 );
