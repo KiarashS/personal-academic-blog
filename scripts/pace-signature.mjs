@@ -112,6 +112,56 @@ const plans = {
     // The dot, last.
     [[8, 'start', 'end']],
   ],
+
+  // node scripts/set-signature.mjs Damion-Regular.ttf Kiarash src/content/signature-damion.svg
+  // node scripts/trace-signature.mjs src/content/signature-damion.svg 22
+  'signature-damion.svg': [
+    // K: the stem from the top down to its curled foot.
+    [[0, 'end', 'start']],
+    // K: the arm down to the stem, and the leg out.
+    [
+      [2, 'end', 'start'],
+      [4, 'start', 'end'],
+    ],
+    // i, and the join into the a.
+    // a: up its left side and over to the top, back, down and round the
+    // bottom, up the stem and down again, and away to the r.
+    // r: down the little foot its join leaves and back, up and over the top,
+    // down its right side, and the join to the a.
+    // a: as the first, and its join towards the s.
+    [
+      [5, 'start', 'end'],
+      [9, [196.4, -29.3], 'end'],
+      [9, 'end', [196.4, -29.3], 'retrace'],
+      [9, [196.4, -29.3], 'start'],
+      [7, [241.5, -25.6], 'start'],
+      [7, 'start', [241.5, -25.6], 'retrace'],
+      [7, [241.5, -25.6], 'end'],
+      [12, [282.4, -29.4], 'end'],
+      [12, 'end', [282.4, -29.4], 'retrace'],
+      [12, [282.4, -29.4], 'start'],
+      [10, [326.2, -47.9], 'end'],
+      [15, [358, -31.8], 'end'],
+      [15, 'end', [358, -31.8], 'retrace'],
+      [15, [358, -31.8], 'start'],
+      [13, [400.9, -25.6], 'start'],
+      [13, 'start', [400.9, -25.6], 'retrace'],
+      [13, [400.9, -25.6], 'end'],
+    ],
+    // s: from its hook at the top, down the belly and round to its foot.
+    [
+      [17, 'end', 'start'],
+      [16, 'end', 'start'],
+    ],
+    // h: down the ascender, back up to the shoulder, over the arch and out.
+    [
+      [18, 'end', 'start'],
+      [18, 'start', [508.7, -48.3], 'retrace'],
+      [20, 'start', 'end'],
+    ],
+    // The dot, last.
+    [[6, 'start', 'end']],
+  ],
 };
 
 const plan = plans[basename(FILE)];
