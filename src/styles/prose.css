@@ -208,7 +208,7 @@
 }
 
 .prose details > summary {
-  background: var(--bg-subtle);
+  background: var(--summary);
 
   /* The box's own corners less its border, so the bar fills them. */
   border-radius: 3px;
@@ -222,9 +222,9 @@
   color: var(--text-muted);
 }
 
-/* A step past the bar's tint, halfway to the rule colour. */
+/* A step past the bar's tint. */
 .prose details > summary:hover {
-  background: color-mix(in srgb, var(--bg-subtle), var(--rule));
+  background: var(--summary-hover);
 }
 
 .prose details > summary:focus-visible {

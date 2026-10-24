@@ -22,6 +22,12 @@
   --light-surface: #f6f6f3;
   --light-mark: #f3e8c8;
 
+  /* The bar a collapsible section's summary sits on, and under a pointer.
+     Light uses the subtle background; dark goes further, because #1c1c16 on
+     #14140f is too small a step to see as a bar. */
+  --light-summary: #f4f4f1;
+  --light-summary-hover: #ebebe6;
+
   /* Selected text: a pale tint of the accent, apart from the highlight's
      yellow in hue and in lightness, so a selection drawn across a <mark>, a
      search match or a footnote just jumped to still shows where it runs. */
@@ -49,6 +55,8 @@
   --dark-code-bg: #1b1b15;
   --dark-surface: #1f1f18;
   --dark-mark: #4a3f1e;
+  --dark-summary: #25251e;
+  --dark-summary-hover: #2f2f27;
   --dark-selection: #5c4236;
   --dark-hl-string: #8fbf98;
   --dark-hl-number: #d6bd7e;
@@ -77,6 +85,8 @@
   --code-bg: var(--light-code-bg);
   --surface: var(--light-surface);
   --mark: var(--light-mark);
+  --summary: var(--light-summary);
+  --summary-hover: var(--light-summary-hover);
   --selection: var(--light-selection);
   --hl-string: var(--light-hl-string);
   --hl-number: var(--light-hl-number);
@@ -105,6 +115,8 @@
     --code-bg: var(--dark-code-bg);
     --surface: var(--dark-surface);
     --mark: var(--dark-mark);
+    --summary: var(--dark-summary);
+    --summary-hover: var(--dark-summary-hover);
     --selection: var(--dark-selection);
     --hl-string: var(--dark-hl-string);
     --hl-number: var(--dark-hl-number);
@@ -136,6 +148,8 @@
   --code-bg: var(--dark-code-bg);
   --surface: var(--dark-surface);
   --mark: var(--dark-mark);
+  --summary: var(--dark-summary);
+  --summary-hover: var(--dark-summary-hover);
   --selection: var(--dark-selection);
   --hl-string: var(--dark-hl-string);
   --hl-number: var(--dark-hl-number);
@@ -4078,6 +4092,7 @@ h1 + .author-card {
     --link: #000;
     --accent: #000;
     --code-bg: #fff;
+    --summary: #fff;
 
     --mark: #eee;
 
