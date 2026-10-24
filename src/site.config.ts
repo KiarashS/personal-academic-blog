@@ -645,7 +645,7 @@ export const siteConfig: SiteConfig = {
     // signature-typeset.svg, signature-script.svg or signature.svg.
     signatureFile: 'signature-damion.svg',
     // -3
-    signatureTilt: 0,
+    signatureTilt: -1,
     avatar: '/avatar.jpg',
     news: 5,
     newsRows: 3,
