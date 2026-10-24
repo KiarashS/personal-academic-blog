@@ -287,13 +287,31 @@ video {
 /* Layout ------------------------------------------------------------------ */
 
 .page {
+  /* Nothing past the edge of the screen counts towards the page's width. A
+     box laid out off to the side, even a hidden one, makes the page wider
+     than the screen, and a phone browser then shrinks the whole page to fit
+     it: the text came out small and a band of blank screen hung below the
+     footer until something made the browser lay the page out again. The
+     front page's closed list of latest posts did it on every phone under
+     412px, at 433px of page on a 360px screen. `clip` rather than `hidden`
+     so the page does not become a scroll container. */
+  overflow-x: clip;
+}
+
+/*
+ * The header and the content, at least one screen tall between them, so the
+ * footer is never in view until the reader scrolls to it: on a desktop, a
+ * tablet or a phone, and on a page with three lines on it. The content takes
+ * whatever height is spare (`.site-main` is `flex: 1`).
+ *
+ * `svh`, not `vh`: on a phone `vh` is the height with the browser's bars
+ * retracted, which is taller than what the reader sees on arrival, so the
+ * footer would start below a fold the reader has not got to yet; `svh` is
+ * the height with the bars showing.
+ */
+.page__screen {
   display: flex;
   flex-direction: column;
-
-  /* `svh`, not `vh`: on a phone `vh` is the height with the browser's bars
-     retracted, so a short page came out taller than the screen it arrived
-     on, with a band of nothing above the footer that could be scrolled until
-     the bars slid away and the page suddenly fitted. */
   min-height: 100svh;
 }
 
@@ -2974,44 +2992,13 @@ h1 + .author-card {
   padding-block: 1.25rem;
 }
 
-/* The front page used to end exactly at the window, footer rule included, so a
-   reader met the bottom of the site before scrolling a single pixel. The column
-   now runs `--banner-overhang` past the window and the footer goes with it.
-
-   The banner does not move. `.site-main` is `flex: 1`, so its box grows by the
-   whole overhang, and its bottom padding grows by the same amount — the content
-   box it centres in keeps the height and the top edge it had. The two values
-   have to be changed together or the name drifts down the screen.
-
-   `svh` rather than `vh`: on a phone `vh` is the height with the address bar
-   retracted, which is not what the reader is looking at on arrival, and the
-   footer would show through until they scrolled. */
+/* The banner is centred in the screen under the header: `.page__screen` makes
+   the content at least that tall and the footer starts below it. Where the
+   banner is taller than the screen, as it is on a phone, it simply runs on
+   and the footer follows at the usual distance. */
 .site-main--banner {
   display: flex;
   padding-bottom: 2.5rem;
-}
-
-.page--banner {
-  /* Taller than the footer, or the footer would still be in view; the surplus
-     is the gap between the fold and the rule. */
-  --banner-overhang: 11rem;
-
-  min-height: calc(100svh + var(--banner-overhang));
-}
-
-.page--banner .site-main--banner {
-  padding-bottom: calc(2.5rem + var(--banner-overhang));
-}
-
-/* Where the front page cannot fit on one screen anyway, the overhang is only a
-   blank band before the footer. On a phone, with the portrait stacked over the
-   words, the page was 852px against a 664px screen and still carried 176px of
-   nothing under the news; the same goes for a phone on its side, and for a
-   window too short for the banner. */
-@media (width <= 46rem), (height <= 40rem) {
-  .page--banner {
-    --banner-overhang: 0rem;
-  }
 }
 
 .site-main--banner > .shell {

@@ -111,60 +111,65 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className={`site-header${bare ? ' site-header--bare' : ''}`}>
-        <div className="shell">
-          <div className="site-header__inner">
-            {bare ? null : (
-              <Link className="site-title" to="/">
-                {siteConfig.headerLogo ? <SiteMark /> : null}
-                {siteConfig.title}
-              </Link>
-            )}
-            <nav className="site-nav" aria-label="Main">
-              {navFor('header').map((item) =>
-                isNavGroup(item) ? (
-                  <NavGroup item={item} key={item.label} />
-                ) : (
-                  <NavLink end={item.to === '/'} key={item.to} to={item.to ?? '/'}>
-                    {item.label}
-                  </NavLink>
-                ),
+      {/* The header and the page's content fill at least the screen between
+          them, so the footer starts below the fold on every page; see
+          `.page__screen`. */}
+      <div className="page__screen">
+        <header className={`site-header${bare ? ' site-header--bare' : ''}`}>
+          <div className="shell">
+            <div className="site-header__inner">
+              {bare ? null : (
+                <Link className="site-title" to="/">
+                  {siteConfig.headerLogo ? <SiteMark /> : null}
+                  {siteConfig.title}
+                </Link>
               )}
-              <CvLink />
-              {/* The feed is the posts', so it goes with them. */}
-              {blogEnabled() ? <FeedLink icon /> : null}
-            </nav>
-            <div className="site-header__controls">
-              <ThemeToggle />
-              <MobileNav />
+              <nav className="site-nav" aria-label="Main">
+                {navFor('header').map((item) =>
+                  isNavGroup(item) ? (
+                    <NavGroup item={item} key={item.label} />
+                  ) : (
+                    <NavLink end={item.to === '/'} key={item.to} to={item.to ?? '/'}>
+                      {item.label}
+                    </NavLink>
+                  ),
+                )}
+                <CvLink />
+                {/* The feed is the posts', so it goes with them. */}
+                {blogEnabled() ? <FeedLink icon /> : null}
+              </nav>
+              <div className="site-header__controls">
+                <ThemeToggle />
+                <MobileNav />
+              </div>
             </div>
+            {bare ? null : <p className="site-tagline">{siteConfig.tagline}</p>}
           </div>
-          {bare ? null : <p className="site-tagline">{siteConfig.tagline}</p>}
-        </div>
-      </header>
+        </header>
 
-      <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main" tabIndex={-1}>
-        <div className="shell">
-          {/* Inside `main`, so it is read in its turn rather than announced
+        <main className={`site-main${bare ? ' site-main--banner' : ''}`} id="main" tabIndex={-1}>
+          <div className="shell">
+            {/* Inside `main`, so it is read in its turn rather than announced
               over whatever the reader is doing. Both slots are rendered and
               `notice.place` decides which one has it, per surface; the other
               returns nothing, so the document only ever holds one. */}
-          <NoticeBanner slot="top" />
-          <RouteBoundary>
-            {/* The one boundary for every page, and it stays mounted. The router
+            <NoticeBanner slot="top" />
+            <RouteBoundary>
+              {/* The one boundary for every page, and it stays mounted. The router
                 navigates in a transition, and a transition only holds back a
                 boundary that is already on screen: when each page brought its
                 own, every first visit to one showed "Loading…" in place of the
                 page, then the heading over a second "Loading…" for its text,
                 then the page. Now the page a reader is on stays until the next
                 is ready, and `NavigationProgress` says that it is coming. */}
-            <Suspense fallback={<p className="empty">Loading…</p>}>
-              <Outlet />
-            </Suspense>
-          </RouteBoundary>
-          <NoticeBanner slot="bottom" />
-        </div>
-      </main>
+              <Suspense fallback={<p className="empty">Loading…</p>}>
+                <Outlet />
+              </Suspense>
+            </RouteBoundary>
+            <NoticeBanner slot="bottom" />
+          </div>
+        </main>
+      </div>
 
       <footer className="site-footer">
         <div className="shell">
