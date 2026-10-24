@@ -289,7 +289,12 @@ video {
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+
+  /* `svh`, not `vh`: on a phone `vh` is the height with the browser's bars
+     retracted, so a short page came out taller than the screen it arrived
+     on, with a band of nothing above the footer that could be scrolled until
+     the bars slid away and the page suddenly fitted. */
+  min-height: 100svh;
 }
 
 .shell {
@@ -2996,6 +3001,17 @@ h1 + .author-card {
 
 .page--banner .site-main--banner {
   padding-bottom: calc(2.5rem + var(--banner-overhang));
+}
+
+/* Where the front page cannot fit on one screen anyway, the overhang is only a
+   blank band before the footer. On a phone, with the portrait stacked over the
+   words, the page was 852px against a 664px screen and still carried 176px of
+   nothing under the news; the same goes for a phone on its side, and for a
+   window too short for the banner. */
+@media (width <= 46rem), (height <= 40rem) {
+  .page--banner {
+    --banner-overhang: 0rem;
+  }
 }
 
 .site-main--banner > .shell {
