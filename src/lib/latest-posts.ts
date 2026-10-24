@@ -28,6 +28,10 @@ const CHEVRON =
   'stroke-linecap="round" stroke-linejoin="round"/>' +
   '</svg>';
 
+/** Whether any entry in the list will show a summary. */
+const summarised = (shown: readonly LatestPost[], config: LatestPostsConfig): boolean =>
+  config.summaries && shown.some((post) => post.summary);
+
 /**
  * The button and the list behind it, as HTML, for the placeholder's place in
  * the front page's Markdown.
@@ -70,6 +74,12 @@ export function latestPostsMarkup(
       );
     })
     .join('');
+  // Entries with a summary under them run to two or three lines, and a rule
+  // between them keeps a summary with its own title. One-line entries need
+  // none: the titles' underlines are rules enough.
+  const listClass = summarised(shown, config)
+    ? 'latest-posts__list latest-posts__list--summaries'
+    : 'latest-posts__list';
   const all = config.allPostsLabel
     ? `<a class="latest-posts__all" href="${withBase(blogIndexPath())}">${escape(config.allPostsLabel)} →</a>`
     : '';
@@ -80,7 +90,7 @@ export function latestPostsMarkup(
     `aria-label="${title}">${CHEVRON}</button>` +
     `<span class="latest-posts__panel" id="${id}" role="group" aria-label="${title}">` +
     `<span class="latest-posts__title" aria-hidden="true">${title}</span>` +
-    `<span class="latest-posts__list" role="list">${items}</span>${all}</span></span>`
+    `<span class="${listClass}" role="list">${items}</span>${all}</span></span>`
   );
 }
 

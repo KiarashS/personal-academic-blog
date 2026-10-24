@@ -62,6 +62,19 @@ describe('fillLatestPosts', () => {
     expect(out).not.toContain('latest-posts__all');
   });
 
+  it('marks the list for rules between entries only when entries carry a summary', () => {
+    expect(fillLatestPosts(html, list, config)).toContain(
+      '<span class="latest-posts__list" role="list">',
+    );
+    expect(fillLatestPosts(html, list, { ...config, summaries: true })).toContain(
+      'class="latest-posts__list latest-posts__list--summaries"',
+    );
+    const unsummarised = list.map((post) => ({ ...post, summary: '' }));
+    expect(fillLatestPosts(html, unsummarised, { ...config, summaries: true })).not.toContain(
+      'latest-posts__list--summaries',
+    );
+  });
+
   it('takes the placeholder out and shows nothing when the feature is off or there are no posts', () => {
     expect(fillLatestPosts(html, list, { ...config, enabled: false })).toBe(
       '<p>On <a href="/blog">my blog</a>.</p>',

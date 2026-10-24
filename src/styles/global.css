@@ -3498,7 +3498,8 @@ h1 + .author-card {
   padding: 0.3rem 0;
 }
 
-.latest-posts__item + .latest-posts__item {
+/* A rule between entries only when they carry summaries; see latest-posts.ts. */
+.latest-posts__list--summaries .latest-posts__item + .latest-posts__item {
   border-top: 1px solid var(--rule);
 }
 
