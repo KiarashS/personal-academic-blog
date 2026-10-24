@@ -190,7 +190,11 @@
  * section inside another is a box inside the first one's padding, so the
  * nesting reads at a glance instead of every summary starting at the same
  * edge. The summary is the line to click: the text face at its own weight,
- * with the browser's triangle in the muted colour.
+ * with the browser's triangle in the muted colour, on a tinted bar. The bar
+ * is what makes a closed section read as something to open rather than an
+ * empty box, and it stays the same open or closed, so the control does not
+ * change under the reader's finger; the triangle and the rule under an open
+ * summary say which state it is in.
  */
 .prose details {
   border: 1px solid var(--rule);
@@ -204,6 +208,10 @@
 }
 
 .prose details > summary {
+  background: var(--bg-subtle);
+
+  /* The box's own corners less its border, so the bar fills them. */
+  border-radius: 3px;
   cursor: pointer;
   font-weight: 600;
   margin: 0 -1rem;
@@ -214,8 +222,9 @@
   color: var(--text-muted);
 }
 
+/* A step past the bar's tint, halfway to the rule colour. */
 .prose details > summary:hover {
-  background: var(--bg-subtle);
+  background: color-mix(in srgb, var(--bg-subtle), var(--rule));
 }
 
 .prose details > summary:focus-visible {
@@ -226,6 +235,7 @@
 /* A rule under an open summary, so its body reads as the summary's. */
 .prose details[open] > summary {
   border-bottom: 1px solid var(--rule);
+  border-radius: 3px 3px 0 0;
   margin-bottom: 0.9rem;
 }
 
