@@ -3437,8 +3437,10 @@ h1 + .author-card {
 }
 
 /* Out of the line's flow, so opening it moves nothing. The hide waits a
-   moment, which is the time a pointer needs to cross from the button to the
-   list without it vanishing on the way. */
+   moment, the fade included, which is the time a pointer needs to cross from
+   the button to the list without it fading on the way. Only the visibility
+   used to wait: the opacity went at once, so a pointer moving down into the
+   list saw it fade to under half and come back. */
 .latest-posts__panel {
   background: var(--bg);
   border: 1px solid var(--rule);
@@ -3456,12 +3458,24 @@ h1 + .author-card {
   top: calc(100% + 0.45rem);
   transform: translate(var(--latest-shift, 0), -4px);
   transition:
-    opacity 0.15s ease,
-    transform 0.15s ease,
+    opacity 0.15s ease 0.1s,
+    transform 0.15s ease 0.1s,
     visibility 0s linear 0.25s;
   visibility: hidden;
   width: min(22rem, calc(100vw - 24px));
   z-index: 30;
+}
+
+/* The gap between the button and the list belongs to neither, so a pointer
+   crossing it was hovering nothing and the list began to close. A strip over
+   the gap, part of the panel, keeps the hover. It is hidden with the panel,
+   so a closed list does not open from the empty space under the button. */
+.latest-posts__panel::before {
+  bottom: 100%;
+  content: '';
+  height: 0.75rem;
+  inset-inline: 0;
+  position: absolute;
 }
 
 .latest-posts:hover .latest-posts__panel,
@@ -3531,7 +3545,9 @@ h1 + .author-card {
 @media (prefers-reduced-motion: reduce) {
   .latest-posts__panel {
     transform: translate(var(--latest-shift, 0), 0);
-    transition: visibility 0s linear 0.25s;
+    transition:
+      opacity 0s linear 0.25s,
+      visibility 0s linear 0.25s;
   }
 }
 
