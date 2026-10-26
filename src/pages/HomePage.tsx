@@ -84,11 +84,6 @@ function HomeBody() {
           sync(box);
         }
       };
-      const onKey = (event: KeyboardEvent) => {
-        if (event.key !== 'Escape' || !isShown(box)) return;
-        close(box, true);
-        button?.focus();
-      };
       const onEnter = () => sync(box);
       // Once both pointer and focus are gone, a held close has done its job.
       const onLeave = () =>
@@ -97,14 +92,12 @@ function HomeBody() {
           sync(box);
         });
       button?.addEventListener('click', onToggle);
-      box.addEventListener('keydown', onKey);
       box.addEventListener('pointerenter', onEnter);
       box.addEventListener('pointerleave', onLeave);
       box.addEventListener('focusin', onEnter);
       box.addEventListener('focusout', onLeave);
       return () => {
         button?.removeEventListener('click', onToggle);
-        box.removeEventListener('keydown', onKey);
         box.removeEventListener('pointerenter', onEnter);
         box.removeEventListener('pointerleave', onLeave);
         box.removeEventListener('focusin', onEnter);
@@ -115,10 +108,26 @@ function HomeBody() {
     const onOutside = (event: PointerEvent) => {
       for (const box of boxes) if (!box.contains(event.target as Node)) close(box);
     };
+    // Escape closes an open list whether it was opened by focus, by a tap or
+    // by the pointer resting on it. Listened for on the document because a
+    // hover does not move the focus, so the key does not reach the box. The
+    // close is held until pointer and focus have both moved off; a list the
+    // focus was in hands it back to its button.
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      for (const box of boxes) {
+        if (!isShown(box)) continue;
+        const focused = box.contains(document.activeElement);
+        close(box, true);
+        if (focused) parts(box).button?.focus();
+      }
+    };
     document.addEventListener('pointerdown', onOutside);
+    document.addEventListener('keydown', onEscape);
     return () => {
       cleanups.forEach((cleanup) => cleanup());
       document.removeEventListener('pointerdown', onOutside);
+      document.removeEventListener('keydown', onEscape);
     };
   }, [html]);
 
