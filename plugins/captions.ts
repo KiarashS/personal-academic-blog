@@ -27,11 +27,13 @@ type Kind = 'figure' | 'table' | 'code' | 'notebook';
 function kindOf(node: Element): Kind | undefined {
   const classes = classesOf(node);
   if (classes.includes('table-wrap')) return 'table';
-  if (classes.includes('code-block')) return 'code';
+  if (classes.includes('code-block') || classes.includes('code-tabs')) return 'code';
   if (classes.includes('notebook')) return 'notebook';
   if (
     classes.includes('figure') ||
     classes.includes('mermaid-figure') ||
+    classes.includes('chart') ||
+    classes.includes('tikz') ||
     classes.includes('mermaid-pending')
   ) {
     return 'figure';
@@ -214,12 +216,13 @@ export function rehypeCaptions() {
             ...node.properties,
             id,
             className: [...classesOf(node), ...classes],
+            dataRefLabel: `${LABELS[kind]} ${number}`,
           };
         } else {
           children[index] = {
             type: 'element',
             tagName: 'figure',
-            properties: { id, className: classes },
+            properties: { id, className: classes, dataRefLabel: `${LABELS[kind]} ${number}` },
             children: above ? [caption, node] : [node, caption],
           };
         }

@@ -4514,3 +4514,29 @@ a.work-card:focus-visible {
     animation: none;
   }
 }
+
+/*
+ * The tooltip a live chart shows (vega-tooltip, appended to the body). In the
+ * page's own small print, value first and in the text colour, the field name
+ * after it in the muted one, so the number is what the eye lands on.
+ */
+#vg-tooltip-element.vg-tooltip.custom-theme {
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+}
+
+#vg-tooltip-element.vg-tooltip.custom-theme td.key {
+  color: var(--text-muted);
+  padding-right: 0.6rem;
+}
+
+#vg-tooltip-element.vg-tooltip.custom-theme td.value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

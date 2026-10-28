@@ -71,6 +71,8 @@ const routes = [
     `${blogIndexPath().replace(/\/$/, '')}/`,
     `${postPath('code-tables-and-notes')}/`,
     `${postPath('writing-a-post')}/`,
+    // Theorems, sidenotes, algorithms, TikZ, a chart, tabs and diffs.
+    `${postPath('writing-like-a-paper')}/`,
     '/publications/',
     '/archive/',
     '/tags/',

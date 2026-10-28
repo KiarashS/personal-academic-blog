@@ -28,12 +28,13 @@ npm run build      # diagrams, type-check, bundle, cards, avatar, prerender → 
 npm run preview    # serve the build locally
 npm run links      # every internal link in dist resolves (--external checks the rest)
 npm run audit:a11y # axe-core over one page of each kind, phone and desktop
-npm run diagrams   # re-render diagrams only
+npm run diagrams   # re-render diagrams and charts only
 npm run cards      # re-render social images only
 ```
 
-`npm run build` runs six stages: `render-diagrams` (Mermaid to SVG), `vite
-build` (client bundle), `vite build --ssr` (server bundle), `render-cards`
+`npm run build` runs six stages: `diagrams` (Mermaid diagrams and Vega-Lite
+charts to SVG), `vite build` (client bundle, during which TikZ pictures and
+algorithms are set), `vite build --ssr` (server bundle), `render-cards`
 (social images), `render-avatar` (the front page's portrait at 416px), and
 `prerender` (one HTML file per route, plus feeds, sitemap and robots.txt).
 
@@ -229,6 +230,18 @@ number, after the environment, which is where KaTeX needs the `\tag`.
 To number only labelled equations, set `math.numbering` to `'labelled'` in
 `src/site.config.ts`.
 
+Chemistry is KaTeX's mhchem extension, loaded for every post: `\ce{...}` for
+formulas and equations and `\pu{...}` for quantities with units, both inside
+math.
+
+```markdown
+$\ce{C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O}$, with $\Delta H = \pu{-2870 kJ/mol}$
+```
+
+Charges, states, isotopes, equilibrium arrows and bonds are all written as in
+LaTeX's mhchem package. A reaction can be a display equation, and then it is
+numbered and can be labelled like any other.
+
 A post heavy with symbols can list its notation as a Markdown table, a symbol
 and a meaning per row, with math in the cells; the math post has one. A `|`
 inside math would end the cell, so write `\mid` for a bar. Math in a table cell
@@ -273,6 +286,22 @@ screen-reader-only "Footnotes" landmark, which stays out of the contents list
 and takes no heading anchor, so a post with two sections and a footnote does not
 get a contents list claiming three.
 
+On a screen at least 80rem wide, which has room beside the column, a note made
+of plain paragraphs is also set in the margin as a sidenote, level with the
+line that cites it, and its entry at the foot is hidden. Nothing in the
+Markdown changes. A note holding a list, a fence, a table or a display
+equation stays at the foot on every screen, since a 13rem margin is no place
+for one. So does a note cited from inside a table, a caption, a blockquote, an
+alert or a collapsible section, whose edges do not line up with the column's. Clicking the
+number beside a sidenote focuses it and flashes it instead of jumping to the
+foot of the page. The notes at the foot keep their numbers when some are
+moved to the margin, so note 3 is still "3." when 1 and 2 are not shown there.
+
+Each note is in the page twice, beside the text and at the foot, and CSS shows
+one. A screen reader meets the one that is shown. The margin is on the right,
+so on a post with sidenotes the "back to top" control moves to the left side. On paper the margin is gone and the notes print at
+the foot.
+
 ### Alerts
 
 GitHub's alert syntax, all five of them:
@@ -316,6 +345,38 @@ keeping prose-sized margins around smaller text.
 The icons are drawn in `alerts.ts` in the same hand as the permalink icon —
 24 units, stroked in `currentColor`, nothing filled — rather than imported, so
 an alert does not arrive looking like it came from somebody else's site.
+
+### Theorems and proofs
+
+The alert syntax, with a theorem's kind in place of the alert's:
+
+```markdown
+> [!THEOREM] Bayes' rule {#thm-bayes}
+> For events $A$ and $B$ with $P(B) > 0$,
+> $P(A \mid B) = P(B \mid A)\,P(A) / P(B)$.
+
+> [!PROOF]
+> By the definition of conditional probability.
+```
+
+The kinds are `THEOREM`, `LEMMA`, `PROPOSITION`, `COROLLARY`, `CONJECTURE`,
+`DEFINITION`, `EXAMPLE`, `REMARK` and `PROOF`, in any case. The rest of the
+marker's line is the title, shown in brackets after the number, and a
+`{#name}` at its end names the block for links; without one it is `#thm-3`.
+The body holds whatever a blockquote holds.
+
+They are set as amsthm sets them, with a run-in heading, "Theorem 2 (Bayes'
+rule).", and the statement after it on the same line. A theorem, lemma,
+proposition, corollary or conjecture is a claim and is set in italic; a
+definition, example or remark is upright, and a remark's label is italic as
+well. All but the proof are numbered in one sequence, so there is one thing
+called 2 in a post rather than a Theorem 2 and a Lemma 2. A rule down the left
+marks where a statement ends. A proof has no number and no rule, starts with
+an italic "Proof." (or its title, "Proof of Theorem 2." if the marker line says
+`of [](#thm-bayes)`), and ends with a tombstone at the right of its last line.
+
+Each numbered block has a permalink, as a caption does, shown in the margin to
+its left on hover.
 
 ### Emoji
 
@@ -641,6 +702,123 @@ except on a link — Mermaid can make a node into one, and following it is what
 clicking it is for. With no JavaScript there is no button and no viewer, and
 the diagram is the picture it always was. On paper the button is dropped.
 
+### Charts
+
+A fence tagged `vega-lite` holds a Vega-Lite spec as JSON:
+
+````markdown
+```vega-lite
+{
+  "description": "Validation loss against training step",
+  "data": { "url": "/posts/my-post/loss.csv" },
+  "mark": "line",
+  "encoding": {
+    "x": { "field": "step", "type": "quantitative", "title": "Training step" },
+    "y": { "field": "loss", "type": "quantitative", "title": "Validation loss" },
+    "color": { "field": "schedule", "type": "nominal" }
+  }
+}
+```
+````
+
+`npm run diagrams` draws each chart in Chromium, in the light and dark palettes
+and at three widths (696, 500 and 320px), and keeps the SVGs in
+`.cache/charts.json`; the build inlines them. A container query shows the
+drawing nearest the column's width, so axis labels are between 9 and 13px on
+any screen from a 320px phone up, and Vega lays each width out on its own, so
+a narrow chart gets fewer ticks and its legend above the plot rather than the
+same chart shrunk. A spec that sets its own `width` is drawn once, at that
+width.
+
+The page needs no script to show a chart. Vega is loaded (about 265 kB
+compressed) only when a reader points at, taps or tabs to one, and then it
+redraws the same spec at the same width in the same theme, so the live chart
+lands exactly on the drawing it replaces. A line chart gets a crosshair: the
+pointer anywhere over the plot snaps to the nearest x, the points there show,
+and one tooltip lists every series at that x. A chart with interaction of its
+own in the spec keeps it as written. Switching theme redraws a live chart in
+the other palette.
+
+`data.url` is read from `public/` at build time and inlined into the spec, so
+the page never fetches it. Under each chart is its data as a table, closed
+until asked for, because a picture cannot be read aloud and three of the light
+palette's colours are under 3:1 against the page. `description` becomes the
+chart's accessible name.
+
+The theme is `scripts/chart-theme.mjs`: the site's type, recessive axes, 2px
+lines, rounded bar ends, and an eight-colour palette per theme, in a fixed
+order chosen so that neighbouring series stay apart for the three common kinds
+of colour blindness on this site's backgrounds. A ninth series does not get a
+ninth colour; fold the rest into "Other" or split the chart. A test holds the
+theme's colours to `global.css`. A chart the cache does not have, as in
+`npm run dev`, is drawn in the browser straight away, and the build says how
+many there were.
+
+### TikZ
+
+A fence tagged `tikz` is drawn by TeX at build time, with no TeX installed:
+node-tikzjax runs it as WebAssembly.
+
+````markdown
+```tikz
+% alt: A curve falling towards the x axis
+\begin{tikzpicture}
+  \draw[->] (0,0) -- (3,0) node[right] {$t$};
+  \draw[thick, domain=0:3, smooth] plot (\x, {exp(-\x)});
+\end{tikzpicture}
+```
+````
+
+A fence that holds only a picture is put in a document for it, with the
+`arrows.meta`, `calc`, `positioning`, `shapes.geometric` and
+`decorations.pathreplacing` libraries loaded. One that has its own
+`\begin{document}` is taken as written, so a preamble can load `tikz-cd`,
+`pgfplots`, `circuitikz` or `chemfig`. A first line of `% alt: ...` is what a
+screen reader is told the picture shows. A caption after the fence numbers it
+as a figure.
+
+Black in the picture is drawn in the page's text colour and white in its
+background, so one drawing serves both themes; any other colour is kept as
+the author chose it. Text is turned into outlines from the Computer Modern
+fonts that come with node-tikzjax, so the picture needs no font and cannot
+fall back to another. It is shown 15% larger than TeX's own size, which puts
+10pt labels near the body text.
+
+TeX takes about two seconds a picture, so each one is kept in
+`.cache/tikz.json` against a hash of its source and drawn once. A picture
+that does not compile is shown in the post as its source, under a note saying
+so, and the build warns with TeX's message.
+
+### Algorithms
+
+A fence tagged `algorithm` holds LaTeX's `algorithm` and `algorithmic`
+environments, in the algorithmicx syntax, and is set by pseudocode.js at build
+time with KaTeX for the maths:
+
+````markdown
+```algorithm
+\begin{algorithm}
+\caption{Stochastic gradient descent}
+\label{sgd}
+\begin{algorithmic}
+\REQUIRE step size $\eta$
+\WHILE{not converged}
+  \STATE $\theta \gets \theta - \eta \nabla L(\theta)$
+\ENDWHILE
+\RETURN $\theta$
+\end{algorithmic}
+\end{algorithm}
+```
+````
+
+It is laid out as a paper lays one out: a heavy rule, "Algorithm 1" and the
+caption, a light rule, numbered lines, a closing rule. Keywords are bold and
+in the body face. `\label{sgd}` names it `#alg-sgd` for links; without one it
+is `#alg-1`. Algorithms are numbered in their own sequence. `\FUNCTION`,
+`\PROCEDURE`, `\IF`, `\FOR`, `\FORALL`, `\REPEAT`, `\COMMENT` and the rest
+of pseudocode.js's commands work. A syntax error shows the message and the
+source in the post, and the build warns.
+
 ### Code
 
 highlight.js at build time, with token colours defined against the site's CSS
@@ -688,6 +866,53 @@ What the copy button copies is the same either way.
 Both buttons are always shown. They appeared only on hover once, and Safari,
 which rechecks what the pointer is over only when it moves, faded them out
 when a press changed "copy" to "copied" under a still pointer.
+
+#### Marked lines and diffs
+
+Line numbers in braces after the language mark those lines with a tint and a
+bar down the left:
+
+````markdown
+```python {3}
+def loss(model, batch):
+    logits = model(batch.x)
+    return cross_entropy(logits, batch.y)
+```
+````
+
+`{2,4-6}` marks several. A one-line block is not numbered, unless a line in it
+is marked.
+
+A fence tagged `diff-` and a language shows a change: each line starts with
+`+`, `-` or a space, and is highlighted as that language with the marker taken
+off, so the highlighter sees Python and not a column of plus signs. Added lines
+are tinted green and removed ones red, each with a `+` or `-` beside the line
+number for a reader who cannot tell the two tints apart. The copy button
+copies the code after the change, without the removed lines. A plain `diff`
+fence is still highlighted as a diff.
+
+#### Tabs
+
+Fences that follow one another, each with `tab="..."` after its language,
+become one block with a tab for each:
+
+````markdown
+```python tab="Python"
+model = LogisticRegression().fit(X, y)
+```
+
+```r tab="R"
+model <- glm(y ~ ., data = d, family = binomial)
+```
+````
+
+The tabs are radio buttons, so they work with scripting off and with the
+arrow keys. Picking a tab picks the tab of that name in every set on the page,
+and the choice is remembered in the reader's browser (`localStorage`,
+`code-tab`), so a reader who wants R sees R first in the next post. A caption
+after the last fence numbers the set as one listing. A set has two to twelve
+tabs; a longer run of tabbed fences is left as the separate blocks it was
+written as.
 
 ### Figures
 
@@ -801,6 +1026,14 @@ first keeps it and the second falls back to its number, so ids stay unique.
 Then a cross-reference is an ordinary link — `[Figure 2](#fig-architecture)` —
 and `npm run links` checks it, so renaming a figure fails the build rather than
 leaving a link that goes nowhere.
+
+A link with no text writes its own: `[](#fig-architecture)` becomes "Figure
+2", and keeps up when the figures above it move. It works for anything the post
+numbers or names: figures, tables, listings, notebooks, theorems and their
+kin ("Theorem 3"), algorithms ("Algorithm 1"), equations ("(4)") and headings
+(the heading's text). A link with words of its own is left as written. A name
+the post does not have reads "??", as LaTeX shows it, and the build warns with
+the file and the name.
 
 The caption's chain icon copies the whole URL rather than only setting the hash,
 which is the same handler the heading permalinks use. Landing on one of these
@@ -2971,6 +3204,13 @@ Post metadata is eager, so list pages are cheap. Post bodies, the About page,
 the search route and the search index are separate chunks, fetched when needed.
 
 ## Notes
+
+The libraries that set TikZ pictures and algorithms run only at build time and
+none of their code reaches the page: node-tikzjax (LPPL 1.3c) and pseudocode.js
+(MIT). The outlines in a TikZ picture come from the BaKoMa Computer Modern
+fonts that ship with node-tikzjax, whose licence allows embedding them in SVG
+without notice. Vega, Vega-Lite and vega-embed, which the page loads for a
+live chart, are BSD-3-Clause.
 
 Markdown is rendered with `rehype-raw`, so raw HTML in a post is passed
 through. That is fine for content you write yourself; remove that plugin from

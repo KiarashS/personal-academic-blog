@@ -40,7 +40,7 @@ describe('equationId', () => {
 describe('rehypeEquations', () => {
   it('numbers a labelled equation and hands KaTeX the tag', () => {
     const html = render('$$\nx = 1\n\\label{one}\n$$');
-    expect(html).toContain('<div class="equation" id="eq-one">');
+    expect(html).toContain('<div class="equation" id="eq-one" data-ref-label="(1)">');
     expect(html).toContain('\\tag{1}');
     expect(html).not.toContain('\\label');
   });
@@ -50,7 +50,7 @@ describe('rehypeEquations', () => {
     // `pre`. A wrapper inside it survives as an empty `pre` that the code-block
     // plugin then dresses in a copy button.
     const html = render('$$\nx = 1\n\\label{one}\n$$');
-    expect(html).toContain('<div class="equation" id="eq-one"><pre>');
+    expect(html).toContain('<div class="equation" id="eq-one" data-ref-label="(1)"><pre>');
     expect(html).not.toContain('<pre><div class="equation"');
   });
 
@@ -115,14 +115,14 @@ describe("rehypeEquations with numbering: 'all'", () => {
   it('numbers an unlabelled equation and gives it an id to link to', () => {
     const html = renderAll('$$\nx = 1\n$$');
     expect(html).toContain('\\tag{1}');
-    expect(html).toContain('<div class="equation" id="equation-1">');
+    expect(html).toContain('<div class="equation" id="equation-1" data-ref-label="(1)">');
   });
 
   it('counts labelled and unlabelled equations together, in document order', () => {
     const html = renderAll('$$\na\n$$\n\n$$\nb\n\\label{b}\n$$\n\nSee \\eqref{b}.');
     expect(html).toContain('\\tag{1}');
     expect(html).toContain('\\tag{2}');
-    expect(html).toContain('<div class="equation" id="eq-b">');
+    expect(html).toContain('<div class="equation" id="eq-b" data-ref-label="(2)">');
     expect(html).toContain('<a class="eqref" href="#eq-b">(2)</a>');
   });
 

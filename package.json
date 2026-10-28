@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "diagrams": "node scripts/render-diagrams.mjs",
+    "diagrams": "node scripts/render-diagrams.mjs && node scripts/render-charts.mjs",
     "build": "npm run diagrams && tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/render-avatar.mjs && node scripts/prerender.mjs",
     "build:no-diagrams": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server && node scripts/render-cards.mjs && node scripts/render-avatar.mjs && node scripts/prerender.mjs",
     "preview": "vite preview",
@@ -28,7 +28,10 @@
     "mermaid": "^12.1.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-router-dom": "7.18.4"
+    "react-router-dom": "7.18.4",
+    "vega": "6.4.0",
+    "vega-embed": "7.3.0",
+    "vega-lite": "6.5.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -42,11 +45,14 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "gemoji": "^8.1.0",
     "globals": "17.13.0",
+    "hast-util-from-html": "2.0.3",
     "hast-util-to-string": "3.0.1",
     "highlight.js": "11.12.0",
+    "node-tikzjax": "1.0.5",
     "opentype.js": "1.3.4",
     "playwright": "1.63.0",
     "prettier": "3.9.9",
+    "pseudocode": "2.4.1",
     "react-markdown": "10.1.0",
     "rehype-citation": "2.3.2",
     "rehype-highlight": "7.0.2",
@@ -61,6 +67,7 @@
     "simple-icons": "^16.33.0",
     "stylelint": "17.16.0",
     "stylelint-config-standard": "40.0.0",
+    "svgo": "3.3.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.1",
     "unified": "11.0.5",
@@ -69,6 +76,9 @@
   },
   "overrides": {
     "rehype-katex": {
+      "katex": "$katex"
+    },
+    "pseudocode": {
       "katex": "$katex"
     }
   }

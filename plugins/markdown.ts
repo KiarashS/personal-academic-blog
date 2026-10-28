@@ -12,6 +12,9 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeKatex from 'rehype-katex';
+// Chemistry, `\ce{H2O}` and `\pu{123 kJ/mol}`: registers its macros with the
+// same KaTeX that rehype-katex renders with, so maths and notebooks both have it.
+import 'katex/contrib/mhchem';
 import rehypeStringify from 'rehype-stringify';
 import rehypeCitation from 'rehype-citation';
 import { rehypeSectionFonts } from './fonts';
@@ -34,6 +37,7 @@ import { parseFrontmatter } from '../src/lib/frontmatter';
 import type { Heading, PostFrontmatter } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
+import { remarkCodeMeta } from './code-meta';
 import { rehypeContentTweaks } from './content-tweaks';
 import { FOOTNOTE_HEADING, rehypeHeadingAnchors } from './heading-anchors';
 import { rehypeFigures } from './figures';
@@ -44,6 +48,12 @@ import { rehypeEquations } from './equations';
 import { rehypeColorSwatches } from './color-swatches';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
+import { rehypeTheorems } from './theorems';
+import { rehypeCrossRefs } from './crossrefs';
+import { rehypeAlgorithms } from './algorithms';
+import { rehypeSidenotes } from './sidenotes';
+import { loadChartCache, rehypeCharts, type ChartCache } from './charts';
+import { loadTikzCache, rehypeTikz, saveTikzCache, type TikzCache } from './tikz';
 import { rehypeReservedIds } from './reserved-ids';
 import { emojify, remarkEmoji } from './emoji';
 
@@ -90,10 +100,16 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   let building = false;
   let base = '/';
   let cache: DiagramCache = {};
+  const chartCachePath = resolve(root, '.cache/charts.json');
+  let chartCache: ChartCache = {};
+  let missingCharts = 0;
+  const tikzCachePath = resolve(root, '.cache/tikz.json');
+  let tikzCache: TikzCache = {};
   const compiled = new Map<string, Compiled>();
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
   const equationWarnings = new Set<string>();
+  const referenceWarnings = new Set<string>();
   const fontWarnings = new Set<string>();
   const featureLinkWarnings = new Set<string>();
   // Frontmatter that says something the renderer cannot act on.
@@ -140,6 +156,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // left as written and a post can explain the syntax it is using.
       .use(remarkEmoji)
       .use(remarkMath)
+      // A fence's line marks, diff and tab, before the raw-HTML pass drops the
+      // meta string they are written in.
+      .use(remarkCodeMeta)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       // Straight after the HTML is parsed: `font="…"` is an attribute on an
@@ -156,11 +175,33 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // blockquote until this runs, and the citation and caption passes below
       // should see the shape the reader gets.
       .use(rehypeAlerts)
+      // Also a blockquote with a marker, and numbered in reading order before
+      // anything can move blocks about.
+      .use(rehypeTheorems, {
+        onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
+      })
       .use(rehypeCitation, { bibliography, linkCitations: true, path: root })
       .use(rehypeNotebook, {
         publicDir: resolve(root, 'public'),
         renderMarkdown: renderCell,
         onWarn: (message: string) => missingImages.add(message),
+      })
+      // Before the highlighter, which would otherwise colour the TeX.
+      .use(rehypeAlgorithms, {
+        onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
+      })
+      .use(rehypeTikz, {
+        cache: tikzCache,
+        onRendered: () => saveTikzCache(tikzCachePath, tikzCache),
+        onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
+      })
+      .use(rehypeCharts, {
+        cache: chartCache,
+        publicDir: resolve(root, 'public'),
+        onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
+        onMissing: () => {
+          missingCharts += 1;
+        },
       })
       .use(rehypeMermaid, {
         cache,
@@ -196,6 +237,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onWarn: (message: string) => missingImages.add(message),
       })
       .use(rehypeCaptions)
+      // Last of all: every number in the post is settled by now.
+      .use(rehypeCrossRefs, {
+        onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
+      })
+      // After the references are written, since a note is copied into the margin.
+      .use(rehypeSidenotes)
       .use(rehypeStringify, { allowDangerousHtml: true });
 
     const result = await processor.process(body);
@@ -220,10 +267,14 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
     buildStart() {
       cache = loadDiagramCache(cachePath);
+      chartCache = loadChartCache(chartCachePath);
+      tikzCache = loadTikzCache(tikzCachePath);
+      missingCharts = 0;
       compiled.clear();
       missingDiagrams.clear();
       missingImages.clear();
       equationWarnings.clear();
+      referenceWarnings.clear();
       fontWarnings.clear();
       featureLinkWarnings.clear();
       bannerProblems.clear();
@@ -359,9 +410,17 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     buildEnd() {
       for (const message of missingImages) this.warn(message);
       for (const message of equationWarnings) this.warn(message);
+      for (const message of referenceWarnings) this.warn(message);
       for (const message of fontWarnings) this.warn(message);
       for (const message of featureLinkWarnings) this.warn(message);
       for (const message of bannerProblems) this.warn(message);
+
+      if (missingCharts > 0) {
+        this.warn(
+          `${missingCharts} chart(s) had no prerendered SVG and will be drawn in the browser. ` +
+            'Run `npm run diagrams` to draw them at build time.',
+        );
+      }
 
       if (missingDiagrams.size > 0) {
         this.warn(

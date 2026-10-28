@@ -174,7 +174,8 @@ export function rehypeEquations(options: EquationOptions = {}) {
         children[index] = {
           type: 'element',
           tagName: 'div',
-          properties: { className: ['equation'], id },
+          // What an empty link to this equation reads; see crossrefs.ts.
+          properties: { className: ['equation'], id, dataRefLabel: `(${shown ?? count})` },
           children: [block],
         };
       }

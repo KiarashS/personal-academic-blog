@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { liveCharts } from '../lib/charts';
 import { useNavigate } from 'react-router-dom';
 import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postBody } from '../lib/post-content';
@@ -15,6 +16,34 @@ import {
 import { DiagramViewer } from './DiagramViewer';
 import { useTheme } from './ThemeProvider';
 import { useInnerHtml } from '../lib/inner-html';
+
+/**
+ * What the copy button puts on the clipboard: the block's text, less the lines
+ * a diff removes, so a diff copies as the code after the change. The marks
+ * themselves are drawn by the stylesheet and are not in the text at all.
+ */
+function copyText(pre: HTMLElement | null | undefined): string {
+  if (!pre) return '';
+  if (!pre.querySelector('.code-line--del')) return pre.textContent ?? '';
+  const clone = pre.cloneNode(true) as HTMLElement;
+  for (const line of clone.querySelectorAll('.code-line--del')) line.remove();
+  return clone.textContent ?? '';
+}
+
+/**
+ * Picks the tab labelled `label` in every set of code tabs that has one, so a
+ * reader who chose Python once sees Python throughout. The sets work without
+ * this; it only keeps them in step and remembers the choice for next time.
+ */
+function chooseTab(root: ParentNode, label: string): void {
+  for (const tab of root.querySelectorAll<HTMLLabelElement>('.code-tabs__tab')) {
+    if (tab.textContent !== label) continue;
+    const input = tab.htmlFor ? document.getElementById(tab.htmlFor) : null;
+    if (input instanceof HTMLInputElement && !input.checked) input.checked = true;
+  }
+}
+
+const TAB_KEY = 'code-tab';
 
 /**
  * Renders a post body. The HTML was produced by the build — math, highlighting,
@@ -62,9 +91,29 @@ export function PostBody({ slug }: { slug: string }) {
         return;
       }
 
+      // A footnote number whose note stands in the margin: the entry at the
+      // foot is hidden at this width, so the note is shown instead of a jump
+      // to nothing. Where the note is not shown, the link works as written.
+      const ref = target.closest<HTMLAnchorElement>('a[data-footnote-ref]');
+      if (ref) {
+        const note = ref.closest('sup')?.nextElementSibling;
+        if (
+          note instanceof HTMLElement &&
+          note.classList.contains('sidenote') &&
+          note.offsetParent
+        ) {
+          event.preventDefault();
+          note.focus({ preventScroll: true });
+          note.scrollIntoView({ block: 'nearest' });
+          note.dataset.flash = '';
+          window.setTimeout(() => delete note.dataset.flash, 50);
+          return;
+        }
+      }
+
       const button = target.closest('.code-block__copy');
       if (button) {
-        const code = button.closest('.code-block')?.querySelector('pre')?.textContent ?? '';
+        const code = copyText(button.closest('.code-block')?.querySelector('pre'));
         navigator.clipboard?.writeText(code).then(
           () => {
             button.firstChild!.textContent = 'copied';
@@ -212,6 +261,46 @@ export function PostBody({ slug }: { slug: string }) {
       window.removeEventListener('resize', measure);
       for (const el of candidates) el.removeAttribute('tabindex');
     };
+  }, [html]);
+
+  // Charts: drawn by the build, made live when a reader reaches for one.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    return liveCharts(container);
+  }, [html]);
+
+  // Code tabs: the reader's last choice, applied on arrival, and a choice in
+  // one set made in all of them. See `chooseTab`.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container?.querySelector('.code-tabs')) return;
+
+    try {
+      const saved = localStorage.getItem(TAB_KEY);
+      if (saved) chooseTab(container, saved);
+    } catch {
+      // No storage: every set opens on its first tab, as it does without script.
+    }
+
+    const onChange = (event: Event) => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement) || !input.classList.contains('code-tabs__input')) {
+        return;
+      }
+      const label = container.querySelector<HTMLLabelElement>(
+        `label[for="${input.id}"]`,
+      )?.textContent;
+      if (!label) return;
+      chooseTab(container, label);
+      try {
+        localStorage.setItem(TAB_KEY, label);
+      } catch {
+        // Kept for this page only.
+      }
+    };
+    container.addEventListener('change', onChange);
+    return () => container.removeEventListener('change', onChange);
   }, [html]);
 
   // Only reached in development, or if `npm run diagrams` was not run: the

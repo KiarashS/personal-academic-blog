@@ -247,6 +247,163 @@
   margin: 1.75rem 0;
 }
 
+/*
+ * Theorems, lemmas, definitions and proofs, from plugins/theorems.ts, set the
+ * way amsthm sets them: a run-in heading, "Theorem 2 (Bayes' rule).", then
+ * the statement. A statement is italic, so a claim reads apart from the prose
+ * that argues for it; a definition, an example and a remark are upright. A rule
+ * down the left shows where a statement ends, which a page cannot show with
+ * space alone the way a printed one does. A proof is not a statement and gets
+ * no rule: it ends with its tombstone.
+ */
+.prose .theorem {
+  margin: 1.5rem 0;
+  position: relative;
+  scroll-margin-top: 1.5rem;
+}
+
+.prose .theorem:not(.theorem--proof) {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1rem;
+}
+
+.prose .theorem > :last-child {
+  margin-bottom: 0;
+}
+
+.prose .theorem--plain {
+  font-style: italic;
+}
+
+.prose .theorem__label,
+.prose .theorem__stop {
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* A remark's label and a proof's are italic and light, as amsthm has them. */
+.prose :is(.theorem--remark, .theorem--proof) :is(.theorem__label, .theorem__stop) {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.prose .theorem__title {
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Against the right edge of the proof's last line. */
+.prose .theorem__qed {
+  float: right;
+  font-style: normal;
+  margin-left: 1rem;
+}
+
+.prose .theorem__qed-line {
+  text-align: right;
+}
+
+.prose .theorem:hover .caption-anchor {
+  opacity: 1;
+}
+
+/* In the margin left of the rule, level with the heading, so the hidden icon
+   leaves no gap between "Theorem 2." and the statement. Inside the shell's
+   padding on a phone. Named twice to outrank the general .caption-anchor rule,
+   which comes later. */
+.prose .caption-anchor.theorem__anchor {
+  left: -1.2rem;
+  margin-left: 0;
+  position: absolute;
+  top: 0.3em;
+}
+
+/*
+ * Algorithms, set at build time by pseudocode.js (plugins/algorithms.ts) and
+ * styled here in place of its own sheet, which would fetch a second KaTeX. A
+ * paper's layout: a heavy rule, the caption, a light rule, the numbered lines,
+ * a rule to close; keywords bold, procedure names in small capitals, comments
+ * muted. In the body face, so it reads as part of the post and not a picture.
+ */
+.prose .algorithm {
+  font-size: 0.95rem;
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  scroll-margin-top: 1.5rem;
+}
+
+.prose .algorithm .ps-algorithm {
+  border-bottom: 1.5px solid var(--text);
+  border-top: 2px solid var(--text);
+  padding-bottom: 0.3rem;
+}
+
+.prose .algorithm .ps-algorithm.with-caption > .ps-line:first-child {
+  border-bottom: 1px solid var(--text);
+  margin-bottom: 0.3rem;
+  padding: 0.35rem 0;
+}
+
+.prose .algorithm .ps-line {
+  line-height: 1.55;
+  margin: 0;
+}
+
+.prose .algorithm .ps-keyword {
+  font-weight: 700;
+}
+
+.prose .algorithm .ps-funcname {
+  font-variant: small-caps;
+}
+
+.prose .algorithm .ps-comment {
+  color: var(--text-muted);
+}
+
+.prose .algorithm .katex {
+  font-size: 1em;
+  text-indent: 0;
+}
+
+.prose .algorithm .ps-linenum {
+  color: var(--text-muted);
+  display: inline-block;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  padding-right: 0.75em;
+  position: relative;
+  text-align: right;
+  user-select: none;
+  width: 1.6em;
+}
+
+.prose .algorithm .ps-algorithmic.with-linenum .ps-line.ps-code {
+  text-indent: -1.6em;
+}
+
+.prose .algorithm .ps-algorithmic.with-linenum .ps-line.ps-code > span {
+  text-indent: 0;
+}
+
+.prose .algorithm:hover .caption-anchor {
+  opacity: 1;
+}
+
+.prose .algorithm-error {
+  border: 1px solid var(--alert-caution);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+}
+
+/* A reference the post wrote for itself, "Figure 2": one unit, never broken
+   between the word and the number. */
+.prose .xref {
+  white-space: nowrap;
+}
+
 .prose figcaption {
   color: var(--text-muted);
   font-family: var(--sans);
@@ -264,6 +421,99 @@
   font-size: 0.9rem;
   margin-top: 3rem;
   padding-top: 1rem;
+}
+
+/*
+ * Sidenotes, from plugins/sidenotes.ts: a footnote's text copied in beside its
+ * reference, shown in the margin from 80rem, where the contents rail appears
+ * on the other side, and hidden below it, where the footnote at the foot of
+ * the post is shown instead. Never both, so the note is met once.
+ *
+ * Floated out of the column, Tufte's way. The negative margin is the shell's
+ * padding, the 1.5rem gap the rail keeps from the text, and the note's own
+ * 13rem, so the note stands where the rail does on the other side. Its margin
+ * box has no width inside the column, so nothing in the column moves for it,
+ * and notes that meet stack rather than overlap.
+ */
+.prose .sidenote {
+  display: none;
+}
+
+@media (width >= 80rem) {
+  .prose .sidenote {
+    clear: right;
+    color: var(--text-muted);
+    display: block;
+    float: right;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.45;
+    margin: 0.25rem -15.75rem 1rem 0;
+    text-align: left;
+    text-indent: 0;
+    transition: background-color 600ms ease-out;
+    width: 13rem;
+  }
+
+  /* The rail on the right puts the notes on the left. */
+  :root:has(.contents-rail--right) .prose .sidenote {
+    clear: left;
+    float: left;
+    margin: 0.25rem 0 1rem -15.75rem;
+  }
+
+  .prose .footnote--sidenoted,
+  .prose .footnotes--sidenoted {
+    display: none;
+  }
+
+  /* Clicking a reference shows its note rather than jumping to the hidden foot. */
+  .prose .sidenote[data-flash] {
+    background: var(--mark);
+    transition: none;
+  }
+
+  /*
+   * The Top and All posts pair stands in the corner opposite the rail, which is
+   * where the notes now are, so on a post that has them it moves under the rail,
+   * and the rail stops short enough to leave it room.
+   */
+  :root:has(.prose .sidenote) .post-exit--right {
+    left: 1.25rem;
+    right: auto;
+  }
+
+  :root:has(.prose .sidenote) .post-exit--left {
+    left: auto;
+    right: 1.25rem;
+  }
+
+  :root:has(.prose .sidenote) .contents-rail {
+    max-block-size: calc(100vh - 11.5rem);
+  }
+}
+
+.prose .sidenote__number {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.prose .sidenote__break {
+  display: block;
+  height: 0.45rem;
+}
+
+@media print {
+  .prose .sidenote {
+    display: none !important;
+  }
+
+  .prose .footnote--sidenoted,
+  .prose .footnotes--sidenoted {
+    display: revert !important;
+  }
 }
 
 /* Anchored headings */
@@ -605,6 +855,190 @@
   text-indent: -2ch;
 }
 
+/*
+ * Lines a fence marked: `{2,4-6}` highlights, a `diff-` fence adds and
+ * removes. Each line becomes a full-width row so its tint runs edge to edge,
+ * through the number gutter too, with a stripe at the left in the mark's own
+ * hue: the highlighter's yellow, the green of a tip, the red of a caution.
+ */
+.code-block pre.code-marked code {
+  min-width: 100%;
+  width: max-content;
+}
+
+:root[data-code-wrap='on'] .code-block pre.code-marked code {
+  width: auto;
+}
+
+.code-block pre.code-marked .code-line {
+  display: block;
+  margin-right: -1rem;
+  padding-right: 1rem;
+}
+
+.code-line--mark {
+  --line-edge: color-mix(in srgb, var(--accent) 70%, var(--mark));
+  --line-tint: color-mix(in srgb, var(--mark) 70%, var(--code-bg));
+}
+
+.code-line--ins {
+  --line-edge: var(--alert-tip);
+  --line-tint: color-mix(in srgb, var(--alert-tip) 15%, var(--code-bg));
+}
+
+.code-line--del {
+  --line-edge: var(--alert-caution);
+  --line-tint: color-mix(in srgb, var(--alert-caution) 15%, var(--code-bg));
+}
+
+:is(.code-line--mark, .code-line--ins, .code-line--del) {
+  background: var(--line-tint);
+}
+
+:is(.code-line--mark, .code-line--ins, .code-line--del)::before {
+  background: var(--line-tint);
+  box-shadow: inset 3px 0 0 var(--line-edge);
+}
+
+/* A diff's plus and minus, beside the number: generated, so never copied. */
+.code-diff .code-line::before {
+  content: counter(line) '\00a0\00a0';
+  min-width: calc((var(--code-digits, 2) + 2) * 1ch);
+}
+
+.code-diff .code-line--ins::before {
+  content: counter(line) '\00a0+';
+}
+
+.code-diff .code-line--del::before {
+  content: counter(line) '\00a0-';
+}
+
+:root[data-code-wrap='on'] .code-block pre.code-diff .code-line {
+  --gutter: calc((var(--code-digits, 2) + 2) * 1ch + 1ch + 3px + 1rem);
+}
+
+/*
+ * A set of tabs, from consecutive fences that each name one (plugins/code-
+ * blocks.ts). The tabs are radio buttons, hidden, and their labels: which
+ * panel shows follows from which one is checked, so the set works with no
+ * script, and the arrow keys move between tabs as they do in any radio group.
+ * The chosen tab is drawn joined to the code below it.
+ */
+.code-tabs {
+  margin: 1.75rem 0;
+}
+
+.code-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.code-tabs__input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.code-tabs__tab {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: -1px;
+  padding: 0.3rem 0.8rem;
+  position: relative;
+}
+
+.code-tabs__tab:hover {
+  color: var(--text);
+}
+
+.code-tabs__input:checked + .code-tabs__tab {
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--code-bg);
+  color: var(--text);
+  font-weight: 600;
+  z-index: 1;
+}
+
+.code-tabs__input:focus-visible + .code-tabs__tab {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.code-tabs .code-block {
+  margin: 0;
+}
+
+.code-tabs .code-block__bar {
+  border-radius: 0 6px 0 0;
+}
+
+/* The tab already says which language it is. */
+.code-tabs .code-block__lang {
+  visibility: hidden;
+}
+
+/* Every panel shows until the browser can tell which tab is checked. */
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:checked) > .code-tabs__panel {
+  display: none;
+}
+
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(1):checked)
+  > .code-tabs__panel:nth-of-type(1),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(2):checked)
+  > .code-tabs__panel:nth-of-type(2),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(3):checked)
+  > .code-tabs__panel:nth-of-type(3),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(4):checked)
+  > .code-tabs__panel:nth-of-type(4),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(5):checked)
+  > .code-tabs__panel:nth-of-type(5),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(6):checked)
+  > .code-tabs__panel:nth-of-type(6),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(7):checked)
+  > .code-tabs__panel:nth-of-type(7),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(8):checked)
+  > .code-tabs__panel:nth-of-type(8),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(9):checked)
+  > .code-tabs__panel:nth-of-type(9),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(10):checked)
+  > .code-tabs__panel:nth-of-type(10),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(11):checked)
+  > .code-tabs__panel:nth-of-type(11),
+.code-tabs:has(> .code-tabs__list > .code-tabs__input:nth-of-type(12):checked)
+  > .code-tabs__panel:nth-of-type(12) {
+  display: block;
+}
+
+/* Paper has no tabs: every version, each under its own name. */
+@media print {
+  .code-tabs__list {
+    display: none;
+  }
+
+  .code-tabs > .code-tabs__panel {
+    display: block !important;
+  }
+
+  .code-tabs__panel::before {
+    content: attr(data-tab-label);
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin: 0.75rem 0 0.25rem;
+  }
+}
+
 /* highlight.js tokens, expressed against the theme variables so light and
    dark stay in step without shipping two vendor themes. */
 .hljs-comment,
@@ -866,6 +1300,156 @@
 
 :root[data-theme='dark'] .mermaid-figure__dark {
   display: block;
+}
+
+/* TikZ --------------------------------------------------------------------- */
+
+/*
+ * TikZ pictures (plugins/tikz.ts): drawn at build time with every character
+ * already a path, in `currentColor`, so the one drawing takes the page's ink in
+ * either theme. Shown a little larger than TeX's size and never wider than the
+ * column.
+ */
+.prose .tikz {
+  color: var(--text);
+  margin: 1.75rem auto;
+  text-align: center;
+}
+
+.prose .tikz svg {
+  display: inline-block;
+  height: auto;
+  max-width: 100%;
+}
+
+.prose .tikz-error {
+  border: 1px solid var(--alert-caution);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+/* Charts ------------------------------------------------------------------- */
+
+/*
+ * Vega-Lite charts (plugins/charts.ts, src/lib/charts.ts): the drawings the
+ * page arrives with, one per theme at each of three widths, until the live
+ * chart takes their place, and the data under them as a table that opens on
+ * request. Each drawing scales to the column; the container queries show the
+ * one drawn nearest its width, so labels keep their size on a phone. The
+ * widths are CHART_SIZES in scripts/chart-theme.mjs, and a test holds the
+ * queries to them.
+ */
+.prose .chart {
+  container: chart / inline-size;
+  margin: 1.75rem 0;
+}
+
+.prose .chart__size--mid,
+.prose .chart__size--narrow {
+  display: none;
+}
+
+@container chart (width < 600px) {
+  .prose .chart__size--wide {
+    display: none;
+  }
+
+  .prose .chart__size--mid {
+    display: block;
+  }
+}
+
+@container chart (width < 420px) {
+  .prose .chart__size--mid {
+    display: none;
+  }
+
+  .prose .chart__size--narrow {
+    display: block;
+  }
+}
+
+.prose .chart svg {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+.prose .chart__dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .prose .chart__light {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .prose .chart__dark {
+    display: block;
+  }
+}
+
+:root[data-theme='dark'] .prose .chart__light {
+  display: none;
+}
+
+:root[data-theme='dark'] .prose .chart__dark {
+  display: block;
+}
+
+/* Outranks the theme rules above, which name the root as well. */
+:root .prose .chart.chart--live :is(.chart__light, .chart__dark) {
+  display: none;
+}
+
+/* A chart the build did not draw, in development, keeps a space while it is drawn. */
+.prose .chart--pending {
+  min-height: 10rem;
+}
+
+.prose .chart__data {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  margin-top: 0.6rem;
+  text-align: left;
+}
+
+.prose .chart__data > summary {
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.prose .chart__data > summary:hover {
+  color: var(--text);
+}
+
+.prose .chart__data .table-wrap {
+  margin: 0.6rem 0 0;
+  max-height: 20rem;
+  overflow: auto;
+}
+
+.prose .chart__more {
+  color: var(--text-muted);
+  margin: 0.4rem 0 0;
+}
+
+.prose .chart-error {
+  border: 1px solid var(--alert-caution);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+}
+
+@media print {
+  .prose .chart__data {
+    display: none;
+  }
 }
 
 /* Citations ---------------------------------------------------------------- */
