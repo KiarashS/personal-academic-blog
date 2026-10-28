@@ -257,6 +257,9 @@
  * no rule: it ends with its tombstone.
  */
 .prose .theorem {
+  /* Holds the tombstone, a float, when it drops below the proof's last line,
+     rather than letting it hang into the space before the next block. */
+  display: flow-root;
   margin: 1.5rem 0;
   position: relative;
   scroll-margin-top: 1.5rem;
@@ -301,18 +304,22 @@
  * (kept for feed readers, which get no stylesheet) is clipped away, and a
  * border, unlike a background, survives printing without background graphics
  * and forced colours.
+ *
+ * The content box is zero, not whatever is left of a 0.6em box: a phone rounds
+ * each 0.3em border down to whole device pixels, which left a pixel of
+ * content showing through the middle as a hole.
  */
 .prose .theorem__qed {
   border: 0.3em solid currentcolor;
-  box-sizing: border-box;
+  box-sizing: content-box;
   display: inline-block;
   float: right;
   font-style: normal;
-  height: 0.6em;
+  height: 0;
   line-height: 0;
   margin: 0.58em 0 0 1rem;
   overflow: hidden;
-  width: 0.6em;
+  width: 0;
 }
 
 .prose .theorem__qed-line {
