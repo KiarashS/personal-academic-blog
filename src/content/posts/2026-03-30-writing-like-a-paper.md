@@ -154,9 +154,11 @@ $\Delta H = \pu{-2870 kJ/mol}$, and ions such as $\ce{SO4^2-}$.
 
 `{3}` after the language marks a line:
 
-```python {3}
+```python {5, 2-3}
 def loss(model, batch):
     logits = model(batch.x)
+    y = 3
+    z = 45 / y
     return cross_entropy(logits, batch.y)
 ```
 
