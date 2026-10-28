@@ -16,6 +16,7 @@ import {
   withCrosshair,
 } from '../../scripts/chart-theme.mjs';
 import { chartHash, rehypeCharts } from '../../plugins/charts';
+import { rehypeContentTweaks } from '../../plugins/content-tweaks';
 
 const css = readFileSync('src/styles/global.css', 'utf8');
 const prose = readFileSync('src/styles/prose.css', 'utf8');
@@ -183,6 +184,19 @@ describe('rehypeCharts', () => {
     const html = render(fence({ ...spec, title: '</script><b>' }));
     expect(html).not.toContain('</script><b>');
     expect(html).toContain('\\u003c/script>');
+  });
+
+  it('keeps its table in one scrolling wrapper when the page wraps tables too', () => {
+    const html = String(
+      unified()
+        .use(remarkParse)
+        .use(remarkRehype)
+        .use(rehypeCharts, { cache: {}, publicDir: 'public' })
+        .use(rehypeContentTweaks, { base: '/' })
+        .use(rehypeStringify, { allowDangerousHtml: true })
+        .processSync(fence(spec)),
+    );
+    expect(html.match(/class="table-wrap"/g)).toHaveLength(1);
   });
 
   it('shows the problem for a spec that is not JSON', () => {

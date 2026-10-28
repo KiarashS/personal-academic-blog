@@ -1506,6 +1506,27 @@
   overflow: auto;
 }
 
+/* The column names stay at the top of the box while the rows scroll under
+   them. The table's borders are kept apart, because Chromium does not paint a
+   sticky cell's background over the rows of a collapsed table, and they
+   showed through the header's padding. The header's two booktabs rules are
+   drawn on its cells, so they stay with it: a separated table draws no border
+   on the header group itself. */
+.prose .chart__data table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.prose .chart__data thead th {
+  background: var(--bg);
+  border-bottom: 0;
+  box-shadow:
+    inset 0 2px 0 var(--text),
+    inset 0 -1px 0 var(--rule-strong);
+  position: sticky;
+  top: 0;
+}
+
 .prose .chart__more {
   color: var(--text-muted);
   margin: 0.4rem 0 0;

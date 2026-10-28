@@ -117,7 +117,13 @@ export function rehypeContentTweaks(options: ContentTweakOptions) {
         prefixSrc(child);
         embedFrame(child);
 
-        if (child.tagName === 'table') {
+        // A plugin that writes its own table (a chart's data, say) may have
+        // wrapped it already; a second wrapper is a second scrollbar.
+        const wrapped =
+          node.type === 'element' &&
+          Array.isArray(node.properties?.className) &&
+          node.properties.className.includes('table-wrap');
+        if (child.tagName === 'table' && !wrapped) {
           children[index] = {
             type: 'element',
             tagName: 'div',
