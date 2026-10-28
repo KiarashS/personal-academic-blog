@@ -321,40 +321,64 @@ function groupTabs(tree: Root): void {
 
       groups += 1;
       const name = `code-tabs-${groups}`;
-      const list: ElementContent[] = [];
+      const tabs: ElementContent[] = [];
       const panels: Element[] = [];
       members.forEach((member, n) => {
         const id = `${name}-${n + 1}`;
-        list.push(
-          {
-            type: 'element',
-            tagName: 'input',
-            properties: {
-              type: 'radio',
-              name,
-              id,
-              className: ['code-tabs__input'],
-              ...(n === 0 ? { checked: true } : {}),
-            },
-            children: [],
-          },
-          {
-            type: 'element',
-            tagName: 'label',
-            properties: { htmlFor: [id], className: ['code-tabs__tab'] },
-            children: [{ type: 'text', value: tabLabels.get(member) ?? `Tab ${n + 1}` }],
-          },
-        );
-        panels.push({
+        const label = tabLabels.get(member) ?? `Tab ${n + 1}`;
+        // The radio sits inside its label, so when the arrow keys move to a
+        // tab on a second row the browser scrolls that tab into view, not a
+        // hidden input somewhere else. `data-text` reserves the bold width,
+        // so choosing a tab does not shift the ones after it.
+        tabs.push({
           type: 'element',
-          tagName: 'div',
+          tagName: 'label',
+          properties: { htmlFor: [id], className: ['code-tabs__tab'], dataText: label },
+          children: [
+            {
+              type: 'element',
+              tagName: 'input',
+              properties: {
+                type: 'radio',
+                name,
+                id,
+                className: ['code-tabs__input'],
+                ...(n === 0 ? { checked: true } : {}),
+              },
+              children: [],
+            },
+            { type: 'text', value: label },
+          ],
+        });
+        // Each fence's own bar goes: the set has one, with the tabs in it.
+        panels.push({
+          ...member,
           properties: {
-            className: ['code-tabs__panel'],
-            dataTabLabel: tabLabels.get(member) ?? '',
+            className: ['code-block', 'code-tabs__panel'],
+            dataTabLabel: label,
           },
-          children: [member],
+          children: member.children.filter(
+            (child) =>
+              !(
+                child.type === 'element' &&
+                Array.isArray(child.properties.className) &&
+                child.properties.className.includes('code-block__bar')
+              ),
+          ),
         });
       });
+
+      // The wrap and copy buttons, once for the set. Copy reads the code of
+      // the tab that is showing (PostBody).
+      const firstBar = members[0].children.find(
+        (child): child is Element =>
+          child.type === 'element' &&
+          Array.isArray(child.properties.className) &&
+          child.properties.className.includes('code-block__bar'),
+      );
+      const buttons = (firstBar?.children ?? []).filter(
+        (child) => child.type === 'element' && child.tagName === 'button',
+      );
 
       children.splice(i, end - i + 1, {
         type: 'element',
@@ -363,13 +387,21 @@ function groupTabs(tree: Root): void {
         children: [
           {
             type: 'element',
-            tagName: 'p',
-            properties: {
-              className: ['code-tabs__list'],
-              role: 'radiogroup',
-              ariaLabel: 'Version',
-            },
-            children: list,
+            tagName: 'div',
+            properties: { className: ['code-block__bar', 'code-tabs__bar'] },
+            children: [
+              {
+                type: 'element',
+                tagName: 'div',
+                properties: {
+                  className: ['code-tabs__list'],
+                  role: 'radiogroup',
+                  ariaLabel: 'Version',
+                },
+                children: tabs,
+              },
+              ...buttons,
+            ],
           },
           ...panels,
         ],

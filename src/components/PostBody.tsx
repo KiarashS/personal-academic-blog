@@ -46,6 +46,23 @@ function chooseTab(root: ParentNode, label: string): void {
 const TAB_KEY = 'code-tab';
 
 /**
+ * The code a copy button copies: its own block's, or in a set of tabs, which
+ * has one button for all of them, the tab that is checked.
+ */
+function codeOf(button: Element): HTMLElement | null | undefined {
+  const tabs = button.closest('.code-tabs');
+  if (!tabs) return button.closest('.code-block')?.querySelector('pre');
+  const inputs = [...tabs.querySelectorAll<HTMLInputElement>('.code-tabs__input')];
+  const panels = tabs.querySelectorAll<HTMLElement>(':scope > .code-tabs__panel');
+  return panels[
+    Math.max(
+      0,
+      inputs.findIndex((input) => input.checked),
+    )
+  ]?.querySelector('pre');
+}
+
+/**
  * Renders a post body. The HTML was produced by the build — math, highlighting,
  * citations and diagrams are already in it — so the browser only has to attach
  * the copy buttons and, in development, draw any diagram the build did not.
@@ -113,7 +130,7 @@ export function PostBody({ slug }: { slug: string }) {
 
       const button = target.closest('.code-block__copy');
       if (button) {
-        const code = copyText(button.closest('.code-block')?.querySelector('pre'));
+        const code = copyText(codeOf(button));
         navigator.clipboard?.writeText(code).then(
           () => {
             button.firstChild!.textContent = 'copied';

@@ -906,6 +906,13 @@ model <- glm(y ~ ., data = d, family = binomial)
 ```
 ````
 
+The tabs sit in the code bar, where a single block shows its language, with
+one wrap and one copy button for the set; copy takes the code of the tab that
+is showing. Tabs that do not fit on one row run onto a second inside the bar,
+with the buttons staying at the right of the first, so no tab is ever hidden
+past the edge. The chosen tab is bold, with a rule under it, and each tab
+holds the width of its bold name so choosing one does not move the rest.
+
 The tabs are radio buttons, so they work with scripting off and with the
 arrow keys. Picking a tab picks the tab of that name in every set on the page,
 and the choice is remembered in the reader's browser (`localStorage`,

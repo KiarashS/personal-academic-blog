@@ -87,9 +87,22 @@ describe('code tabs', () => {
     expect(html).toContain(
       '<input type="radio" name="code-tabs-1" id="code-tabs-1-1" class="code-tabs__input" checked>',
     );
-    expect(html).toContain('<label for="code-tabs-1-2" class="code-tabs__tab">R</label>');
-    expect(html.match(/class="code-tabs__panel"/g)).toHaveLength(2);
+    expect(html).toContain(
+      '<label for="code-tabs-1-2" class="code-tabs__tab" data-text="R"><input type="radio" name="code-tabs-1" id="code-tabs-1-2" class="code-tabs__input">R</label>',
+    );
+    expect(html.match(/class="code-block code-tabs__panel"/g)).toHaveLength(2);
     expect(html).not.toContain('data-tab=');
+  });
+
+  it('gives the set one bar, with the tabs and one pair of buttons in it', () => {
+    const html = render(two);
+    expect(html.match(/class="code-block__bar/g)).toHaveLength(1);
+    expect(html).toContain(
+      '<div class="code-block__bar code-tabs__bar"><div class="code-tabs__list"',
+    );
+    expect(html.match(/class="code-block__copy"/g)).toHaveLength(1);
+    expect(html.match(/class="code-block__wrap"/g)).toHaveLength(1);
+    expect(html).not.toContain('code-block__lang');
   });
 
   it('leaves a lone tabbed fence as an ordinary block', () => {
