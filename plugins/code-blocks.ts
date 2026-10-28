@@ -13,6 +13,79 @@ function languageOf(code: Element): string | undefined {
 }
 
 /**
+ * What the bar calls a fence's language: its name as its own users write it,
+ * "TypeScript" for `ts` and "C++" for `cpp`, in the same case as a tab's name
+ * beside it. An id not listed is shown as it was typed.
+ */
+const LANGUAGE_NAMES: Record<string, string> = {
+  bash: 'Bash',
+  bib: 'BibTeX',
+  bibtex: 'BibTeX',
+  c: 'C',
+  console: 'Shell',
+  cpp: 'C++',
+  cs: 'C#',
+  csharp: 'C#',
+  css: 'CSS',
+  diff: 'Diff',
+  dockerfile: 'Dockerfile',
+  go: 'Go',
+  graphql: 'GraphQL',
+  haskell: 'Haskell',
+  html: 'HTML',
+  http: 'HTTP',
+  ini: 'INI',
+  java: 'Java',
+  javascript: 'JavaScript',
+  js: 'JavaScript',
+  json: 'JSON',
+  jsonc: 'JSON',
+  jsx: 'JSX',
+  julia: 'Julia',
+  kotlin: 'Kotlin',
+  latex: 'LaTeX',
+  lua: 'Lua',
+  makefile: 'Makefile',
+  markdown: 'Markdown',
+  matlab: 'MATLAB',
+  md: 'Markdown',
+  nginx: 'Nginx',
+  perl: 'Perl',
+  php: 'PHP',
+  plaintext: 'Plain text',
+  powershell: 'PowerShell',
+  ps1: 'PowerShell',
+  py: 'Python',
+  python: 'Python',
+  r: 'R',
+  rb: 'Ruby',
+  ruby: 'Ruby',
+  rs: 'Rust',
+  rust: 'Rust',
+  scala: 'Scala',
+  scss: 'SCSS',
+  sh: 'Shell',
+  shell: 'Shell',
+  sql: 'SQL',
+  svg: 'SVG',
+  swift: 'Swift',
+  tex: 'TeX',
+  text: 'Plain text',
+  toml: 'TOML',
+  ts: 'TypeScript',
+  tsx: 'TSX',
+  txt: 'Plain text',
+  typescript: 'TypeScript',
+  vim: 'Vim script',
+  xml: 'XML',
+  yaml: 'YAML',
+  yml: 'YAML',
+  zsh: 'Zsh',
+};
+
+export const languageName = (id: string): string => LANGUAGE_NAMES[id.toLowerCase()] ?? id;
+
+/**
  * Splits highlighted code into one array of nodes per line. A token can span a
  * newline — a block comment, a template string — so an element that does is
  * cloned into each line it covers rather than closed at the first break.
@@ -222,7 +295,13 @@ export function rehypeCodeBlocks() {
             type: 'element',
             tagName: 'span',
             properties: { className: ['code-block__lang'], ariaHidden: 'true' },
-            children: [{ type: 'text', value: diff === undefined ? language : `${language} diff` }],
+            children: [
+              {
+                type: 'text',
+                value:
+                  diff === undefined ? languageName(language) : `${languageName(language)} diff`,
+              },
+            ],
           });
         }
         bar.push(wrapButton());

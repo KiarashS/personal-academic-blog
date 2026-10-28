@@ -82,9 +82,18 @@ describe('rehypeCodeBlocks', () => {
     expect(block.children[0]).toMatchObject({ properties: { className: ['code-block__bar'] } });
     expect((block.children[1] as Element).tagName).toBe('pre');
     expect(find(block, classed('code-block__lang'))[0]).toMatchObject({
-      children: [{ value: 'js' }],
+      children: [{ value: 'JavaScript' }],
     });
     expect(find(block, classed('code-block__copy'))).toHaveLength(1);
+  });
+
+  it('names the language as it is written, and an unknown one as it was typed', () => {
+    const label = (lang: string) =>
+      find(tree(fence(lang, 'a\nb')), classed('code-block__lang'))[0].children[0];
+    expect(label('cpp')).toMatchObject({ value: 'C++' });
+    expect(label('md')).toMatchObject({ value: 'Markdown' });
+    expect(label('html')).toMatchObject({ value: 'HTML' });
+    expect(label('nim')).toMatchObject({ value: 'nim' });
   });
 
   it('puts a wrap toggle, worded like the copy button, before it', () => {

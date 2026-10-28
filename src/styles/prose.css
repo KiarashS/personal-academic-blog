@@ -773,12 +773,12 @@
   user-select: none;
 }
 
+/* The language's own name, "Python" or "C++", in the size and case of a tab's
+   name, so a lone block and a set of tabs label their code alike. */
 .code-block__lang {
   color: var(--text-muted);
   font-family: var(--sans);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
 /*
@@ -1091,10 +1091,8 @@
     content: attr(data-tab-label);
     display: block;
     font-family: var(--sans);
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
+    font-size: 0.75rem;
     padding: 0.3rem 0.8rem;
-    text-transform: uppercase;
   }
 }
 

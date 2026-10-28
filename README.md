@@ -824,7 +824,11 @@ source in the post, and the build warns.
 highlight.js at build time, with token colours defined against the site's CSS
 variables so light and dark stay consistent. Unknown languages are left
 unhighlighted rather than guessed at. The language and the copy button sit in a
-bar above the block, not over the first line.
+bar above the block, not over the first line. The bar names the language as
+its users write it, "TypeScript" for `ts` and "C++" for `cpp`, in the same
+case as the names on a set of tabs (`LANGUAGE_NAMES` in
+`plugins/code-blocks.ts`); a fence tagged with an id not in that list shows
+the id as typed.
 
 Everything in a post's text is the width of its column: paragraphs, lists,
 code blocks, tables and figures, the same width as the series box above them,
