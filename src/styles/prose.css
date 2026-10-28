@@ -1226,6 +1226,20 @@
   width: 1em;
 }
 
+/*
+ * An equation just jumped to is tinted (global.css), and its number is what
+ * says which one it is. When the formula is wider than the column the number
+ * sits past the edge, out of sight until the display is scrolled, so while it
+ * is the target the number is pinned to the visible edge on the tint and the
+ * formula scrolls under it, fading out across the 1em gap between them.
+ * Scrolled to the end, the number is back in its own place after the formula.
+ */
+.prose .equation:target .katex-display > .katex > .katex-html > .katex-tag {
+  background: linear-gradient(to right, transparent, var(--mark) 1em);
+  position: sticky;
+  right: 0;
+}
+
 /* Mermaid ----------------------------------------------------------------- */
 
 .mermaid-figure {
