@@ -23,8 +23,8 @@ export const authors: Record<string, Author> = {
     // cv: '/cv.pdf',                        // a file in public/, or a URL
     // Either the bare id a service uses or a full URL — both work.
     links: {
-      github: 'KiarashS',
-      website: 'https://kiarashs.ir',
+      // github: 'KiarashS',
+      // website: 'https://kiarashs.ir',
       // orcid: '0000-0000-0000-0000',
       // scholar: 'AbCdEfGhIjK',            // the `user=` value on your profile
       // semanticScholar: '1741101',        // the number in the author URL
