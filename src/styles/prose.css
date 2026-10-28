@@ -292,11 +292,27 @@
   font-weight: 400;
 }
 
-/* Against the right edge of the proof's last line. */
+/*
+ * Against the right edge of the proof's last line. Drawn, not set: the body
+ * face has no U+220E, and the fallback's was 6 by 8px at 17px, under the
+ * x-height, a speck where a full stop for the whole proof should be. This is
+ * amssymb's \blacksquare, a square a little under the capital height, sitting
+ * on the baseline. It is all border and no content box, so the glyph inside
+ * (kept for feed readers, which get no stylesheet) is clipped away, and a
+ * border, unlike a background, survives printing without background graphics
+ * and forced colours.
+ */
 .prose .theorem__qed {
+  border: 0.3em solid currentcolor;
+  box-sizing: border-box;
+  display: inline-block;
   float: right;
   font-style: normal;
-  margin-left: 1rem;
+  height: 0.6em;
+  line-height: 0;
+  margin: 0.58em 0 0 1rem;
+  overflow: hidden;
+  width: 0.6em;
 }
 
 .prose .theorem__qed-line {
@@ -1044,7 +1060,8 @@
   display: block;
 }
 
-/* Paper has no tabs: every version, each under its own name. */
+/* Paper has no tabs: every version, one after another, each a block of its
+   own with the tab's name in its bar where a block's language goes. */
 @media print {
   .code-tabs__bar {
     display: none;
@@ -1054,17 +1071,23 @@
     display: block !important;
   }
 
-  .code-tabs__panel pre {
-    border-radius: 6px;
+  .code-tabs > .code-tabs__panel + .code-tabs__panel {
+    margin-top: 1rem;
   }
 
   .code-tabs__panel::before {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    color: var(--text-muted);
     content: attr(data-tab-label);
     display: block;
     font-family: var(--sans);
-    font-size: 0.78rem;
-    font-weight: 600;
-    margin: 0.75rem 0 0.25rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.8rem;
+    text-transform: uppercase;
   }
 }
 

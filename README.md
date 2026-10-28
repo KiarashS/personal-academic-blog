@@ -919,7 +919,8 @@ and the choice is remembered in the reader's browser (`localStorage`,
 `code-tab`), so a reader who wants R sees R first in the next post. A caption
 after the last fence numbers the set as one listing. A set has two to twelve
 tabs; a longer run of tabbed fences is left as the separate blocks it was
-written as.
+written as. On paper every tab is printed, one after another, each as a block of
+its own with the tab's name in its bar where a single block's language goes.
 
 ### Figures
 
