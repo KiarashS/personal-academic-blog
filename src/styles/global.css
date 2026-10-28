@@ -3641,6 +3641,12 @@ h1 + .author-card {
   margin: 0;
 }
 
+/* A list in a note is bulleted as lists in the post are; inside the numbered
+   list the browser would otherwise switch to hollow circles. */
+.prose .footnotes li > ul {
+  list-style-type: disc;
+}
+
 /* The back-link closes the note, so it needs air between it and the full stop. */
 .data-footnote-backref {
   margin-left: 0.35rem;
@@ -3655,11 +3661,21 @@ h1 + .author-card {
 
 /* Arriving from a reference, the target says so for a moment: with several
    equations on screen the number alone does not tell you which one you got. */
-.prose .footnotes li:target,
+.prose .footnotes > ol > li:target,
 .prose .equation:target {
   background: var(--mark);
   border-radius: 4px;
   box-shadow: 0 0 0 0.4rem var(--mark);
+}
+
+/* A note's number hangs outside its box, in the list's 1.25rem of padding,
+   and is what says which note this is, so the tint reaches over it too: a
+   second shadow, the same shape moved left by the padding, joins the first
+   into one rounded box. */
+.prose .footnotes > ol > li:target {
+  box-shadow:
+    0 0 0 0.4rem var(--mark),
+    -1.25rem 0 0 0.4rem var(--mark);
 }
 
 /* A number and its brackets never break across lines. */

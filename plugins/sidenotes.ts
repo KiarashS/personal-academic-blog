@@ -47,6 +47,40 @@ function reachable(ancestors: Element[]): boolean {
   });
 }
 
+const isBackref = (node: ElementContent): node is Element =>
+  isElement(node) && node.tagName === 'a' && 'dataFootnoteBackref' in (node.properties ?? {});
+
+/**
+ * remark-gfm puts a note's back-links at the end of its last paragraph, but
+ * when the note ends in a list it puts them after the list, where they stand
+ * alone on a line under a list's worth of space. They go at the end of the
+ * list's last item instead, which is where the note's text ends.
+ */
+function tuckBackrefs(item: Element): void {
+  const kids = item.children;
+  let start = kids.length;
+  while (start > 0) {
+    const node = kids[start - 1];
+    if (isBackref(node) || isBlank(node)) start -= 1;
+    else break;
+  }
+  const trailing = kids.slice(start);
+  const list = kids[start - 1];
+  if (!trailing.some(isBackref) || !isElement(list) || !['ul', 'ol'].includes(list.tagName)) {
+    return;
+  }
+  const last = [...list.children].reverse().find(isElement);
+  if (!last) return;
+  const lastChild = [...last.children].reverse().find((node) => !isBlank(node));
+  const into = isElement(lastChild) && lastChild.tagName === 'p' ? lastChild : last;
+  into.children.push(
+    ...trailing.flatMap((node): ElementContent[] =>
+      isBackref(node) ? [{ type: 'text', value: ' ' }, node] : [],
+    ),
+  );
+  kids.splice(start, trailing.length);
+}
+
 /** A copy without ids, so the two copies of a note do not give the page duplicate ids. */
 function withoutIds<T extends ElementContent>(node: T): T {
   if (node.type !== 'element') return structuredClone(node);
@@ -108,6 +142,7 @@ export function rehypeSidenotes() {
       if (!isElement(item) || item.tagName !== 'li') continue;
       position += 1;
       item.properties = { ...item.properties, value: String(position) };
+      tuckBackrefs(item);
       if (typeof item.properties.id === 'string') items.set(item.properties.id, item);
     }
 

@@ -52,6 +52,18 @@ describe('rehypeSidenotes', () => {
     expect(alert).not.toContain('class="sidenote"');
   });
 
+  it('ends a note that ends in a list with its back links in the last item', () => {
+    const html = render('A.[^a] B.[^a]\n\n[^a]: Two points:\n\n    - one;\n    - two.');
+    expect(html).toMatch(
+      /<li>two\. <a href="#user-content-fnref-a" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩<\/a> <a href="#user-content-fnref-a-2"[^>]*>↩<sup>2<\/sup><\/a><\/li>\s*<\/ul>\s*<\/li>/,
+    );
+  });
+
+  it('leaves a back link after a code block where it is', () => {
+    const html = render('A.[^a]\n\n[^a]: Run:\n\n    ```sh\n    make\n    ```');
+    expect(html).toMatch(/<\/pre>\s*<a href="#user-content-fnref-a"/);
+  });
+
   it('puts a note beside its first reference only', () => {
     const html = render('One.[^a] Two.[^a]\n\n[^a]: Note.');
     expect(html.match(/class="sidenote"/g)).toHaveLength(1);
