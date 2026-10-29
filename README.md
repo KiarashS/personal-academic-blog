@@ -299,20 +299,22 @@ nesting shows; `<details open>` starts it open.
 
 ### Quotes and dashes
 
-Prose is set with a printer's quotes and dashes from what a keyboard types,
+Off on this site: prose keeps its quotes and hyphens as typed. Turned on, with
+`typography.smartQuotes: true` in `src/site.config.ts` or `smartQuotes: true`
+in one post's frontmatter, prose is set with a printer's quotes and dashes
+from what a keyboard types,
 the way TeX reads them: `"` and `'` become “ ” and ‘ ’, an apostrophe ’, `--`
 an en dash for ranges, `---` an em dash, and `...` an ellipsis. Which way a
 quote turns follows what is before it, so `"*so*"` and `'90s` come out right.
 Code, maths, keyboard keys, diagrams and attributes keep every character as
 typed, since a straight quote there is syntax: `` `print('x')` `` stays
 pasteable. Titles and summaries are set the same way, wherever they appear.
-Heading addresses are made from the text as typed, so turning this on did not
-move any.
+Heading addresses are made from the text as typed, so turning it on or off
+moves none of them.
 
-A flag written in prose rather than in a code span, `--verbose`, would turn
-into an en dash; put it in backticks. `typography.smartQuotes` in
-`src/site.config.ts` turns the whole thing off, and `smartQuotes: false` in a
-post's frontmatter turns it off for that post.
+With it on, a flag written in prose rather than in a code span, `--verbose`,
+would turn into an en dash; put it in backticks. `smartQuotes: false` in a
+post's frontmatter keeps one post straight while the rest of the site is not.
 
 ### Numbered sections
 

@@ -794,8 +794,9 @@ export const siteConfig: SiteConfig = {
     },
   },
   typography: {
-    // Curly quotes and dashes in prose; a post can say `smartQuotes: false`.
-    smartQuotes: true,
+    // Curly quotes and dashes in prose. Off: prose keeps the quotes and
+    // hyphens as typed. A post can still say `smartQuotes: true`.
+    smartQuotes: false,
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },

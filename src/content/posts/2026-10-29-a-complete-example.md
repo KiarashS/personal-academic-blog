@@ -21,9 +21,11 @@ shows what it points at.
 
 ## Introduction
 
-Quotes and dashes are typed straight and set as a printer would: "the model,"
-she said, "isn't done yet" -- see pages 10--12 --- and so on... Code keeps what
-was typed: `print("isn't")`.
+Quotes and dashes are shown as typed on this site. With `smartQuotes: true` in
+a post's frontmatter, or `typography.smartQuotes` in the site config, "the
+model," she said, "isn't done" -- see pages 10--12 --- would be set with curly
+quotes, an en dash and an em dash, while code such as `print("isn't")` kept what
+was typed.
 
 An empty link to another post writes its title: [](/blog/writing-like-a-paper)
 covers the basics, and [](/blog/math-and-citations) the maths. One to a section
