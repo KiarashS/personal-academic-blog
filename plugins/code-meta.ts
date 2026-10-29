@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Code, Root } from 'mdast';
+import { fetchText, remoteFile, sha256, type Fetch, type RemoteLock } from './remote-code';
 
 /**
  * What a fence says after its language, read while the tree is still Markdown.
@@ -80,7 +81,41 @@ export function dedent(lines: string[]): string[] {
 export interface CodeMetaOptions {
   /** Where `file=` paths resolve, i.e. `public`. */
   publicDir?: string;
+  /**
+   * The copies of remote files kept with the site (plugins/remote-code.ts).
+   * Without one, a `file=` that names a URL is reported and left as written.
+   */
+  remote?: {
+    lock: RemoteLock;
+    /** Called after a file is fetched and added, so the lock can be written. */
+    onFetched?: () => void;
+    fetch?: Fetch;
+  };
   onWarn?: (message: string) => void;
+}
+
+const today = (): string => new Date().toISOString().slice(0, 10);
+
+/** The `file=` a fence names, if it names one. */
+function filePath(meta: string): string {
+  const file = FILE.exec(meta);
+  return file ? (file[1] ?? file[2] ?? file[3] ?? '').trim() : '';
+}
+
+const isUrl = (path: string): boolean => /^[a-z][a-z0-9+.-]*:/i.test(path);
+
+/**
+ * A fence's meta, with ```file=…``` that names no language moved out of the
+ * language, where CommonMark put it.
+ */
+function metaOf(code: Code): string {
+  let meta = code.meta ?? '';
+  if (code.lang && /^(?:file|lines)=/.test(code.lang)) {
+    meta = `${code.lang} ${meta}`;
+    code.lang = null;
+    code.meta = meta;
+  }
+  return meta;
 }
 
 /**
@@ -93,22 +128,42 @@ function readSource(
   code: Code,
   meta: string,
   options: CodeMetaOptions,
-): { start: number; source: string } | undefined {
-  const file = FILE.exec(meta);
-  const path = file ? (file[1] ?? file[2] ?? file[3] ?? '').trim() : '';
+): { start: number; source: string; name: string } | undefined {
+  const path = filePath(meta);
   if (!path) return undefined;
   const warn = (message: string) => options.onWarn?.(`file=${path}: ${message}`);
-  if (!path.startsWith('/')) {
-    warn('the path should start at public/, as /code/fit.py does');
-    return undefined;
-  }
-  const full = join(options.publicDir ?? 'public', path);
-  if (!existsSync(full)) {
-    warn('no such file in public/');
-    return undefined;
+
+  let text: string;
+  let link = path;
+  let name = path.split('/').pop() ?? path;
+  let lineAnchor: ((start: number, end: number) => string) | undefined;
+  if (isUrl(path)) {
+    const remote = remoteFile(path);
+    if (!remote) {
+      warn('a file read from elsewhere must be an https address');
+      return undefined;
+    }
+    const entry = options.remote?.lock[remote.raw];
+    // Fetched before this pass, or reported as it failed.
+    if (!entry) return undefined;
+    text = entry.text;
+    link = remote.page;
+    name = remote.name;
+    lineAnchor = remote.lines;
+  } else {
+    if (!path.startsWith('/')) {
+      warn('the path should start at public/, as /code/fit.py does, or be an https address');
+      return undefined;
+    }
+    const full = join(options.publicDir ?? 'public', path);
+    if (!existsSync(full)) {
+      warn('no such file in public/');
+      return undefined;
+    }
+    text = readFileSync(full, 'utf8');
   }
 
-  const all = readFileSync(full, 'utf8').replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
+  const all = text.replace(/\r\n?/g, '\n').replace(/\n$/, '').split('\n');
   const range = FILE_LINES.exec(meta);
   let start = 1;
   let lines = all;
@@ -120,12 +175,58 @@ function readSource(
       return undefined;
     }
     lines = dedent(all.slice(start - 1, end));
+    if (lineAnchor) link += lineAnchor(start, end);
   }
   if (code.value.trim()) warn('the fence has code of its own, which the file replaces');
 
-  if (!code.lang) code.lang = EXTENSIONS[path.split('.').pop()?.toLowerCase() ?? ''];
+  const extension = name.split('.').pop()?.toLowerCase() ?? '';
+  if (!code.lang) code.lang = EXTENSIONS[extension];
   code.value = lines.join('\n');
-  return { start, source: path };
+  return { start, source: link, name };
+}
+
+/**
+ * Fetches every remote file the tree names that the lock does not yet have,
+ * and adds it. A GitHub or GitLab link to a branch rather than a commit is
+ * reported whether or not it is fetched, since it is what the author should
+ * change.
+ */
+async function fetchRemote(codes: Code[], options: CodeMetaOptions): Promise<void> {
+  const remote = options.remote;
+  const wanted = new Map<string, string>();
+  for (const code of codes) {
+    const path = filePath(metaOf(code));
+    if (!path || !isUrl(path)) continue;
+    const file = remoteFile(path);
+    if (!file) continue;
+    if (file.pinned === false) {
+      options.onWarn?.(
+        `file=${path}: names a branch or a tag, not a commit, so the file can change ` +
+          'under the post; the copy in src/content/remote-code.lock.json is what it shows',
+      );
+    }
+    if (!remote) {
+      options.onWarn?.(`file=${path}: files from elsewhere are not read here`);
+      continue;
+    }
+    if (!remote.lock[file.raw]) wanted.set(file.raw, path);
+  }
+  if (!remote || wanted.size === 0) return;
+
+  await Promise.all(
+    [...wanted].map(async ([raw, path]) => {
+      try {
+        const text = await fetchText(raw, remote.fetch);
+        remote.lock[raw] = { sha256: sha256(text), fetched: today(), text };
+        remote.onFetched?.();
+      } catch (cause) {
+        const why = cause instanceof Error ? cause.message : String(cause);
+        options.onWarn?.(
+          `file=${path}: could not be fetched (${why}); the fence is left as written`,
+        );
+      }
+    }),
+  );
 }
 
 /** The line numbers a `{…}` names, counted from 1, in order and without repeats. */
@@ -165,58 +266,67 @@ export function splitDiff(value: string): { kinds: string; code: string } {
 }
 
 export function remarkCodeMeta(options: CodeMetaOptions = {}) {
-  return (tree: Root) => {
+  const apply = (code: Code) => {
+    const props: Record<string, string> = {};
+    // ```file=/code/fit.py``` names no language, so CommonMark reads the
+    // first word as one; it is the meta's.
+    const meta = metaOf(code);
+
+    const included = readSource(code, meta, options);
+    if (included) {
+      props.dataSource = included.source;
+      props.dataSourceName = included.name;
+      if (included.start > 1) props.dataStart = String(included.start);
+    }
+
+    if (code.lang?.startsWith('diff-') && code.lang.length > 5) {
+      const { kinds, code: stripped } = splitDiff(code.value);
+      code.lang = code.lang.slice(5);
+      code.value = stripped;
+      props.dataDiff = kinds;
+    }
+
+    const lines = LINES.exec(meta);
+    if (lines) {
+      // A listing taken from the middle of a file is numbered as the
+      // file is, and its marks name the file's lines.
+      const offset = (included?.start ?? 1) - 1;
+      const marked = parseLineRanges(lines[1])
+        .map((line) => line - offset)
+        .filter((line) => line > 0);
+      if (marked.length > 0) props.dataMark = marked.join(',');
+    }
+    const tab = TAB.exec(meta);
+    const tabLabel = tab ? (tab[1] ?? tab[2] ?? tab[3] ?? '').trim() : '';
+    if (tabLabel) props.dataTab = tabLabel;
+
+    if (Object.keys(props).length > 0) {
+      code.data = {
+        ...code.data,
+        hProperties: { ...(code.data?.hProperties ?? {}), ...props },
+      };
+    }
+  };
+
+  return (tree: Root): void | Promise<void> => {
+    const codes: Code[] = [];
     const visit = (node: { type: string; children?: unknown[] }) => {
-      if (node.type === 'code') {
-        const code = node as Code;
-        const props: Record<string, string> = {};
-
-        // ```file=/code/fit.py``` names no language, so CommonMark reads the
-        // first word as one; it is the meta's.
-        let meta = code.meta ?? '';
-        if (code.lang && /^(?:file|lines)=/.test(code.lang)) {
-          meta = `${code.lang} ${meta}`;
-          code.lang = null;
-        }
-
-        const included = readSource(code, meta, options);
-        if (included) {
-          props.dataSource = included.source;
-          if (included.start > 1) props.dataStart = String(included.start);
-        }
-
-        if (code.lang?.startsWith('diff-') && code.lang.length > 5) {
-          const { kinds, code: stripped } = splitDiff(code.value);
-          code.lang = code.lang.slice(5);
-          code.value = stripped;
-          props.dataDiff = kinds;
-        }
-
-        const lines = LINES.exec(meta);
-        if (lines) {
-          // A listing taken from the middle of a file is numbered as the
-          // file is, and its marks name the file's lines.
-          const offset = (included?.start ?? 1) - 1;
-          const marked = parseLineRanges(lines[1])
-            .map((line) => line - offset)
-            .filter((line) => line > 0);
-          if (marked.length > 0) props.dataMark = marked.join(',');
-        }
-        const tab = TAB.exec(meta);
-        const tabLabel = tab ? (tab[1] ?? tab[2] ?? tab[3] ?? '').trim() : '';
-        if (tabLabel) props.dataTab = tabLabel;
-
-        if (Object.keys(props).length > 0) {
-          code.data = {
-            ...code.data,
-            hProperties: { ...(code.data?.hProperties ?? {}), ...props },
-          };
-        }
-        return;
-      }
+      if (node.type === 'code') codes.push(node as Code);
       for (const child of node.children ?? [])
         visit(child as { type: string; children?: unknown[] });
     };
     visit(tree);
+
+    // Synchronous unless a remote file has to be fetched, so a post that
+    // quotes none still renders with `processSync`.
+    const remote = codes.some((code) => {
+      const path = filePath(metaOf(code));
+      return isUrl(path);
+    });
+    if (!remote) {
+      codes.forEach(apply);
+      return;
+    }
+    return fetchRemote(codes, options).then(() => codes.forEach(apply));
   };
 }

@@ -1,0 +1,7 @@
+{
+  "https://raw.githubusercontent.com/KiarashS/personal-academic-blog/6c25026913e09a77e3bced0f8d9b951c4180146b/public/posts/complete-example/fit.py": {
+    "sha256": "0b71e96c85032a18e81f2d7f542e07435638ef136dd24a5f37671fbc85308af2",
+    "fetched": "2026-10-29",
+    "text": "\"\"\"Logistic regression fitted by gradient descent, for the complete example post.\"\"\"\n\nimport numpy as np\n\n\ndef sigmoid(z):\n    return 1.0 / (1.0 + np.exp(-z))\n\n\nclass LogisticRegression:\n    def __init__(self, step=0.1, steps=500):\n        self.step = step\n        self.steps = steps\n        self.w = None\n\n    def fit(self, X, y):\n        n, d = X.shape\n        self.w = np.zeros(d)\n        for _ in range(self.steps):\n            p = sigmoid(X @ self.w)\n            gradient = X.T @ (p - y) / n\n            self.w -= self.step * gradient\n        return self\n\n    def predict(self, X):\n        return (sigmoid(X @ self.w) >= 0.5).astype(int)\n"
+  }
+}

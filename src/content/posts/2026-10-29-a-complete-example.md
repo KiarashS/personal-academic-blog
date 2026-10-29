@@ -104,6 +104,16 @@ the code that ran. Lines 19 to 21 are the loop.
 
 Caption: The `fit` method of `fit.py`. {#lst-fit}
 
+A file can also be read from elsewhere. [](#lst-predict) is the same file in
+this site's repository on GitHub, at the commit that added it, so it cannot
+change under the post; the build keeps a copy in
+`src/content/remote-code.lock.json` and needs no network to show it again.
+
+```python file=https://github.com/KiarashS/personal-academic-blog/blob/6c25026913e09a77e3bced0f8d9b951c4180146b/public/posts/complete-example/fit.py lines=25-26
+```
+
+Caption: The `predict` method, read from GitHub at a fixed commit. {#lst-predict}
+
 Callouts explain a listing line by line:
 
 ```python

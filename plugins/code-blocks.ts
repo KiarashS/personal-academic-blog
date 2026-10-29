@@ -213,6 +213,7 @@ function takeMeta(code: Element | undefined): {
   tab?: string;
   start: number;
   source?: string;
+  sourceName?: string;
 } {
   const props = code?.properties ?? {};
   const mark = new Set(
@@ -225,12 +226,14 @@ function takeMeta(code: Element | undefined): {
   const tab = typeof props.dataTab === 'string' ? props.dataTab : undefined;
   const start = Math.max(1, Number(props.dataStart) || 1);
   const source = typeof props.dataSource === 'string' ? props.dataSource : undefined;
+  const sourceName = typeof props.dataSourceName === 'string' ? props.dataSourceName : undefined;
   delete props.dataMark;
   delete props.dataDiff;
   delete props.dataTab;
   delete props.dataStart;
   delete props.dataSource;
-  return { mark, diff, tab, start, source };
+  delete props.dataSourceName;
+  return { mark, diff, tab, start, source, sourceName };
 }
 
 /**
@@ -381,7 +384,7 @@ export function rehypeCodeBlocks() {
         );
         if (code && classesOf(code).some((name) => NOT_CODE.has(name))) return;
         const language = code ? languageOf(code) : undefined;
-        const { mark, diff, tab, start, source } = takeMeta(code);
+        const { mark, diff, tab, start, source, sourceName } = takeMeta(code);
         const marked = mark.size > 0 || diff !== undefined;
 
         // The number gutter supplies the padding on a numbered block, so that
@@ -434,7 +437,7 @@ export function rehypeCodeBlocks() {
         // A listing read from a file names it, and links to it, so the reader
         // can have the whole of what the post quotes a part of.
         if (source) {
-          const name = source.split('/').pop() ?? source;
+          const name = sourceName ?? source.split('/').pop() ?? source;
           const span = start > 1 ? `, from line ${start}` : '';
           bar.push({
             type: 'element',

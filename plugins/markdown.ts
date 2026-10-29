@@ -60,6 +60,7 @@ import { mathMacros } from './math-macros';
 import { rehypeSectionNumbers } from './section-numbers';
 import { rehypeSmartQuotes, smarten } from './smart-quotes';
 import { rehypePostLinks } from './post-links';
+import { loadLock, saveLock, type RemoteLock } from './remote-code';
 import { postPath } from '../src/lib/routes';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
@@ -148,6 +149,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   // Every post's path and the title it is shown with, for links that write
   // their own text; and the paths of posts the build will not publish.
   const postTitles = new Map<string, string>();
+  // Copies of the files `file=` fences read from elsewhere, committed with the
+  // site so a build needs no network for a file it has read once.
+  const remoteLockPath = resolve(root, 'src/content/remote-code.lock.json');
+  let remoteLock: RemoteLock = {};
   const unpublishedPosts = new Set<string>();
   const compiled = new Map<string, Compiled>();
   const missingDiagrams = new Set<string>();
@@ -212,7 +217,11 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(remarkMath)
       // A fence's line marks, diff and tab, before the raw-HTML pass drops the
       // meta string they are written in; and a `file=` fence's code.
-      .use(remarkCodeMeta, { publicDir: resolve(root, 'public'), onWarn: warn })
+      .use(remarkCodeMeta, {
+        publicDir: resolve(root, 'public'),
+        remote: { lock: remoteLock, onFetched: () => saveLock(remoteLockPath, remoteLock) },
+        onWarn: warn,
+      })
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       // Straight after the HTML is parsed: `font="…"` is an attribute on an
@@ -353,6 +362,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
     buildStart() {
       indexPosts();
+      remoteLock = loadLock(remoteLockPath);
       cache = loadDiagramCache(cachePath);
       chartCache = loadChartCache(chartCachePath);
       tikzCache = loadTikzCache(tikzCachePath);

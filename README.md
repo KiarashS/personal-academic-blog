@@ -1010,6 +1010,30 @@ names the file and links to it. A missing file, or a range outside it, leaves
 the fence as written and the build says why. It works with tabs and captions
 as any fence does.
 
+The file can also be somewhere else, named by an `https` address:
+
+````markdown
+```python file=https://github.com/you/repo/blob/3f2c1a9b…/src/fit.py lines=16-23
+
+```
+````
+
+A link to a file on GitHub or GitLab, its page or its raw text, is read from
+the raw text, and the bar links to the page at the lines quoted. Any other
+`https` address is read and linked as it is. Name a commit, not a branch: a
+branch moves, and the post would change without anyone editing it. A GitHub or
+GitLab link to a branch or a tag is reported by the build.
+
+Every file read this way is kept, with its SHA-256 and the day it was
+fetched, in `src/content/remote-code.lock.json`, and the build reads it from
+there. Commit that file with the post. Then a build needs no network for a
+file it has read once, and a repository that is later deleted or made private
+costs the post nothing. Even a branch link keeps showing the text it first
+had; delete its entry from the lock to fetch it again. A file that cannot be
+fetched leaves the fence as written, and the build says why. Files over a
+megabyte, and files that are not text, are refused. Behind a proxy, run the
+build with `NODE_USE_ENV_PROXY=1` so Node's `fetch` uses it.
+
 #### Callouts
 
 A marker at the end of a line, in that language's comment syntax, becomes a
