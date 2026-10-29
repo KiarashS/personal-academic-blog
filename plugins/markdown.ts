@@ -45,6 +45,7 @@ import { rehypeVideo } from './video';
 import { rehypeCaptions } from './captions';
 import { rehypeNotebook } from './notebook';
 import { rehypeEquations } from './equations';
+import { rehypeMathPunctuation } from './math-punctuation';
 import { rehypeColorSwatches } from './color-swatches';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
@@ -191,6 +192,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       throwOnError: false,
       macros: mathMacros(siteConfig.math.macros, undefined),
     })
+    .use(rehypeMathPunctuation)
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const renderCell = (markdown: string): string => String(cellProcessor.processSync(markdown));
@@ -290,6 +292,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         onWarn: (message: string) => equationWarnings.add(message),
       })
       .use(rehypeKatex, { strict: false, throwOnError: false, macros })
+      .use(rehypeMathPunctuation)
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)

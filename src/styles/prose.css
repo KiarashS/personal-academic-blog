@@ -1182,6 +1182,21 @@
   font-size: 1.09em;
 }
 
+/* A formula and the punctuation after it, which may not be broken between
+   (plugins/math-punctuation.ts). The breaks inside the formula, after a
+   relation, are its own and stay. */
+.prose .math-tie {
+  white-space: nowrap;
+}
+
+.prose .math-tie > .katex {
+  white-space: normal;
+}
+
+.prose .math-tie > .katex > .katex-html > .katex-base:last-child {
+  display: inline;
+}
+
 /* In a table cell a formula is a symbol, read whole: KaTeX lets inline math
    break after a relation, which in a narrow notation column split
    `y = (y_1, …, y_n)` after the equals sign. The cell widens instead. */
@@ -1224,9 +1239,16 @@
   flex: none;
 }
 
+/* The numbers of several rows, (2a) and (2b), are a column KaTeX ends with an
+   empty cell 2px wide and a -2px margin to take it back, so the column is
+   measured 2px narrower than it paints. The cell stuck out past the
+   display's edge and gave every such equation a scroll bar for nothing, so
+   the number is clipped across; only across, as a row's number still rises
+   above and below it. */
 .prose .katex-display > .katex > .katex-html > .katex-tag {
   flex: 1 1 0;
   min-width: max-content;
+  overflow-x: clip;
   position: static;
   text-align: right;
 }
@@ -1679,15 +1701,18 @@
  * Asked for with `#invert` (plugins/figures.ts): a black-on-white diagram or
  * a scanned page, which would glare on the dark theme, has its colours
  * flipped there. The hue is turned back by half a turn, so a red line stays
- * red and only light and dark trade places. Light theme: as it is.
+ * red and only light and dark trade places. Not all the way: inverted fully,
+ * the white paper turned pure black, a box darker than the page around it.
+ * At 0.92 white comes out #141414, the page's own dark (#14140f), and black
+ * #ebebeb, near its text (#e6e4dc). Light theme: as it is.
  */
 :root[data-theme='dark'] .prose .figure-image--invert {
-  filter: invert(1) hue-rotate(180deg);
+  filter: invert(0.92) hue-rotate(180deg);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .prose .figure-image--invert {
-    filter: invert(1) hue-rotate(180deg);
+    filter: invert(0.92) hue-rotate(180deg);
   }
 }
 

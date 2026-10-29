@@ -1218,7 +1218,8 @@ white-background plots from glaring out of a dark page.
 A picture with no dark version, a black-on-white diagram or a scanned page,
 can ask to be inverted on the dark theme with `#invert` on its path:
 `![The circuit](/posts/my-post/circuit.png#invert)`. Light and dark trade
-places and the hues are turned back, so a red line stays red. It suits line
+places, white paper taking the page's own dark rather than pure black, and
+the hues are turned back, so a red line stays red. It suits line
 art and text, not photographs, which is why it is asked for and not done to
 every image. A `.dark` sibling, when there is one, is used instead.
 `#invert`, `#frame` and `#compare` go together in any order.
@@ -1825,6 +1826,8 @@ or columns. Add `class="numeric"` to a cell to right-align a column of figures.
 Inline math is set slightly larger than the surrounding text, because KaTeX
 only ships Computer Modern and its x-height runs small against a text serif.
 The shapes still differ; that is true of most printed papers too.
+A comma or full stop written straight after inline math, `$x_i$,`, stays on
+the formula's line; browsers would otherwise start a line with it.
 
 Printing is styled rather than left to chance: the chrome goes, the palette is
 forced light whatever the reader chose, external links print their target after
