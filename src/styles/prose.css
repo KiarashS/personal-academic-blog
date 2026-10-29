@@ -2372,6 +2372,11 @@
   margin: 0 0 0.35rem;
 }
 
+/* A section's card: its heading and first paragraph, inside a wrapper. */
+.ref-preview > div > :last-child {
+  margin-bottom: 0;
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .ref-preview {
     box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
