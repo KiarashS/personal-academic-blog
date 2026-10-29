@@ -265,7 +265,7 @@
   scroll-margin-top: 1.5rem;
 }
 
-.prose .theorem:not(.theorem--proof) {
+.prose .theorem:not(.theorem--proof, .theorem--solution) {
   border-left: 2px solid var(--rule-strong);
   padding-left: 1rem;
 }
@@ -285,7 +285,9 @@
 }
 
 /* A remark's label and a proof's are italic and light, as amsthm has them. */
-.prose :is(.theorem--remark, .theorem--proof) :is(.theorem__label, .theorem__stop) {
+.prose
+  :is(.theorem--remark, .theorem--proof, .theorem--solution)
+  :is(.theorem__label, .theorem__stop) {
   font-style: italic;
   font-weight: 400;
 }
@@ -594,10 +596,17 @@
   padding-right: 0;
 }
 
-/* A column of numbers reads down the right edge. */
+/* A column of numbers reads down the right edge. So does one a Markdown table
+   aligns with `---:`, which arrives as an `align` attribute that the left
+   alignment above would otherwise override. */
 .prose td.numeric,
-.prose th.numeric {
+.prose th.numeric,
+.prose :is(td, th)[align='right'] {
   text-align: right;
+}
+
+.prose :is(td, th)[align='center'] {
+  text-align: center;
 }
 
 /* Code -------------------------------------------------------------------- */
@@ -1914,4 +1923,473 @@
   --serif: 'Libertinus Serif', 'Source Serif 4 Variable', georgia, serif;
 
   font-family: var(--serif);
+}
+
+/* Section numbers ---------------------------------------------------------- */
+
+/* A post with `numbered: true` (plugins/section-numbers.ts): "2.1 The model".
+   Figures of one width, so 1.9 and 1.10 line up down the contents list. */
+.prose .section-number {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Exercises and solutions -------------------------------------------------- */
+
+/*
+ * A solution is a collapsible section (plugins/theorems.ts), drawn as the
+ * others are, with the run-in heading of a proof on its bar: "Solution to
+ * Exercise 3." closed, and the working under it once opened.
+ */
+.prose .theorem--solution > summary {
+  font-weight: 400;
+}
+
+/* Sub-figures -------------------------------------------------------------- */
+
+/*
+ * Images that share a paragraph, side by side (plugins/figures.ts), each with
+ * its letter and title under it, and the figure's own caption under them
+ * all. Three to a row at most; on a phone three stack and two stay paired,
+ * since two at half a phone's width can still be compared.
+ */
+.prose .subfigures {
+  align-items: start;
+  gap: 1rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(var(--subfigures, 2), minmax(0, 1fr));
+}
+
+.prose .subfigures > .caption {
+  grid-column: 1 / -1;
+}
+
+.prose .subfigure {
+  line-height: 0;
+  margin: 0;
+  min-width: 0;
+  scroll-margin-top: 1.5rem;
+  text-align: center;
+}
+
+.prose .subfigure__caption {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin-top: 0.4rem;
+  text-wrap: pretty;
+}
+
+.prose .subfigure__label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (width < 36rem) {
+  .prose .subfigures[style*='--subfigures:3'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Before and after --------------------------------------------------------- */
+
+/*
+ * A `#compare` pair, once the page has laid one image over the other
+ * (src/lib/compare.ts). `--compare` is how much of the first image shows,
+ * from the left. The sub-figures stay for a screen reader and for the links
+ * to them, out of sight; on paper they come back side by side.
+ */
+.prose .compare--live {
+  display: block;
+  position: relative;
+}
+
+.prose .compare--live > .subfigure {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+.prose .compare__stage {
+  border-radius: 3px;
+  cursor: ew-resize;
+  line-height: 0;
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.prose .compare__layer img {
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  max-width: none;
+}
+
+.prose .compare__layer--before {
+  clip-path: inset(0 calc(100% - var(--compare, 50%)) 0 0);
+  inset: 0;
+  position: absolute;
+}
+
+.prose .compare__layer--before img {
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.prose .compare__handle {
+  background: #fff;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 30%);
+  inset-block: 0;
+  inset-inline-start: var(--compare, 50%);
+  margin-inline-start: -1px;
+  pointer-events: none;
+  position: absolute;
+  width: 2px;
+}
+
+/* The grip: a disc with a chevron either side, saying which way it moves. */
+.prose .compare__handle::after {
+  align-items: center;
+  background: #fff;
+  block-size: 2.25rem;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+  color: #1b1b18;
+  content: '\2039\2002\203A';
+  display: flex;
+  font: 600 1.1rem/1 var(--sans);
+  inline-size: 2.25rem;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  justify-content: center;
+  position: absolute;
+  translate: -50% -50%;
+}
+
+.prose .compare--live:has(.compare__range:focus-visible) .compare__handle::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.prose .compare__tag {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-radius: 3px;
+  color: var(--text);
+  font: 600 0.72rem/1.3 var(--sans);
+  inset-block-start: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.prose .compare__tag--before {
+  inset-inline-start: 0.5rem;
+}
+
+.prose .compare__tag--after {
+  inset-inline-end: 0.5rem;
+}
+
+/* The control a keyboard and a screen reader use; the pointer drags the stage. */
+.prose .compare__range {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  margin: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+@media print {
+  .prose .compare--live {
+    display: grid;
+  }
+
+  .prose .compare--live > .subfigure {
+    block-size: auto;
+    clip-path: none;
+    inline-size: auto;
+    overflow: visible;
+    position: static;
+    white-space: normal;
+  }
+
+  .prose .compare__stage,
+  .prose .compare__range {
+    display: none;
+  }
+}
+
+/* Audio -------------------------------------------------------------------- */
+
+/* The browser's own player, the column's width, in the page's colour scheme. */
+.prose .audio audio {
+  display: block;
+  inline-size: 100%;
+}
+
+/* Maps --------------------------------------------------------------------- */
+
+/*
+ * A place (plugins/video.ts): a card naming it until the reader asks for the
+ * map, faintly squared like a map so it reads as one before it is loaded.
+ * The card is a link to the place on OpenStreetMap; the page answers the
+ * click with the map itself.
+ */
+.prose .map-frame {
+  background-color: var(--code-bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+  border: 1px solid var(--rule);
+}
+
+.prose .map-frame__load {
+  align-items: center;
+  block-size: 100%;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--sans);
+  gap: 0.2rem;
+  inline-size: 100%;
+  justify-content: center;
+  line-height: 1.35;
+  padding: 1rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.prose .map-frame__load:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.prose .map-frame__pin {
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.prose .map-frame__place {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.prose .map-frame__coords {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.prose .map-frame__action {
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  margin-top: 0.7rem;
+  padding: 0.3rem 0.95rem;
+  transition:
+    border-color 120ms ease-in-out,
+    color 120ms ease-in-out;
+}
+
+.prose .map-frame__load:hover .map-frame__action,
+.prose .map-frame__load:focus-visible .map-frame__action {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.prose .map-frame__note {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose .map-frame__action {
+    transition: none;
+  }
+}
+
+@media print {
+  .prose .map-frame {
+    background: none;
+  }
+
+  .prose .map-frame__action,
+  .prose .map-frame__note {
+    display: none;
+  }
+}
+
+/* Code callouts ------------------------------------------------------------ */
+
+/*
+ * A numbered circle at the end of a line, and the same circle against the
+ * note it stands for in the list after the block (plugins/code-blocks.ts).
+ * The number is drawn here from `data-callout`, so it is not in the text the
+ * copy button or a selection takes.
+ */
+.prose .code-callout,
+.prose .code-callouts > li::before {
+  align-items: center;
+  background: var(--text-muted);
+  block-size: 1.35em;
+  border-radius: 50%;
+  color: var(--bg);
+  content: attr(data-callout);
+  display: inline-flex;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 600;
+  inline-size: 1.35em;
+  justify-content: center;
+  line-height: 1;
+}
+
+.prose .code-callout {
+  margin-inline-start: 0.75em;
+  text-decoration: none;
+  vertical-align: 0.1em;
+}
+
+.prose .code-callout::before {
+  content: attr(data-callout);
+}
+
+.prose .code-callout:hover,
+.prose .code-callout:focus-visible {
+  background: var(--accent);
+}
+
+.prose .code-callouts {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.prose .code-callouts > li {
+  padding-inline-start: 2rem;
+  position: relative;
+  scroll-margin-top: 1.5rem;
+}
+
+.prose .code-callouts > li::before {
+  /* Centred on the item's first line, which is 26 to 28px tall as the
+     column's type steps down on a phone, around a circle of 15.5px. */
+  inset-block-start: 0.36rem;
+  inset-inline-start: 0;
+  position: absolute;
+}
+
+.prose .code-callouts > li:target {
+  background: var(--mark);
+  border-radius: 4px;
+  box-shadow: 0 0 0 0.3rem var(--mark);
+}
+
+/* The file a listing was read from, beside its language, linked. */
+.code-block__source {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  margin-inline-start: 0.6rem;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.15em;
+}
+
+.code-block__source:hover {
+  color: var(--text);
+}
+
+/* Reference previews ------------------------------------------------------- */
+
+/*
+ * The card a reference shows on hover or keyboard focus (src/lib/previews.ts):
+ * a copy of the equation, figure, statement or note, cut off with a fade if
+ * it runs long. It is for looking at only, so it takes no pointer events.
+ */
+.ref-preview {
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 14%);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+  max-height: 20rem;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0.85rem 1rem;
+  pointer-events: none;
+  position: fixed;
+  text-align: left;
+  transition: opacity 120ms ease-out;
+  z-index: 60;
+}
+
+.ref-preview[data-open] {
+  opacity: 1;
+}
+
+.ref-preview[data-clipped] {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent);
+}
+
+.ref-preview > * {
+  margin-block: 0;
+}
+
+.ref-preview > * + * {
+  margin-block-start: 0.6rem;
+}
+
+.ref-preview :is(figure, .captioned, .equation, .theorem, .algorithm, .katex-display) {
+  margin-block: 0;
+}
+
+.ref-preview :is(img, svg) {
+  max-height: 13rem;
+}
+
+/* A footnote or a callout's note, out of its list. */
+.ref-preview > li {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.ref-preview > li::before {
+  display: none;
+}
+
+.ref-preview :is(h2, h3, h4) {
+  font-size: 1rem;
+  margin: 0 0 0.35rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .ref-preview {
+    box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
+  }
+}
+
+:root[data-theme='dark'] .ref-preview {
+  box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ref-preview {
+    transition: none;
+  }
+}
+
+@media print {
+  .ref-preview {
+    display: none;
+  }
 }

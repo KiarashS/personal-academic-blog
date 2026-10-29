@@ -218,6 +218,18 @@ export function rehypeCaptions() {
             className: [...classesOf(node), ...classes],
             dataRefLabel: `${LABELS[kind]} ${number}`,
           };
+          // Each part of a figure made of sub-figures is an address of its
+          // own, `#fig-themes-b`, which an empty link reads as "Figure 2b".
+          for (const part of node.children) {
+            if (!isElement(part, 'figure')) continue;
+            const letter = part.properties?.dataSubfigure;
+            if (typeof letter !== 'string') continue;
+            part.properties = {
+              ...part.properties,
+              id: `${id}-${letter}`,
+              dataRefLabel: `${LABELS[kind]} ${number}${letter}`,
+            };
+          }
         } else {
           children[index] = {
             type: 'element',

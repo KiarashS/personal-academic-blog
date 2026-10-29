@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" width="240" height="170" role="img" aria-label="Loss falling quickly to a floor">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 20 V140 H224" stroke="#8a8a80" stroke-width="1.2"/>
+    <path d="M24.0 30.0 L27.3 37.7 L30.5 44.9 L33.8 51.4 L37.1 57.4 L40.3 63.0 L43.6 68.1 L46.9 72.8 L50.1 77.1 L53.4 81.1 L56.7 84.7 L59.9 88.1 L63.2 91.2 L66.5 94.0 L69.7 96.7 L73.0 99.1 L76.3 101.3 L79.5 103.3 L82.8 105.2 L86.1 106.9 L89.3 108.5 L92.6 110.0 L95.9 111.3 L99.1 112.6 L102.4 113.7 L105.7 114.7 L108.9 115.7 L112.2 116.6 L115.5 117.4 L118.7 118.2 L122.0 118.9 L125.3 119.5 L128.5 120.1 L131.8 120.6 L135.1 121.1 L138.3 121.6 L141.6 122.0 L144.9 122.4 L148.1 122.7 L151.4 123.0 L154.7 123.3 L157.9 123.6 L161.2 123.9 L164.5 124.1 L167.7 124.3 L171.0 124.5 L174.3 124.7 L177.5 124.9 L180.8 125.0 L184.1 125.2 L187.3 125.3 L190.6 125.4 L193.9 125.5 L197.1 125.6 L200.4 125.7 L203.7 125.8 L206.9 125.9 L210.2 126.0 L213.5 126.0 L216.7 126.1 L220.0 126.1" stroke="#1baf7a" stroke-width="2.5"/>
+  </g>
+  <g font-family="'Source Sans 3', Helvetica, Arial, sans-serif" font-size="11" fill="#8a8a80">
+    <text x="124" y="160" text-anchor="middle">step</text>
+    <text x="14" y="80" text-anchor="middle" transform="rotate(-90 14 80)">loss</text>
+  </g>
+</svg>

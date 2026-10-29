@@ -116,3 +116,89 @@ export function youtubeThumbUrl(src: string): string {
   const id = youtubeId(src);
   return id ? `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` : '';
 }
+
+const AUDIO = /\.(?:aac|flac|m4a|mp3|oga|ogg|opus|wav)(?:[?#].*)?$/i;
+
+/**
+ * A sound file, which a post writes the way it writes a picture,
+ * `![An interview](/posts/x/interview.mp3)`, and which plays in the browser's
+ * own player. Kept out of `mediaKind`, whose other callers, a banner and a
+ * publication's teaser, have nothing to show for a sound.
+ */
+export function isAudio(src: string): boolean {
+  return AUDIO.test(src.trim());
+}
+
+export interface Place {
+  lat: number;
+  lon: number;
+  zoom: number;
+}
+
+const inRange = (lat: number, lon: number): boolean =>
+  Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+
+/**
+ * A place on a map, from the two ways one is written down: a `geo:` URI,
+ * `geo:35.6997,51.3380?z=15` (RFC 5870, with the `z` that Android and most
+ * map apps read for the zoom), or an OpenStreetMap link copied from the
+ * address bar, `https://www.openstreetmap.org/#map=15/35.6997/51.3380`, which
+ * may also carry `mlat` and `mlon` for a marker.
+ */
+export function placeOf(src: string): Place | undefined {
+  const value = src.trim();
+  const clampZoom = (zoom: number) => Math.min(19, Math.max(1, Math.round(zoom)));
+
+  const geo = /^geo:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,[^;?]*)?(?:;[^?]*)?(?:\?(.*))?$/i.exec(
+    value,
+  );
+  if (geo) {
+    const lat = Number(geo[1]);
+    const lon = Number(geo[2]);
+    const zoom = Number(/(?:^|&)z=(\d+(?:\.\d+)?)/.exec(geo[3] ?? '')?.[1] ?? 15);
+    return inRange(lat, lon) ? { lat, lon, zoom: clampZoom(zoom) } : undefined;
+  }
+
+  if (!/^https?:\/\/(?:www\.)?openstreetmap\.org\//i.test(value)) return undefined;
+  const view = /#map=(\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)/.exec(value);
+  const mlat = /[?&]mlat=(-?\d+(?:\.\d+)?)/.exec(value)?.[1];
+  const mlon = /[?&]mlon=(-?\d+(?:\.\d+)?)/.exec(value)?.[1];
+  const lat = Number(mlat ?? view?.[2]);
+  const lon = Number(mlon ?? view?.[3]);
+  const zoom = Number(view?.[1] ?? 15);
+  return inRange(lat, lon) ? { lat, lon, zoom: clampZoom(zoom) } : undefined;
+}
+
+/**
+ * OpenStreetMap's embeddable map of a place, with a marker on it. The embed
+ * takes a bounding box rather than a zoom, so the box is the area a 696 by
+ * 435 pixel frame shows at that zoom: OpenStreetMap's tiles are 256 pixels
+ * wide and cover 360 degrees of longitude at zoom 0, and a degree of latitude
+ * is longer than one of longitude by 1 / cos(latitude).
+ */
+export function mapEmbedUrl({ lat, lon, zoom }: Place): string {
+  const lonSpan = ((696 / 256) * 360) / 2 ** zoom;
+  const latSpan = lonSpan * (435 / 696) * Math.cos((lat * Math.PI) / 180);
+  const round = (n: number) => Number(n.toFixed(6));
+  const bbox = [lon - lonSpan / 2, lat - latSpan / 2, lon + lonSpan / 2, lat + latSpan / 2]
+    .map(round)
+    .join(',');
+  const params = new URLSearchParams({
+    bbox,
+    layer: 'mapnik',
+    marker: `${round(lat)},${round(lon)}`,
+  });
+  return `https://www.openstreetmap.org/export/embed.html?${params}`;
+}
+
+/** The place on OpenStreetMap itself, marked, for a reader without JavaScript. */
+export function mapLinkUrl({ lat, lon, zoom }: Place): string {
+  return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=${zoom}/${lat}/${lon}`;
+}
+
+/** "35.6997° N, 51.3380° E". */
+export function formatPlace({ lat, lon }: Place): string {
+  const part = (value: number, positive: string, negative: string) =>
+    `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positive : negative}`;
+  return `${part(lat, 'N', 'S')}, ${part(lon, 'E', 'W')}`;
+}

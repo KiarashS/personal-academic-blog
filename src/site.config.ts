@@ -302,6 +302,13 @@ export type EquationNumbering = 'all' | 'labelled';
 
 export interface MathConfig {
   numbering: EquationNumbering;
+  /**
+   * Shorthands every post's maths can use, as KaTeX macros: `'\\R':
+   * '\\mathbb{R}'` lets a post write `\R`. A post adds its own, or replaces
+   * one of these, with `macros:` in its frontmatter. A macro takes arguments
+   * as `#1`, `#2`: `'\\norm': '\\left\\lVert #1 \\right\\rVert'`.
+   */
+  macros?: Record<string, string>;
 }
 
 export interface NavItem {
@@ -554,6 +561,13 @@ export interface SiteConfig {
   /** Equation numbering; see `MathConfig`. */
   math: MathConfig;
   /**
+   * `smartQuotes` sets prose with typographer's quotes and dashes: “ ” and ‘ ’
+   * for `"` and `'`, an en dash for `--`, an em dash for `---`, an ellipsis for
+   * `...`. Code, maths and attributes keep what was typed. A post overrides it
+   * with `smartQuotes:` in its frontmatter.
+   */
+  typography: { smartQuotes: boolean };
+  /**
    * A CV for the site's owner, shown in the navigation. A path under `public/`
    * — `/cv.pdf` — or a URL if it lives elsewhere. Empty means no link at all.
    */
@@ -766,6 +780,22 @@ export const siteConfig: SiteConfig = {
   math: {
     // 'all' numbers every display equation; 'labelled' only those with \label.
     numbering: 'all',
+    // Shorthands for every post; a post's own `macros:` adds to these.
+    macros: {
+      '\\R': '\\mathbb{R}',
+      '\\N': '\\mathbb{N}',
+      '\\Z': '\\mathbb{Z}',
+      '\\Q': '\\mathbb{Q}',
+      '\\E': '\\mathbb{E}',
+      '\\Var': '\\operatorname{Var}',
+      '\\Cov': '\\operatorname{Cov}',
+      '\\argmin': '\\operatorname*{arg\\,min}',
+      '\\argmax': '\\operatorname*{arg\\,max}',
+    },
+  },
+  typography: {
+    // Curly quotes and dashes in prose; a post can say `smartQuotes: false`.
+    smartQuotes: true,
   },
   nav: [
     { label: 'Home', to: '/', feature: 'home' },

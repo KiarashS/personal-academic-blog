@@ -273,12 +273,30 @@ export interface PostFrontmatter {
    * the thread and take the box away. Unset follows `giscus.comments`.
    */
   comments?: boolean | CommentState;
+  /**
+   * KaTeX shorthands for this post's maths, added to `siteConfig.math.macros`:
+   * `\KL: 'D_{\mathrm{KL}}(#1 \Vert #2)'`, quoted, since in YAML a space
+   * before `#` starts a comment.
+   */
+  macros?: Record<string, string>;
+  /**
+   * Numbers the post's sections, 1, 1.1, 1.1.1, in the text and the contents
+   * list, so an empty link to a heading reads "Section 2.1".
+   */
+  numbered?: boolean;
+  /**
+   * Curly quotes, en and em dashes and ellipses from straight ones, `--`,
+   * `---` and `...`. Unset follows `siteConfig.typography.smartQuotes`.
+   */
+  smartQuotes?: boolean;
 }
 
 export interface Heading {
   id: string;
   text: string;
   depth: 2 | 3;
+  /** "2.1", on a post with `numbered: true`. */
+  number?: string;
 }
 
 /**

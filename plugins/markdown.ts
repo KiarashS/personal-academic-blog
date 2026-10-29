@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { relative, resolve, sep } from 'node:path';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join, relative, resolve, sep } from 'node:path';
 import type { Plugin } from 'vite';
 import type { Element, Root } from 'hast';
 import { toString } from 'hast-util-to-string';
@@ -56,12 +56,45 @@ import { loadChartCache, rehypeCharts, type ChartCache } from './charts';
 import { loadTikzCache, rehypeTikz, saveTikzCache, type TikzCache } from './tikz';
 import { rehypeReservedIds } from './reserved-ids';
 import { emojify, remarkEmoji } from './emoji';
+import { mathMacros } from './math-macros';
+import { rehypeSectionNumbers } from './section-numbers';
+import { rehypeSmartQuotes, smarten } from './smart-quotes';
+import { rehypePostLinks } from './post-links';
+import { postPath } from '../src/lib/routes';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
+
+/** Whether a post is set with curly quotes: its own `smartQuotes:`, else the site's. */
+const smartQuotesFor = (frontmatter: Partial<PostFrontmatter>): boolean =>
+  typeof frontmatter.smartQuotes === 'boolean'
+    ? frontmatter.smartQuotes
+    : siteConfig.typography.smartQuotes;
+
+/** A title or summary as the reader sees it: emoji drawn, and quotes curled if the post's are. */
+const shownTitle = (text: string, frontmatter: Partial<PostFrontmatter>): string => {
+  const drawn = emojify(text);
+  return smartQuotesFor(frontmatter) ? smarten(drawn, ' ') : drawn;
+};
 
 interface Compiled {
   html: string;
   headings: Heading[];
+}
+
+/** A heading's words, without the section number `rehypeSectionNumbers` put in front. */
+function headingWords(node: Element): string {
+  return node.children
+    .filter(
+      (child) =>
+        !(
+          child.type === 'element' &&
+          Array.isArray(child.properties?.className) &&
+          child.properties.className.includes('section-number')
+        ),
+    )
+    .map((child) => toString(child))
+    .join('')
+    .trim();
 }
 
 /** Pulls the ids rehype-slug assigned, for the post's contents list. */
@@ -74,8 +107,15 @@ function collectHeadings() {
         const depth = child.tagName === 'h2' ? 2 : child.tagName === 'h3' ? 3 : 0;
         const id = typeof child.properties?.id === 'string' ? child.properties.id : '';
         if (depth && id && id !== FOOTNOTE_HEADING) {
-          headings.push({ id, text: toString(child), depth: depth });
+          const number = child.properties?.dataSectionNumber;
+          headings.push({
+            id,
+            text: headingWords(child),
+            depth,
+            ...(typeof number === 'string' ? { number } : {}),
+          });
         }
+        if (child.properties) delete child.properties.dataSectionNumber;
         walk(child);
       }
     };
@@ -105,6 +145,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   let missingCharts = 0;
   const tikzCachePath = resolve(root, '.cache/tikz.json');
   let tikzCache: TikzCache = {};
+  // Every post's path and the title it is shown with, for links that write
+  // their own text; and the paths of posts the build will not publish.
+  const postTitles = new Map<string, string>();
+  const unpublishedPosts = new Set<string>();
   const compiled = new Map<string, Compiled>();
   const missingDiagrams = new Set<string>();
   const missingImages = new Set<string>();
@@ -136,15 +180,25 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     .use(remarkMath)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeKatex, { strict: false, throwOnError: false })
+    .use(rehypeKatex, {
+      strict: false,
+      throwOnError: false,
+      macros: mathMacros(siteConfig.math.macros, undefined),
+    })
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const renderCell = (markdown: string): string => String(cellProcessor.processSync(markdown));
 
   async function compile(raw: string, body: string, file: string): Promise<Compiled> {
-    const key = `${base}:${file}:${raw.length}:${body.length}:${body}`;
+    // The whole file, frontmatter included: a post's `macros:` or
+    // `numbered:` changes what its body renders to.
+    const key = `${base}:${file}:${raw}`;
     const hit = compiled.get(key);
     if (hit) return hit;
+
+    const { data: frontmatter } = parseFrontmatter<PostFrontmatter>(raw);
+    const warn = (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`);
+    const macros = mathMacros(siteConfig.math.macros, frontmatter.macros, warn);
 
     // Order matters: raw HTML is parsed first, headings get ids, citations are
     // resolved, diagrams are swapped in before the highlighter can touch them,
@@ -157,8 +211,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(remarkEmoji)
       .use(remarkMath)
       // A fence's line marks, diff and tab, before the raw-HTML pass drops the
-      // meta string they are written in.
-      .use(remarkCodeMeta)
+      // meta string they are written in; and a `file=` fence's code.
+      .use(remarkCodeMeta, { publicDir: resolve(root, 'public'), onWarn: warn })
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
       // Straight after the HTML is parsed: `font="…"` is an attribute on an
@@ -170,6 +224,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // Between the two: rehype-slug has just made the ids, and the
       // contents list should record the one the reader will land on.
       .use(rehypeReservedIds)
+      // After the ids, so a heading's id is the same numbered or not.
+      .use(rehypeSectionNumbers, { enabled: frontmatter.numbered === true })
+      // Before the contents list reads the headings, so it shows them as
+      // the page does; after the ids, which stay as they were typed. Every
+      // fence and maths span is still `code` here, and is left alone.
+      .use(rehypeSmartQuotes, { enabled: smartQuotesFor(frontmatter) })
       .use(collectHeadings)
       // Before anything that reads the tree for meaning: an alert is a
       // blockquote until this runs, and the citation and caption passes below
@@ -217,7 +277,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         numbering: siteConfig.math.numbering,
         onWarn: (message: string) => equationWarnings.add(message),
       })
-      .use(rehypeKatex, { strict: false, throwOnError: false })
+      .use(rehypeKatex, { strict: false, throwOnError: false, macros })
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)
@@ -225,6 +285,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         disabled: disabledPaths,
         onWarn: (message: string) => featureLinkWarnings.add(message),
       })
+      // Before the base path is added, so it compares the path as written.
+      .use(rehypePostLinks, { titles: postTitles, unpublished: unpublishedPosts, onWarn: warn })
       .use(rehypeContentTweaks, { base })
       .use(rehypeHeadingAnchors)
       // Before the image pass: a `src` that turns out to be a video is a
@@ -256,6 +318,30 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
   const known = new Set(siteConfig.categories.map((category) => category.slug));
 
+  /**
+   * The posts' titles by path, for `[](/blog/a-post)`. Read from the files
+   * rather than from the posts already compiled, since a post can link to one
+   * that comes after it. In a build, a draft or a post dated in the future is
+   * not published, and a link to it is reported; `npm run dev` shows them all.
+   */
+  function indexPosts() {
+    postTitles.clear();
+    unpublishedPosts.clear();
+    const dir = resolve(root, 'src/content/posts');
+    if (!existsSync(dir)) return;
+    const today = process.env.BUILD_DATE ?? todayUtc();
+    for (const name of readdirSync(dir).filter((file) => file.endsWith('.md'))) {
+      const path = join(dir, name);
+      const raw = readFileSync(path, 'utf8');
+      const { meta } = buildPost({ path, raw });
+      const { data } = parseFrontmatter<PostFrontmatter>(raw);
+      const at = postPath(meta.slug);
+      const published = !building || (blogEnabled() && !meta.draft && !(meta.date > today));
+      if (published) postTitles.set(at, shownTitle(meta.title, data));
+      else unpublishedPosts.add(at);
+    }
+  }
+
   return {
     name: 'academic-markdown',
     enforce: 'pre',
@@ -266,6 +352,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     },
 
     buildStart() {
+      indexPosts();
       cache = loadDiagramCache(cachePath);
       chartCache = loadChartCache(chartCachePath);
       tikzCache = loadTikzCache(tikzCachePath);
@@ -323,8 +410,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // post — the tab, the card, the feed, the social image, the `headline` in
       // the structured data — and a title reading ":rocket: Shipping it" in a
       // search result is the one place a shortcode must not survive.
-      built.meta.title = emojify(built.meta.title);
-      built.meta.summary = emojify(built.meta.summary);
+      built.meta.title = shownTitle(built.meta.title, frontmatter);
+      built.meta.summary = shownTitle(built.meta.summary, frontmatter);
 
       // A category the site does not define is a typo, and a silent one: the
       // post would simply file itself nowhere. With no shelves configured at

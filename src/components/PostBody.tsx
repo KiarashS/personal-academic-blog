@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { liveCharts } from '../lib/charts';
+import { compareSliders } from '../lib/compare';
+import { referencePreviews } from '../lib/previews';
 import { useNavigate } from 'react-router-dom';
 import { routerPath, shouldRoute } from '../lib/internal-links';
 import { postBody } from '../lib/post-content';
@@ -205,6 +207,26 @@ export function PostBody({ slug }: { slug: string }) {
         }
       }
 
+      /*
+       * A map, drawn by the build as a card naming the place, which is a link
+       * to it on OpenStreetMap for a reader without JavaScript. The click is
+       * answered with the map in its place, and is the first moment anything
+       * is asked of OpenStreetMap.
+       */
+      const map = target.closest<HTMLAnchorElement>('.map-frame__load');
+      if (map && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        const embed = map.dataset.embed;
+        if (embed) {
+          event.preventDefault();
+          const frame = document.createElement('iframe');
+          frame.src = embed;
+          frame.title = map.dataset.title ?? 'Map';
+          frame.referrerPolicy = 'strict-origin-when-cross-origin';
+          map.replaceWith(frame);
+          return;
+        }
+      }
+
       // A link to a section, or to Figure 2, is worth more on the clipboard
       // than in the address bar: it is what someone pastes into a mail or a
       // citation. The hash is still set, so the page behaves as the link says
@@ -285,6 +307,20 @@ export function PostBody({ slug }: { slug: string }) {
     const container = containerRef.current;
     if (!container) return;
     return liveCharts(container);
+  }, [html]);
+
+  // A card showing what a reference points at, on hover or keyboard focus.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    return referencePreviews(container);
+  }, [html]);
+
+  // Before/after pairs: two sub-figures until here, one over the other after.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    return compareSliders(container);
   }, [html]);
 
   // Code tabs: the reader's last choice, applied on arrival, and a choice in

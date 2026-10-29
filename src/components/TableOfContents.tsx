@@ -22,7 +22,10 @@ export function TableOfContents({ headings }: { headings: Heading[] }) {
         <ol>
           {headings.map((heading) => (
             <li key={heading.id} className={heading.depth === 3 ? 'toc__sub' : undefined}>
-              <a href={`#${heading.id}`}>{heading.text}</a>
+              <a href={`#${heading.id}`}>
+                {heading.number && <span className="toc__number">{heading.number}</span>}
+                {heading.text}
+              </a>
             </li>
           ))}
         </ol>

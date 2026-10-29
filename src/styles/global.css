@@ -1737,6 +1737,13 @@ h1 + .author-card {
   padding-left: 1rem;
 }
 
+/* A numbered post's section number, before the heading's words. */
+.toc__number {
+  color: var(--text-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+  margin-inline-end: 0.5em;
+}
+
 .toc a {
   color: var(--text-muted);
   text-decoration: none;

@@ -86,6 +86,7 @@ export function ContentsRail({ headings }: { headings: Heading[] }) {
               aria-current={heading.id === current ? 'location' : undefined}
               href={`#${heading.id}`}
             >
+              {heading.number && <span className="toc__number">{heading.number}</span>}
               {heading.text}
             </a>
           </li>

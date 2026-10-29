@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, extname, dirname, basename } from 'node:path';
 import { imageSize } from '../src/lib/image-size';
 import { MEDIA_FRAME } from './video';
-import { withoutFrame } from '../src/lib/media';
-import type { Element, Root } from 'hast';
+import { isAudio, mediaKind, placeOf, withoutFrame } from '../src/lib/media';
+import type { Element, ElementContent, Root } from 'hast';
 
 export interface FigureOptions {
   /** Directory that root-relative image paths resolve against, i.e. `public`. */
@@ -107,14 +107,80 @@ export function rehypeFigures(options: FigureOptions) {
     children: [image],
   });
 
+  /**
+   * One image's pictures, its light one and its dark sibling if it has one,
+   * each wrapped in its zoom link if it is worth opening, and the caption its
+   * Markdown title gives it.
+   */
+  const picturesOf = (target: Element): { pictures: Element[]; caption: string } | undefined => {
+    const { src, framed } = flagsOf(String(target.properties?.src ?? ''));
+    const alt = String(target.properties?.alt ?? '');
+    const caption = String(target.properties?.title ?? '');
+    if (!src) return undefined;
+
+    const rootRelative = src.startsWith('/');
+    const file = rootRelative ? join(options.publicDir, src) : '';
+    const size = file && existsSync(file) ? measure(file) : undefined;
+    if (rootRelative && !existsSync(file)) {
+      options.onWarn?.(`Image not found in public/: ${src}`);
+    }
+
+    const dark = rootRelative && existsSync(join(options.publicDir, darkSibling(src)));
+    const href = (path: string) => (rootRelative ? `${base}${path}` : path);
+
+    // Only worth offering when the file holds detail the column cannot
+    // show: a picture displayed at its own size has nothing more to give.
+    const zoom = !isVector(src) && (size?.width ?? 0) >= fullSizeFrom;
+
+    /*
+     * One variant of the picture, wrapped in its zoom link if it has one.
+     *
+     * The theme class goes on whichever element ends up outermost, not
+     * always on the image. With it on the image, the `display: none` that
+     * hides the wrong theme left the link around it in the page with
+     * nothing inside it a screen reader could name — a `link-name`
+     * violation on every zoomable figure that has a dark sibling, on
+     * whichever theme was not showing.
+     */
+    const variant = (path: string, theme?: 'light' | 'dark'): Element => {
+      const image = ['figure-image', ...(framed ? ['figure-image--framed'] : [])];
+      const classes = [...image, ...(theme ? [`figure-image--${theme}`] : [])];
+      if (!zoom) return img(href(path), alt, size, classes.join(' '));
+
+      const wrapped = zoomable(img(href(path), alt, size, image.join(' ')), href(path), alt);
+      if (theme)
+        wrapped.properties = {
+          ...wrapped.properties,
+          className: ['figure-zoom', `figure-image--${theme}`],
+        };
+      return wrapped;
+    };
+
+    const pictures: Element[] = dark
+      ? [variant(src, 'light'), variant(darkSibling(src), 'dark')]
+      : [variant(src)];
+    return { pictures, caption };
+  };
+
   return (tree: Root) => {
     const walk = (node: Root | Element) => {
+      // Inside a paragraph an image is part of a sentence, and a `figure`
+      // there would end the paragraph in the middle of it.
+      const inline = node.type === 'element' && node.tagName === 'p';
       const children = 'children' in node ? node.children : [];
       children.forEach((child, index) => {
         if (child.type !== 'element') return;
         if (isMediaFrame(child)) return;
+        if (inline && child.tagName === 'img') return;
         if (child.tagName !== 'p' && child.tagName !== 'img') {
           walk(child);
+          return;
+        }
+
+        // Two or more images and nothing else in one paragraph: sub-figures.
+        const images = child.tagName === 'p' ? onlyImages(child) : undefined;
+        if (images && images.length >= 2) {
+          children[index] = subfigures(images, picturesOf, options.onWarn);
           return;
         }
 
@@ -129,52 +195,9 @@ export function rehypeFigures(options: FigureOptions) {
           return;
         }
 
-        const { src, framed } = withoutFrame(String(target.properties?.src ?? ''));
-        const alt = String(target.properties?.alt ?? '');
-        const caption = String(target.properties?.title ?? '');
-        if (!src) return;
-
-        const rootRelative = src.startsWith('/');
-        const file = rootRelative ? join(options.publicDir, src) : '';
-        const size = file && existsSync(file) ? measure(file) : undefined;
-        if (rootRelative && !existsSync(file)) {
-          options.onWarn?.(`Image not found in public/: ${src}`);
-        }
-
-        const dark = rootRelative && existsSync(join(options.publicDir, darkSibling(src)));
-        const href = (path: string) => (rootRelative ? `${base}${path}` : path);
-
-        // Only worth offering when the file holds detail the column cannot
-        // show: a picture displayed at its own size has nothing more to give.
-        const zoom = !isVector(src) && (size?.width ?? 0) >= fullSizeFrom;
-
-        /*
-         * One variant of the picture, wrapped in its zoom link if it has one.
-         *
-         * The theme class goes on whichever element ends up outermost, not
-         * always on the image. With it on the image, the `display: none` that
-         * hides the wrong theme left the link around it in the page with
-         * nothing inside it a screen reader could name — a `link-name`
-         * violation on every zoomable figure that has a dark sibling, on
-         * whichever theme was not showing.
-         */
-        const variant = (path: string, theme?: 'light' | 'dark'): Element => {
-          const image = ['figure-image', ...(framed ? ['figure-image--framed'] : [])];
-          const classes = [...image, ...(theme ? [`figure-image--${theme}`] : [])];
-          if (!zoom) return img(href(path), alt, size, classes.join(' '));
-
-          const wrapped = zoomable(img(href(path), alt, size, image.join(' ')), href(path), alt);
-          if (theme)
-            wrapped.properties = {
-              ...wrapped.properties,
-              className: ['figure-zoom', `figure-image--${theme}`],
-            };
-          return wrapped;
-        };
-
-        const pictures: Element[] = dark
-          ? [variant(src, 'light'), variant(darkSibling(src), 'dark')]
-          : [variant(src)];
+        const built = picturesOf(target);
+        if (!built) return;
+        const { pictures, caption } = built;
 
         children[index] = {
           type: 'element',
@@ -195,5 +218,114 @@ export function rehypeFigures(options: FigureOptions) {
       });
     };
     walk(tree);
+  };
+}
+
+/**
+ * The path with its flags taken off: `#frame` for a border, `#compare` for a
+ * before/after pair, in either order.
+ */
+export function flagsOf(written: string): { src: string; framed: boolean; compare: boolean } {
+  let src = written;
+  let framed = false;
+  let compare = false;
+  for (let i = 0; i < 2; i += 1) {
+    if (src.endsWith('#compare')) {
+      src = src.slice(0, -'#compare'.length);
+      compare = true;
+    }
+    const frame = withoutFrame(src);
+    src = frame.src;
+    framed ||= frame.framed;
+  }
+  return { src, framed, compare };
+}
+
+/**
+ * The images of a paragraph that holds pictures and nothing else, or nothing.
+ * A video, a sound or a map written as an image is not a picture, and a
+ * paragraph with one in it is left for what it is.
+ */
+function onlyImages(paragraph: Element): Element[] | undefined {
+  const images: Element[] = [];
+  for (const child of paragraph.children) {
+    if (child.type === 'text' && !child.value.trim()) continue;
+    if (child.type === 'element' && child.tagName === 'br') continue;
+    if (child.type !== 'element' || child.tagName !== 'img') return undefined;
+    const src = flagsOf(String(child.properties?.src ?? '')).src;
+    const kind = mediaKind(src);
+    if (kind === 'video' || kind === 'youtube' || isAudio(src) || placeOf(src)) return undefined;
+    images.push(child);
+  }
+  return images;
+}
+
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+
+/**
+ * Images side by side, each labelled (a), (b), … with its Markdown title, under
+ * the one caption a `Caption:` paragraph gives the whole: a paper's sub-figures.
+ *
+ *     ![Light](/fig/light.png "Light theme")
+ *     ![Dark](/fig/dark.png "Dark theme")
+ *
+ *     Caption: The same plot in both themes. {#fig-themes}
+ *
+ * `rehypeCaptions` numbers the whole and gives each part an id of its own,
+ * `#fig-themes-a`, which an empty link reads as "Figure 2a".
+ *
+ * Two images whose paths end in `#compare` are a before/after pair instead:
+ * the page lays one over the other with a slider between them
+ * (`src/lib/compare.ts`). Until then, and on paper, they are these two
+ * sub-figures side by side, which shows the same thing more slowly.
+ */
+function subfigures(
+  images: Element[],
+  picturesOf: (target: Element) => { pictures: Element[]; caption: string } | undefined,
+  onWarn?: (message: string) => void,
+): Element {
+  const compare = images.some((image) => flagsOf(String(image.properties?.src ?? '')).compare);
+  if (compare && images.length !== 2) {
+    onWarn?.(
+      `a before/after comparison takes two images, not ${images.length}; shown side by side`,
+    );
+  }
+  const parts = images.slice(0, LETTERS.length).map((image, index): Element => {
+    const built = picturesOf(image);
+    const letter = LETTERS[index];
+    const caption: ElementContent[] = [
+      {
+        type: 'element',
+        tagName: 'span',
+        properties: { className: ['subfigure__label'] },
+        children: [{ type: 'text', value: `(${letter})` }],
+      },
+      ...(built?.caption ? [{ type: 'text' as const, value: ` ${built.caption}` }] : []),
+    ];
+    return {
+      type: 'element',
+      tagName: 'figure',
+      properties: { className: ['subfigure'], dataSubfigure: letter },
+      children: [
+        ...(built?.pictures ?? []),
+        {
+          type: 'element',
+          tagName: 'figcaption',
+          properties: { className: ['subfigure__caption'] },
+          children: caption,
+        },
+      ],
+    };
+  });
+
+  const paired = compare && images.length === 2;
+  return {
+    type: 'element',
+    tagName: 'figure',
+    properties: {
+      className: ['figure', 'subfigures', ...(paired ? ['compare'] : [])],
+      style: `--subfigures:${Math.min(parts.length, 3)}`,
+    },
+    children: parts,
   };
 }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" width="240" height="170" role="img" aria-label="Loss oscillating and climbing">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 20 V140 H224" stroke="#8a8a80" stroke-width="1.2"/>
+    <path d="M24.0 79.5 L27.3 78.7 L30.5 77.6 L33.8 76.3 L37.1 75.1 L40.3 74.1 L43.6 73.4 L46.9 73.3 L50.1 73.6 L53.4 74.4 L56.7 75.4 L59.9 76.4 L63.2 77.0 L66.5 77.1 L69.7 76.4 L73.0 74.7 L76.3 72.2 L79.5 69.0 L82.8 65.4 L86.1 61.8 L89.3 58.7 L92.6 56.5 L95.9 55.5 L99.1 55.9 L102.4 57.7 L105.7 60.5 L108.9 64.1 L112.2 67.8 L115.5 71.1 L118.7 73.3 L122.0 74.0 L125.3 72.8 L128.5 69.8 L131.8 65.1 L135.1 59.2 L138.3 52.8 L141.6 46.6 L144.9 41.5 L148.1 38.1 L151.4 36.8 L154.7 38.0 L157.9 41.5 L161.2 46.7 L164.5 53.1 L167.7 59.6 L171.0 65.3 L174.3 69.3 L177.5 70.9 L180.8 69.6 L184.1 65.4 L187.3 58.7 L190.6 50.3 L193.9 41.0 L197.1 32.1 L200.4 30.0 L203.7 30.0 L206.9 30.0 L210.2 30.0 L213.5 30.0 L216.7 32.2 L220.0 41.2" stroke="#e34948" stroke-width="2.5"/>
+  </g>
+  <g font-family="'Source Sans 3', Helvetica, Arial, sans-serif" font-size="11" fill="#8a8a80">
+    <text x="124" y="160" text-anchor="middle">step</text>
+    <text x="14" y="80" text-anchor="middle" transform="rotate(-90 14 80)">loss</text>
+  </g>
+</svg>

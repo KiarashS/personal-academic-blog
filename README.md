@@ -242,6 +242,26 @@ Charges, states, isotopes, equilibrium arrows and bonds are all written as in
 LaTeX's mhchem package. A reaction can be a display equation, and then it is
 numbered and can be labelled like any other.
 
+#### Macros
+
+`math.macros` in `src/site.config.ts` defines shorthands every post can use;
+it comes with `\R`, `\N`, `\Z`, `\Q` (the number sets in blackboard bold),
+`\E`, `\Var`, `\Cov`, `\argmin` and `\argmax`. A post adds its own, or
+gives one of those a different meaning, in its frontmatter:
+
+```yaml
+macros:
+  \loss: \mathcal{L}
+  \KL: 'D_{\mathrm{KL}}\left(#1 \,\Vert\, #2\right)'
+```
+
+`#1` and `#2` are a macro's arguments, so `$\KL{p}{q}$` is the divergence of
+`p` from `q`. Quote a definition that has a space before a `#` in it: in
+YAML that space and `#` start a comment, and the rest of the line is dropped.
+A name can be written with or without its backslash. A malformed one is
+reported by the build and left out. Notebook cells get the site's macros but
+not a post's.
+
 A post heavy with symbols can list its notation as a Markdown table, a symbol
 and a meaning per row, with math in the cells; the math post has one. A `|`
 inside math would end the cell, so write `\mid` for a bar. Math in a table cell
@@ -276,6 +296,34 @@ A collapsible section is `<details>` with a `<summary>`. Leave a blank line afte
 the summary and another before `</details>`, and Markdown works inside. It is
 drawn as a box, and a section inside another as a box inside the first, so the
 nesting shows; `<details open>` starts it open.
+
+### Quotes and dashes
+
+Prose is set with a printer's quotes and dashes from what a keyboard types,
+the way TeX reads them: `"` and `'` become “ ” and ‘ ’, an apostrophe ’, `--`
+an en dash for ranges, `---` an em dash, and `...` an ellipsis. Which way a
+quote turns follows what is before it, so `"*so*"` and `'90s` come out right.
+Code, maths, keyboard keys, diagrams and attributes keep every character as
+typed, since a straight quote there is syntax: `` `print('x')` `` stays
+pasteable. Titles and summaries are set the same way, wherever they appear.
+Heading addresses are made from the text as typed, so turning this on did not
+move any.
+
+A flag written in prose rather than in a code span, `--verbose`, would turn
+into an en dash; put it in backticks. `typography.smartQuotes` in
+`src/site.config.ts` turns the whole thing off, and `smartQuotes: false` in a
+post's frontmatter turns it off for that post.
+
+### Numbered sections
+
+`numbered: true` in a post's frontmatter numbers its sections the way a paper
+does: `##` headings 1, 2, 3, `###` under them 2.1, 2.2, and `####` 2.1.1. The
+numbers are in the headings and in the contents list, and an empty link to a
+heading, `[](#method)`, reads "Section 3" rather than the heading's words.
+A heading's address stays what its words make it, so numbering a post, or
+inserting a section, does not break a link someone saved. A `###` before any
+`##` is numbered 0.1, which is what LaTeX prints and a sign the outline has a
+hole in it.
 
 ### Footnotes
 
@@ -374,6 +422,21 @@ called 2 in a post rather than a Theorem 2 and a Lemma 2. A rule down the left
 marks where a statement ends. A proof has no number and no rule, starts with
 an italic "Proof." (or its title, "Proof of Theorem 2." if the marker line says
 `of [](#thm-bayes)`), and ends with a tombstone at the right of its last line.
+
+An exercise is numbered with the rest. Its solution is closed until the
+reader opens it, so a post can set a problem without the answer on the same
+screen:
+
+```markdown
+> [!EXERCISE] {#ex-gradient}
+> Show that the gradient of the loss is $X^\top (p - y) / n$.
+
+> [!SOLUTION] to [](#ex-gradient)
+> By the chain rule, …
+```
+
+The solution is a collapsible section headed "Solution to Exercise 3.", in
+the style of a proof's heading, with no number of its own.
 
 Each numbered block has a permalink, as a caption does, shown in the margin to
 its left on hover.
@@ -926,6 +989,48 @@ tabs; a longer run of tabbed fences is left as the separate blocks it was
 written as. On paper every tab is printed, one after another, each as a block of
 its own with the tab's name in its bar where a single block's language goes.
 
+#### Code from a file
+
+A fence can read its code from a file under `public/`, so the listing in the
+post is the file a reader can download, and the one that ran:
+
+````markdown
+```python file=/posts/my-post/fit.py lines=16-23 {19-21}
+
+```
+````
+
+`lines=` takes part of the file, with the indent its lines share removed, and
+numbers it as the file numbers it, so the block starts at 16 and `{19-21}`
+marks the file's lines 19 to 21. Without `lines=` it is the whole file. A
+fence that names no language takes one from the file's extension. The bar
+names the file and links to it. A missing file, or a range outside it, leaves
+the fence as written and the build says why. It works with tabs and captions
+as any fence does.
+
+#### Callouts
+
+A marker at the end of a line, in that language's comment syntax, becomes a
+numbered circle, and the numbered list straight after the block (or after its
+caption) says what each number means:
+
+````markdown
+```python
+model = LogisticRegression(step=0.5)  # <1>
+model.fit(X_train, y_train)  # <2>
+```
+
+1. A larger step than the default.
+2. Five hundred steps of gradient descent.
+````
+
+`# <1>`, `// <1>`, `-- <1>`, `% <1>`, `; <1>` and `<!-- <1> -->` all work. A
+comment that held only the marker goes; one that says something keeps its
+words and loses the marker. The circle is a link to its note, which shows the
+note in a card on hover, and its number is drawn by the stylesheet, so the
+copy button and a selection leave it out. A one-line block with a callout is
+numbered, so the circle has a line to sit on.
+
 ### Figures
 
 An image alone in a paragraph becomes a `figure`, and the quoted title after
@@ -981,6 +1086,43 @@ the 3px corners every figure has. The build drops the fragment, so the file is
 still measured, still finds its `.dark` sibling, and still links to itself when
 it is wide. Only the exact `#frame` counts: a remote image whose URL carries a
 fragment of its own keeps it.
+
+#### Sub-figures
+
+Images in one paragraph, one per line, are set side by side as the parts of
+one figure, each lettered (a), (b), (c) with its title under it, and the
+`Caption:` after them captions the whole:
+
+```markdown
+![Loss falling slowly](/posts/my-post/small.svg 'Too small')
+![Loss falling quickly](/posts/my-post/good.svg 'About right')
+![Loss climbing](/posts/my-post/large.svg 'Too large')
+
+Caption: Training loss for three step sizes. {#fig-lr}
+```
+
+Each part has an address of its own, `#fig-lr-b`, and an empty link to it
+reads "Figure 1b". Up to three go in a row; on a phone three stack, and two
+stay side by side, since two pictures at half a phone's width can still be
+compared. An image inside a sentence is left in the sentence.
+
+#### Before and after
+
+Two images flagged `#compare` are a before/after pair:
+
+```markdown
+![A noisy photograph](/posts/my-post/noisy.jpg#compare 'Noisy')
+![The same photograph, denoised](/posts/my-post/clean.jpg#compare 'Denoised')
+```
+
+The page lays one over the other with a divider between them, which the
+reader drags, or moves with the arrow keys once it has focus; each half is
+labelled with its title. With no JavaScript, and on paper, they are the two
+sub-figures above, side by side, which shows the same thing more slowly. A
+screen reader gets the two pictures, their alt text and their captions, and a
+slider it can use. The two should be the same size; the second sets the
+shape. Three or more images flagged `#compare` are shown side by side, and the
+build says why. `#compare` and `#frame` can go together, in either order.
 
 Always write the path from the root, starting with `/`. Only then can the build
 measure the image, find a `.dark` sibling and add the base path — and links in
@@ -1046,6 +1188,23 @@ kin ("Theorem 3"), algorithms ("Algorithm 1"), equations ("(4)") and headings
 (the heading's text). A link with words of its own is left as written. A name
 the post does not have reads "??", as LaTeX shows it, and the build warns with
 the file and the name.
+
+A link with no text to another post writes that post's title:
+`[](/blog/writing-like-a-paper)` reads "Writing like a paper", and keeps up if
+the title changes. A section of it can be named, `[](/blog/some-post#method)`,
+and the link still reads as the post's title. One that points at no post, or
+at a draft or a post dated in the future, reads "??" and the build says which.
+
+Resting the pointer on a reference shows what it points at in a card beside
+the link: the equation, the figure (or the one part of it, for "Figure 2b"),
+the theorem, the algorithm, the table, the reference a citation names, a
+footnote's text, a code callout's note, or the opening of a section. Reaching
+the link with the keyboard shows it too, and Escape puts it away. The card is
+a copy of what the page already draws, so it needs nothing from the build; it
+is hidden from screen readers, which can follow the link to the real thing,
+and it takes no pointer events, so it never covers what the pointer is
+pointing at. On a touch screen a tap follows the link, as it always did. A
+footnote whose note is already beside it in the margin gets no card.
 
 The caption's chain icon copies the whole URL rather than only setting the hash,
 which is the same handler the heading permalinks use. Landing on one of these
@@ -1848,6 +2007,37 @@ cannot tell one you want embedded from one you want to link to. An image
 pointing at an `.mp4` used to produce a broken `<img>`, so nothing that worked
 before means something else now. An image inside a sentence is left alone, and
 raw `<video>` HTML on its own line still works if you want the attributes.
+
+### Audio in a post
+
+A sound is written the same way, and plays in the browser's own player,
+named by the alt text and numbered by a caption like any figure:
+
+```markdown
+![An interview with the author](/posts/my-post/interview.mp3)
+
+Caption: Ten minutes on how the data was collected.
+```
+
+`.mp3`, `.m4a`, `.aac`, `.ogg`, `.oga`, `.opus`, `.wav` and `.flac` are read
+as sound. A browser that cannot play the file shows a link to download it.
+
+### A map in a post
+
+A place is written as an image too, with a `geo:` address or an
+OpenStreetMap link copied from the address bar:
+
+```markdown
+![Azadi Tower, Tehran](geo:35.6997,51.3380?z=15)
+
+![The field site](https://www.openstreetmap.org/#map=13/35.70/51.39)
+```
+
+`z` is the zoom, 15 if it is left out. The page shows a card with the place's
+name and coordinates, which asks nothing of OpenStreetMap; pressing it loads
+the map in its place, with a marker on the spot. With no JavaScript the card
+is a link to the place on OpenStreetMap, and on paper it is the name and the
+coordinates. A caption numbers it as a figure.
 
 ### What YouTube is told
 

@@ -73,6 +73,8 @@ const routes = [
     `${postPath('writing-a-post')}/`,
     // Theorems, sidenotes, algorithms, TikZ, a chart, tabs and diffs.
     `${postPath('writing-like-a-paper')}/`,
+    // Everything else: cards, sub-figures, a comparison, audio, a map, callouts.
+    `${postPath('a-complete-example')}/`,
     '/publications/',
     '/archive/',
     '/tags/',

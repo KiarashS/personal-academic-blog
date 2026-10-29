@@ -207,7 +207,13 @@ function wrapButton(): Element {
  * click handler attached later.
  */
 /** What `remarkCodeMeta` left on the `code` element, taken off it again. */
-function takeMeta(code: Element | undefined): { mark: Set<number>; diff?: string; tab?: string } {
+function takeMeta(code: Element | undefined): {
+  mark: Set<number>;
+  diff?: string;
+  tab?: string;
+  start: number;
+  source?: string;
+} {
   const props = code?.properties ?? {};
   const mark = new Set(
     String(props.dataMark ?? '')
@@ -217,10 +223,122 @@ function takeMeta(code: Element | undefined): { mark: Set<number>; diff?: string
   );
   const diff = typeof props.dataDiff === 'string' ? props.dataDiff : undefined;
   const tab = typeof props.dataTab === 'string' ? props.dataTab : undefined;
+  const start = Math.max(1, Number(props.dataStart) || 1);
+  const source = typeof props.dataSource === 'string' ? props.dataSource : undefined;
   delete props.dataMark;
   delete props.dataDiff;
   delete props.dataTab;
-  return { mark, diff, tab };
+  delete props.dataStart;
+  delete props.dataSource;
+  return { mark, diff, tab, start, source };
+}
+
+/**
+ * A callout's marker at the end of a line, in the line's own comment syntax:
+ * `# <1>`, `// <2>`, `-- <3>`, `% <4>`, `; <5>`, `<!-- <6> -->`. The comment
+ * goes with it when it held nothing else, and stays when it said something.
+ */
+const CALLOUT_ALONE = /\s*(?:#|\/\/|--|%|;|<!--)\s*<(\d{1,2})>\s*(?:-->)?\s*$/;
+const CALLOUT_AFTER = /\s+<(\d{1,2})>\s*$/;
+
+/** Takes `count` characters off the end of a line's nodes, dropping what empties. */
+function trimEnd(nodes: ElementContent[], count: number): number {
+  let left = count;
+  for (let i = nodes.length - 1; i >= 0 && left > 0; i -= 1) {
+    const node = nodes[i];
+    if (node.type === 'text') {
+      const take = Math.min(left, node.value.length);
+      node.value = node.value.slice(0, node.value.length - take);
+      left -= take;
+    } else if (node.type === 'element') {
+      left = trimEnd(node.children, left);
+    }
+    const empty =
+      (node.type === 'text' && node.value === '') ||
+      (node.type === 'element' && node.children.length === 0);
+    if (empty) nodes.splice(i, 1);
+  }
+  return left;
+}
+
+/**
+ * Numbered callouts, Quarto's way: a marker at the end of a line,
+ * `model.fit(X)  # <1>`, becomes a numbered circle there, and the ordered list
+ * right after the block (or after its caption) is what each number means.
+ * The circle is a link to its item, and its number is drawn by the
+ * stylesheet, so the copy button and a selection both leave it out.
+ */
+function takeCallouts(code: Element, block: number): number[] {
+  const found: number[] = [];
+  for (const line of code.children) {
+    if (line.type !== 'element') continue;
+    const nodes = line.children;
+    const newline = nodes[nodes.length - 1];
+    const trailing = newline?.type === 'text' && newline.value === '\n' ? nodes.pop() : undefined;
+    const text = textOf(nodes);
+    const match = CALLOUT_ALONE.exec(text) ?? CALLOUT_AFTER.exec(text);
+    if (match) {
+      trimEnd(nodes, match[0].length);
+      const n = Number(match[1]);
+      found.push(n);
+      nodes.push({
+        type: 'element',
+        tagName: 'a',
+        properties: {
+          className: ['code-callout'],
+          href: `#co-${block}-${n}`,
+          dataCallout: String(n),
+          ariaLabel: `Note ${n}`,
+        },
+        children: [],
+      });
+    }
+    if (trailing) nodes.push(trailing);
+  }
+  return found;
+}
+
+/** Whether any line of the code ends in a callout's marker. */
+function hasCallout(code: Element): boolean {
+  return textOf(code.children)
+    .split('\n')
+    .some((line) => CALLOUT_ALONE.test(line) || CALLOUT_AFTER.test(line));
+}
+
+/**
+ * The list a block's callouts point at: the ordered list after it, past a
+ * `Caption:` paragraph if there is one. Each item gets the id its circle
+ * links to.
+ */
+function claimCalloutList(siblings: ElementContent[], from: number, block: number): void {
+  let i = from + 1;
+  const skipBlank = () => {
+    while (i < siblings.length && isBlank(siblings[i])) i += 1;
+  };
+  skipBlank();
+  const maybeCaption = siblings[i];
+  if (
+    maybeCaption?.type === 'element' &&
+    maybeCaption.tagName === 'p' &&
+    /^\s*caption:/i.test(textOf(maybeCaption.children))
+  ) {
+    i += 1;
+    skipBlank();
+  }
+  const list = siblings[i];
+  if (list?.type !== 'element' || list.tagName !== 'ol') return;
+  const first = Number(list.properties?.start) || 1;
+  let n = first;
+  for (const item of list.children) {
+    if (item.type !== 'element' || item.tagName !== 'li') continue;
+    item.properties = { ...item.properties, id: `co-${block}-${n}`, dataCallout: String(n) };
+    n += 1;
+  }
+  const classes = list.properties?.className;
+  list.properties = {
+    ...list.properties,
+    className: [...(Array.isArray(classes) ? classes.map(String) : []), 'code-callouts'],
+  };
 }
 
 /**
@@ -247,6 +365,7 @@ function markLines(code: Element, mark: Set<number>, diff: string | undefined): 
 
 export function rehypeCodeBlocks() {
   return (tree: Root) => {
+    let blocks = 0;
     const walk = (node: Root | Element) => {
       const children = 'children' in node ? node.children : [];
       children.forEach((child, index) => {
@@ -262,19 +381,27 @@ export function rehypeCodeBlocks() {
         );
         if (code && classesOf(code).some((name) => NOT_CODE.has(name))) return;
         const language = code ? languageOf(code) : undefined;
-        const { mark, diff, tab } = takeMeta(code);
+        const { mark, diff, tab, start, source } = takeMeta(code);
         const marked = mark.size > 0 || diff !== undefined;
 
         // The number gutter supplies the padding on a numbered block, so that
-        // it can stay put while a long line scrolls under it.
-        const lineCount = code ? numberLines(code, marked) : 0;
+        // it can stay put while a long line scrolls under it. Lines taken from
+        // the middle of a file are numbered as the file numbers them.
+        const lineCount = code ? numberLines(code, marked || start > 1 || hasCallout(code)) : 0;
         if (code && marked) markLines(code, mark, diff);
+        if (code && lineCount > 0 && start > 1) {
+          code.properties = { ...code.properties, style: `counter-reset: line ${start - 1}` };
+        }
+
+        blocks += 1;
+        const callouts = code && lineCount > 0 ? takeCallouts(code, blocks) : [];
+        if (callouts.length > 0) claimCalloutList(children as ElementContent[], index, blocks);
 
         // How wide the gutter has to be, in digits. The stylesheet reserves
         // that much and right-aligns the number in it, so line 9 and line 10
         // start their code at the same column; a block that runs past 99 gets
         // a wider gutter rather than a step in the middle of it.
-        const digits = String(lineCount).length;
+        const digits = String(start - 1 + lineCount).length;
 
         // A block that scrolls sideways has to be reachable by keyboard.
         const preClasses = [
@@ -302,6 +429,18 @@ export function rehypeCodeBlocks() {
                   diff === undefined ? languageName(language) : `${languageName(language)} diff`,
               },
             ],
+          });
+        }
+        // A listing read from a file names it, and links to it, so the reader
+        // can have the whole of what the post quotes a part of.
+        if (source) {
+          const name = source.split('/').pop() ?? source;
+          const span = start > 1 ? `, from line ${start}` : '';
+          bar.push({
+            type: 'element',
+            tagName: 'a',
+            properties: { className: ['code-block__source'], href: source },
+            children: [{ type: 'text', value: `${name}${span}` }],
           });
         }
         bar.push(wrapButton());

@@ -61,25 +61,41 @@ export function rehypeCrossRefs(options: CrossRefOptions = {}) {
       }
     };
 
-    const fill = (node: Root | Element) => {
+    // Inside a `summary` a reference is written as text: the summary is
+    // itself the control that opens its section, and a link in it would be a
+    // control inside a control, which a keyboard and a screen reader cannot
+    // tell apart from the one around it.
+    const fill = (node: Root | Element, inSummary = false) => {
       for (const child of node.children) {
         if (!isElement(child)) continue;
         const href = child.properties?.href;
         const empty = child.children.every((c) => c.type === 'text' && c.value.trim() === '');
-        if (child.tagName === 'a' && typeof href === 'string' && href.startsWith('#') && empty) {
+        // A code callout is an empty link by design: its number is drawn.
+        const classes = child.properties?.className;
+        const callout = Array.isArray(classes) && classes.includes('code-callout');
+        if (
+          child.tagName === 'a' &&
+          typeof href === 'string' &&
+          href.startsWith('#') &&
+          empty &&
+          !callout
+        ) {
           const id = decodeURIComponent(href.slice(1));
           const label = labels.get(id);
           if (label === undefined)
             options.onWarn?.(`[](#${id}) points at nothing named "${id}" in this post`);
           child.children = [{ type: 'text', value: label ?? '??' }];
-          const classes = child.properties?.className;
           child.properties = {
             ...child.properties,
             className: [...(Array.isArray(classes) ? classes.map(String) : []), 'xref'],
           };
+          if (inSummary) {
+            child.tagName = 'span';
+            delete child.properties.href;
+          }
           continue;
         }
-        fill(child);
+        fill(child, inSummary || child.tagName === 'summary');
       }
     };
 

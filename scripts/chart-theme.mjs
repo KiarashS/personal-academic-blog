@@ -117,6 +117,10 @@ export function chartConfig(mode) {
       titlePadding: 8,
     },
     axisX: { grid: false },
+    // A category's name reads across, as the rest of the page does; Vega-Lite
+    // turns it on its end by default, which a bar chart of three never needs.
+    // Names that would collide are thinned out rather than overlapped.
+    axisXDiscrete: { labelAngle: 0, labelOverlap: true, labelLimit: 160 },
     axisY: { domain: false, ticks: false },
     legend: {
       labelColor: t.text,
@@ -137,7 +141,9 @@ export function chartConfig(mode) {
     header: { labelColor: t.text, titleColor: t.muted },
     text: { color: t.text },
     // Every mark answers a pointer with what it encodes.
-    mark: { tooltip: { content: 'encoding' } },
+    // A chart of one series is drawn in the palette's first colour, not
+    // Vega's own blue.
+    mark: { tooltip: { content: 'encoding' }, color: CHART_PALETTE[mode][0] },
     line: { strokeWidth: 2, strokeCap: 'round', strokeJoin: 'round' },
     point: { size: 64, filled: true },
     // A 2px gap of page between neighbouring fills, and rounded data ends.

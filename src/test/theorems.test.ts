@@ -61,6 +61,26 @@ describe('rehypeTheorems', () => {
     expect(html).toContain('theorem--definition theorem--definition" id="thm-2"');
   });
 
+  it('numbers an exercise with the rest and keeps its solution closed', () => {
+    const html = render(
+      [
+        '> [!THEOREM]',
+        '> A claim.',
+        '',
+        '> [!EXERCISE] {#ex-mle}',
+        '> Find $\\hat\\mu$.',
+        '',
+        '> [!SOLUTION] to [](#ex-mle)',
+        '> The mean.',
+      ].join('\n'),
+    );
+    expect(html).toContain('<span class="theorem__label">Exercise 2</span>');
+    expect(html).toContain('theorem--definition theorem--exercise" id="ex-mle"');
+    expect(html).toMatch(
+      /<details class="theorem theorem--solution"><summary class="theorem__summary"><span class="theorem__label">Solution<\/span><span class="theorem__title"> to <span class="xref">Exercise 2<\/span><\/span><span class="theorem__stop">\.<\/span><\/summary>\s*<p>The mean\.<\/p>\s*<\/details>/,
+    );
+  });
+
   it('runs the heading into the first paragraph and ends a proof with a tombstone', () => {
     const html = render('> [!PROOF]\n> By induction.');
     expect(html).toMatch(

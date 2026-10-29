@@ -20,6 +20,16 @@ import { linkIcon } from './link-icon';
  * for every kind but the proof, so a post reads Theorem 1, Lemma 2,
  * Definition 3, and a reader looking for "2" finds one thing. A proof is not
  * numbered and ends with a tombstone.
+ *
+ * An exercise is numbered with the rest. A solution is not, and is closed
+ * until the reader opens it, so a post can set a problem without giving the
+ * answer away on the same screen:
+ *
+ *     > [!EXERCISE] {#ex-mle}
+ *     > Find the maximum-likelihood estimate of $\mu$.
+ *
+ *     > [!SOLUTION] to [](#ex-mle)
+ *     > Setting the derivative to zero gives $\hat\mu = \bar y$.
  */
 
 export const THEOREM_KINDS = [
@@ -31,7 +41,9 @@ export const THEOREM_KINDS = [
   'definition',
   'example',
   'remark',
+  'exercise',
   'proof',
+  'solution',
 ] as const;
 
 export type TheoremKind = (typeof THEOREM_KINDS)[number];
@@ -41,7 +53,7 @@ export type TheoremKind = (typeof THEOREM_KINDS)[number];
  * example upright, and a remark upright with its label in italic, so that a
  * reader can tell a claim from the vocabulary it is stated in at a glance.
  */
-const STYLE: Record<TheoremKind, 'plain' | 'definition' | 'remark' | 'proof'> = {
+const STYLE: Record<TheoremKind, 'plain' | 'definition' | 'remark' | 'proof' | 'solution'> = {
   theorem: 'plain',
   lemma: 'plain',
   proposition: 'plain',
@@ -50,8 +62,13 @@ const STYLE: Record<TheoremKind, 'plain' | 'definition' | 'remark' | 'proof'> = 
   definition: 'definition',
   example: 'definition',
   remark: 'remark',
+  exercise: 'definition',
   proof: 'proof',
+  solution: 'solution',
 };
+
+/** The kinds that take no number: a proof or a solution belongs to the statement it answers. */
+const UNNUMBERED = new Set<TheoremKind>(['proof', 'solution']);
 
 const MARKER = new RegExp(`^\\[!(${THEOREM_KINDS.join('|')})\\][ \\t]*`, 'i');
 
@@ -159,7 +176,8 @@ function permalink(id: string, name: string): Element {
 /**
  * The run-in heading: "Theorem 2 (Bayes' rule)." in front of the first
  * paragraph, as amsthm sets it. A proof's title follows "Proof" without
- * parentheses, since it is almost always "of Theorem 2".
+ * parentheses, since it is almost always "of Theorem 2", and so does a
+ * solution's.
  */
 function heading(
   kind: TheoremKind,
@@ -170,7 +188,7 @@ function heading(
   const parts: ElementContent[] = [span('theorem__label', [{ type: 'text', value: name }])];
   if (title.length > 0) {
     parts.push(
-      kind === 'proof'
+      UNNUMBERED.has(kind)
         ? span('theorem__title', [{ type: 'text', value: ' ' }, ...title])
         : span('theorem__title', [
             { type: 'text', value: ' (' },
@@ -215,7 +233,7 @@ export function rehypeTheorems(options: TheoremOptions = {}) {
         }
         const { kind } = found;
         const { name, title } = takeName(found.title);
-        const number = kind === 'proof' ? undefined : (count += 1);
+        const number = UNNUMBERED.has(kind) ? undefined : (count += 1);
         const fullName = number === undefined ? label(kind) : `${label(kind)} ${number}`;
 
         let id: string | undefined;
@@ -231,6 +249,24 @@ export function rehypeTheorems(options: TheoremOptions = {}) {
 
         const head = heading(kind, number, title);
         if (id) head.push(permalink(id, fullName));
+
+        // A solution is a collapsible section: the heading is what is shown
+        // closed, and the body waits behind it.
+        if (kind === 'solution') {
+          const body = node.children;
+          node.tagName = 'details';
+          node.properties = { className: ['theorem', 'theorem--solution'], ...(id ? { id } : {}) };
+          node.children = [
+            {
+              type: 'element',
+              tagName: 'summary',
+              properties: { className: ['theorem__summary'] },
+              children: head,
+            },
+            ...body,
+          ];
+          continue;
+        }
 
         const firstIndex = node.children.findIndex((child) => !isBlank(child));
         const first = node.children[firstIndex];
