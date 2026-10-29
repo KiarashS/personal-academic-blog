@@ -1,4 +1,4 @@
-import type { Element, Root, RootContent, Text } from 'hast';
+import type { Element, ElementContent, Root, RootContent, Text } from 'hast';
 import { ALERT_ICONS, ALERT_TYPES, type AlertType } from '../src/lib/alerts';
 
 /**
@@ -17,6 +17,13 @@ import { ALERT_ICONS, ALERT_TYPES, type AlertType } from '../src/lib/alerts';
 
 /** Matched case-insensitively, which is what GitHub's own parser does. */
 const MARKER = new RegExp(`^\\[!(${ALERT_TYPES.join('|')})\\][ \\t]*(\\r?\\n|$)`, 'i');
+
+/**
+ * `> [!NOTE]-` closed, `> [!NOTE]+` open: a note that folds, Obsidian's
+ * syntax, which every other renderer still shows as a quotation with its
+ * marker on top. The rest of the marker's line, if any, is its title.
+ */
+const FOLD = new RegExp(`^\\[!(${ALERT_TYPES.join('|')})\\]([+-])[ \\t]*`, 'i');
 
 function isElement(node: RootContent | undefined, tagName?: string): node is Element {
   return node?.type === 'element' && (!tagName || node.tagName === tagName);
@@ -66,6 +73,53 @@ function icon(type: AlertType): Element {
  * it are cut, leaving the rest of that paragraph — and any formatting inside
  * it — untouched.
  */
+interface Fold {
+  type: AlertType;
+  open: boolean;
+  title: ElementContent[];
+}
+
+/**
+ * A folding note's marker, taken off with the title the rest of its line
+ * gives it, which may hold emphasis or a link, so it is taken as nodes.
+ */
+function takeFold(quote: Element): Fold | null {
+  const first = quote.children.find((child) => !isBlank(child));
+  if (!isElement(first, 'p')) return null;
+  const opening = first.children[0];
+  if (!isText(opening)) return null;
+  const found = FOLD.exec(opening.value);
+  if (!found) return null;
+
+  opening.value = opening.value.slice(found[0].length);
+  const title: ElementContent[] = [];
+  while (first.children.length > 0) {
+    const node = first.children[0];
+    if (isText(node)) {
+      const at = node.value.search(/\r?\n/);
+      if (at !== -1) {
+        if (at > 0) title.push({ type: 'text', value: node.value.slice(0, at) });
+        node.value = node.value.slice(at).replace(/^\r?\n/, '');
+        if (node.value === '') first.children.shift();
+        break;
+      }
+    }
+    title.push(node);
+    first.children.shift();
+  }
+  if (first.children.length === 0 || first.children.every(isBlank)) {
+    const index = quote.children.indexOf(first);
+    let end = index + 1;
+    while (isBlank(quote.children[end])) end += 1;
+    quote.children.splice(index, end - index);
+  }
+
+  const trimmed = title.filter((node) => !(isText(node) && node.value.trim() === ''));
+  const last = trimmed[trimmed.length - 1];
+  if (isText(last)) last.value = last.value.trimEnd();
+  return { type: found[1].toLowerCase() as AlertType, open: found[2] === '+', title: trimmed };
+}
+
 function takeMarker(quote: Element): AlertType | null {
   const first = quote.children.find((child) => !isBlank(child));
   if (!isElement(first, 'p')) return null;
@@ -106,6 +160,35 @@ export function rehypeAlerts() {
         if (!isElement(node)) continue;
         walk(node);
         if (node.tagName !== 'blockquote') continue;
+
+        // A folding note: its label, or its title, is what shows closed.
+        const fold = takeFold(node);
+        if (fold) {
+          node.tagName = 'details';
+          node.properties = {
+            className: ['alert', `alert--${fold.type}`, 'alert--fold'],
+            ...(fold.open ? { open: true } : {}),
+          };
+          node.children.unshift({
+            type: 'element',
+            tagName: 'summary',
+            properties: { className: ['alert__label'] },
+            children: [
+              icon(fold.type),
+              ...(fold.title.length > 0
+                ? [
+                    {
+                      type: 'element' as const,
+                      tagName: 'span',
+                      properties: { className: ['alert__title'] },
+                      children: fold.title,
+                    },
+                  ]
+                : [{ type: 'text' as const, value: label(fold.type) }]),
+            ],
+          });
+          continue;
+        }
 
         const type = takeMarker(node);
         if (!type) continue;

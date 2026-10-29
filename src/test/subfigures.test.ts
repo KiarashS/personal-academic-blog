@@ -82,8 +82,16 @@ describe('sub-figures', () => {
     }
   });
 
-  it('reads #frame and #compare in either order', () => {
-    expect(flagsOf('/a.png#frame#compare')).toEqual({ src: '/a.png', framed: true, compare: true });
-    expect(flagsOf('/a.png#compare#frame')).toEqual({ src: '/a.png', framed: true, compare: true });
+  it('reads #frame, #compare and #invert in any order', () => {
+    const all = { src: '/a.png', framed: true, compare: true, invert: true };
+    expect(flagsOf('/a.png#frame#compare#invert')).toEqual(all);
+    expect(flagsOf('/a.png#invert#compare#frame')).toEqual(all);
+    expect(flagsOf('/a.png#compare#frame')).toEqual({ ...all, invert: false });
+  });
+
+  it('marks a picture to invert on the dark theme, and keeps the flag off its path', () => {
+    const html = render('![A diagram](https://example.org/scan.png#invert)');
+    expect(html).toContain('class="figure-image figure-image--invert"');
+    expect(html).toContain('src="https://example.org/scan.png"');
   });
 });

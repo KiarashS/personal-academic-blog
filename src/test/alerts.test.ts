@@ -87,3 +87,29 @@ describe('rehypeAlerts', () => {
     expect(html).toContain('class="alert alert--tip"');
   });
 });
+
+describe('folding alerts', () => {
+  it('starts closed with -, open with +, labelled by its type', () => {
+    const closed = render('> [!NOTE]-\n> Hidden at first.');
+    expect(closed).toMatch(
+      /^<details class="alert alert--note alert--fold"><summary class="alert__label"><svg[^]*<\/svg>Note<\/summary>/,
+    );
+    expect(closed).toContain('<p>Hidden at first.</p>');
+    expect(render('> [!TIP]+\n> Shown.')).toContain(
+      '<details class="alert alert--tip alert--fold" open>',
+    );
+  });
+
+  it('takes the rest of the marker line as its title, markup and all', () => {
+    const html = render('> [!WARNING]- Details of the *derivation*\n> The working.');
+    expect(html).toContain(
+      '<span class="alert__title">Details of the <em>derivation</em></span></summary>',
+    );
+    expect(html).toContain('<p>The working.</p>');
+    expect(html).not.toContain('[!WARNING]');
+  });
+
+  it('leaves a plain alert as it was', () => {
+    expect(render('> [!NOTE]\n> Body.')).toMatch(/^<div class="alert alert--note">/);
+  });
+});

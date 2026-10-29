@@ -53,12 +53,23 @@ footnote, which on a wide screen stands in the margin.[^margin]
 and `\E` come with the site. Minimising [](#eq-loss) is the same as minimising
 $\E_{x}\big[\KL{p_{\text{true}}}{p_w}\big]$, up to a constant.
 
+Its derivatives share a number, (2a) and (2b), as related equations do in a
+paper:
+
+$$
+\label{derivatives}
+\begin{subequations}
+\nabla \loss(w) &= X^\top (p - y) / n \label{gradient} \\
+\nabla^2 \loss(w) &= X^\top S X / n \label{hessian}
+\end{subequations}
+$$
+
 > [!THEOREM] Convexity {#thm-convex}
 > $\loss$ is convex in $w$, so gradient descent with a small enough step
 > reaches its minimum $\hat w = \argmin_w \loss(w)$.
 
 > [!PROOF] of [](#thm-convex)
-> The Hessian is $X^\top S X / n$ with $S = \operatorname{diag}\big(p_i (1 - p_i)\big)$,
+> The Hessian is [](#eq-hessian), with $S = \operatorname{diag}\big(p_i (1 - p_i)\big)$,
 > and $v^\top X^\top S X v = \lVert S^{1/2} X v \rVert^2 \ge 0$ for every $v$.
 
 ### Exercises
@@ -173,11 +184,11 @@ Caption: A photograph before and after denoising. {#fig-denoise}
 
 ### Accuracy
 
-| Model               | Test accuracy |
-| ------------------- | ------------: |
-| Logistic regression |          0.86 |
-| Decision tree       |          0.81 |
-| Random forest       |          0.89 |
+[](#tbl-accuracy) is read from `accuracy.csv` beside the post, so it shows the
+numbers the results came out in; the numeric columns line up on the right.
+
+```table file=/posts/complete-example/accuracy.csv
+```
 
 Caption: Test accuracy of three models. {#tbl-accuracy}
 
@@ -230,6 +241,15 @@ Caption: One step of training. {#fig-pipeline}
 
 Caption: The sigmoid, $\sigma(z) = 1 / (1 + e^{-z})$. {#fig-sigmoid}
 
+### The boundary
+
+A black-on-white sketch with no dark version of its own is inverted on the
+dark theme when its path ends in `#invert`; switch the theme to see it.
+
+![Two classes of points either side of a dashed decision boundary](/posts/complete-example/boundary.svg#invert)
+
+Caption: The boundary the model learns, sketched. {#fig-boundary}
+
 ### Chemistry
 
 The renderer has chemistry too: $\ce{2 H2 + O2 -> 2 H2O}$, with
@@ -252,7 +272,7 @@ Caption: A map, loaded from OpenStreetMap only when asked for. {#fig-map}
 
 ## Notes
 
-> [!NOTE]
+> [!TIP]- How the references are written
 > Every reference in this post is a link with no text: `[](#fig-lr-b)`,
 > `[](#eq-loss)`, `[](/blog/writing-like-a-paper)`. The build fills in the
 > words, and warns about any that point at nothing.

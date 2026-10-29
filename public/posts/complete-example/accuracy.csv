@@ -1,0 +1,4 @@
+Model,Test accuracy,Training time (s),Note
+Logistic regression,0.86,1.2,"linear, fast"
+Decision tree,0.81,0.4,depth 6
+Random forest,0.89,7.9,"200 trees, depth 8"

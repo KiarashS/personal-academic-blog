@@ -1208,6 +1208,80 @@ mark {
 }
 
 /*
+ * A note that folds, `> [!NOTE]-` (plugins/alerts.ts): the same box, with its
+ * label, or its title, as the summary that opens it and a chevron after it
+ * that turns when it is open. It is a `details`, so the collapsible
+ * section's box and bar are taken back off it here, at the specificity they
+ * were put on with.
+ */
+.prose details.alert {
+  border: 0;
+  border-left: 3px solid var(--alert-accent);
+  border-radius: 0 3px 3px 0;
+  margin: 1.6rem 0;
+  padding: 0.95em 1.2em;
+}
+
+.prose details.alert > summary {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.prose details.alert > summary::-webkit-details-marker {
+  display: none;
+}
+
+.prose details.alert > summary:hover {
+  background: none;
+  color: color-mix(in srgb, var(--alert-accent) 80%, var(--text));
+}
+
+.prose details.alert > summary:focus-visible {
+  outline-offset: 3px;
+}
+
+.prose details.alert[open] > summary {
+  border: 0;
+  margin-bottom: 0.4rem;
+}
+
+.prose details.alert > :last-child:not(summary) {
+  margin-bottom: 0;
+}
+
+/* A title the author wrote reads as a title, not as a shouted label. */
+.alert__title {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.alert--fold > summary::after {
+  border-bottom: 2px solid currentcolor;
+  border-right: 2px solid currentcolor;
+  content: '';
+  block-size: 0.4rem;
+  inline-size: 0.4rem;
+  margin-inline-start: 0.1rem;
+  rotate: -45deg;
+  transition: rotate 120ms ease-in-out;
+}
+
+.alert--fold[open] > summary::after {
+  rotate: 45deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert--fold > summary::after {
+    transition: none;
+  }
+}
+
+/*
  * The site notice, which is the box above with somewhere else to stand.
  * `site-notice`, because `.notice` is already the muted box the comments
  * placeholder uses and two unrelated things should not share a name.

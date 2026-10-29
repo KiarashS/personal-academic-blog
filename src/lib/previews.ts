@@ -41,6 +41,12 @@ const GAP = 8;
 
 /** The part of the page a reference's card shows, or nothing worth showing. */
 function contentOf(target: HTMLElement): HTMLElement | undefined {
+  // A row of a sub-numbered equation is reached by an empty anchor in it;
+  // the card shows the whole equation, which is what the row is read in.
+  if (target.classList.contains('equation__anchor')) {
+    const equation = target.closest<HTMLElement>('.equation');
+    return equation ? (equation.cloneNode(true) as HTMLElement) : undefined;
+  }
   // A heading is shown with the first paragraph of its section, which says
   // more than the heading's words, already in the link. The paragraph may be
   // under a sub-heading; the section ends at the next heading of its rank.

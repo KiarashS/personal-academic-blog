@@ -1513,18 +1513,25 @@
   overflow: auto;
 }
 
+/* A table from a data file longer than a screen (plugins/csv-tables.ts)
+   scrolls in its own box, its header kept in view as below. */
+.prose .table-wrap--scroll {
+  max-height: 26rem;
+  overflow: auto;
+}
+
 /* The column names stay at the top of the box while the rows scroll under
    them. The table's borders are kept apart, because Chromium does not paint a
    sticky cell's background over the rows of a collapsed table, and they
    showed through the header's padding. The header's two booktabs rules are
    drawn on its cells, so they stay with it: a separated table draws no border
    on the header group itself. */
-.prose .chart__data table {
+.prose :is(.chart__data, .table-wrap--scroll) table {
   border-collapse: separate;
   border-spacing: 0;
 }
 
-.prose .chart__data thead th {
+.prose :is(.chart__data, .table-wrap--scroll) thead th {
   background: var(--bg);
   border-bottom: 0;
   box-shadow:
@@ -1666,6 +1673,22 @@
   border-radius: 3px;
   height: auto;
   max-width: 100%;
+}
+
+/*
+ * Asked for with `#invert` (plugins/figures.ts): a black-on-white diagram or
+ * a scanned page, which would glare on the dark theme, has its colours
+ * flipped there. The hue is turned back by half a turn, so a red line stays
+ * red and only light and dark trade places. Light theme: as it is.
+ */
+:root[data-theme='dark'] .prose .figure-image--invert {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .prose .figure-image--invert {
+    filter: invert(1) hue-rotate(180deg);
+  }
 }
 
 /* Asked for with `#frame` on the image's path (plugins/figures.ts): an edge

@@ -279,14 +279,21 @@ export function PostBody({ slug }: { slug: string }) {
     if (!container) return;
 
     const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    // Either way: a long table from a data file scrolls down in its own box.
+    const scrolls = (el: HTMLElement) => {
+      const style = getComputedStyle(el);
+      return /auto|scroll/.test(style.overflowX) || /auto|scroll/.test(style.overflowY);
+    };
     const candidates = [...container.querySelectorAll<HTMLElement>('*')].filter(
-      (el) => /auto|scroll/.test(getComputedStyle(el).overflowX) && !el.querySelector(FOCUSABLE),
+      (el) => scrolls(el) && !el.querySelector(FOCUSABLE),
     );
     if (candidates.length === 0) return;
 
     const measure = () => {
       for (const el of candidates) {
-        if (el.scrollWidth > el.clientWidth + 1) el.setAttribute('tabindex', '0');
+        const overflows =
+          el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1;
+        if (overflows) el.setAttribute('tabindex', '0');
         else el.removeAttribute('tabindex');
       }
     };

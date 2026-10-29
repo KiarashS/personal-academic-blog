@@ -61,6 +61,7 @@ import { rehypeSectionNumbers } from './section-numbers';
 import { rehypeSmartQuotes, smarten } from './smart-quotes';
 import { rehypePostLinks } from './post-links';
 import { loadLock, saveLock, type RemoteLock } from './remote-code';
+import { rehypeCsvTables } from './csv-tables';
 import { postPath } from '../src/lib/routes';
 
 const MARKDOWN = /\.md(\?(meta|text))?$/;
@@ -272,6 +273,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
           missingCharts += 1;
         },
       })
+      // A `table` fence, its rows read from the fence or the file it names.
+      .use(rehypeCsvTables, { onWarn: warn })
       .use(rehypeMermaid, {
         cache,
         onMissing: (source) => missingDiagrams.add(source),

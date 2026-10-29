@@ -113,7 +113,7 @@ export function rehypeFigures(options: FigureOptions) {
    * Markdown title gives it.
    */
   const picturesOf = (target: Element): { pictures: Element[]; caption: string } | undefined => {
-    const { src, framed } = flagsOf(String(target.properties?.src ?? ''));
+    const { src, framed, invert: asked } = flagsOf(String(target.properties?.src ?? ''));
     const alt = String(target.properties?.alt ?? '');
     const caption = String(target.properties?.title ?? '');
     if (!src) return undefined;
@@ -127,6 +127,12 @@ export function rehypeFigures(options: FigureOptions) {
 
     const dark = rootRelative && existsSync(join(options.publicDir, darkSibling(src)));
     const href = (path: string) => (rootRelative ? `${base}${path}` : path);
+    // A dark sibling is the better answer, drawn for the dark page; with one,
+    // the picture is not inverted as well.
+    if (asked && dark) {
+      options.onWarn?.(`${src} has a .dark sibling, which is used instead of #invert`);
+    }
+    const invert = asked && !dark;
 
     // Only worth offering when the file holds detail the column cannot
     // show: a picture displayed at its own size has nothing more to give.
@@ -143,7 +149,11 @@ export function rehypeFigures(options: FigureOptions) {
      * whichever theme was not showing.
      */
     const variant = (path: string, theme?: 'light' | 'dark'): Element => {
-      const image = ['figure-image', ...(framed ? ['figure-image--framed'] : [])];
+      const image = [
+        'figure-image',
+        ...(framed ? ['figure-image--framed'] : []),
+        ...(invert ? ['figure-image--invert'] : []),
+      ];
       const classes = [...image, ...(theme ? [`figure-image--${theme}`] : [])];
       if (!zoom) return img(href(path), alt, size, classes.join(' '));
 
@@ -222,23 +232,34 @@ export function rehypeFigures(options: FigureOptions) {
 }
 
 /**
- * The path with its flags taken off: `#frame` for a border, `#compare` for a
- * before/after pair, in either order.
+ * The path with its flags taken off, in any order: `#frame` for a border,
+ * `#compare` for a before/after pair, `#invert` for a picture whose colours
+ * are flipped on the dark theme.
  */
-export function flagsOf(written: string): { src: string; framed: boolean; compare: boolean } {
+export function flagsOf(written: string): {
+  src: string;
+  framed: boolean;
+  compare: boolean;
+  invert: boolean;
+} {
   let src = written;
   let framed = false;
   let compare = false;
-  for (let i = 0; i < 2; i += 1) {
+  let invert = false;
+  for (let i = 0; i < 3; i += 1) {
     if (src.endsWith('#compare')) {
       src = src.slice(0, -'#compare'.length);
       compare = true;
+    }
+    if (src.endsWith('#invert')) {
+      src = src.slice(0, -'#invert'.length);
+      invert = true;
     }
     const frame = withoutFrame(src);
     src = frame.src;
     framed ||= frame.framed;
   }
-  return { src, framed, compare };
+  return { src, framed, compare, invert };
 }
 
 /**

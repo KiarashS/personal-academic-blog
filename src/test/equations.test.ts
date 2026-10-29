@@ -169,3 +169,46 @@ describe("rehypeEquations with numbering: 'all'", () => {
     expect(html).toContain('<a class="eqref" href="#eq-d">(1)</a>');
   });
 });
+
+describe('subequations', () => {
+  const block = [
+    '$$',
+    '\\label{stats}',
+    '\\begin{subequations}',
+    '\\mu &= \\frac{1}{n} \\sum_i x_i \\label{mean} \\\\',
+    '\\sigma^2 &= \\frac{1}{n} \\sum_i (x_i - \\mu)^2 \\label{var}',
+    '\\end{subequations}',
+    '$$',
+  ].join('\n');
+
+  it('numbers the rows (1a), (1b) as one equation, aligned', () => {
+    const html = renderAll(`$$\na = b\n$$\n\n${block}`);
+    expect(html).toContain('\\begin{align}');
+    expect(html).toContain('\\tag{2a}');
+    expect(html).toContain('\\tag{2b}');
+    expect(html).not.toContain('subequations');
+    expect(html).not.toContain('\\label');
+  });
+
+  it('makes each row and the group reachable, for \\eqref and empty links', () => {
+    const html = renderAll(`${block}\n\nBy \\eqref{mean} and \\eqref{var}, \\eqref{stats}.`);
+    expect(html).toContain('class="equation equation--sub" id="eq-stats" data-ref-label="(1)"');
+    expect(html).toContain(
+      '<span class="equation__anchor" id="eq-mean" data-ref-label="(1a)"></span>',
+    );
+    expect(html).toContain('<a class="eqref" href="#eq-mean">(1a)</a>');
+    expect(html).toContain('<a class="eqref" href="#eq-var">(1b)</a>');
+    expect(html).toContain('<a class="eqref" href="#eq-stats">(1)</a>');
+  });
+
+  it('gathers rows with no alignment point, and splits only at row ends', async () => {
+    const { rowsOf } = await import('../../plugins/equations');
+    expect(rowsOf('a = b \\\\ \\begin{pmatrix} 1 \\\\ 2 \\end{pmatrix} = c')).toEqual([
+      'a = b',
+      '\\begin{pmatrix} 1 \\\\ 2 \\end{pmatrix} = c',
+    ]);
+    expect(
+      renderAll('$$\n\\begin{subequations}\na = b \\\\ c = d\n\\end{subequations}\n$$'),
+    ).toContain('\\begin{gather}');
+  });
+});

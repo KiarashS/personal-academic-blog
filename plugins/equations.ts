@@ -78,6 +78,47 @@ function numbered(tex: string, count: number): string {
 /** The TeX with the markers this plugin reads taken out, which KaTeX would not accept. */
 const bare = (tex: string): string => tex.replace(LABEL, '').replace(NOTAG, '').trimEnd();
 
+/** amsmath's `subequations`, around the rows of one display. */
+const SUBEQUATIONS = /\\begin\s*\{subequations\}([\s\S]*?)\\end\s*\{subequations\}/;
+
+const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
+
+/**
+ * The rows of a `subequations` body, split at each `\\` that ends a row: not
+ * one inside braces or inside an environment of its own, such as a matrix,
+ * whose rows are its own business.
+ */
+export function rowsOf(body: string): string[] {
+  const rows: string[] = [];
+  let depth = 0;
+  let row = '';
+  for (let i = 0; i < body.length; i += 1) {
+    const rest = body.slice(i);
+    const begin = /^\\begin\s*\{/.exec(rest);
+    const end = /^\\end\s*\{/.exec(rest);
+    if (begin) depth += 1;
+    else if (end) depth -= 1;
+    const char = body[i];
+    if (char === '\\' && body[i + 1] === '\\' && depth === 0) {
+      rows.push(row);
+      row = '';
+      i += 1;
+      continue;
+    }
+    if (char === '\\' && body[i + 1] !== undefined) {
+      // An escaped brace is a brace to print, not a group.
+      row += char + body[i + 1];
+      i += 1;
+      continue;
+    }
+    if (char === '{') depth += 1;
+    if (char === '}') depth -= 1;
+    row += char;
+  }
+  rows.push(row);
+  return rows.map((r) => r.trim()).filter(Boolean);
+}
+
 /**
  * Equation numbers, and references to them that stay right when an equation is
  * inserted above. An author writes the LaTeX they would write anywhere else:
@@ -123,6 +164,62 @@ export function rehypeEquations(options: EquationOptions = {}) {
         }
 
         const tex = toString(node);
+
+        // Rows numbered (2a), (2b), … as one equation, each row reachable by
+        // its own label; a label outside the environment names the group.
+        const sub = SUBEQUATIONS.exec(tex);
+        if (sub) {
+          count += 1;
+          const group = count;
+          const rows = rowsOf(sub[1]);
+          if (rows.length > LETTERS.length) {
+            warn(`a subequations block has ${rows.length} rows; only the first 26 are lettered`);
+          }
+          const anchors: Element[] = [];
+          const tagged = rows.slice(0, LETTERS.length).map((row, i) => {
+            const shown = `${group}${LETTERS[i]}`;
+            for (const [, key] of row.matchAll(LABEL)) {
+              if (numbers.has(key)) {
+                warn(`two equations are labelled "${key}"; references will point at the first`);
+                continue;
+              }
+              numbers.set(key, shown);
+              anchors.push({
+                type: 'element',
+                tagName: 'span',
+                properties: {
+                  className: ['equation__anchor'],
+                  id: equationId(key),
+                  dataRefLabel: `(${shown})`,
+                },
+                children: [],
+              });
+            }
+            return `${bare(row)} \\tag{${shown}}`;
+          });
+          const environment = rows.some((row) => /(^|[^\\])&/.test(row)) ? 'align' : 'gather';
+          const outside = tex.slice(0, sub.index) + tex.slice(sub.index + sub[0].length);
+          const groupKey = [...outside.matchAll(LABEL)].map((match) => match[1])[0];
+          if (groupKey !== undefined && !numbers.has(groupKey))
+            numbers.set(groupKey, String(group));
+          const rewritten =
+            tex.slice(0, sub.index) +
+            `\\begin{${environment}}\n${tagged.join(' \\\\\n')}\n\\end{${environment}}` +
+            tex.slice(sub.index + sub[0].length);
+          node.children = [{ type: 'text', value: bare(rewritten) }];
+          children[index] = {
+            type: 'element',
+            tagName: 'div',
+            properties: {
+              className: ['equation', 'equation--sub'],
+              id: groupKey !== undefined ? equationId(groupKey) : numberId(group),
+              dataRefLabel: `(${group})`,
+            },
+            children: [...anchors, block],
+          };
+          continue;
+        }
+
         const keys = [...tex.matchAll(LABEL)].map((match) => match[1]);
         const [key] = keys;
         const skipped = NOTAG.test(tex);

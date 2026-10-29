@@ -59,6 +59,7 @@ featured: false # pins the post to the top of the index
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
 cite: true # false: no "Cite this post" block
+comments: true # false: no thread; readonly: the thread, no box (Comments on a post)
 font: garamond # optional: the whole post in another face, below
 series: Running this blog # optional; groups multi-part posts
 part: 1 # optional; position within the series
@@ -67,10 +68,35 @@ revisions: # optional history; see below
     note: What changed, in a line.
 slug: custom-url # optional override
 doi: 10.5281/zenodo.123 # optional, linked from the post header
+banner: /figures/rig.jpg # optional opening picture or video (Banners and video)
+publication: # optional: the paper or project behind the post (The work behind a post)
+  kind: paper # or project
+  title: A title for the paper
+  status: Preprint
+  venue: Journal of Statistical Software
+  year: 2026
+  doi: 10.5281/zenodo.123
+  url: https://arxiv.org/abs/2601.01234
+  pdf: /posts/my-post/paper.pdf
+  code: https://github.com/you/replication
+  data: https://doi.org/10.5281/zenodo.124
+numbered: false # true: sections numbered 1, 1.1, 1.1.1 (Numbered sections)
+smartQuotes: false # true: curly quotes and dashes in this post (Quotes and dashes)
+macros: # optional KaTeX shorthands for this post's maths (Macros)
+  \loss: \mathcal{L}
+  \KL: 'D_{\mathrm{KL}}\left(#1 \,\Vert\, #2\right)'
 ---
 
 Body text.
 ```
+
+That is every field a post's frontmatter can hold. A post needs a date, here
+or in its filename; everything else is optional, though a post with no `title`
+is titled by its filename. The name in brackets after a comment is the section
+that says more. `banner` also has a longer form, with `alt`, `title`, `poster`,
+`autoplay` and `ratio`, under Banners and video. A test holds this list to the
+`PostFrontmatter` type in `src/lib/types.ts`, so a field added there and not
+here fails the build's checks.
 
 `tags` can be empty or left out, and the post simply has none: no Tags section
 at its foot and no tag row on its card. A single tag needs no brackets,
@@ -227,6 +253,24 @@ yourself is shown as written, does not take a number, and is what `\eqref`
 shows for that equation. An `aligned` block is one equation and takes one
 number, after the environment, which is where KaTeX needs the `\tag`.
 
+Related equations can share a number, as amsmath's `subequations` has them:
+
+```latex
+$$
+\label{moments}
+\begin{subequations}
+\mu &= \frac{1}{n} \sum_i x_i \label{mean} \\
+\sigma^2 &= \frac{1}{n} \sum_i (x_i - \mu)^2 \label{var}
+\end{subequations}
+$$
+```
+
+The rows are numbered (2a), (2b), each on its own line, aligned at `&` when
+the rows have one and centred when they do not. `\eqref{mean}` reads "(2a)", a
+label outside the environment names the whole, so `\eqref{moments}` reads
+"(2)", and an empty link to `#eq-mean` or `#eq-moments` writes the same. A row
+is split only at a `\\` of its own, not at one inside a matrix.
+
 To number only labelled equations, set `math.numbering` to `'labelled'` in
 `src/site.config.ts`.
 
@@ -368,6 +412,19 @@ line of the body, as above, or alone with a blank quoted line under it; both are
 legal and both render the same. An alert holds whatever a blockquote holds —
 several paragraphs, a list, a fence, a citation — and a blockquote with no
 marker stays a blockquote, because a quotation is still a quotation.
+
+A `-` after the marker makes a note that folds, closed until it is opened,
+and a `+` one that starts open: Obsidian's syntax, which anywhere else is
+still a quotation with its marker on top. The rest of the marker's line is
+its title, shown in place of the type's name:
+
+```markdown
+> [!NOTE]- Details of the derivation
+> The working, which most readers can skip.
+```
+
+It is drawn as the alert it is, with a chevron after the label that turns
+when it opens, and it prints open.
 
 The reason to borrow the syntax rather than invent one is that it degrades.
 Anywhere that has never heard of it — a plain Markdown viewer, a diff, an editor
@@ -1157,6 +1214,38 @@ build on a site-absolute link that is missing it. The build reads each file to s
 `height`, so pages do not reflow as figures load, and adds `loading="lazy"`. If
 a `plot.dark.svg` sibling exists it is used on the dark theme, which saves
 white-background plots from glaring out of a dark page.
+
+A picture with no dark version, a black-on-white diagram or a scanned page,
+can ask to be inverted on the dark theme with `#invert` on its path:
+`![The circuit](/posts/my-post/circuit.png#invert)`. Light and dark trade
+places and the hues are turned back, so a red line stays red. It suits line
+art and text, not photographs, which is why it is asked for and not done to
+every image. A `.dark` sibling, when there is one, is used instead.
+`#invert`, `#frame` and `#compare` go together in any order.
+
+#### Tables from data
+
+A fence tagged `table` is a table, read from a file under `public/` or from a
+pinned URL, the way a code fence's `file=` is, or from rows written in the
+fence:
+
+````markdown
+```table file=/posts/my-post/results.csv
+
+```
+
+Caption: Test accuracy of three models. {#tbl-accuracy}
+````
+
+The first row is the header. Cells are separated by commas, or by tabs in a
+`.tsv` file or in rows with no comma, and a cell in double quotes can hold
+commas, line breaks and `""` for a quote, which is what a spreadsheet writes.
+It is set as any Markdown table is, and a `Caption:` numbers it as a table. A
+column whose cells are all numbers (`0.86`, `1,234`, `3e-4`, `87%`) is
+right-aligned. A table of more than 20 rows scrolls in a box of its own with
+its header kept in view. A row with more or fewer cells than the header is cut
+or filled to fit, and the build says so. A `csv` fence is still code, for
+showing a file as it is written.
 
 ### Captions
 
