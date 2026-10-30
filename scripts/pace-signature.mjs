@@ -121,7 +121,9 @@ const plans = {
   },
 
   // node scripts/set-signature.mjs Damion-Regular.ttf Kiarash src/content/signature-damion.svg
-  // node scripts/trace-signature.mjs src/content/signature-damion.svg 22
+  // node scripts/trace-signature.mjs src/content/signature-damion.svg 28
+  // (22 left a notch in the K's stem where the curl joins it; 28 is the
+  // narrowest that scripts/check-signature.mjs passes.)
   'signature-damion.svg': {
     swash: 6,
     strokes: [

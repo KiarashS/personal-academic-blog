@@ -36,7 +36,9 @@ const SCALE = 6;
  * How wide the mask has to be stroked to cover the letters it reveals. It
  * belongs to the artwork, not to this script: the right value is the narrowest
  * that leaves no ink behind, and a face with thicker strokes needs more. Pass
- * it as the second argument when tracing something new.
+ * it as the second argument when tracing something new, and check the result
+ * with scripts/check-signature.mjs, which finds any ink the mask leaves hidden:
+ * by eye, a sliver along the edge of a stroke is easy to miss.
  */
 const MASK_WIDTH = Number(process.argv[3]) || 26;
 
