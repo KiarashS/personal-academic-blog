@@ -2586,7 +2586,10 @@ home: {
 
 `home.nameStyle` is how the name after the greeting is written, and one word
 switches it. `'signature'` draws the file `signatureFile` names and writes it
-out as if by pen (below). `'text'` sets the name as type, which a visitor reads
+out as if by pen (below); when the pen lifts, a small glass bead drops onto
+the top-left of the first letter, magnifying the ink under it, and a shine
+crosses it once. A click writes the name again and the bead lands again at
+the end. `'text'` sets the name as type, which a visitor reads
 at a glance: on the same line as "Hi, I am" and at the same size, set apart by
 a heavier weight and a stroke of the accent drawn under its lower half the way
 a highlighter runs under a name. A one-word name keeps the heading at full size.

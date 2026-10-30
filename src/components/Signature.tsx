@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { descent, markup, ratio } from 'virtual:signature';
+import { addGlass } from '../lib/signature-glass';
 import { siteConfig } from '../site.config';
 
 // One object for the life of the page; see src/lib/inner-html.ts. The markup is
@@ -65,8 +66,16 @@ export function Signature() {
     const flourish = root.querySelector<SVGPathElement>('.ks-flourish');
     if (pens.length === 0) return;
 
-    // A reader who asks for less motion gets the finished signature.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // The glass bead on the first letter, which lands once the pen lifts.
+    const svg = root.querySelector('svg');
+    const glass = svg ? addGlass(svg) : undefined;
+    const removeGlass = () => glass?.remove();
+
+    // A reader who asks for less motion gets the finished signature, bead and all.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      glass?.classList.add('ks-glass--on', 'ks-glass--still');
+      return removeGlass;
+    }
 
     /**
      * One run per element, rather than one path of many subpaths.
@@ -115,7 +124,14 @@ export function Signature() {
         }))
       : null;
 
+    // When the last ink is down: the timetable's last stroke, or the name and
+    // then the swash after the lift.
+    const finished = timetable
+      ? Math.max(...timetable.map(({ at, ms }) => at + ms))
+      : NAME_MS + (flourish ? LIFT_MS + FLOURISH_MS : 0);
+
     let timer = 0;
+    let glassTimer = 0;
     let frame = 0;
 
     const load = (path: SVGPathElement, length: number) => {
@@ -126,7 +142,9 @@ export function Signature() {
 
     const hide = () => {
       window.clearTimeout(timer);
+      window.clearTimeout(glassTimer);
       window.cancelAnimationFrame(frame);
+      glass?.classList.remove('ks-glass--on');
       pens.forEach((pen, index) => {
         load(pen, lengths[index]);
         // A round cap is drawn even on a dash pushed entirely off the path,
@@ -162,6 +180,7 @@ export function Signature() {
 
     const play = () => {
       hide();
+      glassTimer = window.setTimeout(() => glass?.classList.add('ks-glass--on'), finished);
 
       if (timetable) {
         frame = window.requestAnimationFrame((now) => write(now, now));
@@ -202,9 +221,11 @@ export function Signature() {
 
     return () => {
       window.clearTimeout(timer);
+      window.clearTimeout(glassTimer);
       window.cancelAnimationFrame(frame);
       observer.disconnect();
       root.removeEventListener('click', play);
+      removeGlass();
     };
   }, []);
 

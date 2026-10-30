@@ -3430,6 +3430,111 @@ h1 + .author-card {
   stroke: var(--text);
 }
 
+/* The glass bead on the first letter (src/lib/signature-glass.ts). Hidden
+   until the pen lifts, then it drops on with a little give and a shine runs
+   across it once. The lens inside repaints the page, so it is `--bg` here;
+   the light is white in either theme and the shade is the ink's colour, which
+   is what still draws the rim on a white page where the light cannot show. */
+.banner__signature .ks-glass {
+  opacity: 0;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.banner__signature .ks-glass--on {
+  animation: ks-glass-land 650ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.banner__signature .ks-glass--still {
+  animation: none;
+  opacity: 1;
+}
+
+.banner__signature .ks-glass__page {
+  fill: var(--bg);
+}
+
+.banner__signature .ks-glass__clear {
+  stop-color: #fff;
+  stop-opacity: 0;
+}
+
+.banner__signature .ks-glass__tint {
+  stop-color: var(--text);
+  stop-opacity: 0.035;
+}
+
+.banner__signature .ks-glass__shadow {
+  stop-color: var(--text);
+  stop-opacity: 0.2;
+}
+
+.banner__signature .ks-glass__edge {
+  stop-color: var(--text);
+  stop-opacity: 0.12;
+}
+
+.banner__signature .ks-glass__deep {
+  stop-color: var(--text);
+  stop-opacity: 0.42;
+}
+
+.banner__signature .ks-glass__lit {
+  stop-color: #fff;
+  stop-opacity: 0.95;
+}
+
+.banner__signature .ks-glass__shade {
+  stop-color: var(--text);
+  stop-opacity: 0.75;
+}
+
+.banner__signature .ks-glass__highlight {
+  fill: #fff;
+  opacity: 0.9;
+}
+
+.banner__signature .ks-glass__catch {
+  opacity: 0.55;
+  stroke: #fff;
+}
+
+/* Parked off the bead to the top-left until it lands, then swept across. */
+.banner__signature .ks-glass__sweep {
+  transform: translate(calc(var(--glass-r) * -2.2px), calc(var(--glass-r) * -1.5px));
+}
+
+.banner__signature .ks-glass--on .ks-glass__sweep {
+  animation: ks-glass-shine 900ms 350ms ease-in-out both;
+}
+
+.banner__signature .ks-glass--still .ks-glass__sweep {
+  animation: none;
+}
+
+@keyframes ks-glass-land {
+  0% {
+    opacity: 0;
+    transform: translateY(-30%) scale(0.3);
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ks-glass-shine {
+  to {
+    transform: translate(calc(var(--glass-r) * 2.2px), calc(var(--glass-r) * 1.5px));
+  }
+}
+
 /* Tighter than body copy. The page's 1.65 leading is set for reading a post at
    16px; at 24px it opens a gap wide enough to read as two separate lines. */
 .banner__tagline {
