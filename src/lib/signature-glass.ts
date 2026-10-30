@@ -18,7 +18,7 @@
 const NS = 'http://www.w3.org/2000/svg';
 
 /** The bead's radius, as a share of the letter's height. */
-const SIZE = 0.22;
+const SIZE = 0.26;
 /** How much larger the lens shows what is under it. */
 const MAGNIFY = 1.35;
 /** Points read off the letter's outline to find its top. */
@@ -143,6 +143,9 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
       stroke: `url(#${id('rim')})`,
       'stroke-width': r * 0.09,
     }),
+    // A hairline round the edge, for the light theme, where the lit half of the
+    // rim is white on white and the bead had no edge to speak of.
+    circle({ class: 'ks-glass__line', fill: 'none', 'stroke-width': r * 0.035 }),
     // The window's reflection, and the light that comes back out of the far side.
     make('ellipse', {
       class: 'ks-glass__highlight',

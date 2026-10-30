@@ -62,7 +62,7 @@ describe('the glass bead', () => {
   it('sits left of the letter top and rises above it, with the top inside the lens', () => {
     const top = { x: 100, y: -120 };
     const bead = beadFor(top, 100);
-    expect(bead.r).toBeCloseTo(22);
+    expect(bead.r).toBeCloseTo(26);
     expect(bead.x).toBeLessThan(top.x);
     expect(bead.y - bead.r).toBeLessThan(top.y);
     expect(Math.hypot(top.x - bead.x, top.y - bead.y)).toBeLessThan(bead.r);

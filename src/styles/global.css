@@ -3387,6 +3387,11 @@ h1 + .author-card {
    "Hi, I am" at every size, and the flourish, which the SVG draws past the box,
    hangs below it. */
 .banner__signature {
+  --glass-deep: 0.55;
+  --glass-edge: 0.16;
+  --glass-line: 0.28;
+  --glass-shadow: 0.28;
+  --glass-tint: 0.05;
   --signature-width: 3.667em;
 
   /* `--signature-ratio` and `--signature-descent`, the drawing's proportions,
@@ -3451,6 +3456,33 @@ h1 + .author-card {
   opacity: 1;
 }
 
+/* How strongly the bead is drawn. The light theme needs more: there the white
+   highlight and the lit half of the rim do not show, and the shade and the
+   hairline are all that outline the glass. The light values are with the
+   rest of `.banner__signature` above. */
+:root[data-theme='dark'] .banner__signature {
+  --glass-deep: 0.42;
+  --glass-edge: 0.12;
+  --glass-line: 0;
+  --glass-shadow: 0.2;
+  --glass-tint: 0.035;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .banner__signature {
+    --glass-deep: 0.42;
+    --glass-edge: 0.12;
+    --glass-line: 0;
+    --glass-shadow: 0.2;
+    --glass-tint: 0.035;
+  }
+}
+
+.banner__signature .ks-glass__line {
+  stroke: var(--text);
+  stroke-opacity: var(--glass-line);
+}
+
 .banner__signature .ks-glass__page {
   fill: var(--bg);
 }
@@ -3462,22 +3494,22 @@ h1 + .author-card {
 
 .banner__signature .ks-glass__tint {
   stop-color: var(--text);
-  stop-opacity: 0.035;
+  stop-opacity: var(--glass-tint);
 }
 
 .banner__signature .ks-glass__shadow {
   stop-color: var(--text);
-  stop-opacity: 0.2;
+  stop-opacity: var(--glass-shadow);
 }
 
 .banner__signature .ks-glass__edge {
   stop-color: var(--text);
-  stop-opacity: 0.12;
+  stop-opacity: var(--glass-edge);
 }
 
 .banner__signature .ks-glass__deep {
   stop-color: var(--text);
-  stop-opacity: 0.42;
+  stop-opacity: var(--glass-deep);
 }
 
 .banner__signature .ks-glass__lit {
