@@ -3389,6 +3389,7 @@ h1 + .author-card {
 .banner__signature {
   --glass-deep: 0.55;
   --glass-edge: 0.16;
+  --glass-glow: 0;
   --glass-line: 0.28;
   --glass-shadow: 0.28;
   --glass-tint: 0.05;
@@ -3463,19 +3464,36 @@ h1 + .author-card {
 :root[data-theme='dark'] .banner__signature {
   --glass-deep: 0.42;
   --glass-edge: 0.12;
+  --glass-glow: 0.22;
   --glass-line: 0;
   --glass-shadow: 0.2;
-  --glass-tint: 0.035;
+  --glass-tint: 0.06;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .banner__signature {
     --glass-deep: 0.42;
     --glass-edge: 0.12;
+    --glass-glow: 0.22;
     --glass-line: 0;
     --glass-shadow: 0.2;
-    --glass-tint: 0.035;
+    --glass-tint: 0.06;
   }
+}
+
+.banner__signature .ks-glass__glow {
+  stop-color: #fff;
+  stop-opacity: var(--glass-glow);
+}
+
+.banner__signature .ks-glass__ink--fill {
+  fill: var(--text);
+  stroke: var(--text);
+}
+
+.banner__signature .ks-glass__ink--stroke {
+  fill: none;
+  stroke: var(--text);
 }
 
 .banner__signature .ks-glass__line {

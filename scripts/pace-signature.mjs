@@ -123,7 +123,12 @@ const plans = {
   // node scripts/set-signature.mjs Damion-Regular.ttf Kiarash src/content/signature-damion.svg
   // node scripts/trace-signature.mjs src/content/signature-damion.svg 28
   // (22 left a notch in the K's stem where the curl joins it; 28 is the
-  // narrowest that scripts/check-signature.mjs passes.)
+  // narrowest that scripts/check-signature.mjs passes.) The K's stem, the
+  // first pen, was then made by hand and is not what the tracer gives: 22
+  // wide, with its centre line set from the stem's own right edge, and
+  // straight between the two corners where the arm and the leg leave the
+  // stem, so writing the stem does not uncover the roots of either before
+  // their turn. Re-tracing undoes that; redo it before committing.
   'signature-damion.svg': {
     swash: 6,
     strokes: [

@@ -63,6 +63,23 @@ const make = <K extends keyof SVGElementTagNameMap>(
 };
 
 /**
+ * The letter again, for the lens: a copy rather than a `<use>` of it. Safari
+ * styles what a `<use>` shows by the file's own colour, the navy the drawing
+ * was made in, and not by the page's ink, so on the dark theme the letter
+ * under the glass went dark and vanished. A copy in the page takes the ink's
+ * colour like any other element (`.ks-glass__ink`). It has no mask: the bead
+ * shows only once the letter is written.
+ */
+function enlarged(letter: SVGGeometryElement, transform: string): SVGElement {
+  const copy = letter.cloneNode(false) as SVGElement;
+  for (const name of ['id', 'mask', 'style', 'fill', 'stroke']) copy.removeAttribute(name);
+  const drawn = letter.classList.contains('ks-stroke') ? 'stroke' : 'fill';
+  copy.setAttribute('class', `ks-glass__ink ks-glass__ink--${drawn}`);
+  copy.setAttribute('transform', transform);
+  return copy;
+}
+
+/**
  * Adds the bead to the drawing, hidden, and returns it; `.ks-glass--on` shows
  * it. Nothing when the drawing has no letter to measure.
  */
@@ -73,7 +90,6 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
   if (box.height === 0) return undefined;
   const { x, y, r } = beadFor(highest(letter), box.height);
 
-  letter.id ||= 'ks-glass-letter';
   const id = (name: string) => `ks-glass-${name}`;
   const circle = (attributes: Record<string, string | number> = {}) =>
     make('circle', { cx: x, cy: y, r, ...attributes });
@@ -98,6 +114,11 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
     ]),
     // The shadow it casts, drawn here rather than as a CSS drop-shadow, whose
     // lengths on an SVG element are not read in the same units everywhere.
+    // Light that has come through the glass, gathered on the side away from it.
+    make('radialGradient', { id: id('glow') }, [
+      stop(0, 'ks-glass__glow'),
+      stop(1, 'ks-glass__clear'),
+    ]),
     make('radialGradient', { id: id('shadow') }, [
       stop(0, 'ks-glass__shadow'),
       stop(1, 'ks-glass__clear'),
@@ -122,8 +143,15 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
   const lens = make('g', { 'clip-path': `url(#${id('clip')})` }, [
     // The page again, over the ink it covers, and then the ink enlarged.
     circle({ class: 'ks-glass__page' }),
-    make('use', { href: `#${letter.id}`, transform: zoom }),
+    enlarged(letter, zoom),
     circle({ fill: `url(#${id('body')})` }),
+    make('ellipse', {
+      cx: x + r * 0.3,
+      cy: y + r * 0.5,
+      rx: r * 0.75,
+      ry: r * 0.55,
+      fill: `url(#${id('glow')})`,
+    }),
     make('g', { class: 'ks-glass__sweep' }, [shine]),
   ]);
 
