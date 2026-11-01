@@ -40,7 +40,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
     "axe-core": "4.13.0",
-    "eslint": "10.12.0",
+    "eslint": "10.13.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-react-hooks": "7.1.1",
     "gemoji": "^8.1.0",
@@ -69,7 +69,7 @@
     "stylelint-config-standard": "40.0.0",
     "svgo": "3.3.5",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.1",
+    "typescript-eslint": "8.72.1",
     "unified": "11.0.5",
     "vite": "8.3.2",
     "vitest": "5.0.3"
