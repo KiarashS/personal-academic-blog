@@ -36,6 +36,13 @@ interface Axis {
   lower: { x: number; y: number };
 }
 
+/**
+ * How far left of the stem's middle line the bead sits, in radii: 3px at the
+ * size the front page draws the signature on a desktop, where a radius is
+ * about 12px, and the same share of the bead at any other size.
+ */
+const NUDGE = 0.25;
+
 /** How far the bead is raised at first, and at most, in radii above the letter's top. */
 const LIFT = { from: 0.2, step: 0.05, to: 1 };
 
@@ -160,7 +167,8 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
       if (!coversMoreThanStem(letter, bead, axis, half)) break;
     }
   }
-  const { x, y, r } = bead;
+  const { y, r } = bead;
+  const x = bead.x - NUDGE * r;
 
   const id = (name: string) => `ks-glass-${name}`;
   const circle = (attributes: Record<string, string | number> = {}) =>

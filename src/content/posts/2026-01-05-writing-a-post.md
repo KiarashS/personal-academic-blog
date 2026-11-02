@@ -51,8 +51,27 @@ comments: true            # optional; false, or readonly
 share: true               # optional; false hides the share links
 cite: true                # optional; false hides "Cite this post"
 font: garamond            # optional; the whole post in another face
+numbered: false           # true numbers the sections 1, 1.1, 1.1.1
+smartQuotes: false        # true sets curly quotes and dashes in this post
+macros:                   # optional; shorthands for this post's maths
+  \loss: \mathcal{L}
+publication:              # optional; the paper or project behind the post
+  kind: paper             # or project
+  title: A title for the paper
+  status: Preprint
+  venue: Journal of Statistical Software
+  year: 2026
+  doi: 10.5281/zenodo.123
+  url: https://arxiv.org/abs/2601.01234
+  pdf: /posts/my-post/paper.pdf
+  code: https://github.com/you/replication
+  data: https://doi.org/10.5281/zenodo.124
 ---
 ```
+
+That is every field there is. The last four are covered in
+[](/blog/writing-like-a-paper) and [](/blog/math-and-citations), and the
+README has a section on each.
 
 ### Comments
 

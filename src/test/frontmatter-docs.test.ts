@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 const types = readFileSync('src/lib/types.ts', 'utf8');
 const readme = readFileSync('README.md', 'utf8');
+const guide = readFileSync('src/content/posts/2026-01-05-writing-a-post.md', 'utf8');
 
 /** The members of an interface in types.ts, by name. */
 function fieldsOf(name: string): string[] {
@@ -50,5 +51,23 @@ describe('the frontmatter reference in the README', () => {
     const banner = /```yaml\nbanner:\n([\s\S]*?)```/.exec(readme)?.[1] ?? '';
     const written = new Set([...banner.matchAll(/^ {2}(\w+):/gm)].map((match) => match[1]));
     expect(fieldsOf('Banner').filter((field) => !written.has(field))).toEqual([]);
+  });
+});
+
+describe('the frontmatter example in the writing guide', () => {
+  // The post that teaches writing a post opens its Frontmatter section with
+  // the same list; it fell behind the README once, and this keeps it level.
+  const block = () => {
+    const section = guide.slice(guide.indexOf('## Frontmatter'));
+    const found = /```yaml\n---\n([\s\S]*?)\n---\n/.exec(section)?.[1];
+    if (!found) throw new Error('no frontmatter block under "Frontmatter" in the writing guide');
+    return found;
+  };
+
+  it('lists every field a post can have, and nothing else', () => {
+    const top = [...block().matchAll(/^(\w+):/gm)].map((match) => match[1]);
+    const fields = fieldsOf('PostFrontmatter');
+    expect(fields.filter((field) => !top.includes(field))).toEqual([]);
+    expect(top.filter((field) => !fields.includes(field))).toEqual([]);
   });
 });
