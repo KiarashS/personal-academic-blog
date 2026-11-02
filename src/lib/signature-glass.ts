@@ -1,9 +1,9 @@
 /**
  * A glass bead set on the signature's first letter once the pen lifts.
  *
- * It sits at the letter's top-left, over the top of its stem, and is a lens
+ * It sits on the top of the letter's stem, centred on it, and is a lens
  * rather than a drawing of one: inside the circle the page is painted again
- * and the letter drawn again a quarter larger, so the ink under it bends the
+ * and the letter drawn again a third larger, so the ink under it bends the
  * way it would under a drop of glass. On a plain page that is what reads as
  * glass at all, since there is nothing behind it to blur. A rim lit from the
  * top-left, a highlight and a fainter catch-light opposite finish it, and a
@@ -18,7 +18,7 @@
 const NS = 'http://www.w3.org/2000/svg';
 
 /** The bead's radius, as a share of the letter's height. */
-const SIZE = 0.26;
+const SIZE = 0.3;
 /** How much larger the lens shows what is under it. */
 const MAGNIFY = 1.35;
 /** Points read off the letter's outline to find its top. */
@@ -30,14 +30,42 @@ interface Bead {
   r: number;
 }
 
+/** A point on the stem's middle line, which runs from `upper` to `lower`. */
+interface Axis {
+  upper: { x: number; y: number };
+  lower: { x: number; y: number };
+}
+
 /**
- * Where the bead goes: centred left of the letter's highest point and a little
- * below it, so the bead rises above the letter's top-left and the top of the
- * stem runs through the lens.
+ * Where the bead goes: on the stem's middle line, half its radius below the
+ * letter's highest point, so the stem runs up through the centre of the lens
+ * and its rounded top sits in the upper half of the glass.
  */
-export function beadFor(top: { x: number; y: number }, height: number): Bead {
+export function beadFor(top: { x: number; y: number }, height: number, axis?: Axis): Bead {
   const r = height * SIZE;
-  return { x: top.x - r * 0.55, y: top.y + r * 0.35, r };
+  const y = top.y + r * 0.5;
+  if (!axis) return { x: top.x, y, r };
+  const { upper, lower } = axis;
+  const x = upper.x + ((y - upper.y) / (lower.y - upper.y || 1)) * (lower.x - upper.x);
+  return { x, y, r };
+}
+
+/**
+ * The middle of the stroke at height `y` nearest `near`, read off the letter's
+ * fill: where the ink on that row begins and ends, halved.
+ */
+function middleAt(path: SVGGeometryElement, y: number, near: number, span: number) {
+  const inside = (x: number) => path.isPointInFill(new DOMPoint(x, y));
+  const step = span / 400;
+  let x = near;
+  // Find ink on the row, starting from straight below the top and widening.
+  for (let d = 0; d <= span && !inside(x); d += step) x = inside(near - d) ? near - d : near + d;
+  if (!inside(x)) return undefined;
+  let left = x;
+  let right = x;
+  while (inside(left - step) && left > near - span) left -= step;
+  while (inside(right + step) && right < near + span) right += step;
+  return { x: (left + right) / 2, y };
 }
 
 /** The highest point on a path's outline, in its own user units. */
@@ -88,7 +116,10 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
   if (!letter) return undefined;
   const box = letter.getBBox();
   if (box.height === 0) return undefined;
-  const { x, y, r } = beadFor(highest(letter), box.height);
+  const top = highest(letter);
+  const upper = middleAt(letter, top.y + box.height * 0.1, top.x, box.height * 0.3);
+  const lower = middleAt(letter, top.y + box.height * 0.25, upper?.x ?? top.x, box.height * 0.3);
+  const { x, y, r } = beadFor(top, box.height, upper && lower ? { upper, lower } : undefined);
 
   const id = (name: string) => `ks-glass-${name}`;
   const circle = (attributes: Record<string, string | number> = {}) =>
