@@ -7,11 +7,25 @@ export interface Resource<T> {
   warm: () => Promise<T>;
 }
 
-/** Reads a resource during render: synchronously if it is warm, else suspends. */
+/**
+ * Reads a resource during render: synchronously if it is warm, else suspends.
+ *
+ * Always through `use`, never around it. It used to return a warm value
+ * without calling `use` at all, and that raced: a component that suspended on
+ * a cold load, and whose load then landed before React retried it, skipped
+ * `use` on the retry. React switches back to first-render hooks from inside
+ * `use`, so the hook after it ran in the wrong mode and failed, React error
+ * #467 inside #422, and React threw the server's markup away and drew the
+ * post again. Safari's engine hit it in three loads of 78 in one test. A settled load's
+ * promise is marked fulfilled (below), so `use` hands the value back at once
+ * without suspending, in the browser and in the prerender alike.
+ */
 export function useResource<T>(source: Resource<T>): T {
-  const settled = source.peek();
-  return settled ? settled.current : use(source.warm());
+  return use(source.warm());
 }
+
+/** What React's `use` reads off a promise to return its value without waiting. */
+type Tracked<T> = Promise<T> & { status?: 'fulfilled'; value?: T };
 
 /**
  * A value loaded once and then readable without suspending.
@@ -39,17 +53,19 @@ export function resource<T>(load: () => Promise<T>): Resource<T> {
   let promise: Promise<T> | null = null;
 
   const start = (): Promise<T> => {
-    promise ??= load().then(
+    const tracked: Tracked<T> = (promise ??= load().then(
       (result) => {
         value = { current: result };
+        tracked.status = 'fulfilled';
+        tracked.value = result;
         return result;
       },
       (error: unknown) => {
         promise = null;
         throw error;
       },
-    );
-    return promise;
+    ));
+    return tracked;
   };
 
   return { peek: () => value, warm: start };
