@@ -203,6 +203,11 @@
   margin: 0;
 }
 
+/* The source follows the quotation as its next line, not after a paragraph's gap. */
+.prose .quote > blockquote > :last-child {
+  margin-bottom: 0;
+}
+
 .prose .quote__source {
   color: var(--text-muted);
   font-family: var(--sans);
@@ -223,11 +228,15 @@
 /*
  * An epigraph, a sourced quotation that opens the post: no rule, set in
  * italics in a narrower measure against the right, with its source under it,
- * the way a book sets one under a chapter title.
+ * the way a book sets one under a chapter title. The block is as wide as its
+ * longest line and no wider than 26rem, so the quotation and the source's
+ * dash start on one edge and the longer of the two ends on the column's;
+ * a fixed width left a short quotation adrift in the middle of it.
  */
 .prose .quote--epigraph {
   margin: 0 0 2.25rem auto;
   max-width: min(100%, 26rem);
+  width: fit-content;
 }
 
 .prose .quote--epigraph > blockquote {
