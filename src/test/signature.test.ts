@@ -59,18 +59,23 @@ describe('signaturePath', () => {
 });
 
 describe('the glass bead', () => {
-  it('centres on the stem, level with its top', () => {
+  it('centres on the stem, a little above its top', () => {
     const top = { x: 100, y: -120 };
     // A stem leaning left as it goes down: its middle at x 96 near the top, 90 lower.
     const axis = { upper: { x: 96, y: -110 }, lower: { x: 90, y: -95 } };
     const bead = beadFor(top, 100, axis);
     expect(bead.r).toBeCloseTo(30);
-    expect(bead.y).toBeCloseTo(-120);
-    expect(bead.x).toBeCloseTo(100);
+    // A fifth of its radius above the top, on the stem's line produced upward.
+    expect(bead.y).toBeCloseTo(-126);
+    expect(bead.x).toBeCloseTo(102.4);
     expect(bead.y - bead.r).toBeLessThan(top.y);
   });
 
-  it('sits straight below the top when the stem cannot be measured', () => {
-    expect(beadFor({ x: 100, y: -120 }, 100)).toMatchObject({ x: 100, y: -120 });
+  it('rises further when asked to', () => {
+    expect(beadFor({ x: 100, y: -120 }, 100, undefined, 0.5).y).toBeCloseTo(-135);
+  });
+
+  it('sits straight above the top when the stem cannot be measured', () => {
+    expect(beadFor({ x: 100, y: -120 }, 100)).toMatchObject({ x: 100, y: -126 });
   });
 });

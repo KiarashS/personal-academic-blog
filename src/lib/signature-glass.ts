@@ -36,18 +36,47 @@ interface Axis {
   lower: { x: number; y: number };
 }
 
+/** How far the bead is raised at first, and at most, in radii above the letter's top. */
+const LIFT = { from: 0.2, step: 0.05, to: 1 };
+
 /**
- * Where the bead goes: on the stem's middle line, level with the letter's
- * highest point, so the stem runs up into the centre of the lens and its
- * rounded top ends there, with the glass rising above the letter.
+ * Where the bead goes: on the stem's middle line, `lift` radii above the
+ * letter's highest point, so the stem rises into the lower half of the lens
+ * and the glass stands above the letter. `addGlass` raises it from
+ * `LIFT.from` until nothing but the stem is under the glass.
  */
-export function beadFor(top: { x: number; y: number }, height: number, axis?: Axis): Bead {
+export function beadFor(
+  top: { x: number; y: number },
+  height: number,
+  axis?: Axis,
+  lift = LIFT.from,
+): Bead {
   const r = height * SIZE;
-  const y = top.y;
+  const y = top.y - lift * r;
   if (!axis) return { x: top.x, y, r };
   const { upper, lower } = axis;
   const x = upper.x + ((y - upper.y) / (lower.y - upper.y || 1)) * (lower.x - upper.x);
   return { x, y, r };
+}
+
+/**
+ * Whether the glass would cover ink other than the stem: the arm of a K, the
+ * bowl of a P. Points across the bead are tested against the letter's fill;
+ * ink further from the stem's middle line than the stem is wide is not stem.
+ */
+function coversMoreThanStem(path: SVGGeometryElement, bead: Bead, axis: Axis, half: number) {
+  const { upper, lower } = axis;
+  const axisAt = (y: number) =>
+    upper.x + ((y - upper.y) / (lower.y - upper.y || 1)) * (lower.x - upper.x);
+  const step = bead.r / 14;
+  for (let y = bead.y - bead.r; y <= bead.y + bead.r; y += step) {
+    for (let x = bead.x - bead.r; x <= bead.x + bead.r; x += step) {
+      if (Math.hypot(x - bead.x, y - bead.y) > bead.r) continue;
+      if (Math.abs(x - axisAt(y)) <= half) continue;
+      if (path.isPointInFill(new DOMPoint(x, y))) return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -65,7 +94,7 @@ function middleAt(path: SVGGeometryElement, y: number, near: number, span: numbe
   let right = x;
   while (inside(left - step) && left > near - span) left -= step;
   while (inside(right + step) && right < near + span) right += step;
-  return { x: (left + right) / 2, y };
+  return { x: (left + right) / 2, y, half: (right - left) / 2 };
 }
 
 /** The highest point on a path's outline, in its own user units. */
@@ -119,7 +148,19 @@ export function addGlass(svg: SVGSVGElement): SVGGElement | undefined {
   const top = highest(letter);
   const upper = middleAt(letter, top.y + box.height * 0.1, top.x, box.height * 0.3);
   const lower = middleAt(letter, top.y + box.height * 0.25, upper?.x ?? top.x, box.height * 0.3);
-  const { x, y, r } = beadFor(top, box.height, upper && lower ? { upper, lower } : undefined);
+  const axis = upper && lower ? { upper, lower } : undefined;
+  let bead = beadFor(top, box.height, axis);
+  // Raise it until the stem is all the glass covers. The stem's half-width,
+  // and a little, counts as stem; its widening into a junction lower down
+  // does not reach this high.
+  if (axis) {
+    const half = Math.max(upper!.half, lower!.half) * 1.25;
+    for (let lift = LIFT.from; lift <= LIFT.to; lift += LIFT.step) {
+      bead = beadFor(top, box.height, axis, lift);
+      if (!coversMoreThanStem(letter, bead, axis, half)) break;
+    }
+  }
+  const { x, y, r } = bead;
 
   const id = (name: string) => `ks-glass-${name}`;
   const circle = (attributes: Record<string, string | number> = {}) =>
