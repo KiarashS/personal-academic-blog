@@ -150,7 +150,11 @@ export function rehypeCsvTables(options: CsvTableOptions = {}) {
         (parent.children as ElementContent[])[index] = el(
           'div',
           {
-            className: ['table-wrap', ...(body.length > LONG ? ['table-wrap--scroll'] : [])],
+            className: [
+              'table-wrap',
+              ...(body.length > LONG ? ['table-wrap--scroll'] : []),
+              ...(code.properties.dataWide ? ['table-wrap--wide'] : []),
+            ],
           },
           [table],
         );

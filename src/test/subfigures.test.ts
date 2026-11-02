@@ -83,10 +83,41 @@ describe('sub-figures', () => {
   });
 
   it('reads #frame, #compare and #invert in any order', () => {
-    const all = { src: '/a.png', framed: true, compare: true, invert: true };
+    const all = {
+      src: '/a.png',
+      framed: true,
+      compare: true,
+      invert: true,
+      wide: false,
+      margin: false,
+    };
     expect(flagsOf('/a.png#frame#compare#invert')).toEqual(all);
     expect(flagsOf('/a.png#invert#compare#frame')).toEqual(all);
     expect(flagsOf('/a.png#compare#frame')).toEqual({ ...all, invert: false });
+    expect(flagsOf('/a.png#wide#invert#frame')).toMatchObject({
+      src: '/a.png',
+      wide: true,
+      invert: true,
+    });
+  });
+
+  it('sets a figure wide or in the margin, and keeps the flag off its path', () => {
+    const wide = render('![A plot](https://example.org/plot.png#wide)');
+    expect(wide).toContain('<figure class="figure figure--wide">');
+    expect(wide).toContain('src="https://example.org/plot.png"');
+    expect(render('![A sketch](https://example.org/s.png#margin)')).toContain(
+      '<figure class="figure figure--margin">',
+    );
+    const row = render('![A](https://example.org/a.png#wide)\n![B](https://example.org/b.png)');
+    expect(row).toContain('class="figure subfigures figure--wide"');
+  });
+
+  it('takes #wide over #margin, and says so', () => {
+    const warnings: string[] = [];
+    expect(render('![A](https://example.org/a.png#wide#margin)', warnings)).toContain(
+      'figure--wide',
+    );
+    expect(warnings[0]).toMatch(/both #wide and #margin/);
   });
 
   it('marks a picture to invert on the dark theme, and keeps the flag off its path', () => {

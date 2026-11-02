@@ -37,7 +37,10 @@ import { parseFrontmatter } from '../src/lib/frontmatter';
 import type { Heading, PostFrontmatter } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
 import { rehypeCodeBlocks } from './code-blocks';
+import { remarkAbbreviations } from './abbreviations';
 import { remarkCodeMeta } from './code-meta';
+import { remarkDefinitionLists } from './definition-lists';
+import { remarkQuotes } from './quotes';
 import { rehypeContentTweaks } from './content-tweaks';
 import { FOOTNOTE_HEADING, rehypeHeadingAnchors } from './heading-anchors';
 import { rehypeFigures } from './figures';
@@ -218,6 +221,12 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // left as written and a post can explain the syntax it is using.
       .use(remarkEmoji)
       .use(remarkMath)
+      // Markdown the site adds: `Term` / `: definition` lists, a quotation
+      // whose last line names its source, and `*[MCMC]: …` abbreviations,
+      // marked last so terms and quotes are marked too.
+      .use(remarkDefinitionLists)
+      .use(remarkQuotes)
+      .use(remarkAbbreviations, { onWarn: warn })
       // A fence's line marks, diff and tab, before the raw-HTML pass drops the
       // meta string they are written in; and a `file=` fence's code.
       .use(remarkCodeMeta, {

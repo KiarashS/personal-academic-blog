@@ -110,10 +110,15 @@
   }
 }
 
-/* An abbreviation with its expansion in `title` keeps the browser's dotted
-   underline; the cursor says the expansion is there to be had. */
+/* An abbreviation marked from `*[MCMC]: …` (plugins/abbreviations.ts) or written
+   as HTML. A dotted underline says there is more to it on hover; the first
+   use in the text is spelled out besides, for a reader who cannot hover. */
 .prose abbr[title] {
   cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--rule-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
 }
 
 /*
@@ -182,6 +187,58 @@
   color: var(--text-muted);
   margin: 1.5rem 0;
   padding: 0.1rem 0 0.1rem 1rem;
+}
+
+/*
+ * A quotation with its source (plugins/quotes.ts): the blockquote as above and
+ * the source under it, aligned with the quoted text, drawn with the dash the
+ * Markdown wrote and smaller, in the sans the site uses for apparatus.
+ */
+.prose .quote {
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.prose .quote > blockquote {
+  margin: 0;
+}
+
+.prose .quote__source {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin-top: 0.45rem;
+  padding-left: calc(1rem + 2px);
+}
+
+.prose .quote__source::before {
+  content: '— ';
+}
+
+.prose .quote__source cite {
+  font-style: italic;
+}
+
+/*
+ * An epigraph, a sourced quotation that opens the post: no rule, set in
+ * italics in a narrower measure against the right, with its source under it,
+ * the way a book sets one under a chapter title.
+ */
+.prose .quote--epigraph {
+  margin: 0 0 2.25rem auto;
+  max-width: min(100%, 26rem);
+}
+
+.prose .quote--epigraph > blockquote {
+  border: 0;
+  font-style: italic;
+  padding: 0;
+}
+
+.prose .quote--epigraph .quote__source {
+  padding-left: 0;
+  text-align: right;
 }
 
 /*
@@ -1713,6 +1770,100 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .prose .figure-image--invert {
     filter: invert(0.92) hue-rotate(180deg);
+  }
+}
+
+/*
+ * Wider than the text: `#wide` on an image's path, or `wide` on a `table`
+ * fence (plugins/figures.ts, plugins/csv-tables.ts), for a plot or a table
+ * that the 43.5rem column would shrink or set scrolling. On a phone there is
+ * nothing beside the column to grow into. From 48rem to 80rem neither margin
+ * has anything in it, so the figure grows evenly into both, to 60rem or the
+ * window less its gutters. From 80rem the contents rail stands on one
+ * side, so the figure grows into the other, the sidenotes', as far as their
+ * outer edge, and clears any note already standing there rather than run
+ * over it. A table with a caption is inside a figure, which grows instead.
+ */
+@media (width >= 48rem) {
+  .prose
+    :is(figure.figure--wide, figure:has(> .table-wrap--wide), :not(figure) > .table-wrap--wide) {
+    --wide-width: max(100%, min(100vw - 2.5rem, 60rem));
+
+    margin-inline: calc((100% - var(--wide-width)) / 2);
+    max-width: none;
+    width: var(--wide-width);
+  }
+}
+
+.prose .figure--wide .figure-image {
+  width: 100%;
+}
+
+@media (width >= 80rem) {
+  .prose
+    :is(figure.figure--wide, figure:has(> .table-wrap--wide), :not(figure) > .table-wrap--wide) {
+    clear: right;
+    margin-inline: 0 -15.75rem;
+    width: calc(100% + 15.75rem);
+  }
+
+  :root:has(.contents-rail--right)
+    .prose
+    :is(figure.figure--wide, figure:has(> .table-wrap--wide), :not(figure) > .table-wrap--wide) {
+    clear: left;
+    margin-inline: -15.75rem 0;
+  }
+}
+
+/*
+ * In the margin: `#margin` on an image's path, for a small picture that
+ * belongs beside a paragraph rather than across the page. From 80rem it
+ * stands where the sidenotes do, the same 13rem wide, floated so nothing in
+ * the column moves for it, its caption set small like a note. Below that
+ * there is no margin, and it is a small figure in the column. Both selectors
+ * here name the element, to outrank `.prose .captioned` further down, which
+ * centres every captioned block in the column.
+ */
+.prose figure.figure--margin {
+  margin-inline: auto;
+  max-width: min(100%, 20rem);
+}
+
+@media (width >= 80rem) {
+  .prose figure.figure--margin {
+    clear: right;
+    float: right;
+    margin: 0.35rem -15.75rem 1rem 0;
+    max-width: none;
+    width: 13rem;
+  }
+
+  :root:has(.contents-rail--right) .prose figure.figure--margin {
+    clear: left;
+    float: left;
+    margin: 0.35rem 0 1rem -15.75rem;
+  }
+
+  .prose .figure--margin figcaption {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    text-align: left;
+  }
+}
+
+/* On paper the page is the column: both stand in it as ordinary figures. */
+@media print {
+  .prose
+    :is(
+      figure.figure--wide,
+      figure.figure--margin,
+      figure:has(> .table-wrap--wide),
+      .table-wrap--wide
+    ) {
+    float: none;
+    margin-inline: 0;
+    max-width: 100%;
+    width: auto;
   }
 }
 

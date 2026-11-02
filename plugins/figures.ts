@@ -112,8 +112,9 @@ export function rehypeFigures(options: FigureOptions) {
    * each wrapped in its zoom link if it is worth opening, and the caption its
    * Markdown title gives it.
    */
-  const picturesOf = (target: Element): { pictures: Element[]; caption: string } | undefined => {
-    const { src, framed, invert: asked } = flagsOf(String(target.properties?.src ?? ''));
+  const picturesOf = (target: Element): Built | undefined => {
+    const flags = flagsOf(String(target.properties?.src ?? ''));
+    const { src, framed, invert: asked } = flags;
     const alt = String(target.properties?.alt ?? '');
     const caption = String(target.properties?.title ?? '');
     if (!src) return undefined;
@@ -169,7 +170,11 @@ export function rehypeFigures(options: FigureOptions) {
     const pictures: Element[] = dark
       ? [variant(src, 'light'), variant(darkSibling(src), 'dark')]
       : [variant(src)];
-    return { pictures, caption };
+    if (flags.wide && flags.margin) {
+      options.onWarn?.(`${src} asks for both #wide and #margin; it is set wide`);
+    }
+    const placement: Placement = flags.wide ? 'wide' : flags.margin ? 'margin' : undefined;
+    return { pictures, caption, placement };
   };
 
   return (tree: Root) => {
@@ -207,12 +212,12 @@ export function rehypeFigures(options: FigureOptions) {
 
         const built = picturesOf(target);
         if (!built) return;
-        const { pictures, caption } = built;
+        const { pictures, caption, placement } = built;
 
         children[index] = {
           type: 'element',
           tagName: 'figure',
-          properties: { className: ['figure'] },
+          properties: { className: ['figure', ...placementClass(placement)] },
           children: caption
             ? [
                 ...pictures,
@@ -234,33 +239,47 @@ export function rehypeFigures(options: FigureOptions) {
 /**
  * The path with its flags taken off, in any order: `#frame` for a border,
  * `#compare` for a before/after pair, `#invert` for a picture whose colours
- * are flipped on the dark theme.
+ * are flipped on the dark theme, `#wide` for a figure wider than the text and
+ * `#margin` for a small one beside it.
  */
 export function flagsOf(written: string): {
   src: string;
   framed: boolean;
   compare: boolean;
   invert: boolean;
+  wide: boolean;
+  margin: boolean;
 } {
   let src = written;
   let framed = false;
-  let compare = false;
-  let invert = false;
-  for (let i = 0; i < 3; i += 1) {
-    if (src.endsWith('#compare')) {
-      src = src.slice(0, -'#compare'.length);
-      compare = true;
-    }
-    if (src.endsWith('#invert')) {
-      src = src.slice(0, -'#invert'.length);
-      invert = true;
+  const flags = { compare: false, invert: false, wide: false, margin: false };
+  for (let i = 0; i < 5; i += 1) {
+    for (const flag of Object.keys(flags) as (keyof typeof flags)[]) {
+      if (src.endsWith(`#${flag}`)) {
+        src = src.slice(0, -flag.length - 1);
+        flags[flag] = true;
+      }
     }
     const frame = withoutFrame(src);
     src = frame.src;
     framed ||= frame.framed;
   }
-  return { src, framed, compare, invert };
+  return { src, framed, ...flags };
 }
+
+/** One image made into pictures, with the caption and placement it asks for. */
+interface Built {
+  pictures: Element[];
+  caption: string;
+  placement: Placement;
+}
+
+/** Where a figure stands: across the text, wider than it, or in the margin. */
+export type Placement = 'wide' | 'margin' | undefined;
+
+/** The class a figure takes for where it stands. */
+const placementClass = (placement: Placement): string[] =>
+  placement ? [`figure--${placement}`] : [];
 
 /**
  * The images of a paragraph that holds pictures and nothing else, or nothing.
@@ -302,9 +321,11 @@ const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
  */
 function subfigures(
   images: Element[],
-  picturesOf: (target: Element) => { pictures: Element[]; caption: string } | undefined,
+  picturesOf: (target: Element) => Built | undefined,
   onWarn?: (message: string) => void,
 ): Element {
+  // A row of pictures is too wide for the margin; set wide, the row is wide.
+  const wide = images.some((image) => flagsOf(String(image.properties?.src ?? '')).wide);
   const compare = images.some((image) => flagsOf(String(image.properties?.src ?? '')).compare);
   if (compare && images.length !== 2) {
     onWarn?.(
@@ -344,7 +365,12 @@ function subfigures(
     type: 'element',
     tagName: 'figure',
     properties: {
-      className: ['figure', 'subfigures', ...(paired ? ['compare'] : [])],
+      className: [
+        'figure',
+        'subfigures',
+        ...(paired ? ['compare'] : []),
+        ...placementClass(wide ? 'wide' : undefined),
+      ],
       style: `--subfigures:${Math.min(parts.length, 3)}`,
     },
     children: parts,

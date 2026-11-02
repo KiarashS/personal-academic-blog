@@ -300,6 +300,9 @@ export function remarkCodeMeta(options: CodeMetaOptions = {}) {
     const tabLabel = tab ? (tab[1] ?? tab[2] ?? tab[3] ?? '').trim() : '';
     if (tabLabel) props.dataTab = tabLabel;
 
+    // A table from data set wider than the text (plugins/csv-tables.ts).
+    if (code.lang === 'table' && /(?:^|\s)wide(?:\s|$)/.test(meta)) props.dataWide = 'true';
+
     if (Object.keys(props).length > 0) {
       code.data = {
         ...code.data,

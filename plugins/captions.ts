@@ -26,6 +26,9 @@ type Kind = 'figure' | 'table' | 'code' | 'notebook';
 /** What a block should be called in its caption, and how it is counted. */
 function kindOf(node: Element): Kind | undefined {
   const classes = classesOf(node);
+  // A quotation and its source (plugins/quotes.ts) is a figure in HTML, but
+  // its caption is the source, not a numbered figure's.
+  if (classes.includes('quote')) return undefined;
   if (classes.includes('table-wrap')) return 'table';
   if (classes.includes('code-block') || classes.includes('code-tabs')) return 'code';
   if (classes.includes('notebook')) return 'notebook';

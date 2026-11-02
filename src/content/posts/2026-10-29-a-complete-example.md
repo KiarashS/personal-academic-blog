@@ -14,6 +14,13 @@ macros:
   \loss: \mathcal{L}
 ---
 
+> All models are wrong, but some are useful.
+>
+> — George E. P. Box, *Robustness in Statistics*
+
+*[SGD]: stochastic gradient descent
+*[AUC]: area under the ROC curve
+
 This post fits a logistic regression and reports on it, using every feature
 the renderer has along the way. The numbers are made up for the example. Rest
 the pointer on any reference below, "Figure 2" or "(1)" or a citation, and it
@@ -37,6 +44,20 @@ footnote, which on a wide screen stands in the margin.[^margin]
     frontmatter; most posts do not need them.
 
 ## Theory
+
+The symbols used throughout:
+
+$X$
+: The $n \times d$ matrix of inputs, one example to a row.
+
+$y$
+: The labels, each $0$ or $1$.
+
+$w$
+: The weights, the model's only parameters.
+
+$\sigma$
+: The logistic function, which maps a score to a probability.
 
 ### The loss
 
@@ -87,7 +108,14 @@ $$
 
 ### The algorithm
 
-[](#alg-gd) is [](#thm-convex) put to work.
+![A step from w down the slope of a bowl towards its minimum](/posts/complete-example/step.svg#margin#invert)
+
+Caption: One step: down the slope, by $\eta$ times it. {#fig-step}
+
+[](#alg-gd) is [](#thm-convex) put to work, one step at a time as in
+[](#fig-step). It uses all the data for every step; drawing a few rows at a
+time instead is SGD, which scales to data that does not fit in memory. SGD is
+left out here for clarity.
 
 ```algorithm
 \begin{algorithm}
@@ -162,14 +190,15 @@ And what changed when the loop learnt to stop early:
 
 ### Step sizes
 
-![Loss falling slowly](/posts/complete-example/lr-small.svg "Too small")
+![Loss falling slowly](/posts/complete-example/lr-small.svg#wide "Too small")
 ![Loss falling quickly to a floor](/posts/complete-example/lr-good.svg "About right")
 ![Loss oscillating and climbing](/posts/complete-example/lr-large.svg "Too large")
 
 Caption: Training loss for three step sizes. {#fig-lr}
 
 The step in [](#fig-lr-b) is the one used for the rest of the post;
-[](#fig-lr-c) diverges.
+[](#fig-lr-c) diverges. The row is set wider than the text, `#wide` on its
+first picture, so the three plots are not squeezed into the column.
 
 ### Before and after
 
@@ -186,6 +215,8 @@ Caption: A photograph before and after denoising. {#fig-denoise}
 
 [](#tbl-accuracy) is read from `accuracy.csv` beside the post, so it shows the
 numbers the results came out in; the numeric columns line up on the right.
+Accuracy depends on where the threshold is set; AUC, which does not, would be
+the other number to report.
 
 ```table file=/posts/complete-example/accuracy.csv
 ```

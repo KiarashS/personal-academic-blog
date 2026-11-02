@@ -328,13 +328,49 @@ colour is drawn over a checkerboard. Only a code span holding the colour and
 nothing else counts, so `` `color: #c0573e` `` and a colour in a code block are
 left alone, and a value out of range, `rgb(300, 0, 0)`, gets no swatch.
 
-Markdown has no syntax for definition lists or abbreviations, so both are HTML.
-`<dl>` with a `<dt>` per term and a `<dd>` per definition sets the term in bold
-and the definition at a list item's indent; two `<dt>` in a row share the
-`<dd>` after them. From 40rem up the terms run down a 10rem column with each
-definition beside its term; on a phone the definition goes under it. `<abbr title="Markov chain Monte Carlo">MCMC</abbr>` shows
-the expansion on hover, which a phone cannot do, so spell an abbreviation out
-the first time it appears.
+#### Definition lists
+
+A term on its own line and its definition on the next, after a colon and a
+space, make a definition list (`plugins/definition-lists.ts`), as in Pandoc:
+
+```markdown
+Prior
+: What is believed _before_ the data.
+
+Posterior
+: What is believed after it.
+: Or, the prior updated by the likelihood.
+```
+
+A term may have more than one definition, and two terms in a row share the
+one after them; both take inline Markdown. Entries in a run, with or without
+a blank line between them, make one list. The term is set in bold; from 40rem
+up the terms run down a 10rem column with each definition beside its term,
+and on a phone the definition goes under it. Only a paragraph made entirely of
+terms and definitions, starting with a term and ending with a definition,
+becomes a list, so a sentence that happens to start a line with a colon stays
+a sentence. `<dl>`, `<dt>` and `<dd>` written as HTML are set the same way.
+
+#### Abbreviations
+
+Define an abbreviation once, on a line of its own anywhere in the post, and
+every use of it is marked (`plugins/abbreviations.ts`):
+
+```markdown
+*[MCMC]: Markov chain Monte Carlo
+*[ELBO]: evidence lower bound
+```
+
+The definition lines are not shown. Each MCMC in the text, and MCMCs, becomes
+`<abbr title="Markov chain Monte Carlo">MCMC</abbr>`, with a dotted underline
+and the expansion on hover. A phone cannot hover, so the first use in the text
+is also spelled out where it stands, "Markov chain Monte Carlo (MCMC)", as a
+paper does; if you have written it out yourself just before, it is not written
+twice. A use in a heading is marked but is not the first use, since a heading
+is also read on its own, in the contents. Code, maths and raw HTML are left
+alone, and so is a word that only contains the letters: MCMC-based is marked,
+NMCMC is not. The match is case-sensitive. An abbreviation defined but never
+used is reported when the site builds.
 
 A collapsible section is `<details>` with a `<summary>`. Leave a blank line after
 the summary and another before `</details>`, and Markdown works inside. It is
@@ -395,6 +431,27 @@ Each note is in the page twice, beside the text and at the foot, and CSS shows
 one. A screen reader meets the one that is shown. The margin is on the right,
 so on a post with sidenotes the "back to top" control moves to the left side. On paper the margin is gone and the notes print at
 the foot.
+
+### Quotations and epigraphs
+
+A blockquote is a quotation. End it with a paragraph that starts with a dash
+and that paragraph is its source (`plugins/quotes.ts`):
+
+```markdown
+> The purpose of computing is insight, not numbers.
+>
+> — Richard Hamming, _Numerical Methods for Scientists and Engineers_
+```
+
+The quotation and its source become a `<figure>` with the source in its
+`<figcaption>`, outside the `<blockquote>`, since the source is not part of
+what was said; a title in italics is marked as one, `<cite>`. The source is
+set small under the quotation, with a dash the page draws; write an em dash,
+`--` or `---`. A blockquote without such a line stays as it is.
+
+A sourced quotation that opens the post, before any other text, is an
+epigraph: no rule beside it, italic, in a narrower measure set against the
+right, with its source under it, as a book sets one under a chapter title.
 
 ### Alerts
 
@@ -1222,7 +1279,29 @@ places, white paper taking the page's own dark rather than pure black, and
 the hues are turned back, so a red line stays red. It suits line
 art and text, not photographs, which is why it is asked for and not done to
 every image. A `.dark` sibling, when there is one, is used instead.
-`#invert`, `#frame` and `#compare` go together in any order.
+
+#### Wide figures and margin figures
+
+A figure the column would shrink, a plot with fine detail or a long row of
+sub-figures, can be set wider than the text with `#wide` on its path: `![Loss
+curves for all runs](/posts/my-post/runs.svg#wide)`. On a phone it stays in the
+column; from 48rem it grows into both sides, up to 60rem or the window less its
+gutters; and from 80rem, where the contents rail stands on one side, it grows
+into the other, the side the sidenotes use, and starts below any note already
+there. The picture is stretched to the figure's width, so give it at least 1,100
+pixels across, or make it an SVG. In a row of sub-figures, `#wide` on any one
+sets the row wide.
+
+A small picture that belongs beside a paragraph rather than across the page
+takes `#margin`: `![A sketch of the idea](/posts/my-post/sketch.png#margin)`.
+From 80rem it stands in the margin where the sidenotes do, 13rem wide, with
+its caption set small, and nothing in the column moves for it; below that it
+is a small figure in the column, at most 20rem wide. Put it just before the
+paragraph it belongs to. Either is numbered and captioned as any figure is,
+and on paper both are ordinary figures.
+
+`#invert`, `#frame`, `#compare`, `#wide` and `#margin` go together in any order;
+`#wide` wins over `#margin`, and the build says so.
 
 #### Tables from data
 
@@ -1243,7 +1322,9 @@ The first row is the header. Cells are separated by commas, or by tabs in a
 commas, line breaks and `""` for a quote, which is what a spreadsheet writes.
 It is set as any Markdown table is, and a `Caption:` numbers it as a table. A
 column whose cells are all numbers (`0.86`, `1,234`, `3e-4`, `87%`) is
-right-aligned. A table of more than 20 rows scrolls in a box of its own with
+right-aligned. A fence that also says `wide`, ` ```table wide file=… `,
+sets the table wider than the text, as `#wide` does a figure. A table of more
+than 20 rows scrolls in a box of its own with
 its header kept in view. A row with more or fewer cells than the header is cut
 or filled to fit, and the build says so. A `csv` fence is still code, for
 showing a file as it is written.

@@ -91,6 +91,12 @@ describe('tables from data', () => {
     expect(warnings[0]).toMatch(/rows of more or fewer cells than its 3 headings/);
   });
 
+  it('sets a table wider than the text when the fence says wide', () => {
+    expect(render('```table wide file=/data/results.csv\n```')).toContain(
+      'class="table-wrap table-wrap--wide"',
+    );
+  });
+
   it('leaves a csv fence, which shows CSV as code, alone', () => {
     expect(render('```csv\na,b\n```')).toContain('<pre><code class="language-csv">');
   });
