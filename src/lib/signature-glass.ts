@@ -37,13 +37,13 @@ interface Axis {
 }
 
 /**
- * Where the bead goes: on the stem's middle line, half its radius below the
- * letter's highest point, so the stem runs up through the centre of the lens
- * and its rounded top sits in the upper half of the glass.
+ * Where the bead goes: on the stem's middle line, a quarter of its radius below
+ * the letter's highest point, so the stem runs up through the centre of the
+ * lens and its rounded top sits just above the middle of the glass.
  */
 export function beadFor(top: { x: number; y: number }, height: number, axis?: Axis): Bead {
   const r = height * SIZE;
-  const y = top.y + r * 0.5;
+  const y = top.y + r * 0.25;
   if (!axis) return { x: top.x, y, r };
   const { upper, lower } = axis;
   const x = upper.x + ((y - upper.y) / (lower.y - upper.y || 1)) * (lower.x - upper.x);
