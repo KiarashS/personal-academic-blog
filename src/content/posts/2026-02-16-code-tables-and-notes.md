@@ -195,43 +195,46 @@ face is downloaded only by a page that uses it.
 
 ### Definitions and abbreviations
 
-Markdown has no syntax for either, so both are HTML. A definition list is
-`<dl>`, a `<dt>` for each term and a `<dd>` for what it means:
+A term on its line and its definition on the next, after a colon, make a
+definition list:
 
-```html
-<dl>
-  <dt>Prior</dt>
-  <dd>What you believe about a parameter before seeing the data.</dd>
-  <dt>Likelihood</dt>
-  <dd>How probable the data are, for each value the parameter could take.</dd>
-  <dt>Posterior</dt>
-  <dt>Updated belief</dt>
-  <dd>The prior, reweighted by the likelihood: what the data leave you believing.</dd>
-</dl>
+```markdown
+Prior
+: What you believe about a parameter before seeing the data.
+
+Likelihood
+: How probable the data are, for each value the parameter could take.
+
+Posterior
+Updated belief
+: The prior, reweighted by the likelihood: what the data leave you believing.
 ```
 
-<dl>
-  <dt>Prior</dt>
-  <dd>What you believe about a parameter before seeing the data.</dd>
-  <dt>Likelihood</dt>
-  <dd>How probable the data are, for each value the parameter could take.</dd>
-  <dt>Posterior</dt>
-  <dt>Updated belief</dt>
-  <dd>The prior, reweighted by the likelihood: what the data leave you believing.</dd>
-</dl>
+Prior
+: What you believe about a parameter before seeing the data.
+
+Likelihood
+: How probable the data are, for each value the parameter could take.
+
+Posterior
+Updated belief
+: The prior, reweighted by the likelihood: what the data leave you believing.
 
 Two terms in a row share the definition after them, as the last pair does.
+`<dl>`, `<dt>` and `<dd>` written as HTML come out the same.
 
-An abbreviation is `<abbr>` with its expansion in `title`:
+An abbreviation is defined once, on a line of its own anywhere in the post:
 
-```html
-The <abbr title="Markov chain Monte Carlo">MCMC</abbr> sampler
+```markdown
+*[MCMC]: Markov chain Monte Carlo
 ```
 
-which shows the full name when the pointer rests on it: the
-<abbr title="Markov chain Monte Carlo">MCMC</abbr> sampler. A phone has no
-pointer to rest, so spell an abbreviation out the first time it appears, as you
-would on paper, and let the tag carry it after that.
+*[MCMC]: Markov chain Monte Carlo
+
+The line is not shown, and every MCMC after it is marked, with the full name
+when the pointer rests on it. A phone has no pointer to rest, so the first use
+is spelled out where it stands, as on paper: a sampler built on MCMC draws from
+the posterior, and every later MCMC is marked but not spelled out again.
 
 ### Collapsible sections
 

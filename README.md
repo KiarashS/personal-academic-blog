@@ -306,6 +306,11 @@ A name can be written with or without its backslash. A malformed one is
 reported by the build and left out. Notebook cells get the site's macros but
 not a post's.
 
+KaTeX may break inline math after any relation, as TeX does, so a long formula
+can wrap at its `=`. `\mid` is a relation too, but a line that ends "P(A |"
+and starts "B)" splits one probability in two, so the site defines `\mid` as
+the same bar with no break after it. Either macro list can redefine it.
+
 A post heavy with symbols can list its notation as a Markdown table, a symbol
 and a meaning per row, with math in the cells; the math post has one. A `|`
 inside math would end the cell, so write `\mid` for a bar. Math in a table cell

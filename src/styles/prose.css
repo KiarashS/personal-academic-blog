@@ -1412,6 +1412,21 @@
 }
 
 /*
+ * A sequence diagram centres a message's label on the line it is sent along,
+ * and a message to oneself on that participant's lifeline, which then ran
+ * through the middle of the words ("render diagrams", "deployment URL").
+ * A halo of the page's colour round each letter stops the line short of the
+ * text. Mermaid's own rule sets the label's stroke to none through the
+ * diagram's id, which no class selector outranks, hence `!important`.
+ */
+.mermaid-figure .messageText {
+  paint-order: stroke fill;
+  stroke: var(--bg) !important;
+  stroke-linejoin: round;
+  stroke-width: 5px;
+}
+
+/*
  * A label's box is cut at build time to fit that label in Source Sans 3. While
  * that file is still in flight the fallback face draws wider, and a
  * `foreignObject` clips to its bounds by default, which takes the end off the

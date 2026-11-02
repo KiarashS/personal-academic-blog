@@ -152,7 +152,7 @@ $\Delta H = \pu{-2870 kJ/mol}$, and ions such as $\ce{SO4^2-}$.
 
 ## Code that shows what changed
 
-`{3}` after the language marks a line:
+`{5, 2-3}` after the language marks those lines, a single line or a range, in any order:
 
 ```python {5, 2-3}
 def loss(model, batch):

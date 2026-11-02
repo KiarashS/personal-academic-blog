@@ -14,6 +14,16 @@
  * A fresh object every time: KaTeX writes into the macros it is given when a
  * post uses `\gdef`, and one post's definitions must not leak into the next.
  */
+/**
+ * Under the site's and the post's macros, which may redefine them. KaTeX lets
+ * an inline formula break after any relation, and `\mid` is one, so
+ * $P(A \mid B)$ could end a line at the bar and start the next with "B)".
+ * Here the bar is the same relation followed by `\nobreak`.
+ */
+const BUILT_IN: Record<string, string> = {
+  '\\mid': '\\mathrel{\\vert}\\nobreak',
+};
+
 export function mathMacros(
   site: Record<string, string> | undefined,
   post: unknown,
@@ -33,6 +43,7 @@ export function mathMacros(
     out[key] = String(value);
   };
 
+  Object.assign(out, BUILT_IN);
   for (const [name, value] of Object.entries(site ?? {})) add(name, value);
   if (post !== undefined && post !== null) {
     if (typeof post !== 'object' || Array.isArray(post)) {

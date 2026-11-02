@@ -6,8 +6,8 @@ import type { Parent, Root, RootContent, Text } from 'mdast';
  *     *[MCMC]: Markov chain Monte Carlo
  *
  * on a line of its own, anywhere in the post (the syntax of PHP Markdown Extra
- * and Pandoc). The line is taken out, and every MCMC in the text after it, an
- * MCMCs too, becomes `<abbr title="Markov chain Monte Carlo">MCMC</abbr>`.
+ * and Pandoc). The line is taken out, and every MCMC in the post, and MCMCs
+ * too, becomes `<abbr title="Markov chain Monte Carlo">MCMC</abbr>`.
  *
  * The title shows on hover, which a phone has no way to do, so the first use
  * in the text is also spelled out where it stands, "Markov chain Monte Carlo

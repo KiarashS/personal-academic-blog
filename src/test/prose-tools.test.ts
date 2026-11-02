@@ -142,8 +142,13 @@ describe('mathMacros', () => {
       { KL: 'D_{\\mathrm{KL}}', '\\R': '\\mathbf{R}', 'no good': 'x', empty: null },
       (m) => warnings.push(m),
     );
-    expect(macros).toEqual({ '\\R': '\\mathbf{R}', '\\KL': 'D_{\\mathrm{KL}}' });
+    expect(macros).toMatchObject({ '\\R': '\\mathbf{R}', '\\KL': 'D_{\\mathrm{KL}}' });
     expect(warnings).toHaveLength(2);
+  });
+
+  it('keeps a formula from breaking at the bar of \\mid, unless asked otherwise', () => {
+    expect(mathMacros({}, undefined)['\\mid']).toBe('\\mathrel{\\vert}\\nobreak');
+    expect(mathMacros({ '\\mid': '|' }, undefined)['\\mid']).toBe('|');
   });
 
   it("gives each post a fresh copy, so one post's \\gdef stays its own", () => {
