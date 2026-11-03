@@ -309,6 +309,12 @@
   margin-bottom: 0.9rem;
 }
 
+/* The rule's margin is the space above the body, whatever opens it: a code
+   block or a figure brings its own, larger, and would double it. */
+.prose details[open] > summary + * {
+  margin-top: 0;
+}
+
 .prose figure {
   margin: 1.75rem 0;
 }
@@ -1613,7 +1619,7 @@
 }
 
 .prose .chart__data .table-wrap {
-  margin: 0.6rem 0 0;
+  margin: 0 0 0.9rem;
   max-height: 20rem;
   overflow: auto;
 }
