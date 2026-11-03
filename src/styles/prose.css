@@ -336,7 +336,9 @@
   padding-left: 1rem;
 }
 
-.prose .theorem > :last-child {
+/* Not a solution's: that is a collapsible section, whose last block keeps the
+   space the others have above the box's lower edge. */
+.prose .theorem:not(details) > :last-child {
   margin-bottom: 0;
 }
 
