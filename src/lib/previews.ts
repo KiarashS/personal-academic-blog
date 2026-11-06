@@ -21,8 +21,13 @@ const LINKS = [
   'a.code-callout',
 ].join(', ');
 
-/** Furniture that means nothing in a copy: permalinks, buttons, back-links. */
+/**
+ * Furniture that means nothing in a copy: permalinks, buttons, back-links, and
+ * a paragraph's margin notes, which in a card have no margin to stand in and
+ * spilled past its edge; their numbers stay in the text.
+ */
 const STRIP = [
+  '.sidenote',
   '.caption-anchor',
   '.heading-anchor',
   '.theorem__anchor',
@@ -36,7 +41,15 @@ const STRIP = [
 ].join(', ');
 
 const SHOW_AFTER = 350;
-const WIDTH = 28 * 16;
+/**
+ * A card is as wide as what it shows, between these: a one-line footnote or
+ * a short equation gets a small card rather than a wide, mostly empty one,
+ * and prose wraps at the widest. A chart, a diagram or images side by side
+ * have no width of their own to fit (they take their container's), so their
+ * cards are the widest.
+ */
+const WIDTH = { min: 16 * 16, max: 28 * 16 };
+const FULL_WIDTH = '.chart, .mermaid-figure, .subfigures, .compare';
 const GAP = 8;
 
 /** The part of the page a reference's card shows, or nothing worth showing. */
@@ -115,7 +128,17 @@ export function referencePreviews(container: HTMLElement): () => void {
     card.append(clean(content));
     document.body.append(card);
 
-    const width = Math.min(WIDTH, window.innerWidth - 2 * GAP);
+    const widest = Math.min(WIDTH.max, window.innerWidth - 2 * GAP);
+    if (card.querySelector(FULL_WIDTH)) {
+      card.style.width = `${widest}px`;
+    } else {
+      card.style.width = 'max-content';
+      card.style.minWidth = `${Math.min(WIDTH.min, widest)}px`;
+      card.style.maxWidth = `${widest}px`;
+    }
+    // Fixed at what it measured, rounded up so no line wraps again, so the
+    // card does not reflow as it is placed.
+    const width = Math.ceil(card.getBoundingClientRect().width);
     card.style.width = `${width}px`;
     const box = link.getBoundingClientRect();
     const height = card.offsetHeight;
