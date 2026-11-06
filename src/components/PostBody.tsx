@@ -412,7 +412,12 @@ export function PostBody({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="prose" ref={containerRef} dangerouslySetInnerHTML={inner} />
+      <div
+        className="prose"
+        data-post-body={slug}
+        ref={containerRef}
+        dangerouslySetInnerHTML={inner}
+      />
       {viewing === null ? null : (
         <DiagramViewer markup={viewing} onClose={() => setViewing(null)} />
       )}

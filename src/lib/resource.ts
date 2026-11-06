@@ -5,6 +5,11 @@ export interface Resource<T> {
   peek: () => { current: T } | null;
   /** Starts the load, and resolves once `peek` will answer. */
   warm: () => Promise<T>;
+  /**
+   * Gives it a value it then has without loading: what the page already holds,
+   * such as a prerendered post's body (main.tsx). Nothing if it has one.
+   */
+  prime: (value: T) => void;
 }
 
 /**
@@ -68,5 +73,14 @@ export function resource<T>(load: () => Promise<T>): Resource<T> {
     return tracked;
   };
 
-  return { peek: () => value, warm: start };
+  const prime = (given: T) => {
+    if (promise) return;
+    const tracked: Tracked<T> = Promise.resolve(given);
+    tracked.status = 'fulfilled';
+    tracked.value = given;
+    value = { current: given };
+    promise = tracked;
+  };
+
+  return { peek: () => value, warm: start, prime };
 }

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { installBackTransition } from './lib/card-transition';
 import { looksLikeMissingChunk, recoverFromMissingChunk } from './lib/recover';
+import { primePostBody } from './lib/post-content';
 import { syncServiceWorker } from './lib/pwa-client';
 import { siteConfig } from './site.config';
 import { ThemeProvider } from './components/ThemeProvider';
@@ -70,6 +71,11 @@ if (import.meta.env.PROD) {
  * the page the address asks for over the top, as it would on a dev server.
  */
 if (container.hasChildNodes() && !container.hasAttribute('data-fallback')) {
+  // A post's body is already on the page; React takes it from there rather
+  // than fetching the same text again as a module (lib/post-content.ts). Read
+  // before hydrating, while the markup is still exactly the prerender's.
+  const body = container.querySelector<HTMLElement>('[data-post-body]');
+  if (body?.dataset.postBody) primePostBody(body.dataset.postBody, body.innerHTML);
   hydrateRoot(container, tree);
 } else {
   createRoot(container).render(tree);

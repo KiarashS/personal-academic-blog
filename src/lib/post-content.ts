@@ -38,6 +38,16 @@ export function postBody(slug: string): Resource<string> {
   return made;
 }
 
+/**
+ * The body of the post a prerendered page arrived with, read off the page
+ * before it is hydrated (main.tsx), so the post's module is not fetched for
+ * the same text the HTML has just delivered. A reader who goes on to another
+ * post loads that one's module as before.
+ */
+export function primePostBody(slug: string, html: string): void {
+  if (bySlug.has(slug)) postBody(slug).prime(html);
+}
+
 /** Used by the prerenderer, which needs every body up front. */
 export function allContentSlugs(): string[] {
   return [...bySlug.keys()];
