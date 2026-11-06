@@ -15,6 +15,17 @@ export function inlineKeptWhenWide(contents: ContentsConfig = siteConfig.content
   return contents.wide !== 'rail';
 }
 
+/**
+ * Whether the floating contents button is wanted: once the collapsed list at
+ * the top of the post has gone up past the top of the window, and only while
+ * the list is drawn at all. It is not on a wide screen whose rail stands in
+ * for it (`.toc--narrow-only`), where the list measures nothing; the rail is
+ * the contents there. `list` is the list's box relative to the window.
+ */
+export function contentsButtonShown(list: { bottom: number; height: number } | undefined): boolean {
+  return list !== undefined && list.height > 0 && list.bottom <= 0;
+}
+
 /** A heading as the rail measures it: its id and its distance down the page. */
 export interface HeadingBox {
   id: string;
@@ -65,4 +76,24 @@ export function currentHeading(
     current = heading.id;
   }
   return current;
+}
+
+/**
+ * The section the reader is in, measured off the page now. Both the rail,
+ * on every scroll, and the floating button's list, when it opens, ask this.
+ */
+export function headingInView(ids: string[]): string | undefined {
+  const boxes = ids
+    .map((id) => {
+      const element = document.getElementById(id);
+      return element
+        ? { id, top: element.getBoundingClientRect().top + window.scrollY }
+        : undefined;
+    })
+    .filter((box): box is HeadingBox => box !== undefined);
+  return currentHeading(boxes, {
+    scrollY: window.scrollY,
+    viewport: window.innerHeight,
+    documentHeight: document.documentElement.scrollHeight,
+  });
 }

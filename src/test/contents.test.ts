@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { currentHeading, inlineKeptWhenWide, railShown } from '../lib/contents';
+import {
+  contentsButtonShown,
+  currentHeading,
+  inlineKeptWhenWide,
+  railShown,
+} from '../lib/contents';
 import { siteConfig } from '../site.config';
 import type { ContentsConfig } from '../site.config';
 
@@ -31,6 +36,21 @@ describe('which contents a wide screen shows', () => {
 
   it('stands the rail in the margin the config names', () => {
     expect(['left', 'right']).toContain(siteConfig.contents.side);
+  });
+});
+
+describe('the floating contents button', () => {
+  it('comes once the collapsed list has gone up past the top of the window', () => {
+    expect(contentsButtonShown({ bottom: 120, height: 40 })).toBe(false);
+    expect(contentsButtonShown({ bottom: 1, height: 40 })).toBe(false);
+    expect(contentsButtonShown({ bottom: 0, height: 40 })).toBe(true);
+    expect(contentsButtonShown({ bottom: -900, height: 40 })).toBe(true);
+  });
+
+  it('stays away where the list is not drawn, or there is none', () => {
+    // A wide screen whose rail stands in for the list measures it at nothing.
+    expect(contentsButtonShown({ bottom: 0, height: 0 })).toBe(false);
+    expect(contentsButtonShown(undefined)).toBe(false);
   });
 });
 

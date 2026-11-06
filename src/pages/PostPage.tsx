@@ -6,6 +6,7 @@ import { Comments } from '../components/Comments';
 import { commentTerm, commentsShown } from '../lib/comments';
 import { PostBody } from '../components/PostBody';
 import { PublicationNote } from '../components/PublicationNote';
+import { ContentsButton } from '../components/ContentsButton';
 import { ContentsRail } from '../components/ContentsRail';
 import { PostBanner } from '../components/PostBanner';
 import { PostFooterLinks } from '../components/PostFooterLinks';
@@ -50,6 +51,7 @@ export function PostPage() {
           same reason the banner does: it is not reading matter. */}
       {railShown() ? <ContentsRail headings={post.headings} /> : null}
       <PostFooterLinks />
+      <ContentsButton headings={contents} />
       {/* Above the reading matter on purpose. A banner is looked at, not read,
           and inside the measured block it would make the progress bar count
           scrolling past a photograph as progress through the post. */}

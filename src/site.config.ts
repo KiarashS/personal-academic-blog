@@ -772,9 +772,11 @@ export const siteConfig: SiteConfig = {
     until: '',
   },
   contents: {
-    // The collapsed list at the top, plus the rail in the margin from 80rem up.
-    // 'inline' is the collapsed list alone; 'rail' is the margin alone.
-    wide: 'both',
+    // From 80rem up, the rail in the margin and no collapsed list at the top.
+    // 'inline' is the collapsed list alone; 'both' is the list and the rail.
+    // Narrower windows always have the list, and a button for it once it has
+    // scrolled away.
+    wide: 'rail',
     side: 'left',
   },
   math: {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { currentHeading } from '../lib/contents';
+import { headingInView } from '../lib/contents';
 import { siteConfig } from '../site.config';
 import type { Heading } from '../lib/types';
 
@@ -19,24 +19,10 @@ export function ContentsRail({ headings }: { headings: Heading[] }) {
   const list = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
+    const ids = headings.map((heading) => heading.id);
     const measure = () => {
       frame.current = 0;
-      const boxes = headings
-        .map((heading) => {
-          const element = document.getElementById(heading.id);
-          return element
-            ? { id: heading.id, top: element.getBoundingClientRect().top + window.scrollY }
-            : undefined;
-        })
-        .filter((box): box is { id: string; top: number } => box !== undefined);
-
-      setCurrent(
-        currentHeading(boxes, {
-          scrollY: window.scrollY,
-          viewport: window.innerHeight,
-          documentHeight: document.documentElement.scrollHeight,
-        }),
-      );
+      setCurrent(headingInView(ids));
     };
 
     // Scroll events outrun paint; one measurement per frame is enough. The

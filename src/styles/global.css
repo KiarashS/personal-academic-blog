@@ -2117,8 +2117,179 @@ h1 + .author-card {
 
 /* A window short enough that the pair would sit on the words. */
 @media (height <= 26rem) {
-  .post-exit {
+  .post-exit,
+  .contents-button {
     display: none;
+  }
+}
+
+/* The contents within reach ------------------------------------------------ */
+
+/*
+ * The button in the corner of the rail's side, opposite the pair above, once
+ * the collapsed list at the top has gone out of view (ContentsButton.tsx). It
+ * wears the pair's `.post-exit__link`, so the two read as one set of controls.
+ */
+.contents-button {
+  bottom: 1.25rem;
+  position: fixed;
+  z-index: 3;
+}
+
+.contents-button--left {
+  left: 1.25rem;
+}
+
+.contents-button--right {
+  right: 1.25rem;
+}
+
+/* The rail is the contents where there is one. */
+@media (width >= 80rem) {
+  .contents-button--narrow-only {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contents-button {
+    animation: post-exit-in 180ms ease-out;
+  }
+}
+
+/*
+ * The list, from the bottom of the window: a sheet as wide as the column at
+ * most, its own scroll when the headings outrun it. `dvh` for the reason the
+ * diagram viewer gives. Rows are taller than the rail's, because they are for
+ * a finger.
+ */
+.contents-sheet {
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-block-end: 0;
+  border-radius: 12px 12px 0 0;
+  color: var(--text);
+  inline-size: min(100%, 46rem);
+  inset-block-end: 0;
+  margin: auto auto 0;
+  max-block-size: 75dvh;
+  max-inline-size: 100%;
+  padding: 0;
+}
+
+.contents-sheet::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.contents-sheet__inner {
+  display: flex;
+  flex-direction: column;
+  max-block-size: 75dvh;
+}
+
+.contents-sheet__bar {
+  align-items: center;
+  border-block-end: 1px solid var(--rule);
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem 0.35rem 1.25rem;
+}
+
+.contents-sheet__title {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Focused as the sheet opens, as a place to start from, not a control. */
+.contents-sheet__title:focus {
+  outline: none;
+}
+
+.contents-sheet__close {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  min-block-size: 2.75rem;
+  min-inline-size: 2.75rem;
+}
+
+.contents-sheet__close:hover {
+  color: var(--text);
+}
+
+.contents-sheet__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.contents-sheet nav {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  /* Clear of the home indicator on a phone without a button. */
+  padding-block: 0.4rem calc(0.6rem + env(safe-area-inset-bottom));
+}
+
+.contents-sheet ol {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contents-sheet li {
+  margin: 0;
+}
+
+/* The rail's spine and marker, on rows a finger can hit. */
+.contents-sheet a {
+  border-inline-start: 3px solid transparent;
+  color: var(--text-muted);
+  display: block;
+  padding: 0.6rem 1.25rem 0.6rem calc(1.25rem - 3px);
+  text-decoration: none;
+}
+
+.contents-sheet__sub a {
+  padding-inline-start: calc(2.25rem - 3px);
+}
+
+.contents-sheet a:hover {
+  color: var(--text);
+}
+
+.contents-sheet a[aria-current] {
+  border-inline-start-color: var(--accent);
+  color: var(--text);
+}
+
+.contents-sheet a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contents-sheet[open] {
+    animation: contents-sheet-in 200ms ease-out;
+  }
+
+  @keyframes contents-sheet-in {
+    from {
+      translate: 0 2rem;
+      opacity: 0;
+    }
   }
 }
 
@@ -4391,6 +4562,7 @@ h1 + .author-card {
   /* A banner is decoration above the title, and on paper it costs a third of
      the first page. A player prints as a black rectangle. */
   .contents-rail,
+  .contents-button,
   .post-exit,
   .mermaid-figure__expand,
   .media-frame--banner,

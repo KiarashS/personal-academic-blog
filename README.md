@@ -2016,7 +2016,7 @@ it stands is `contents` in `src/site.config.ts`:
 
 ```ts
 contents: {
-  wide: 'both',   // 'inline' | 'rail' | 'both'
+  wide: 'rail',   // 'inline' | 'rail' | 'both'
   side: 'left',   // which margin the rail stands in
 },
 ```
@@ -2036,6 +2036,17 @@ gap need the first of those. Below 80rem the collapsed list is the whole of the
 contents whatever `wide` says, and the rail is hidden in CSS — which is also
 why the collapsed list stays in the document in every mode. It is what a narrow
 window shows, and what a reader with no JavaScript gets.
+
+Below 80rem, a reader who has scrolled past the collapsed list still has the
+contents within reach: a round button in the bottom corner on the rail's side
+(opposite the Top and All posts buttons) opens the list from the bottom of the
+window, with the section they are reading marked, and following a heading
+closes it. The button arrives once the collapsed list has gone up out of view
+and leaves if the reader scrolls back to it, so the two are never on screen
+together. From 80rem up the rail does this job and the button is not shown,
+except with `inline`, where there is no rail and the button stays at every
+width. A post with fewer than three headings has no contents list and no
+button.
 
 `side` defaults to `left`. The rail is a map of the page and a page is read
 from the left, so the margin the eye returns to is the left one; on the right
