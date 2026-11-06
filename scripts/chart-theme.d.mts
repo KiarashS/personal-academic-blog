@@ -28,4 +28,5 @@ export const CHART_PALETTE: Record<ChartMode, string[]>;
 export function chartConfig(mode: ChartMode): Record<string, unknown>;
 export function prepareSpec<T extends object>(spec: T, readText: (path: string) => string): T;
 export function withCrosshair<T extends object>(spec: T, series?: unknown[]): T;
+export function withoutHiddenMarks(svg: string): string;
 export function seriesOf(spec: object, rows: Record<string, unknown>[] | undefined): unknown[];

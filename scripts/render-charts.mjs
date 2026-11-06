@@ -13,6 +13,7 @@ import {
   seriesOf,
   sizesOf,
   withCrosshair,
+  withoutHiddenMarks,
 } from './chart-theme.mjs';
 import { DIAGRAM_FONT_FILE } from './diagram-source.mjs';
 
@@ -143,7 +144,7 @@ for (const [key, { spec, file }] of missing) {
         failed = true;
         break;
       }
-      rendered[size.name][mode] = result.svg;
+      rendered[size.name][mode] = withoutHiddenMarks(result.svg);
     }
     if (failed) break;
   }

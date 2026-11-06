@@ -14,6 +14,7 @@ import {
   sizeFor,
   sizesOf,
   withCrosshair,
+  withoutHiddenMarks,
 } from '../../scripts/chart-theme.mjs';
 import { chartHash, rehypeCharts } from '../../plugins/charts';
 import { rehypeContentTweaks } from '../../plugins/content-tweaks';
@@ -129,11 +130,41 @@ describe('withCrosshair', () => {
     expect(rule.params).toHaveLength(1);
   });
 
+  it('hides the points off the hairline instead of filtering them out', () => {
+    // A layer filtered to nothing leaves the shared scales an empty extent,
+    // which Vega warns about until the pointer arrives.
+    const out = withCrosshair(line, ['a', 'b']) as unknown as {
+      layer: { layer?: { transform?: unknown[]; encoding?: { opacity?: unknown } }[] }[];
+    };
+    const points = out.layer[0].layer?.[1];
+    expect(points?.transform).toBeUndefined();
+    expect(points?.encoding?.opacity).toEqual({
+      condition: { param: 'hover', empty: false, value: 1 },
+      value: 0,
+    });
+  });
+
   it('leaves a chart with interaction of its own, or one that is not a line, alone', () => {
     const own = { ...line, params: [{ name: 'p' }] };
     expect(withCrosshair(own, ['a'])).toBe(own);
     const bars = { ...line, mark: 'bar' };
     expect(withCrosshair(bars, ['a'])).toBe(bars);
+  });
+});
+
+describe('withoutHiddenMarks', () => {
+  it('drops the shapes drawn at opacity 0 and keeps the rest', () => {
+    const svg =
+      '<g><line x2="0" y2="260" stroke="#888" opacity="0"/>' +
+      '<path d="M4,0" fill="#f58518" opacity="0"/>' +
+      '<path d="M0,0L1,1" stroke="#4c78a8" stroke-opacity="0"/>' +
+      '<path d="M0,0" fill-opacity="0" opacity="1"/>' +
+      '<text opacity="0">200</text></g>';
+    expect(withoutHiddenMarks(svg)).toBe(
+      '<g><path d="M0,0L1,1" stroke="#4c78a8" stroke-opacity="0"/>' +
+        '<path d="M0,0" fill-opacity="0" opacity="1"/>' +
+        '<text opacity="0">200</text></g>',
+    );
   });
 });
 

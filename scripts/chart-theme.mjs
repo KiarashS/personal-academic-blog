@@ -252,7 +252,13 @@ export function withCrosshair(spec, series = []) {
         layer: [
           { mark: { ...(typeof mark === 'string' ? { type: mark } : mark), tooltip: false } },
           {
-            transform: [{ filter: { param: 'hover', empty: false } }],
+            // Every point is drawn and those off the hairline are hidden,
+            // rather than filtered out: a layer filtered down to nothing, as
+            // it is until the pointer arrives, gives the shared scales an
+            // empty extent, and Vega warns about it on every chart.
+            encoding: {
+              opacity: { condition: { param: 'hover', empty: false, value: 1 }, value: 0 },
+            },
             // The hover marks are for the pointer: a screen reader has the
             // line's own description and the table.
             mark: { type: 'point', filled: true, size: 64, tooltip: false, aria: false },
@@ -284,6 +290,15 @@ export function withCrosshair(spec, series = []) {
     ],
   };
 }
+
+/**
+ * A drawing without the marks it does not show: the crosshair's hairlines and
+ * points, at opacity 0 until the pointer is over the live chart, which the
+ * build's drawing never has. Only the shapes Vega writes as one self-closing
+ * element; `fill-opacity` and `stroke-opacity` are not `opacity`.
+ */
+export const withoutHiddenMarks = (svg) =>
+  svg.replace(/<(?:line|path)\b[^>]*\sopacity="0"[^>]*\/>/g, '');
 
 /** The colour field's values, in order of first appearance, for `withCrosshair`. */
 export function seriesOf(spec, rows) {
