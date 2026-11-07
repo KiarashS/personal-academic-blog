@@ -81,6 +81,9 @@ function contentOf(target: HTMLElement): HTMLElement | undefined {
   return target.cloneNode(true) as HTMLElement;
 }
 
+/** Where a figure or table stands on the page, which means nothing in a card. */
+const PLACED = ['figure--wide', 'figure--margin', 'table-wrap--wide'];
+
 function clean(node: HTMLElement): HTMLElement {
   for (const part of node.querySelectorAll(STRIP)) part.remove();
   for (const part of [node, ...node.querySelectorAll<HTMLElement>('[id], [tabindex]')]) {
@@ -89,6 +92,13 @@ function clean(node: HTMLElement): HTMLElement {
   }
   // A live chart's copy shows the drawing the page arrived with.
   for (const chart of node.querySelectorAll('.chart--live')) chart.classList.remove('chart--live');
+  // A figure or table set wider than the column, or out in its margin, is laid
+  // out in the card as an ordinary one: the card has no margin to reach into,
+  // and a wide figure's copy ran past the card's edge and lost its last
+  // picture and the end of its caption.
+  for (const part of [node, ...node.querySelectorAll<HTMLElement>(`.${PLACED.join(', .')}`)]) {
+    part.classList.remove(...PLACED);
+  }
   return node;
 }
 

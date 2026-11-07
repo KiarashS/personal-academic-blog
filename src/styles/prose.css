@@ -2588,6 +2588,12 @@
   max-height: 13rem;
 }
 
+/* Sub-figures stay in their row in a card, where a phone's page stacks three:
+   stacked, the card ran out of height after the first. */
+.ref-preview .subfigures[style*='--subfigures'] {
+  grid-template-columns: repeat(var(--subfigures, 2), minmax(0, 1fr));
+}
+
 /* A footnote or a callout's note, out of its list. */
 .ref-preview > li {
   list-style: none;
