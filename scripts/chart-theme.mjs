@@ -114,6 +114,10 @@ export function chartConfig(mode) {
       titleFontSize: 12,
       titleFontWeight: 600,
       labelPadding: 4,
+      // Labels closer than this are thinned out, every other one dropped,
+      // rather than set touching: "1,8002,000" on the loss chart's 500px
+      // drawing, which is also the one a hover card shows.
+      labelSeparation: 6,
       titlePadding: 8,
     },
     axisX: { grid: false },

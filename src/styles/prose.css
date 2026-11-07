@@ -922,7 +922,8 @@
 }
 
 /*
- * Wrapped, while the reader's choice on the root says so. Each numbered line becomes a box of its own with its number pinned
+ * Wrapped, while the reader's choice on the root says so, and always in a
+ * reference's hover card, which cannot be scrolled sideways. Each numbered line becomes a box of its own with its number pinned
  * at the top left, so a line that runs onto a second row is still one line
  * with one number. A row it wraps onto starts under the line's own first
  * character, from the `--indent` the build measured, and two characters
@@ -932,13 +933,13 @@
  * `--gutter` is the number column as `.code-line::before` draws it: the
  * digits, then its padding either side.
  */
-:root[data-code-wrap='on'] .code-block pre,
-:root[data-code-wrap='on'] .code-block pre code {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre,
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre code {
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-:root[data-code-wrap='on'] .code-block pre.numbered .code-line {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre.numbered .code-line {
   --gutter: calc(var(--code-digits, 2) * 1ch + 1ch + 3px + 1rem);
   --hang: calc(var(--indent, 0) * 1ch + 2ch);
 
@@ -948,7 +949,7 @@
   text-indent: calc(-1 * var(--hang));
 }
 
-:root[data-code-wrap='on'] .code-block pre.numbered .code-line::before {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre.numbered .code-line::before {
   left: 0;
   position: absolute;
   text-indent: 0;
@@ -956,7 +957,7 @@
 }
 
 /* A one-line block has no line boxes, so the hang goes on the code itself. */
-:root[data-code-wrap='on'] .code-block pre:not(.numbered) code {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre:not(.numbered) code {
   padding-left: 2ch;
   text-indent: -2ch;
 }
@@ -972,7 +973,7 @@
   width: max-content;
 }
 
-:root[data-code-wrap='on'] .code-block pre.code-marked code {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre.code-marked code {
   width: auto;
 }
 
@@ -1020,7 +1021,7 @@
   content: counter(line) '\00a0-';
 }
 
-:root[data-code-wrap='on'] .code-block pre.code-diff .code-line {
+:is(:root[data-code-wrap='on'], .ref-preview) .code-block pre.code-diff .code-line {
   --gutter: calc((var(--code-digits, 2) + 2) * 1ch + 1ch + 3px + 1rem);
 }
 
@@ -2588,6 +2589,29 @@
   max-height: 13rem;
 }
 
+/*
+ * A chart in a card is the drawing made for a 500px column, at the card's
+ * width: the phone's drawing, which a card's width would pick, is taller than
+ * it is wide and was shrunk by the height limit above until its labels were a
+ * few pixels high. Its card may be a little taller than others to hold it with
+ * its caption.
+ */
+.ref-preview .chart svg {
+  max-height: none;
+}
+
+.ref-preview .chart__size--mid {
+  display: block;
+}
+
+.ref-preview :is(.chart__size--wide, .chart__size--narrow) {
+  display: none;
+}
+
+.ref-preview:has(.chart) {
+  max-height: 23rem;
+}
+
 /* Sub-figures stay in their row in a card, where a phone's page stacks three:
    stacked, the card ran out of height after the first. */
 .ref-preview .subfigures[style*='--subfigures'] {
@@ -2609,8 +2633,11 @@
   margin: 0 0 0.35rem;
 }
 
-/* A section's card: its heading and first paragraph, inside a wrapper. */
-.ref-preview > div > :last-child {
+/* The last block of what the card holds, a section's paragraph or a
+   footnote's list, ends at the card's padding, not a paragraph's space below
+   it. */
+.ref-preview > * > :last-child,
+.ref-preview > * > :last-child > li:last-child {
   margin-bottom: 0;
 }
 

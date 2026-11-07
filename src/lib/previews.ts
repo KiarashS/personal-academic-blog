@@ -102,6 +102,21 @@ function clean(node: HTMLElement): HTMLElement {
   return node;
 }
 
+/**
+ * What scrolls sideways on the page, a display equation or a table wider than
+ * the column, cannot be scrolled in a card, which takes no pointer events; it
+ * lost its right-hand end, an equation its number. Here it is scaled down to
+ * the card's width instead. Code is not: it wraps in a card (prose.css).
+ */
+function fitSideways(card: HTMLElement): void {
+  for (const box of card.querySelectorAll<HTMLElement>('*')) {
+    if (box.tagName === 'PRE' || !/auto|scroll/.test(getComputedStyle(box).overflowX)) continue;
+    const scale = box.clientWidth / box.scrollWidth;
+    if (scale >= 0.99) continue;
+    for (const child of box.children) (child as HTMLElement).style.zoom = String(scale);
+  }
+}
+
 export function referencePreviews(container: HTMLElement): () => void {
   let card: HTMLDivElement | undefined;
   let showing: HTMLAnchorElement | undefined;
@@ -150,6 +165,7 @@ export function referencePreviews(container: HTMLElement): () => void {
     // card does not reflow as it is placed.
     const width = Math.ceil(card.getBoundingClientRect().width);
     card.style.width = `${width}px`;
+    fitSideways(card);
     const box = link.getBoundingClientRect();
     const height = card.offsetHeight;
     const below = window.innerHeight - box.bottom - GAP >= height || box.top < height + GAP;
