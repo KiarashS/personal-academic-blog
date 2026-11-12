@@ -1279,6 +1279,14 @@
   white-space: nowrap;
 }
 
+/* A command or a name in a cell stays on one line, as maths does above: on a
+   phone `vite build --ssr` broke over three lines in a column with room to
+   spare beside it. One too long for the column scrolls the table, as a wide
+   table does. */
+.prose :is(td, th) code {
+  white-space: nowrap;
+}
+
 .prose .katex-display {
   margin: 1.5rem 0;
   overflow: auto hidden;
@@ -1433,6 +1441,22 @@
   stroke: var(--bg) !important;
   stroke-linejoin: round;
   stroke-width: 5px;
+}
+
+/*
+ * The label on an edge of a flowchart or a state diagram ("date set",
+ * "changes needed") sat on Mermaid's own grey box, a half-transparent mid
+ * grey in both themes, which read as a button on the line. It stands on the
+ * page's colour instead, so the line simply stops short of the words. The
+ * same id-scoped rules set the grey, hence `!important` again.
+ */
+.mermaid-figure :is(.labelBkg, .edgeLabel, .edgeLabel p) {
+  background-color: var(--bg) !important;
+}
+
+.mermaid-figure .edgeLabel rect {
+  fill: var(--bg) !important;
+  opacity: 1 !important;
 }
 
 /*
