@@ -13,6 +13,9 @@ import { siteConfig } from '../site.config';
 
 export const homeBody = resource(() => import('../content/home.md') as Promise<{ html: string }>);
 
+/** Its text, loaded before a prerendered copy of the page is hydrated (`main.tsx`). */
+export const preload = () => homeBody.warm();
+
 /** Space kept between the list and the window's edge, in pixels. */
 const EDGE = 12;
 

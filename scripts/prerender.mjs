@@ -9,6 +9,7 @@ const serverEntry = pathToFileURL(join(resolve('dist-server'), 'entry-server.js'
 
 const {
   render,
+  renderedPage,
   allRoutes,
   metaFor,
   allPosts,
@@ -272,7 +273,7 @@ function portraitPreload(html) {
   return `\n    <link rel="preload" as="image" fetchpriority="high" href="${src}" />`;
 }
 
-function document(html, meta, { fallback = false } = {}) {
+function document(html, meta, { fallback = false, page } = {}) {
   // Only a page that has a diagram in it asks for the face the diagrams were
   // measured in, which is the class the build writes around every one.
   const diagrams = html.includes('mermaid-figure') ? diagramPreload : '';
@@ -287,7 +288,7 @@ function document(html, meta, { fallback = false } = {}) {
     .replace(TITLE_TAG, head(meta, diagrams + subsets + mono + faces + portraitPreload(html)))
     .replace(
       '<div id="root"></div>',
-      `<div id="root"${fallback ? ' data-fallback' : ''}>${html}</div>`,
+      `<div id="root"${fallback ? ' data-fallback' : ''}${page ? ` data-page="${page}"` : ''}>${html}</div>`,
     );
 }
 
@@ -306,6 +307,8 @@ const locationOf = (route) => (basename === '/' ? route : `${basename}${route}`)
 
 for (const route of allRoutes()) {
   const html = await render(locationOf(route), basename);
+  // The page drawn, which the browser loads before it hydrates this document.
+  const page = renderedPage();
   // An empty body means the router matched nothing — a basename or route
   // mismatch. It is invisible in the browser, because the client renders the
   // page anyway, so fail the build instead of shipping hollow HTML.
@@ -313,7 +316,7 @@ for (const route of allRoutes()) {
     throw new Error(`Prerendering ${route} produced an empty document (basename ${basename}).`);
   }
   const relative = route === '/' ? 'index.html' : `${route.replace(/^\//, '')}/index.html`;
-  await write(relative, document(html, pageFor(route)));
+  await write(relative, document(html, pageFor(route), { page }));
 }
 
 // Unknown paths: static hosts serve 404.html, which boots the router and
@@ -322,6 +325,7 @@ for (const route of allRoutes()) {
 // the root is marked, and `main.tsx` renders over it rather than hydrating a
 // page it cannot match.
 const missing = await render(locationOf('/__not_found__'), basename);
+renderedPage();
 await write(
   '404.html',
   document(

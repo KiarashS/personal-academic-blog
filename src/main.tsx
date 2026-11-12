@@ -1,9 +1,13 @@
 import { StrictMode } from 'react';
+import type { ComponentType } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { installBackTransition } from './lib/card-transition';
 import { looksLikeMissingChunk, recoverFromMissingChunk } from './lib/recover';
+import { isPageName, PAGE_MODULES } from './lib/page-modules';
+import type { PageModule } from './lib/page-modules';
+import { registerPage } from './lib/page-registry';
 import { primePostBody } from './lib/post-content';
 import { syncServiceWorker } from './lib/pwa-client';
 import { siteConfig } from './site.config';
@@ -70,13 +74,27 @@ if (import.meta.env.PROD) {
  * and a redraw. The prerender marks its root `data-fallback`, and React renders
  * the page the address asks for over the top, as it would on a dev server.
  */
+/** Loads and registers the page a prerendered document holds, and its text. */
+async function preparePage(name: string | undefined): Promise<void> {
+  if (!isPageName(name)) return;
+  const module: PageModule = await PAGE_MODULES[name]();
+  const component = module[name];
+  if (typeof component === 'function') registerPage(name, component as ComponentType);
+  await module.preload?.();
+}
+
 if (container.hasChildNodes() && !container.hasAttribute('data-fallback')) {
   // A post's body is already on the page; React takes it from there rather
   // than fetching the same text again as a module (lib/post-content.ts). Read
   // before hydrating, while the markup is still exactly the prerender's.
   const body = container.querySelector<HTMLElement>('[data-post-body]');
   if (body?.dataset.postBody) primePostBody(body.dataset.postBody, body.innerHTML);
-  hydrateRoot(container, tree);
+  // The page itself, and its text, are in before React starts (see
+  // `lib/page-registry.ts`); if they fail to load, hydration goes ahead and
+  // the page loads the way any other does.
+  void preparePage(container.dataset.page)
+    .catch(() => undefined)
+    .finally(() => hydrateRoot(container, tree));
 } else {
   createRoot(container).render(tree);
 }

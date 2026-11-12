@@ -12,6 +12,9 @@ export const researchBody = resource(
   () => import('../content/research.md') as Promise<{ html: string }>,
 );
 
+/** Its text, loaded before a prerendered copy of the page is hydrated (`main.tsx`). */
+export const preload = () => researchBody.warm();
+
 function ResearchBody() {
   return <RoutedHtml className="prose" html={useResource(researchBody).html} />;
 }

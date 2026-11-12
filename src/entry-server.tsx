@@ -62,6 +62,7 @@ export { SECTION_FONTS, sectionFontsIn } from './lib/fonts';
 export { commentTerm, commentsConfigured } from './lib/comments';
 export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';
+export { renderedPage } from './lib/page-registry';
 export { serialiseJsonLd, structuredDataFor } from './lib/structured-data';
 
 /**

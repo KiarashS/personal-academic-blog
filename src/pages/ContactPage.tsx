@@ -6,6 +6,9 @@ export const contactBody = resource(
   () => import('../content/contact.md') as Promise<{ html: string }>,
 );
 
+/** Its text, loaded before a prerendered copy of the page is hydrated (`main.tsx`). */
+export const preload = () => contactBody.warm();
+
 function ContactBody() {
   return <RoutedHtml className="prose" html={useResource(contactBody).html} />;
 }

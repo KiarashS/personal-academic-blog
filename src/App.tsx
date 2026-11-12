@@ -1,7 +1,8 @@
 import { createElement, lazy } from 'react';
 import type { ComponentType } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { getPage } from './lib/page-registry';
+import { getPage, notePage } from './lib/page-registry';
+import { PAGE_MODULES } from './lib/page-modules';
 import { Layout } from './components/Layout';
 import { categoriesEnabled } from './lib/categories';
 import { archiveEnabled, blogEnabled, isEnabled } from './lib/features';
@@ -22,34 +23,29 @@ import { AuthorPage } from './pages/AuthorPage';
 // The prerenderer registers the same components eagerly and `Lazily` picks
 // those up, because a boundary that suspends during a prerender leaves its
 // fallback in the shell and the real markup in a block only a script can
-// reveal. See `src/lib/page-registry.ts`.
-const PostPage = lazy(() => import('./pages/PostPage').then((m) => ({ default: m.PostPage })));
-const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
-const SearchPage = lazy(() =>
-  import('./pages/SearchPage').then((m) => ({ default: m.SearchPage })),
-);
+// reveal; and the browser registers the one page a document holds before it
+// hydrates it. See `src/lib/page-registry.ts`.
+const PostPage = lazy(() => PAGE_MODULES.PostPage().then((m) => ({ default: m.PostPage })));
+const AboutPage = lazy(() => PAGE_MODULES.AboutPage().then((m) => ({ default: m.AboutPage })));
+const SearchPage = lazy(() => PAGE_MODULES.SearchPage().then((m) => ({ default: m.SearchPage })));
 const ResearchPage = lazy(() =>
-  import('./pages/ResearchPage').then((m) => ({ default: m.ResearchPage })),
+  PAGE_MODULES.ResearchPage().then((m) => ({ default: m.ResearchPage })),
 );
 const PublicationsPage = lazy(() =>
-  import('./pages/PublicationsPage').then((m) => ({ default: m.PublicationsPage })),
+  PAGE_MODULES.PublicationsPage().then((m) => ({ default: m.PublicationsPage })),
 );
 const ArchivePage = lazy(() =>
-  import('./pages/ArchivePage').then((m) => ({ default: m.ArchivePage })),
+  PAGE_MODULES.ArchivePage().then((m) => ({ default: m.ArchivePage })),
 );
-const HomePage = lazy(() => import('./pages/HomePage').then((m) => ({ default: m.HomePage })));
-const SlidesPage = lazy(() =>
-  import('./pages/SlidesPage').then((m) => ({ default: m.SlidesPage })),
-);
+const HomePage = lazy(() => PAGE_MODULES.HomePage().then((m) => ({ default: m.HomePage })));
+const SlidesPage = lazy(() => PAGE_MODULES.SlidesPage().then((m) => ({ default: m.SlidesPage })));
 const ContactPage = lazy(() =>
-  import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })),
+  PAGE_MODULES.ContactPage().then((m) => ({ default: m.ContactPage })),
 );
-const NewsPage = lazy(() => import('./pages/NewsPage').then((m) => ({ default: m.NewsPage })));
-const PeoplePage = lazy(() =>
-  import('./pages/PeoplePage').then((m) => ({ default: m.PeoplePage })),
-);
+const NewsPage = lazy(() => PAGE_MODULES.NewsPage().then((m) => ({ default: m.NewsPage })));
+const PeoplePage = lazy(() => PAGE_MODULES.PeoplePage().then((m) => ({ default: m.PeoplePage })));
 const OpeningsPage = lazy(() =>
-  import('./pages/OpeningsPage').then((m) => ({ default: m.OpeningsPage })),
+  PAGE_MODULES.OpeningsPage().then((m) => ({ default: m.OpeningsPage })),
 );
 
 /**
@@ -63,8 +59,11 @@ function Lazily({ name, of: Lazy }: { name: string; of: ComponentType }) {
   // and the choice between them is fixed for the lifetime of a build — the
   // server always has the eager one, the browser never does — but written as
   // `<Page />` it reads to the linter as a component made up during a render.
-  const Page = getPage(name) ?? Lazy;
-  return createElement(Page);
+  const eager = getPage(name);
+  // Noted for the prerenderer, which writes it into the page's HTML so the
+  // browser loads this page before hydrating it (`main.tsx`).
+  if (eager) notePage(name);
+  return createElement(eager ?? Lazy);
 }
 
 export function App() {

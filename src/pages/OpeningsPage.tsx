@@ -11,6 +11,9 @@ export const openingsBody = resource(
   () => import('../content/openings.md') as Promise<{ html: string }>,
 );
 
+/** Its text, loaded before a prerendered copy of the page is hydrated (`main.tsx`). */
+export const preload = () => openingsBody.warm();
+
 function OpeningsBody() {
   return <RoutedHtml className="prose" html={useResource(openingsBody).html} />;
 }
