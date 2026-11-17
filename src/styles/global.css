@@ -935,6 +935,33 @@ a.site-credit__who:hover .site-credit__name {
   gap: 0.55rem;
 }
 
+/*
+ * A post card's line (PostMeta.tsx). Each item carries its separator before
+ * it, the first included, and the row is pulled left by a separator and its
+ * gap, so the separator that would start a line, the first one or one a wrap
+ * has put there, stands outside the paragraph and is clipped. On a phone the
+ * line wrapped as "16 Feb 2026 / · Kiarash Soleimanzadeh / · 3 min read". The
+ * clip leaves a few pixels to the left, for a link's focus ring.
+ */
+.meta--hanging {
+  clip-path: inset(-1rem -1rem -1rem -0.3rem);
+  display: block;
+}
+
+.meta--hanging .meta__row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.55rem;
+  margin-inline-start: -0.85rem;
+}
+
+.meta--hanging .meta__sep {
+  display: inline-block;
+  text-align: center;
+  width: 0.3rem;
+}
+
 /* Tags -------------------------------------------------------------------- */
 
 /* Scoped to the list rather than left as a bare `.tag`: KaTeX before 0.18 named

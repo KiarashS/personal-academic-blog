@@ -52,18 +52,21 @@ export function PostMeta({ post, dateStyle = 'short', showReadingTime = true }: 
   // Each separator travels with the item after it. As flex items of their
   // own, a line could end on one: on a phone the co-authored card read
   // "Co-author Name ·" with "3 min read" alone underneath.
+  // Every part carries the separator before it, the first one too, and the
+  // row hangs them in the margin (`.meta--hanging`), so a line that wraps
+  // starts with a date or a name rather than with "·".
   return (
-    <p className="meta">
-      {parts.map((part, index) =>
-        index === 0 ? (
-          <Fragment key={index}>{part}</Fragment>
-        ) : (
+    <p className="meta meta--hanging">
+      <span className="meta__row">
+        {parts.map((part, index) => (
           <span className="meta__item" key={index}>
-            <span className="meta__sep">·</span>
+            <span aria-hidden="true" className="meta__sep">
+              ·
+            </span>
             {part}
           </span>
-        ),
-      )}
+        ))}
+      </span>
     </p>
   );
 }
