@@ -144,7 +144,14 @@ export function rehypeNotebook(options: NotebookOptions) {
         const list = Array.isArray(classes) ? classes.map(String) : [String(classes ?? '')];
         if (!list.includes('language-notebook')) return;
 
-        const path = toString(code).trim();
+        // `#invert` after the path, as on a figure's: the outputs' pictures
+        // are flipped on the dark theme (prose.css). Matplotlib draws on white
+        // and a notebook's images can have no `.dark` sibling.
+        const [path, ...flags] = toString(code).trim().split('#');
+        for (const flag of flags) {
+          if (flag !== 'invert') options.onWarn?.(`Notebook ${path}: unknown flag #${flag}`);
+        }
+        const invert = flags.includes('invert');
         const file = join(options.publicDir, path.replace(/^\//, ''));
         if (!existsSync(file)) {
           options.onWarn?.(`Notebook not found in public/: ${path}`);
@@ -164,7 +171,10 @@ export function rehypeNotebook(options: NotebookOptions) {
         children[index] = {
           type: 'element',
           tagName: 'div',
-          properties: { className: ['notebook'], 'data-source': path },
+          properties: {
+            className: ['notebook', ...(invert ? ['notebook--invert'] : [])],
+            'data-source': path,
+          },
           children: [raw(renderNotebook(book, language, options.renderMarkdown))],
         };
       });

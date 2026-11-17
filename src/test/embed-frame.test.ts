@@ -58,6 +58,13 @@ describe('an iframe in a post', () => {
     expect(html).toContain('loading="eager"');
   });
 
+  it('drops the frame round an iframe marked frameless, and the attribute with it', () => {
+    const html = render('<iframe frameless src="/demo/" title="A demo"></iframe>');
+    expect(html).toContain('class="embed-frame embed-frame--frameless"');
+    expect(html).not.toMatch(/frameless[ =>]/);
+    expect(render('<iframe src="/demo/" title="A demo"></iframe>')).not.toContain('--frameless');
+  });
+
   it('leaves other elements alone', () => {
     expect(render('<video src="/v.mp4"></video>')).not.toContain('embed-frame');
   });

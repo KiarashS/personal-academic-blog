@@ -153,6 +153,39 @@ export function PostBody({ slug }: { slug: string }) {
        * A link inside a diagram is left alone — Mermaid can make nodes into
        * links, and following one is what a click on it is for.
        */
+      /*
+       * A figure wider than the column is a link to its own file, which is
+       * what a reader without JavaScript gets, and what a middle click or a
+       * modified one still does. A plain click opens it in the viewer the
+       * diagrams use instead, where it can be zoomed and moved without
+       * leaving the post. The picture is the one the reader clicked, so the
+       * dark theme's own copy opens on the dark theme.
+       */
+      const zoom = target.closest<HTMLAnchorElement>('a.figure-zoom');
+      const picture = zoom?.querySelector('img');
+      if (
+        zoom &&
+        picture &&
+        event.button === 0 &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      ) {
+        event.preventDefault();
+        const copy = picture.cloneNode(false) as HTMLImageElement;
+        copy.removeAttribute('loading');
+        copy.removeAttribute('srcset');
+        copy.src = picture.currentSrc || picture.src;
+        const width = Number(picture.getAttribute('width')) || picture.naturalWidth;
+        const height = Number(picture.getAttribute('height')) || picture.naturalHeight;
+        copy.style.width = `${width}px`;
+        copy.style.height = `${height}px`;
+        copy.style.maxWidth = 'none';
+        setViewing(copy.outerHTML);
+        return;
+      }
+
       const diagram = target.closest('.mermaid-figure');
       if (diagram && !target.closest('a') && !event.metaKey && !event.ctrlKey && !event.shiftKey) {
         event.preventDefault();

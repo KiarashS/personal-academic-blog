@@ -18,6 +18,34 @@ const POST_LINKS = '.post-list .post-card__title a, .archive-list a';
  */
 const RELATION = { followPrev: 'a[rel~="prev"]', followNext: 'a[rel~="next"]' } as const;
 
+const drawn = (element: Element | null): element is HTMLElement =>
+  element instanceof HTMLElement && element.getClientRects().length > 0;
+
+/**
+ * `c`: a post's contents, in whichever form the page is showing. The floating
+ * button's sheet where there is one, which is a phone's or a narrow window's
+ * once the list at the top has scrolled away; else the rail, its focus on the
+ * section being read; else the list at the top, opened. On a page that is
+ * not a post there is nothing to open.
+ */
+function openContents(): void {
+  const button = document.querySelector('.contents-button button');
+  if (drawn(button)) {
+    button.click();
+    return;
+  }
+  const rail = document.querySelector('.contents-rail');
+  if (drawn(rail)) {
+    (rail.querySelector<HTMLElement>('a[aria-current]') ?? rail.querySelector('a'))?.focus();
+    return;
+  }
+  const list = document.querySelector('details.toc');
+  if (list instanceof HTMLDetailsElement && drawn(list)) {
+    list.open = true;
+    list.querySelector<HTMLElement>('a')?.focus();
+  }
+}
+
 /**
  * The class the cursor leaves on the post it is sitting on.
  *
@@ -144,6 +172,8 @@ export function KeyboardShortcuts() {
           // back to the first page; on the first page there is nowhere to go.
           if (!atIndex()) void navigate(blogIndexPath());
           return;
+        case 'contents':
+          return openContents();
         case 'theme':
           return cycle();
         case 'help':

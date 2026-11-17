@@ -1,3 +1,4 @@
+import { idPart, SectionCounter } from './section-counter';
 import type { Element, ElementContent, Root, RootContent } from 'hast';
 import { toString } from 'hast-util-to-string';
 import type { EquationNumbering } from '../src/site.config';
@@ -20,6 +21,8 @@ const VERBATIM = new Set(['code', 'pre', 'script', 'style']);
 export interface EquationOptions {
   /** Defaults to `labelled`; the site passes its own setting. */
   numbering?: EquationNumbering;
+  /** Count afresh in each numbered section, (2.1); see plugins/section-counter.ts. */
+  bySection?: boolean;
   /** Called once per problem, so the build can report it against the file. */
   onWarn?: (message: string) => void;
 }
@@ -56,7 +59,7 @@ function displayMathIn(block: Element): Element | undefined {
  * it. A different prefix from `equationId`, so a label written as `3` cannot
  * collide with the third equation.
  */
-const numberId = (count: number): string => `equation-${count}`;
+const numberId = (number: string): string => `equation-${idPart(number)}`;
 
 /** The id an equation is reachable at, and what `\eqref` points to. */
 export const equationId = (key: string): string =>
@@ -71,8 +74,8 @@ export const equationId = (key: string): string =>
  * label was: an equation whose body is a `\begin{aligned}` block would reject a
  * tag inside the environment.
  */
-function numbered(tex: string, count: number): string {
-  return `${bare(tex)}\n\\tag{${count}}`;
+function numbered(tex: string, number: string): string {
+  return `${bare(tex)}\n\\tag{${number}}`;
 }
 
 /** The TeX with the markers this plugin reads taken out, which KaTeX would not accept. */
@@ -146,7 +149,7 @@ export function rehypeEquations(options: EquationOptions = {}) {
     // What a reference to each label shows: its number, or the author's tag.
     const numbers = new Map<string, string>();
     const numberAll = options.numbering === 'all';
-    let count = 0;
+    const counter = new SectionCounter(options.bySection === true);
 
     // First pass: number the equations, so a reference written above the
     // equation it points at still resolves.
@@ -156,6 +159,7 @@ export function rehypeEquations(options: EquationOptions = {}) {
       for (let index = 0; index < children.length; index += 1) {
         const block = children[index];
         if (!isElement(block)) continue;
+        if (counter.enter(block)) continue;
 
         const node = displayMathIn(block);
         if (!node) {
@@ -169,8 +173,7 @@ export function rehypeEquations(options: EquationOptions = {}) {
         // its own label; a label outside the environment names the group.
         const sub = SUBEQUATIONS.exec(tex);
         if (sub) {
-          count += 1;
-          const group = count;
+          const group = counter.next();
           const rows = rowsOf(sub[1]);
           if (rows.length > LETTERS.length) {
             warn(`a subequations block has ${rows.length} rows; only the first 26 are lettered`);
@@ -248,9 +251,8 @@ export function rehypeEquations(options: EquationOptions = {}) {
             shown = '?';
           }
         } else if (numberAll || key !== undefined) {
-          count += 1;
-          node.children = [{ type: 'text', value: numbered(tex, count) }];
-          shown = String(count);
+          shown = counter.next();
+          node.children = [{ type: 'text', value: numbered(tex, shown) }];
         } else {
           continue;
         }
@@ -265,14 +267,14 @@ export function rehypeEquations(options: EquationOptions = {}) {
         const id = named
           ? equationId(key)
           : own === undefined && !skipped
-            ? numberId(count)
+            ? numberId(shown ?? '')
             : undefined;
         if (id === undefined) continue;
         children[index] = {
           type: 'element',
           tagName: 'div',
           // What an empty link to this equation reads; see crossrefs.ts.
-          properties: { className: ['equation'], id, dataRefLabel: `(${shown ?? count})` },
+          properties: { className: ['equation'], id, dataRefLabel: `(${shown ?? '?'})` },
           children: [block],
         };
       }

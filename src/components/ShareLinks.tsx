@@ -1,7 +1,7 @@
 import { CopyButton } from './CopyButton';
 import { PrintButton } from './PrintButton';
 import { shareTargets } from '../lib/share';
-import { canonicalUrl } from '../lib/urls';
+import { canonicalUrl, withBase } from '../lib/urls';
 import type { Post } from '../lib/types';
 import { postPath } from '../lib/routes';
 
@@ -45,6 +45,16 @@ export function ShareLinks({ post }: { post: Post }) {
         <li>
           <PrintButton />
         </li>
+        {post.unlisted ? null : (
+          // The post's source as Markdown, written beside the page by the
+          // build (plugins/post-markdown.ts); an unlisted post has none.
+          <li>
+            <a className="share__link" href={withBase(`${postPath(post.slug)}/index.md`)}>
+              Markdown
+              <span className="visually-hidden"> source of “{post.title}”</span>
+            </a>
+          </li>
+        )}
       </ul>
     </section>
   );

@@ -20,7 +20,14 @@ import { RelatedPosts } from '../components/RelatedPosts';
 import { TagList } from '../components/TagList';
 import { getCategory, postsInCategory } from '../lib/categories';
 import { formatDate, isoDate } from '../lib/format';
-import { displayTag, getPost, neighbours, relatedPosts, seriesFor } from '../lib/posts';
+import {
+  displayTag,
+  getPost,
+  mentionedIn,
+  neighbours,
+  relatedPosts,
+  seriesFor,
+} from '../lib/posts';
 import { tableOfContents } from '../lib/post-builder';
 import { canonicalUrl } from '../lib/urls';
 import { NotFoundPage } from './NotFoundPage';
@@ -36,6 +43,7 @@ export function PostPage() {
   const { previous, next } = neighbours(post.slug);
   const contents = tableOfContents(post.headings);
   const series = seriesFor(post.slug);
+  const mentioned = mentionedIn(post.slug);
   // A tag or category page is built from listed posts, so one that only an
   // unlisted post uses has no page, and its chip would be a link to nothing.
   // A listed post always has the pages its own chips point to.
@@ -173,7 +181,13 @@ export function PostPage() {
         </nav>
       ) : null}
 
-      <RelatedPosts posts={relatedPosts(post.slug)} />
+      {/* The posts that link here, then the ones like it that do not. */}
+      <RelatedPosts posts={mentioned} title="Mentioned in" />
+      <RelatedPosts
+        posts={relatedPosts(post.slug, 4 + mentioned.length)
+          .filter((related) => !mentioned.includes(related))
+          .slice(0, 4)}
+      />
 
       {/* Off is absent rather than hidden: no heading, no frame, and nothing
           asked of giscus for a post that does not take comments. */}

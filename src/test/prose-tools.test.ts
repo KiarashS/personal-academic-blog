@@ -96,6 +96,18 @@ describe('rehypePostLinks', () => {
       '[](/blog/draft) points at a post that is not published',
     ]);
   });
+
+  it('records the posts linked to, with words or without, for "Mentioned in"', () => {
+    const file = unified()
+      .use(remarkParse)
+      .use(remarkRehype)
+      .use(rehypePostLinks, { titles })
+      .use(rehypeStringify)
+      .processSync(
+        '[](/blog/math) and [again](/blog/math/#sums), [no post](/blog/nope), [out](https://x.org/blog/math).',
+      );
+    expect(file.data.postLinks).toEqual(['/blog/math']);
+  });
 });
 
 describe('rehypeSectionNumbers', () => {

@@ -22,11 +22,23 @@ const pathOf = (href: string): string => href.replace(/[?#].*$/, '').replace(/\/
  * in the future, which the published site will not have.
  */
 export function rehypePostLinks(options: PostLinkOptions) {
-  return (tree: Root) => {
+  return (tree: Root, file: { data: Record<string, unknown> }) => {
+    // Every post this one links to, with words or without, for the "Mentioned
+    // in" list at the foot of each of them (src/lib/posts.ts).
+    const linked = new Set<string>();
     const walk = (node: Root | Element) => {
       for (const child of node.children) {
         if (child.type !== 'element') continue;
         const href = child.properties?.href;
+        if (
+          child.tagName === 'a' &&
+          typeof href === 'string' &&
+          href.startsWith('/') &&
+          !href.startsWith('//') &&
+          options.titles.has(pathOf(href))
+        ) {
+          linked.add(pathOf(href));
+        }
         const empty = child.children.every((c) => c.type === 'text' && c.value.trim() === '');
         if (
           child.tagName === 'a' &&
@@ -56,5 +68,6 @@ export function rehypePostLinks(options: PostLinkOptions) {
       }
     };
     walk(tree);
+    file.data.postLinks = [...linked];
   };
 }

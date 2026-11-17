@@ -1712,6 +1712,22 @@
   text-indent: -1.5rem;
 }
 
+/* A numeric style (`citations.style` 'ieee' or 'vancouver') puts the number in
+   a block of its own before the entry; it stands to the left of it instead,
+   and the entries line up after their numbers. */
+.prose .csl-entry:has(> .csl-left-margin) {
+  column-gap: 0.6rem;
+  display: grid;
+  grid-template-columns: 2.2em minmax(0, 1fr);
+  padding-left: 0;
+  text-indent: 0;
+}
+
+.prose .csl-left-margin {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
 .prose .citation a {
   text-decoration: none;
 }
@@ -1819,13 +1835,20 @@
  * the white paper turned pure black, a box darker than the page around it.
  * At 0.92 white comes out #141414, the page's own dark (#14140f), and black
  * #ebebeb, near its text (#e6e4dc). Light theme: as it is.
+ *
+ * The same for a notebook's output pictures, with `#invert` after its path
+ * (plugins/notebook.ts).
  */
-:root[data-theme='dark'] .prose .figure-image--invert {
+:root[data-theme='dark']
+  :is(.prose, .diagram-viewer)
+  :is(.figure-image--invert, .notebook--invert .nb-image) {
   filter: invert(0.92) hue-rotate(180deg);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .prose .figure-image--invert {
+  :root:not([data-theme='light'])
+    :is(.prose, .diagram-viewer)
+    :is(.figure-image--invert, .notebook--invert .nb-image) {
     filter: invert(0.92) hue-rotate(180deg);
   }
 }
@@ -1966,6 +1989,14 @@
   height: auto;
   margin: 1.75rem 0;
   width: 100%;
+}
+
+/* `<iframe frameless>` (plugins/content-tweaks.ts): a page meant to read as
+   part of the post, with no edge and nothing standing in while it loads. */
+.prose .embed-frame--frameless {
+  background: none;
+  border: 0;
+  border-radius: 0;
 }
 
 /*

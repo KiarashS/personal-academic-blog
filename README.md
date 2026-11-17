@@ -81,6 +81,7 @@ publication: # optional: the paper or project behind the post (The work behind a
   code: https://github.com/you/replication
   data: https://doi.org/10.5281/zenodo.124
 numbered: false # true: sections numbered 1, 1.1, 1.1.1 (Numbered sections)
+numberWithin: post # or section: equations and figures as (2.1), Figure 2.1 (Numbered sections)
 smartQuotes: false # true: curly quotes and dashes in this post (Quotes and dashes)
 macros: # optional KaTeX shorthands for this post's maths (Macros)
   \loss: \mathcal{L}
@@ -227,6 +228,11 @@ one of everything. Replace them with your own — and replace
 JavaScript reaches the browser, only its stylesheet and fonts. Environments
 like `aligned` and `cases` work. Errors render in red rather than blanking the
 page.
+
+Maths in a heading, `## The loss $\mathcal{L}(w)$`, is rendered in the contents
+list, the rail and the contents sheet as it is in the heading, and so is a
+reference to the section. The heading's address is made from the letters the
+maths draws, `#the-loss-lw`, rather than from its TeX.
 
 Every display equation is numbered, in order down the post, so a reader can
 point at "(3)" in a comment the way they would in a paper. Give one a label to
@@ -411,6 +417,19 @@ A heading's address stays what its words make it, so numbering a post, or
 inserting a section, does not break a link someone saved. A `###` before any
 `##` is numbered 0.1, which is what LaTeX prints and a sign the outline has a
 hole in it.
+
+Equations, figures, tables, listings, notebooks, algorithms and theorems are
+counted straight through the post: (1), (2), (3), Figure 1, Figure 2. On a post
+with `numbered: true`, `numberWithin: section` counts them afresh in each `##`
+section and gives them its number, as LaTeX's `\numberwithin` does: the second
+equation in section 3 is (3.2), its first figure Figure 3.1, its first theorem
+Theorem 3.1. Each kind keeps its own count, as before. References, hover
+previews and captions follow, and anything before the first section is counted
+plainly. A reader sees from the number which section to look in, and adding an
+equation renumbers only the rest of its section. It is for long posts; a short
+one reads more easily counted straight through, which is what `post`, the
+default, does. Without `numbered: true` there are no section numbers for it to
+use, and the build says so and counts straight through.
 
 ### Footnotes
 
@@ -693,6 +712,25 @@ gets your name and the URL right. Names are reshaped per style (APA takes the
 surname first and given names as initials, IEEE the initials first), a DOI goes
 into all four, and the date cited is the date of the version being read, so a
 revised post is cited by its revision.
+
+The style citations and the reference list are set in is `citations.style` in
+`src/site.config.ts`:
+
+```ts
+citations: {
+  style: 'apa', // 'harvard1', 'chicago', 'mla'; 'ieee' or 'vancouver' for [1]; or a .csl file
+},
+```
+
+`apa`, the default, and `harvard1`, `chicago` and `mla` cite by author and year,
+"(Knuth, 1984)", and list the references alphabetically. `ieee` and `vancouver`
+cite by number, "[1]", and list them in the order they are first cited, which is
+what most computer science and engineering venues ask for; the number stands to
+the left of each entry in the list, and each number in a citation of several
+works links to its own entry. Any other style the Citation Style Language has,
+from https://github.com/citation-style-language/styles, works as a path to its
+`.csl` file from the repository's root. IEEE's is kept in `plugins/csl/`, under
+the CC BY-SA licence its header names.
 
 ### The work behind a post
 
@@ -1208,14 +1246,16 @@ post's slug means renaming its folder; put anything shared between posts in
 `public/figures/` instead.
 
 An image whose file is wider than the text column is wrapped in a link to
-itself, so a click opens the original at full size in its own tab. The
-threshold is intrinsic width — 800px by default, against a column of about 700
-— so a picture the page can already show in full gets no link and no cursor
-change, and an SVG never gets one, since the page scales vectors losslessly on
-its own. With a `.dark` sibling each variant links to itself, so whichever one
-the reader can see is the one that opens. No lightbox, no library: middle-click,
-right-click-save and keyboard all behave as they should, and the page needs no
-JavaScript for any of it.
+itself. A click opens it in the viewer the diagrams use, at full size, to zoom
+and move about in without leaving the post; Escape closes it. The threshold is
+intrinsic width — 800px by default, against a column of about 700 — so a
+picture the page can already show in full gets no link and no cursor change,
+and an SVG never gets one, since the page scales vectors losslessly on its own.
+With a `.dark` sibling each variant links to itself, so whichever one the reader
+can see is the one that opens, and an `#invert` picture opens inverted on the
+dark theme. The link is still a link to the file: middle-click, a modified
+click and right-click-save do what they always did, and with no JavaScript a
+click opens the file in its own tab.
 
 Figures have no border, since a plot or a diagram on a transparent background
 is meant to sit on the page. A screenshot or a photo whose own edge runs into
@@ -1447,6 +1487,12 @@ the fence numbers it as Notebook 1, 2, 3 and sits above it, since a notebook is
 read from the top down. A missing file or malformed JSON warns and
 leaves the fence as it was rather than failing the build.
 
+A notebook's images are inside the file, so unlike a figure they cannot have a
+`.dark` sibling for the dark theme. Put `#invert` after the path,
+`/posts/my-post/sampling.ipynb#invert`, and its pictures have their light and
+dark swapped on the dark theme, as `#invert` does for a figure: matplotlib's
+white paper turns the page's dark and its black ink light, with the hues kept.
+
 ### Publications
 
 `/publications` is generated from `src/content/publications.bib`, grouped by
@@ -1522,6 +1568,20 @@ per-tag feed at `/tags/<tag>/feed.xml` advertised on that tag's page,
 per post under `/og/` referenced by `og:image`. With `pwa.enabled` on, also `site.webmanifest` and
 `sw.js`; see Install to home screen.
 
+Each listed post is also written as Markdown beside its page,
+`/blog/a-post/index.md`, linked from the post's share row as "Markdown" and
+from `llms.txt`: the text for a reader's tool, or for anyone quoting a passage,
+without the page around it. It is the source as written, frontmatter, maths,
+code and diagram sources as you typed them, with what only this site's build
+understands made plain. An empty reference, `[](#fig-loss)`, gets the words the
+page shows and a link to that place on the page; an empty link to a post gets
+its title; `{#name}` labels are taken out; a `file=` fence gets the code it
+shows and a CSV table its rows; a notebook fence becomes a link to the notebook;
+abbreviations move to a list at the end; and addresses from the site's root
+become full ones. Everything else keeps your formatting
+(`plugins/post-markdown.ts`). An unlisted post gets none, since its page is the
+only place it is published.
+
 ### llms.txt
 
 `/llms.txt` describes the site for a language model, in the format
@@ -1529,7 +1589,8 @@ per post under `/og/` referenced by `og:image`. With `pwa.enabled` on, also `sit
 description as a one-line summary, your record from `authors.ts` (role,
 affiliation, tagline, bio and interests), then lists of links: your profiles,
 the pages that are switched on, your selected work, every publication with its
-authors, venue and year, and every listed post with its date and summary. A
+authors, venue and year, and every listed post with its date and summary, linked to its Markdown copy
+(see What the build produces), which the proposal asks for where there is one. A
 tool asked about you that reads it describes your work from your words rather
 than from guesses. Unlisted posts and drafts are never in it, and your email
 address is left out.
@@ -1772,8 +1833,13 @@ discovery alone reaches nobody who is not already looking.
 ## Keyboard shortcuts
 
 `/` search, `j` and `k` through a list of posts, `[` and `]` for previous and
-next, `b` back to the blog index, `t` to cycle the theme, `?` for the list
-itself.
+next, `b` back to the blog index, `c` for a post's contents, `t` to cycle the
+theme, `?` for the list itself.
+
+`c` opens the contents in whichever form the post is showing them: the sheet
+from the floating button on a narrow screen once the list at the top has
+scrolled away, the rail on a wide one, with the focus on the section being read
+so Tab and Enter take it from there, or else the list at the top, opened.
 
 `j` and `k` move focus down and up a list, and from a page that has no list —
 the front page, a post — they go to the blog index and land on its first or
@@ -1812,7 +1878,14 @@ the behaviour.
 
 ## Related posts
 
-The foot of each post lists up to four others, ranked by what they share: the
+The foot of a post first lists the posts that link to it, under "Mentioned in",
+newest first, so a reader can follow a note back to the ones that build on it.
+A link counts with or without words of its own, `[](/blog/a-post)` or
+`[as I wrote](/blog/a-post#method)`; a link from an unlisted post does not. The
+build records each post's links as it compiles it, and the page works the list
+out from those, so it costs no request.
+
+Then it lists up to four others, ranked by what they share: the
 same category counts for as much as three shared tags, being the coarser and
 more deliberate signal, and ties go to the newer post. A post sharing neither a
 tag nor the category is not shown — adjacent is not related. The ranking is a
@@ -2294,6 +2367,13 @@ cannot read an attribute as a number, and `.embed-frame` in prose.css sizes it
 from that; with no numeric size it is 16:9. A `height` in the iframe's own
 `style` is kept, for a page that needs a fixed one. The build also makes it
 `loading="lazy"` unless the post says otherwise, and print leaves it out.
+
+A frame has a hairline border in the rule colour, so a page whose background is
+close to this one's does not run into the post. For one meant to read as part of
+the post, a chart or a demo drawn on the same paper, write `frameless` on the
+iframe, `<iframe frameless src="…" title="…">`, and it has no border and no
+placeholder colour while it loads. The attribute is read by the build and taken
+off.
 
 Give every iframe a `title`: it is what a screen reader announces. For
 YouTube use the video syntax above instead, which asks nothing of Google until

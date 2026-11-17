@@ -285,6 +285,15 @@ export interface PostFrontmatter {
    */
   numbered?: boolean;
   /**
+   * How equations, figures, tables, listings, notebooks, algorithms and
+   * theorems are counted. `post`, the default: straight through the post, (3),
+   * Figure 2. `section`: afresh in each numbered section and carrying its
+   * number, (2.1), Figure 2.1, as LaTeX's `\numberwithin` does. Needs
+   * `numbered: true`, since 2.1 means "in section 2" only beside a heading
+   * that says 2.
+   */
+  numberWithin?: 'post' | 'section';
+  /**
    * Curly quotes, en and em dashes and ellipses from straight ones, `--`,
    * `---` and `...`. Unset follows `siteConfig.typography.smartQuotes`.
    */
@@ -297,6 +306,11 @@ export interface Heading {
   depth: 2 | 3;
   /** "2.1", on a post with `numbered: true`. */
   number?: string;
+  /**
+   * The heading's markup, for one that holds maths, which the contents list
+   * shows rendered; `text` is then its words with the maths as it reads.
+   */
+  html?: string;
 }
 
 /**
@@ -333,6 +347,11 @@ export interface PostMeta {
   /** See `PostFrontmatter.font`; absent for the body face. */
   font?: SectionFontName;
   headings: Heading[];
+  /**
+   * The paths of the other posts this one links to, `/blog/a-post`; filled in
+   * when the post is compiled, for `mentionedIn`.
+   */
+  links?: string[];
 }
 
 /** A post with its authors resolved, as the components consume it. */

@@ -32,7 +32,7 @@ import {
 import { commentWarnings } from '../src/lib/comments';
 import { blogEnabled } from '../src/lib/features';
 import { siteConfig } from '../src/site.config';
-import type { FeatureName } from '../src/site.config';
+import type { CitationStyle, FeatureName } from '../src/site.config';
 import { parseFrontmatter } from '../src/lib/frontmatter';
 import type { Heading, PostFrontmatter } from '../src/lib/types';
 import { loadDiagramCache, rehypeMermaid, type DiagramCache } from './mermaid';
@@ -53,7 +53,10 @@ import { rehypeColorSwatches } from './color-swatches';
 import { rehypeFeatureLinks } from './feature-links';
 import { rehypeAlerts } from './alerts';
 import { rehypeTheorems } from './theorems';
+import { rehypeCitationNumbers } from './citation-numbers';
 import { rehypeCrossRefs } from './crossrefs';
+import { postMarkdown } from './post-markdown';
+import { headingMathsBack, headingMathsOut, richHeadings } from './heading-maths';
 import { rehypeAlgorithms } from './algorithms';
 import { rehypeSidenotes } from './sidenotes';
 import { loadChartCache, rehypeCharts, type ChartCache } from './charts';
@@ -85,6 +88,8 @@ const shownTitle = (text: string, frontmatter: Partial<PostFrontmatter>): string
 interface Compiled {
   html: string;
   headings: Heading[];
+  /** The paths of the posts this one links to. */
+  links: string[];
 }
 
 /** A heading's words, without the section number `rehypeSectionNumbers` put in front. */
@@ -130,6 +135,39 @@ function collectHeadings() {
   };
 }
 
+/**
+ * `numberWithin` that cannot do what it asks: a value it does not know, or
+ * `section` on a post whose sections carry no numbers to count within.
+ */
+export function numberWithinWarnings(
+  slug: string,
+  frontmatter: Partial<PostFrontmatter>,
+): string[] {
+  const value: unknown = frontmatter.numberWithin;
+  if (value === undefined || value === 'post') return [];
+  if (value !== 'section') {
+    return [`${slug}: numberWithin is ${JSON.stringify(value)}; it takes post or section`];
+  }
+  if (frontmatter.numbered !== true) {
+    return [
+      `${slug}: numberWithin: section needs numbered: true, since 2.1 means "in section 2"; ` +
+        'the post is numbered straight through',
+    ];
+  }
+  return [];
+}
+
+/**
+ * The CSL style rehype-citation is given: its own name for the five it ships,
+ * the copy kept in `plugins/csl/` for IEEE, or a `.csl` file the site names.
+ * A file is given from the repository's root, which rehype-citation joins to
+ * its `path` option itself.
+ */
+export function citationStyle(style: CitationStyle): string {
+  if (style === 'ieee') return 'plugins/csl/ieee.csl';
+  return style.replace(/^\.?\//, '');
+}
+
 export interface MarkdownPluginOptions {
   /** Where `scripts/render-diagrams.mjs` writes its rendered SVG pairs. */
   diagramCachePath?: string;
@@ -144,6 +182,9 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
   const bibliography = options.bibliography ?? 'src/content/references.bib';
 
   let building = false;
+  // The server bundle is built too, and the post's Markdown copy is written
+  // once, by the client build that writes the rest of `dist/`.
+  let serverBuild = false;
   let base = '/';
   let cache: DiagramCache = {};
   const chartCachePath = resolve(root, '.cache/charts.json');
@@ -210,6 +251,8 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     const { data: frontmatter } = parseFrontmatter<PostFrontmatter>(raw);
     const warn = (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`);
     const macros = mathMacros(siteConfig.math.macros, frontmatter.macros, warn);
+    // `numberWithin: section`: counted afresh in each numbered section.
+    const bySection = frontmatter.numbered === true && frontmatter.numberWithin === 'section';
 
     // Order matters: raw HTML is parsed first, headings get ids, citations are
     // resolved, diagrams are swapped in before the highlighter can touch them,
@@ -241,7 +284,10 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       .use(rehypeSectionFonts, {
         onWarn: (message: string) => fontWarnings.add(`${relative(root, file)}: ${message}`),
       })
+      // Maths in a heading reads as its words while the ids are made.
+      .use(headingMathsOut)
       .use(rehypeSlug)
+      .use(headingMathsBack)
       // Between the two: rehype-slug has just made the ids, and the
       // contents list should record the one the reader will land on.
       .use(rehypeReservedIds)
@@ -259,9 +305,16 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // Also a blockquote with a marker, and numbered in reading order before
       // anything can move blocks about.
       .use(rehypeTheorems, {
+        bySection,
         onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
       })
-      .use(rehypeCitation, { bibliography, linkCitations: true, path: root })
+      .use(rehypeCitation, {
+        bibliography,
+        csl: citationStyle(siteConfig.citations.style),
+        linkCitations: true,
+        path: root,
+      })
+      .use(rehypeCitationNumbers)
       .use(rehypeNotebook, {
         publicDir: resolve(root, 'public'),
         renderMarkdown: renderCell,
@@ -269,6 +322,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       })
       // Before the highlighter, which would otherwise colour the TeX.
       .use(rehypeAlgorithms, {
+        bySection,
         onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
       })
       .use(rehypeTikz, {
@@ -298,10 +352,13 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
       // KaTeX renders the `\tag` it leaves behind.
       .use(rehypeEquations, {
         numbering: siteConfig.math.numbering,
+        bySection,
         onWarn: (message: string) => equationWarnings.add(message),
       })
       .use(rehypeKatex, { strict: false, throwOnError: false, macros })
       .use(rehypeMathPunctuation)
+      // The contents list's entry for a heading with maths: rendered.
+      .use(richHeadings)
       // After KaTeX: display math arrives as `pre > code.language-math`, and
       // wrapping that in code-block chrome puts a copy button over an equation.
       .use(rehypeCodeBlocks)
@@ -322,7 +379,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         base,
         onWarn: (message: string) => missingImages.add(message),
       })
-      .use(rehypeCaptions)
+      .use(rehypeCaptions, { bySection })
       // Last of all: every number in the post is settled by now.
       .use(rehypeCrossRefs, {
         onWarn: (message: string) => referenceWarnings.add(`${relative(root, file)}: ${message}`),
@@ -335,6 +392,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
     const value: Compiled = {
       html: String(result),
       headings: (result.data.headings as Heading[] | undefined) ?? [],
+      links: (result.data.postLinks as string[] | undefined) ?? [],
     };
     compiled.set(key, value);
     return value;
@@ -372,6 +430,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
 
     configResolved(config) {
       building = config.command === 'build';
+      serverBuild = Boolean(config.build.ssr);
       base = config.base;
     },
 
@@ -426,6 +485,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         ...citeWarnings(built.meta.slug, frontmatter.cite),
         ...tagWarnings(built.meta.slug, frontmatter.tags),
         ...postFontWarnings(built.meta.slug, frontmatter.font),
+        ...numberWithinWarnings(built.meta.slug, frontmatter),
       ]) {
         bannerProblems.add(message);
       }
@@ -484,6 +544,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
             share: false,
             cite: false,
             headings: [],
+            links: [],
           };
           return { code: `export default ${JSON.stringify(stub)};`, map: null };
         }
@@ -507,13 +568,37 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         };
       }
 
-      const { html, headings } = await compile(raw, built.body, path);
+      const { html, headings, links } = await compile(raw, built.body, path);
 
       if (query === 'meta') {
+        // Its own address left out: a post that links to a section of itself
+        // has not mentioned itself.
+        const own = postPath(built.meta.slug);
+        const others = links.filter((link) => link !== own);
         return {
-          code: `export default ${JSON.stringify({ ...built.meta, headings })};`,
+          code: `export default ${JSON.stringify({ ...built.meta, headings, links: others })};`,
           map: null,
         };
+      }
+
+      // The post as Markdown beside its page (plugins/post-markdown.ts). Not
+      // for an unlisted post, whose page is the only place it is published.
+      if (post && building && !serverBuild && !query && !built.meta.unlisted) {
+        const site = siteConfig.url.replace(/\/$/, '') + base.replace(/\/$/, '');
+        const at = postPath(built.meta.slug);
+        this.emitFile({
+          type: 'asset',
+          fileName: `${at.replace(/^\//, '')}/index.md`,
+          source: postMarkdown({
+            raw,
+            body: built.body,
+            html,
+            pageUrl: `${site}${at}/`,
+            absolute: (path) => `${site}${path}`,
+            titles: postTitles,
+            code: { publicDir: resolve(root, 'public'), remote: { lock: remoteLock } },
+          }),
+        });
       }
 
       return { code: `export const html = ${JSON.stringify(html)};`, map: null };

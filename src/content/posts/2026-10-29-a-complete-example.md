@@ -7,6 +7,8 @@ tags: [guide, writing]
 summary: Every feature of the Markdown renderer in one post, each used where a paper would use it.
 # Sections numbered 1, 1.1, …, here and in the contents list.
 numbered: true
+# Equations, figures and the rest counted within each section: (2.1), Figure 4.1.
+numberWithin: section
 # Shorthands for this post's maths, on top of the site's \R, \E, \argmin and the rest.
 macros:
   # Quoted: in YAML a space before # starts a comment.
@@ -23,7 +25,7 @@ macros:
 
 This post fits a logistic regression and reports on it, using every feature
 the renderer has along the way. The numbers are made up for the example. Rest
-the pointer on any reference below, "Figure 2" or "(1)" or a citation, and it
+the pointer on any reference below, "Figure 4.1" or "(2.1)" or a citation, and it
 shows what it points at.
 
 ## Introduction
@@ -74,8 +76,8 @@ $\sigma$
 and `\E` come with the site. Minimising [](#eq-loss) is the same as minimising
 $\E_{x}\big[\KL{p_{\text{true}}}{p_w}\big]$, up to a constant.
 
-Its derivatives share a number, (2a) and (2b), as related equations do in a
-paper:
+Its derivatives share a number, (2.2a) and (2.2b), as related equations do in
+a paper:
 
 $$
 \label{derivatives}
@@ -313,6 +315,7 @@ Caption: A map, loaded from OpenStreetMap only when asked for. {#fig-map}
 
 ```yaml
 numbered: true
+numberWithin: section
 macros:
   # Quoted: in YAML a space before # starts a comment.
   \KL: 'D_{\mathrm{KL}}\left(#1 \,\Vert\, #2\right)'

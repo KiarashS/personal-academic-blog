@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { headingInView } from '../lib/contents';
 import { siteConfig } from '../site.config';
+import { HeadingWords } from './HeadingWords';
 import type { Heading } from '../lib/types';
 
 /**
@@ -73,7 +74,7 @@ export function ContentsRail({ headings }: { headings: Heading[] }) {
               href={`#${heading.id}`}
             >
               {heading.number && <span className="toc__number">{heading.number}</span>}
-              {heading.text}
+              <HeadingWords heading={heading} />
             </a>
           </li>
         ))}

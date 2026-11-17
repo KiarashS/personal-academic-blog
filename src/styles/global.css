@@ -205,6 +205,13 @@ body {
   text-rendering: optimizelegibility;
 }
 
+/* A heading or a column's name is a few words read at a glance, and "Test
+   accu-racy" at the head of a table on a phone reads worse than a short line. A
+   soft hyphen typed by hand still breaks. */
+:is(h1, h2, h3, h4, h5, h6, th) {
+  hyphens: manual;
+}
+
 /* The words are the text's own colour — `--link` and `--text` are the same
    value in both themes — so the rule under them is the whole of what says a
    link is a link. A warm one carries some of the site's accent without
@@ -1879,6 +1886,13 @@ h1 + .author-card {
   letter-spacing: 0.08em;
   margin: 0 0 0.5rem;
   text-transform: uppercase;
+}
+
+/* Maths in a heading, rendered in the contents (HeadingWords.tsx): KaTeX's
+   1.21em is sized against the serif text, and this list is set smaller and in
+   the sans. */
+:is(.toc, .contents-rail, .contents-sheet) .katex {
+  font-size: 1.1em;
 }
 
 .contents-rail ol {

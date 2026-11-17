@@ -52,6 +52,7 @@ share: true               # optional; false hides the share links
 cite: true                # optional; false hides "Cite this post"
 font: garamond            # optional; the whole post in another face
 numbered: false           # true numbers the sections 1, 1.1, 1.1.1
+numberWithin: post        # section counts equations, figures as (2.1), Figure 2.1
 smartQuotes: false        # true sets curly quotes and dashes in this post
 macros:                   # optional; shorthands for this post's maths
   \loss: \mathcal{L}
@@ -69,7 +70,7 @@ publication:              # optional; the paper or project behind the post
 ---
 ```
 
-That is every field there is. The last four are covered in
+That is every field there is. Those from `numbered` on are covered in
 [](/blog/writing-like-a-paper) and [](/blog/math-and-citations), and the
 README has a section on each.
 
@@ -168,7 +169,8 @@ Which renders as:
 and a link to [the example attachment](/posts/writing-a-post/example.pdf).
 
 An image whose file is wider than the text column is linked to itself, so a
-click opens the original at full size in a new tab. The plot below is 1400px
+click opens the original at full size, in a viewer you can zoom and move about
+in and close with Escape. The plot below is 1400px
 wide and the column is about 700, which is the difference between reading the
 axis and guessing at it. Images the column can already show in full get no
 link, and a diagram in SVG never gets one, since the page scales vectors on its
@@ -216,6 +218,15 @@ on a desktop, 335 by 190 on a phone. Leave them out and it is 16:9. The title is
 screen reader announces, and the frame loads only as the reader nears it:
 
 <iframe src="/projects/example/" width="800" height="450" title="The example project page"></iframe>
+
+The thin border keeps a page with a background like this one's from running
+into the post. Write `frameless` on the iframe to leave it off, for a page meant
+to look like part of the post:
+
+```html
+<iframe frameless src="/projects/example/" width="800" height="450"
+        title="The example project page"></iframe>
+```
 
 ### A YouTube video
 

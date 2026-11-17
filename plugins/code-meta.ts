@@ -186,6 +186,21 @@ function readSource(
 }
 
 /**
+ * The code a `file=` fence shows, for the post's Markdown copy
+ * (plugins/post-markdown.ts), which writes it into the fence. Nothing if the
+ * fence names no file, or one that cannot be read; the page's pass has said so.
+ */
+export function fileFenceCode(
+  lang: string | null | undefined,
+  meta: string | null | undefined,
+  options: Pick<CodeMetaOptions, 'publicDir' | 'remote'>,
+): { lang?: string; code: string } | undefined {
+  const code: Code = { type: 'code', lang: lang ?? null, meta: meta ?? null, value: '' };
+  const read = readSource(code, metaOf(code), options);
+  return read ? { lang: code.lang ?? undefined, code: code.value } : undefined;
+}
+
+/**
  * Fetches every remote file the tree names that the lock does not yet have,
  * and adds it. A GitHub or GitLab link to a branch rather than a commit is
  * reported whether or not it is fetched, since it is what the author should

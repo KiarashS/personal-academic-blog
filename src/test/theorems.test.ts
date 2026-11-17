@@ -77,7 +77,7 @@ describe('rehypeTheorems', () => {
     expect(html).toContain('<span class="theorem__label">Exercise 2</span>');
     expect(html).toContain('theorem--definition theorem--exercise" id="ex-mle"');
     expect(html).toMatch(
-      /<details class="theorem theorem--solution"><summary class="theorem__summary"><span class="theorem__label">Solution<\/span><span class="theorem__title"> to <span class="xref">Exercise 2<\/span><\/span><span class="theorem__stop">\.<\/span><\/summary>\s*<p>The mean\.<\/p>\s*<\/details>/,
+      /<details class="theorem theorem--solution"><summary class="theorem__summary"><span class="theorem__label">Solution<\/span><span class="theorem__title"> to <span class="xref" data-ref="ex-mle">Exercise 2<\/span><\/span><span class="theorem__stop">\.<\/span><\/summary>\s*<p>The mean\.<\/p>\s*<\/details>/,
     );
   });
 

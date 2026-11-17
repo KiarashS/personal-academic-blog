@@ -1,3 +1,4 @@
+import { holdsMaths, shownContent, shownWords } from './heading-maths';
 import type { Element, ElementContent, Root, RootContent } from 'hast';
 
 /**
@@ -45,6 +46,9 @@ export interface CrossRefOptions {
 export function rehypeCrossRefs(options: CrossRefOptions = {}) {
   return (tree: Root) => {
     const labels = new Map<string, string>();
+    // A heading that holds maths is referred to by its content, maths
+    // rendered, rather than by words that cannot show it.
+    const rich = new Map<string, ElementContent[]>();
 
     const collect = (node: Root | Element) => {
       for (const child of node.children) {
@@ -54,7 +58,13 @@ export function rehypeCrossRefs(options: CrossRefOptions = {}) {
         if (id && typeof props.dataRefLabel === 'string' && !labels.has(id)) {
           labels.set(id, props.dataRefLabel);
         } else if (id && HEADINGS.has(child.tagName) && !labels.has(id)) {
-          labels.set(id, headingText(child));
+          const content = shownContent(child);
+          if (content.some(holdsMaths)) {
+            labels.set(id, shownWords(content));
+            rich.set(id, content);
+          } else {
+            labels.set(id, headingText(child));
+          }
         }
         delete props.dataRefLabel;
         collect(child);
@@ -84,7 +94,10 @@ export function rehypeCrossRefs(options: CrossRefOptions = {}) {
           const label = labels.get(id);
           if (label === undefined)
             options.onWarn?.(`[](#${id}) points at nothing named "${id}" in this post`);
-          child.children = [{ type: 'text', value: label ?? '??' }];
+          const content = rich.get(id);
+          child.children = content
+            ? structuredClone<ElementContent[]>(content)
+            : [{ type: 'text', value: label ?? '??' }];
           child.properties = {
             ...child.properties,
             className: [...(Array.isArray(classes) ? classes.map(String) : []), 'xref'],
@@ -92,6 +105,9 @@ export function rehypeCrossRefs(options: CrossRefOptions = {}) {
           if (inSummary) {
             child.tagName = 'span';
             delete child.properties.href;
+            // Where it would have pointed, for the post's Markdown copy,
+            // which links it (plugins/post-markdown.ts).
+            child.properties.dataRef = id;
           }
           continue;
         }

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { contentsButtonShown, headingInView, railShown } from '../lib/contents';
 import { siteConfig } from '../site.config';
+import { HeadingWords } from './HeadingWords';
 import type { Heading } from '../lib/types';
 
 /**
@@ -173,7 +174,7 @@ export function ContentsButton({ headings }: { headings: Heading[] }) {
                       onClick={close}
                     >
                       {heading.number && <span className="toc__number">{heading.number}</span>}
-                      {heading.text}
+                      <HeadingWords heading={heading} />
                     </a>
                   </li>
                 ))}

@@ -71,6 +71,13 @@ const render = (markdown: string): string =>
 describe('rehypeNotebook', () => {
   const html = render('```notebook\n/demo.ipynb\n```');
 
+  it('marks a notebook whose pictures are to be flipped on the dark theme', () => {
+    expect(html).toContain('class="notebook"');
+    expect(render('```notebook\n/demo.ipynb#invert\n```')).toContain(
+      'class="notebook notebook--invert" data-source="/demo.ipynb"',
+    );
+  });
+
   it('renders markdown cells through the site pipeline', () => {
     expect(html).toContain('<md>## Setup');
   });

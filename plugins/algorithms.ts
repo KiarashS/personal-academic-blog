@@ -1,3 +1,4 @@
+import { idPart, SectionCounter } from './section-counter';
 import type { Element, Root } from 'hast';
 import { fromHtml } from 'hast-util-from-html';
 import { toString } from 'hast-util-to-string';
@@ -47,16 +48,19 @@ const escapeHtml = (text: string): string =>
   text.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 export interface AlgorithmOptions {
+  /** Count afresh in each numbered section, Algorithm 2.1; see plugins/section-counter.ts. */
+  bySection?: boolean;
   onWarn?: (message: string) => void;
 }
 
 export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
   return (tree: Root) => {
-    let count = 0;
+    const counter = new SectionCounter(options.bySection === true);
 
     const walk = (parent: Root | Element) => {
       parent.children.forEach((node, index) => {
         if (node.type !== 'element') return;
+        if (counter.enter(node)) return;
         if (node.tagName !== 'pre') {
           walk(node);
           return;
@@ -72,7 +76,7 @@ export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
         const key = LABEL.exec(written)?.[1];
         const source = written.replace(LABEL, '');
         const captioned = CAPTION.test(source);
-        const number = captioned ? count + 1 : undefined;
+        const number = captioned ? counter.peek() : undefined;
 
         let html: string;
         try {
@@ -81,7 +85,7 @@ export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
             lineNumber: true,
             lineNumberPunc: '',
             noEnd: false,
-            captionCount: count,
+            captionCount: counter.current,
           });
         } catch (cause) {
           const message = cause instanceof Error ? cause.message : String(cause);
@@ -99,9 +103,10 @@ export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
           };
           return;
         }
-        if (number !== undefined) count = number;
+        if (number !== undefined) counter.next();
 
-        const id = number === undefined ? undefined : key ? `alg-${slug(key)}` : `alg-${number}`;
+        const id =
+          number === undefined ? undefined : key ? `alg-${slug(key)}` : `alg-${idPart(number)}`;
         const name = number === undefined ? undefined : `Algorithm ${number}`;
 
         // As nodes rather than a string, so the permalink can go into the
@@ -109,8 +114,12 @@ export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
         const rendered = fromHtml(html, { fragment: true }).children.filter(
           (child): child is Element => child.type === 'element',
         );
+        const caption = findCaption(rendered);
+        // pseudocode.js counts plainly; within sections the caption says
+        // "Algorithm 2.1", as the reference to it does.
+        if (caption && name) renumber(caption, name);
         if (id && name) {
-          findCaption(rendered)?.children.push(
+          caption?.children.push(
             { type: 'text', value: ' ' },
             {
               type: 'element',
@@ -144,6 +153,15 @@ export function rehypeAlgorithms(options: AlgorithmOptions = {}) {
 }
 
 /** The caption line pseudocode.js writes: the first line of a captioned algorithm. */
+/** Writes `name`, "Algorithm 2.1", over the "Algorithm N" pseudocode.js put in a caption. */
+function renumber(caption: Element, name: string): void {
+  const keyword = caption.children.find(
+    (child): child is Element => child.type === 'element' && child.tagName === 'span',
+  );
+  const text = keyword?.children.find((child) => child.type === 'text');
+  if (text?.type === 'text') text.value = text.value.replace(/Algorithm \d+/, name);
+}
+
 function findCaption(nodes: Element[]): Element | undefined {
   for (const node of nodes) {
     const classes = node.properties?.className;

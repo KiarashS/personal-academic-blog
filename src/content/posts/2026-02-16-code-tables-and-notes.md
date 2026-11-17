@@ -115,10 +115,11 @@ and outputs come through — text, tables, images and errors alike.
 ```
 ````
 
-Which gives:
+Which gives, with `#invert` after the path so the plot's white paper turns
+dark on the dark theme, as `#invert` does for a figure:
 
 ```notebook
-/posts/code-tables-and-notes/sampling.ipynb
+/posts/code-tables-and-notes/sampling.ipynb#invert
 ```
 
 Caption: A notebook rendered into the post. The `.ipynb` stays in `public/`, so

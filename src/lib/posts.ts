@@ -3,6 +3,7 @@ import { listed, rankRelated, selectPosts, seriesParts } from './post-builder';
 import { buildDate } from './today';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
+import { postPath } from './routes';
 import type { Post, PostMeta } from './types';
 
 // Only metadata is eager. Post bodies and the search text live in their own
@@ -145,6 +146,16 @@ export function neighbours(slug: string): { previous?: Post; next?: Post } {
  * index those are the signals there are, and for a research notebook they are
  * usually the right ones.
  */
+/**
+ * The listed posts that link to this one, newest first: what a reader of a
+ * notebook-style blog follows backwards, from a note to the ones that build on
+ * it. A post that is unlisted, or not published, mentions nothing here.
+ */
+export function mentionedIn(slug: string): Post[] {
+  const path = postPath(slug);
+  return posts.filter((post) => post.slug !== slug && post.links?.includes(path));
+}
+
 export function relatedPosts(slug: string, limit = 4): Post[] {
   const post = postsBySlug.get(slug);
   if (!post) return [];

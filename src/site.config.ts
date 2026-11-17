@@ -311,6 +311,23 @@ export interface MathConfig {
   macros?: Record<string, string>;
 }
 
+/**
+ * How `[@key]` citations and the reference list under a post are set.
+ *
+ * `apa`, `harvard1`, `chicago` and `mla` cite by author and year, "(Knuth,
+ * 1984)", and list the references alphabetically; `vancouver` and `ieee` cite
+ * by number, "[1]", and list them in the order they are first cited, which is
+ * what most computer science and engineering venues ask for. A path to a
+ * `.csl` file, from the repository's root, sets them in any style the Citation
+ * Style Language has (https://github.com/citation-style-language/styles).
+ */
+export type CitationStyle =
+  'apa' | 'harvard1' | 'chicago' | 'mla' | 'vancouver' | 'ieee' | `${string}.csl`;
+
+export interface CitationsConfig {
+  style: CitationStyle;
+}
+
 export interface NavItem {
   label: string;
   /**
@@ -560,6 +577,8 @@ export interface SiteConfig {
   contents: ContentsConfig;
   /** Equation numbering; see `MathConfig`. */
   math: MathConfig;
+  /** How citations and the reference list are set; see `CitationsConfig`. */
+  citations: CitationsConfig;
   /**
    * `smartQuotes` sets prose with typographer's quotes and dashes: “ ” and ‘ ’
    * for `"` and `'`, an en dash for `--`, an em dash for `---`, an ellipsis for
@@ -778,6 +797,11 @@ export const siteConfig: SiteConfig = {
     // scrolled away.
     wide: 'rail',
     side: 'left',
+  },
+  citations: {
+    // 'apa', 'harvard1', 'chicago' or 'mla' cite by author and year; 'ieee' or
+    // 'vancouver' by number, [1]. Or a path to a .csl file from the repo root.
+    style: 'apa',
   },
   math: {
     // 'all' numbers every display equation; 'labelled' only those with \label.

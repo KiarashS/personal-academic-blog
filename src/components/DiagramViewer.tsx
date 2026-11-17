@@ -66,16 +66,21 @@ export function DiagramViewer({ markup, onClose }: { markup: string; onClose: ()
     const box = stage.current?.getBoundingClientRect();
     const svg = drawing.current?.querySelector<SVGSVGElement>('svg');
     const drawn = svg?.viewBox?.baseVal;
-    if (!box || !drawn?.width) {
+    // A figure's picture (PostBody.tsx) comes with its own size written on it,
+    // which a transform does not change either.
+    const image = svg ? null : drawing.current?.querySelector('img');
+    const size = drawn?.width
+      ? { width: drawn.width, height: drawn.height }
+      : image?.width
+        ? { width: image.width, height: image.height }
+        : undefined;
+    if (!box || !size) {
       setView(RESET);
       return;
     }
     setView({
       ...RESET,
-      scale: fitScale(
-        { width: drawn.width, height: drawn.height },
-        { width: box.width, height: box.height },
-      ),
+      scale: fitScale(size, { width: box.width, height: box.height }),
     });
   }, []);
 

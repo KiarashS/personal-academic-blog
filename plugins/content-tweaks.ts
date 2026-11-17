@@ -63,9 +63,17 @@ function embedFrame(node: Element) {
   const written = typeof properties.style === 'string' ? properties.style.replace(/;\s*$/, '') : '';
   const style = [written, ratio ? `--embed-ratio: ${ratio}` : ''].filter(Boolean).join('; ');
   const classes = Array.isArray(properties.className) ? properties.className : [];
+  // `<iframe frameless …>`: no hairline round it, for a page that is meant
+  // to sit in the post as part of it, a chart or a demo on the same paper.
+  // The attribute is the author's and no browser's, so it goes once read.
+  const { frameless, ...rest } = properties;
   node.properties = {
-    ...properties,
-    className: [...classes, 'embed-frame'],
+    ...rest,
+    className: [
+      ...classes,
+      'embed-frame',
+      ...(frameless === undefined ? [] : ['embed-frame--frameless']),
+    ],
     loading: properties.loading ?? 'lazy',
     ...(style ? { style } : {}),
   };

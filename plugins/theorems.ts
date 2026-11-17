@@ -1,3 +1,4 @@
+import { idPart, SectionCounter } from './section-counter';
 import type { Element, ElementContent, Root, RootContent, Text } from 'hast';
 import { linkIcon } from './link-icon';
 
@@ -181,7 +182,7 @@ function permalink(id: string, name: string): Element {
  */
 function heading(
   kind: TheoremKind,
-  number: number | undefined,
+  number: string | undefined,
   title: ElementContent[],
 ): ElementContent[] {
   const name = number === undefined ? label(kind) : `${label(kind)} ${number}`;
@@ -210,17 +211,20 @@ const qed = (): Element => ({
 });
 
 export interface TheoremOptions {
+  /** Count afresh in each numbered section, Theorem 2.1; see plugins/section-counter.ts. */
+  bySection?: boolean;
   onWarn?: (message: string) => void;
 }
 
 export function rehypeTheorems(options: TheoremOptions = {}) {
   return (tree: Root) => {
-    let count = 0;
+    const counter = new SectionCounter(options.bySection === true);
     const taken = new Set<string>();
 
     const walk = (parent: Root | Element) => {
       for (const node of 'children' in parent ? parent.children : []) {
         if (!isElement(node)) continue;
+        if (counter.enter(node)) continue;
         if (node.tagName !== 'blockquote') {
           walk(node);
           continue;
@@ -233,14 +237,14 @@ export function rehypeTheorems(options: TheoremOptions = {}) {
         }
         const { kind } = found;
         const { name, title } = takeName(found.title);
-        const number = UNNUMBERED.has(kind) ? undefined : (count += 1);
+        const number = UNNUMBERED.has(kind) ? undefined : counter.next();
         const fullName = number === undefined ? label(kind) : `${label(kind)} ${number}`;
 
         let id: string | undefined;
         if (name && !taken.has(name)) id = name;
         else {
           if (name) options.onWarn?.(`two blocks are named "${name}"; the second keeps its number`);
-          if (number !== undefined) id = `thm-${number}`;
+          if (number !== undefined) id = `thm-${idPart(number)}`;
         }
         if (id) taken.add(id);
 

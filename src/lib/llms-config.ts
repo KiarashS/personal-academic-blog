@@ -61,7 +61,9 @@ export function configuredLlmsTxt(): string | null {
     posts: blog
       ? posts.map((post) => ({
           title: post.title,
-          url: canonicalUrl(postPath(post.slug)),
+          // The post as Markdown, which the llms.txt proposal asks a link to
+          // point at where there is one (plugins/post-markdown.ts).
+          url: canonicalUrl(`${postPath(post.slug)}/index.md`),
           date: post.date,
           summary: post.summary,
         }))

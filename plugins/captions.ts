@@ -1,3 +1,4 @@
+import { idPart, SectionCounter } from './section-counter';
 import type { Element, ElementContent, Root, RootContent } from 'hast';
 import { toString } from 'hast-util-to-string';
 import { linkIcon } from './link-icon';
@@ -158,9 +159,20 @@ function figcaption(label: string, body: ElementContent[], anchor: Element): Ele
  * Where the caption sits is a separate question from what it is called, and
  * `isAbove` answers it.
  */
-export function rehypeCaptions() {
+export interface CaptionOptions {
+  /** Count afresh in each numbered section, Figure 2.1; see plugins/section-counter.ts. */
+  bySection?: boolean;
+}
+
+export function rehypeCaptions(options: CaptionOptions = {}) {
   return (tree: Root) => {
-    const counts: Record<Kind, number> = { figure: 0, table: 0, code: 0, notebook: 0 };
+    const bySection = options.bySection === true;
+    const counts: Record<Kind, SectionCounter> = {
+      figure: new SectionCounter(bySection),
+      table: new SectionCounter(bySection),
+      code: new SectionCounter(bySection),
+      notebook: new SectionCounter(bySection),
+    };
     // First name wins. A second block claiming it falls back to its number,
     // which keeps every id in the post unique and every link working.
     const taken = new Set<string>();
@@ -171,6 +183,13 @@ export function rehypeCaptions() {
       for (let index = 0; index < children.length; index += 1) {
         const node = children[index];
         if (!isElement(node)) continue;
+        // A numbered section's heading starts every sequence again.
+        if (
+          Object.values(counts)
+            .map((counter) => counter.enter(node))
+            .some(Boolean)
+        )
+          continue;
 
         const kind = kindOf(node);
         if (!kind) {
@@ -190,7 +209,7 @@ export function rehypeCaptions() {
           continue;
         }
 
-        const number = (counts[kind] += 1);
+        const number = counts[kind].next();
         const label = `${LABELS[kind]} ${number}.`;
         const above = isAbove(kind);
         const raw = following ? stripMarker(following) : [...(existing?.children ?? [])];
@@ -201,7 +220,7 @@ export function rehypeCaptions() {
         // worth writing anyway: insert a figure above this one and the number
         // shifts, and a link someone saved to `#fig-3` lands on the wrong
         // picture, while `#fig-architecture` still lands here.
-        const automatic = `${PREFIXES[kind]}-${number}`;
+        const automatic = `${PREFIXES[kind]}-${idPart(number)}`;
         const id = name && !taken.has(name) ? name : automatic;
         taken.add(id);
 
