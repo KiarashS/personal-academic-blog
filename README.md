@@ -226,9 +226,10 @@ postsPerPage: 4,
 featuredPosts: 2, // 0 for no Featured section
 ```
 
-They are boxed cards, a title, the summary, the date and reading time, two
-across on a wide screen and stacked on a phone, and the list under them takes a
-"Latest" heading. They are shown in addition to the `postsPerPage` of the list,
+They are one tinted panel with a row per post, its title and when it was
+written, and no summary or tags, so two or three cost a few lines and the list
+under them, which takes a "Latest" heading, starts on the first screen, on a
+phone as well. They are shown in addition to the `postsPerPage` of the list,
 not in place of some of them, and they keep their places in the list as well,
 marked "Featured" there. So the first page always holds your newest posts,
 however many are featured, every page of the list is the record in date order
