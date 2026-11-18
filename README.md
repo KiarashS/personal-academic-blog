@@ -223,7 +223,7 @@ marked `featured: true`, newest first, as many as `featuredPosts` says.
 
 ```ts
 postsPerPage: 4,
-featuredPosts: 2, // 0 for no Featured section
+featuredPosts: 3, // 0 for no Featured section
 ```
 
 They are one tinted panel with a row per post, its title and when it was

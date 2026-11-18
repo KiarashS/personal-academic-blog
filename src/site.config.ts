@@ -643,7 +643,7 @@ export const siteConfig: SiteConfig = {
   postsPerPage: 4,
   // Posts marked `featured: true` shown above the list on the blog's first
   // page, newest first; 0 for none. Two sit side by side on a wide screen.
-  featuredPosts: 2,
+  featuredPosts: 3,
   features: {
     // Off: the blog is the whole site and its index is the front page. On: the
     // front page is the site's own and the blog moves to /blog. See the README.

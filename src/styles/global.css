@@ -212,6 +212,14 @@ body {
   hyphens: manual;
 }
 
+/* A word longer than the line, a name in code or an address in a title,
+   breaks where it must rather than running out of the column: a post's title,
+   a card's, a Featured row's, which it ran under the date beside it. A title
+   of ordinary words wraps as it always did. */
+:is(h1, h2, h3, h4, h5, h6) {
+  overflow-wrap: break-word;
+}
+
 /* The words are the text's own colour — `--link` and `--text` are the same
    value in both themes — so the rule under them is the whole of what says a
    link is a link. A warm one carries some of the site's accent without
@@ -979,6 +987,9 @@ a.site-credit__who:hover .site-credit__name {
 
 @media (width < 36rem) {
   .featured-row {
+    /* Stacked, the title takes the panel's width, not its own, so a long
+       word breaks inside the panel. */
+    align-items: stretch;
     flex-direction: column;
     gap: 0.15rem;
     padding: 0.65rem 0.95rem;
