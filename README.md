@@ -226,8 +226,8 @@ postsPerPage: 4,
 featuredPosts: 3, // 0 for no Featured section
 ```
 
-They are one tinted panel with a row per post, its title and when it was
-written, and no summary or tags, so two or three cost a few lines and the list
+They are one tinted panel with a row per post, its title alone (pointing at a
+row shows when the post was written and how long it takes to read), so two or three cost a few lines and the list
 under them, which takes a "Latest" heading, starts on the first screen, on a
 phone as well. They are shown in addition to the `postsPerPage` of the list,
 not in place of some of them, and they keep their places in the list as well,

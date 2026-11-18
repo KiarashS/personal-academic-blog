@@ -902,13 +902,12 @@ a.site-credit__who:hover .site-credit__name {
 
 /*
  * The blog index's Featured section (FeaturedPosts.tsx): one tinted panel with
- * a row per post, the title at the left and when it was written at the right,
- * hairlines between. Compact, so two or three recommendations cost a few
- * lines and the list under them starts on the first screen; set apart by the
- * panel and the accent edge, so they read as a choice and not as the start of
- * the list. On a narrow screen the date goes under the title. The whole row is
- * the link, its title's link stretched over it; the title is what a screen
- * reader hears.
+ * a row per post, its title alone, hairlines between; the date and reading
+ * time are the row's tooltip. Compact, so two or three recommendations cost a
+ * few lines and the list under them starts on the first screen; set apart by
+ * the panel and the accent edge, so they read as a choice and not as the start
+ * of the list. The whole row is the link, its title's link stretched over it;
+ * the title is what a screen reader hears.
  */
 .featured-posts {
   margin: 0 0 2.5rem;
@@ -926,10 +925,6 @@ a.site-credit__who:hover .site-credit__name {
 }
 
 .featured-row {
-  align-items: baseline;
-  column-gap: 1rem;
-  display: flex;
-  justify-content: space-between;
   padding: 0.7rem 1.1rem;
   position: relative;
   transition: background-color 120ms ease-in-out;
@@ -952,7 +947,6 @@ a.site-credit__who:hover .site-credit__name {
   font-size: 1.05rem;
   line-height: 1.35;
   margin: 0;
-  min-width: 0;
 }
 
 .featured-row__title a {
@@ -973,27 +967,6 @@ a.site-credit__who:hover .site-credit__name {
 .featured-row:hover .featured-row__title a {
   text-decoration: underline;
   text-decoration-color: var(--accent);
-}
-
-.featured-row__meta {
-  color: var(--text-muted);
-  flex: none;
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  font-variant-numeric: lining-nums tabular-nums;
-  margin: 0;
-  white-space: nowrap;
-}
-
-@media (width < 36rem) {
-  .featured-row {
-    /* Stacked, the title takes the panel's width, not its own, so a long
-       word breaks inside the panel. */
-    align-items: stretch;
-    flex-direction: column;
-    gap: 0.15rem;
-    padding: 0.65rem 0.95rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -377,10 +377,11 @@ sequenceDiagram
 `featured: true` puts a post in the Featured section at the top of the blog
 index's first page, newest first, and marks its card in the list. This post and
 [Code, tables and notes](/blog/code-tables-and-notes) are both featured, which
-is why they are listed above the others, in a panel of their own. They are shown in addition to the posts
+is why they are listed above the others, in a panel of their own, by title;
+pointing at one shows its date and reading time. They are shown in addition to the posts
 the page lists, and keep their places in the list too, so the list is still
 every post in date order and the first page still has the newest. How many the
-section shows is `featuredPosts` in `src/site.config.ts`, 2 unless you change
+section shows is `featuredPosts` in `src/site.config.ts`, 3 unless you change
 it; mark more and the newest of them are shown.
 
 ## Unlisted posts
