@@ -55,7 +55,7 @@ category: Tutorials # one of siteConfig.categories; optional
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
-featured: false # pins the post to the top of the index
+featured: false # true: in the Featured section above the blog index (Pagination)
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
 cite: true # false: no "Cite this post" block
@@ -168,11 +168,11 @@ the grouping — nothing is inferred from tags, titles or filenames, and the
 match is exact — and a series with fewer than two published parts renders
 nothing, so part 1 says nothing about a series until part 2 exists.
 
-`featured: true` pins a post to the top of the index and marks its card. Only
-the index is reordered — the feed, the archive, the tag pages and the
-newer/older links keep date order — so a pinned post leads the front page
-without following the reader around. Pin several and they hold their date order
-among themselves.
+`featured: true` shows a post in the Featured section at the top of the blog
+index's first page, and marks its card in the list; see Pagination. Nothing is
+reordered: the list, the feed, the archive, the tag pages and the newer/older
+links all keep date order, so a featured post is shown off without following
+the reader around.
 
 `unlisted: true` keeps a post's page and takes it out of everything that lists
 posts: the blog index and its pages, the archive, tag, category and author
@@ -217,6 +217,26 @@ that — an ellipsis never stands in for a single page, and the row keeps its
 width from page to page. Below 30rem the numbers give way to "Page 4 of 11".
 Past page one the page's lede says which page it is, the title reads
 "Blog, page 4", and `/blog/page/1` redirects to `/blog`.
+
+Above the list on the index's first page is a Featured section: the posts
+marked `featured: true`, newest first, as many as `featuredPosts` says.
+
+```ts
+postsPerPage: 4,
+featuredPosts: 2, // 0 for no Featured section
+```
+
+They are boxed cards, a title, the summary, the date and reading time, two
+across on a wide screen and stacked on a phone, and the list under them takes a
+"Latest" heading. They are shown in addition to the `postsPerPage` of the list,
+not in place of some of them, and they keep their places in the list as well,
+marked "Featured" there. So the first page always holds your newest posts,
+however many are featured, every page of the list is the record in date order
+with nothing missing from it, and a featured post that is also one of the newest
+is on the first page twice, once in each part. Mark more posts than
+`featuredPosts` and the newest of them are shown; `0` shows no section, and a
+featured post is then a list card with its mark. `j` and `k` step through the
+Featured cards and then the list.
 
 The sample posts under `src/content/posts/` document each feature and render
 one of everything. Replace them with your own — and replace

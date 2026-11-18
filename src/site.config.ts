@@ -529,6 +529,15 @@ export interface SiteConfig {
   url: string;
   postsPerPage: number;
   /**
+   * How many posts marked `featured: true` the blog index shows in its own
+   * section above the list, on its first page; the newest of them when more
+   * are marked. 0 shows no section, and a featured post is then a post like
+   * any other with its mark on its card. They are shown in addition to the
+   * `postsPerPage` of the list, which stays in date order and still has
+   * them in their places.
+   */
+  featuredPosts: number;
+  /**
    * Switching a feature off removes its nav entry, its route and its
    * prerendered page — it is absent from the built site, not merely hidden.
    */
@@ -632,6 +641,9 @@ export const siteConfig: SiteConfig = {
   // Low on purpose while the archive is small, so the pagination is visible
   // in the sample site. Ten or so is a better number for a real one.
   postsPerPage: 4,
+  // Posts marked `featured: true` shown above the list on the blog's first
+  // page, newest first; 0 for none. Two sit side by side on a wide screen.
+  featuredPosts: 2,
   features: {
     // Off: the blog is the whole site and its index is the front page. On: the
     // front page is the site's own and the blog moves to /blog. See the README.

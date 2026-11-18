@@ -463,13 +463,13 @@ function switchWarnings(slug: string, field: string, written: unknown, outcome: 
 }
 
 /**
- * The index order: featured posts first, newest first within each group, which
- * a stable sort on the flag alone gives us. The feed, the archive, the tag
- * pages and a post's neighbours stay chronological, so pinning changes what the
- * front page leads with and nothing else.
+ * The posts for the blog index's Featured section: those marked featured, in
+ * the order the list has them, newest first, as many as `limit` (0 or less
+ * for none). The list itself keeps every post in date order; pinning adds a
+ * section above it and moves nothing.
  */
-export function featuredFirst<T extends { featured: boolean }>(list: T[]): T[] {
-  return [...list].sort((a, b) => Number(b.featured) - Number(a.featured));
+export function pickFeatured<T extends { featured: boolean }>(list: T[], limit: number): T[] {
+  return list.filter((post) => post.featured).slice(0, Math.max(0, Math.floor(limit)));
 }
 
 export interface SeriesMember {

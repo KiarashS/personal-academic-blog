@@ -1,5 +1,5 @@
 import { blogEnabled, categoriesEnabled } from './features';
-import { listed, rankRelated, selectPosts, seriesParts } from './post-builder';
+import { listed, pickFeatured, rankRelated, selectPosts, seriesParts } from './post-builder';
 import { buildDate } from './today';
 import { getAuthors } from '../content/authors';
 import { tagSlug } from './format';
@@ -146,6 +146,14 @@ export function neighbours(slug: string): { previous?: Post; next?: Post } {
  * index those are the signals there are, and for a research notebook they are
  * usually the right ones.
  */
+/**
+ * The posts the blog index shows in its Featured section: those marked
+ * `featured: true`, newest first, as many as `limit`.
+ */
+export function featuredPosts(limit: number): Post[] {
+  return pickFeatured(posts, limit);
+}
+
 /**
  * The listed posts that link to this one, newest first: what a reader of a
  * notebook-style blog follows backwards, from a note to the ones that build on

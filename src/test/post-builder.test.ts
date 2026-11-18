@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildPost,
   categorySlug,
-  featuredFirst,
+  pickFeatured,
   listed,
   rankRelated,
   selectPosts,
@@ -139,33 +139,29 @@ describe('toPlainText', () => {
   });
 });
 
-describe('featuredFirst', () => {
+describe('pickFeatured', () => {
   // As `selectPosts` leaves it: newest first.
   const list = [
     meta({ slug: 'newest', date: '2026-03-01' }),
     meta({ slug: 'pinned-newer', date: '2026-02-15', featured: true }),
     meta({ slug: 'older', date: '2026-02-01' }),
     meta({ slug: 'pinned', date: '2026-01-01', featured: true }),
+    meta({ slug: 'pinned-oldest', date: '2025-12-01', featured: true }),
   ];
 
-  it('lifts featured posts to the front, keeping date order within each group', () => {
-    expect(featuredFirst(list).map((post) => post.slug)).toEqual([
-      'pinned-newer',
-      'pinned',
-      'newest',
-      'older',
-    ]);
+  it('takes the newest featured posts, as many as asked for', () => {
+    expect(pickFeatured(list, 2).map((post) => post.slug)).toEqual(['pinned-newer', 'pinned']);
   });
 
-  it('leaves a list with nothing pinned exactly as it was', () => {
-    const plain = list.map((post) => ({ ...post, featured: false }));
-    expect(featuredFirst(plain)).toEqual(plain);
+  it('shows none for 0, or for a count that is not a sensible one', () => {
+    expect(pickFeatured(list, 0)).toEqual([]);
+    expect(pickFeatured(list, -1)).toEqual([]);
+    expect(pickFeatured(list, 2.7)).toHaveLength(2);
   });
 
-  it('does not touch the list it is given', () => {
-    const before = [...list];
-    featuredFirst(list);
-    expect(list).toEqual(before);
+  it('moves nothing in the list it is given', () => {
+    pickFeatured(list, 3);
+    expect(list.map((post) => post.slug)[0]).toBe('newest');
   });
 });
 

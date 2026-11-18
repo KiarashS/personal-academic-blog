@@ -7,7 +7,7 @@ import { blogIndexPath } from '../lib/routes';
 
 // The index, a tag page and the search results share the card markup; the
 // archive is a plainer list of the same thing.
-const POST_LINKS = '.post-list .post-card__title a, .archive-list a';
+const POST_LINKS = '.featured-card__title a, .post-list .post-card__title a, .archive-list a';
 
 /**
  * Every "previous" and "next" on the site already says so in its markup: the

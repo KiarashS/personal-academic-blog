@@ -3,13 +3,17 @@ import { FeedLink } from '../components/FeedLink';
 import { Pagination } from '../components/Pagination';
 import { PostList } from '../components/PostList';
 import { paginate } from '../lib/pagination';
-import { featuredFirst } from '../lib/post-builder';
-import { posts } from '../lib/posts';
+import { FeaturedPosts } from '../components/FeaturedPosts';
+import { featuredPosts, posts } from '../lib/posts';
 import { blogIndexPath, blogPagePath } from '../lib/routes';
 import { siteConfig } from '../site.config';
 
 /**
- * Every post, newest first, with the featured ones pinned. This is the site's
+ * Every post, newest first, with the featured ones in a section above the list
+ * on the first page (`FeaturedPosts`). They are shown in addition to the
+ * page's `postsPerPage` and keep their places in the list too, so the first
+ * page always holds the newest posts, and every page of the list is the
+ * record in date order with nothing missing from it. This is the site's
  * front page until the `home` feature gives the site one of its own, at which
  * point it moves to /blog.
  */
@@ -21,11 +25,9 @@ export function BlogPage() {
     return <Navigate to={blogIndexPath()} replace />;
   }
 
-  const { items, page, totalPages } = paginate(
-    featuredFirst(posts),
-    requested,
-    siteConfig.postsPerPage,
-  );
+  const { items, page, totalPages } = paginate(posts, requested, siteConfig.postsPerPage);
+
+  const featured = page === 1 ? featuredPosts(siteConfig.featuredPosts) : [];
 
   // A stale /page/9 link should land somewhere real rather than show nothing,
   // and /page/1 is the index under a second address.
@@ -50,7 +52,11 @@ export function BlogPage() {
         {page > 1 ? `page ${page} of ${totalPages} · ` : null}
         <FeedLink label="Feed for all posts" />
       </p>
-      <PostList posts={items} />
+      {/* With a Featured section above it, the list gets a heading of its
+          own, so the page reads as the two parts it is. */}
+      <FeaturedPosts posts={featured} />
+      {featured.length > 0 ? <h2 className="section-heading post-list__heading">Latest</h2> : null}
+      <PostList level={featured.length > 0 ? 3 : 2} posts={items} />
       <Pagination page={page} totalPages={totalPages} hrefFor={blogPagePath} />
     </>
   );

@@ -37,7 +37,7 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 category: Tutorials       # one of the site's categories; optional
 draft: false              # drafts appear in dev, never in a build
-featured: false           # pins the post to the top of the index
+featured: false           # true shows it in the index's Featured section
 unlisted: false           # true leaves it out of every list; see below
 revisions:                # optional; see below
   - date: 2026-01-12
@@ -374,13 +374,14 @@ sequenceDiagram
 
 ## Featured posts
 
-`featured: true` pins a post to the top of the index and marks its card. This
-post and [Code, tables and notes](/blog/code-tables-and-notes) are both pinned,
-which is why they lead the blog index, newest first, ahead of posts written
-after them.
-Only the index is reordered: the feed, the archive, the tag pages and the
-newer/older links at the foot of a post stay in date order, so a pinned post
-does not follow the reader everywhere.
+`featured: true` puts a post in the Featured section at the top of the blog
+index's first page, newest first, and marks its card in the list. This post and
+[Code, tables and notes](/blog/code-tables-and-notes) are both featured, which
+is why they are boxed above the list. They are shown in addition to the posts
+the page lists, and keep their places in the list too, so the list is still
+every post in date order and the first page still has the newest. How many the
+section shows is `featuredPosts` in `src/site.config.ts`, 2 unless you change
+it; mark more and the newest of them are shown.
 
 ## Unlisted posts
 
