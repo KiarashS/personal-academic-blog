@@ -382,7 +382,9 @@ pointing at one shows its date and reading time. They are shown in addition to t
 the page lists, and keep their places in the list too, so the list is still
 every post in date order and the first page still has the newest. How many the
 section shows is `featuredPosts` in `src/site.config.ts`, 3 unless you change
-it; mark more and the newest of them are shown.
+it; mark more and the newest of them are shown. Set it to 0 to keep only the
+marks on the cards, or set `showFeatured` to `false` to drop the section and
+the marks both.
 
 ## Unlisted posts
 

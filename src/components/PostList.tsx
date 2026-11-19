@@ -3,6 +3,7 @@ import { PostMeta } from './PostMeta';
 import { TagList } from './TagList';
 import type { Post } from '../lib/types';
 import { postPath } from '../lib/routes';
+import { siteConfig } from '../site.config';
 
 /**
  * A list of post cards. `level` is the cards' heading level: `h2` where the
@@ -22,7 +23,9 @@ export function PostList({ posts, level = 2 }: { posts: Post[]; level?: 2 | 3 })
           <article>
             <Title className="post-card__title">
               <Link to={postPath(post.slug)}>{post.title}</Link>
-              {post.featured ? <span className="post-card__pin">Featured</span> : null}
+              {post.featured && siteConfig.showFeatured ? (
+                <span className="post-card__pin">Featured</span>
+              ) : null}
             </Title>
             <PostMeta post={post} />
             <p className="post-card__summary">{post.summary}</p>

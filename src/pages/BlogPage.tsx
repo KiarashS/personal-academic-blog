@@ -27,7 +27,8 @@ export function BlogPage() {
 
   const { items, page, totalPages } = paginate(posts, requested, siteConfig.postsPerPage);
 
-  const featured = page === 1 ? featuredPosts(siteConfig.featuredPosts) : [];
+  const featured =
+    page === 1 && siteConfig.showFeatured ? featuredPosts(siteConfig.featuredPosts) : [];
 
   // A stale /page/9 link should land somewhere real rather than show nothing,
   // and /page/1 is the index under a second address.

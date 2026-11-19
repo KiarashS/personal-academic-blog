@@ -223,7 +223,8 @@ marked `featured: true`, newest first, as many as `featuredPosts` says.
 
 ```ts
 postsPerPage: 4,
-featuredPosts: 3, // 0 for no Featured section
+showFeatured: true, // false: no Featured section and no "Featured" marks
+featuredPosts: 3, // 0 for no Featured section, the marks kept
 ```
 
 They are one tinted panel with a row per post, its title alone (pointing at a
@@ -236,7 +237,9 @@ however many are featured, every page of the list is the record in date order
 with nothing missing from it, and a featured post that is also one of the newest
 is on the first page twice, once in each part. Mark more posts than
 `featuredPosts` and the newest of them are shown; `0` shows no section, and a
-featured post is then a list card with its mark. `j` and `k` step through the
+featured post is then a list card with its mark. `showFeatured: false` turns
+both off, the section and the marks, and leaves `featured: true` in the posts
+for when you turn it back on. `j` and `k` step through the
 Featured cards and then the list.
 
 The sample posts under `src/content/posts/` document each feature and render
