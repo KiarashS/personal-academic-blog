@@ -66,9 +66,10 @@ export function Signature() {
     const flourish = root.querySelector<SVGPathElement>('.ks-flourish');
     if (pens.length === 0) return;
 
-    // The glass bead on the first letter, which lands once the pen lifts.
+    // The glass bead on the first letter, which lands once the pen lifts,
+    // unless the drawing turns it off with `data-glass="false"` on its root.
     const svg = root.querySelector('svg');
-    const glass = svg ? addGlass(svg) : undefined;
+    const glass = svg && svg.getAttribute('data-glass') !== 'false' ? addGlass(svg) : undefined;
     const removeGlass = () => glass?.remove();
 
     // A reader who asks for less motion gets the finished signature, bead and all.

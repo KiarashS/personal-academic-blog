@@ -2791,7 +2791,8 @@ out as if by pen (below); when the pen lifts, a small glass bead drops onto
 the top of the first letter's stem, centred on it, magnifying the ink under
 it, and a shine
 crosses it once. A click writes the name again and the bead lands again at
-the end. `'text'` sets the name as type, which a visitor reads
+the end. A drawing whose root `<svg>` carries `data-glass="false"` gets no
+bead; `signature-damion-plain.svg` is the Damion signature with it. `'text'` sets the name as type, which a visitor reads
 at a glance: on the same line as "Hi, I am" and at the same size, set apart by
 a heavier weight and a stroke of the accent drawn under its lower half the way
 a highlighter runs under a name. A one-word name keeps the heading at full size.
@@ -3133,11 +3134,12 @@ name set from a font has its baseline at y=0 and all its letters above it, so
 the default region cut two thirds of it away. The viewBox is the region that is
 always right.
 
-The repo carries five signatures, and `Signature.tsx` animates `.ks-pen` and
+The repo carries six signatures, and `Signature.tsx` animates `.ks-pen` and
 `.ks-stroke` alike, so any of them is one line of config:
 
 ```ts
 signatureFile: 'signature-damion.svg',     // the default: Damion, paced, with a smile
+signatureFile: 'signature-damion-plain.svg', // the same, with no glass bead
 signatureFile: 'signature-sacramento.svg', // Sacramento, paced, with a smile
 signatureFile: 'signature-typeset.svg',    // set from a personal-use font
 signatureFile: 'signature-script.svg',     // drawn as pen strokes

@@ -45,6 +45,13 @@ describe('signaturePath', () => {
     }
   });
 
+  it('carries a Damion signature with the glass bead turned off, the same drawing otherwise', () => {
+    const read = (file: string) => readFileSync(signaturePath(file), 'utf8');
+    const plain = read('signature-damion-plain.svg');
+    expect(/<svg\b[^>]*>/.exec(plain)?.[0]).toContain('data-glass="false"');
+    expect(plain.replace(' data-glass="false"', '')).toBe(read('signature-damion.svg'));
+  });
+
   it('accepts the configured file', () => {
     expect(() => signaturePath(siteConfig.home.signatureFile)).not.toThrow();
   });
