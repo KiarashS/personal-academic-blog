@@ -3017,21 +3017,85 @@ h1 + .author-card {
 
 /* Featured posts ----------------------------------------------------------- */
 
-/* 0.68rem, which is the smallest type anywhere else on the site — the prose
-   captions, the footnote markers and the figure labels all sit there. At the
-   0.62rem this had it was the one thing set smaller than the floor, and at
-   9.9px a tracked-out uppercase word is being asked to do a lot. */
+/* The "Featured" mark on a card, in 0.68rem, which is the smallest type
+   anywhere else on the site — the prose captions, the footnote markers and
+   the figure labels all sit there. At the 0.62rem this had it was the one
+   thing set smaller than the floor, and at 9.9px a tracked-out uppercase word
+   is being asked to do a lot.
+
+   Its border has the portrait's rim in small: one arc of the accent going
+   round the outline, slowly, over the grey line that is always there. The arc
+   is a conic gradient turned by animating its start angle, rather than by
+   rotating a box as the portrait does, because a pill is not a circle and a
+   turning square would show its corners; the mask keeps the gradient to the
+   1px ring and off the word. The angle is swept at an even rate, so the arc
+   slows along the long sides and rounds the ends quickly. */
+@property --pin-angle {
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
+}
+
 .post-card__pin {
   border: 1px solid var(--rule-strong);
   border-radius: 999px;
   color: var(--text-muted);
+
+  /* A box of its own, so the ring below is laid on this border: around an
+     inline element it is measured from the line instead, and drew 2px out. */
+  display: inline-block;
   font-family: var(--sans);
   font-size: 0.68rem;
   letter-spacing: 0.08em;
+  line-height: 1.4;
   margin-left: 0.6rem;
   padding: 0.1rem 0.45rem;
+  position: relative;
   text-transform: uppercase;
   vertical-align: middle;
+}
+
+@supports (mask-composite: exclude) {
+  .post-card__pin::before {
+    animation: pin-shine 5s linear infinite;
+    background: conic-gradient(
+      from var(--pin-angle),
+      transparent 0deg 260deg,
+      color-mix(in oklab, var(--accent) 45%, transparent) 320deg,
+      var(--accent) 348deg,
+      transparent 360deg
+    );
+    border-radius: inherit;
+    content: '';
+    inset: -1px;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    padding: 1px;
+    pointer-events: none;
+    position: absolute;
+  }
+}
+
+@keyframes pin-shine {
+  to {
+    --pin-angle: 1turn;
+  }
+}
+
+/* Less motion: the arc stays where it is, a lit stretch of the outline. */
+@media (prefers-reduced-motion: reduce) {
+  .post-card__pin::before {
+    animation: none;
+    --pin-angle: 200deg;
+  }
+}
+
+/* Forced colours draw no gradients; the plain border is the mark there. */
+@media (forced-colors: active) {
+  .post-card__pin::before {
+    display: none;
+  }
 }
 
 /* Share -------------------------------------------------------------------- */
