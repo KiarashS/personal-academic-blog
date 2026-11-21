@@ -3054,8 +3054,8 @@ h1 + .author-card {
    `pathLength="100"` makes the dash lengths shares of the outline whatever
    its size. The ends are semicircles because `rx` is half the box's height,
    which the box knows as a size container (`50cqh`). A stroke has one colour
-   along its length, so the fading tail is several dashes ending at the same
-   point. */
+   along its length, so the fading tail is several faint dashes laid over each
+   other, all ending at the head. */
 .post-card__pin-ring {
   container-type: size;
   inset: -1px;
@@ -3074,7 +3074,6 @@ h1 + .author-card {
   animation: pin-run 5s linear infinite;
   fill: none;
   height: calc(100% - 1px);
-  opacity: 0.2;
   rx: calc(50cqh - 0.5px);
   stroke: var(--accent);
   stroke-width: 1px;
@@ -3083,34 +3082,8 @@ h1 + .author-card {
   y: 0.5px;
 }
 
-/* Each pattern is 100 long and its dash ends at 30, so the heads meet: an
-   empty dash, a gap to where the run starts, the run, the rest. Six runs,
-   each 5 shorter and the faint ones laid over each other, fade the tail in
-   steps too small to see. */
-.post-card__pin-ring rect:nth-child(1) {
-  stroke-dasharray: 0 0 30 70;
-}
-
-.post-card__pin-ring rect:nth-child(2) {
-  stroke-dasharray: 0 5 25 70;
-}
-
-.post-card__pin-ring rect:nth-child(3) {
-  stroke-dasharray: 0 10 20 70;
-}
-
-.post-card__pin-ring rect:nth-child(4) {
-  stroke-dasharray: 0 15 15 70;
-}
-
-.post-card__pin-ring rect:nth-child(5) {
-  stroke-dasharray: 0 20 10 70;
-}
-
-.post-card__pin-ring rect:nth-child(6) {
-  opacity: 1;
-  stroke-dasharray: 0 25 5 70;
-}
+/* The dashes' lengths and strengths are set on each one by PostList.tsx,
+   which works them out so the tail fades to nothing. */
 
 /* Once round the outline; the pattern repeats every 100, so the end is the
    start again and nothing jumps. Plain numbers: Chromium does not animate an
