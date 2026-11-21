@@ -3021,21 +3021,7 @@ h1 + .author-card {
    anywhere else on the site — the prose captions, the footnote markers and
    the figure labels all sit there. At the 0.62rem this had it was the one
    thing set smaller than the floor, and at 9.9px a tracked-out uppercase word
-   is being asked to do a lot.
-
-   Its border has the portrait's rim in small: one arc of the accent going
-   round the outline, slowly, over the grey line that is always there. The arc
-   is a conic gradient turned by animating its start angle, rather than by
-   rotating a box as the portrait does, because a pill is not a circle and a
-   turning square would show its corners; the mask keeps the gradient to the
-   1px ring and off the word. The angle is swept at an even rate, so the arc
-   slows along the long sides and rounds the ends quickly. */
-@property --pin-angle {
-  inherits: false;
-  initial-value: 0deg;
-  syntax: '<angle>';
-}
-
+   is being asked to do a lot. */
 .post-card__pin {
   border: 1px solid var(--rule-strong);
   border-radius: 999px;
@@ -3055,45 +3041,101 @@ h1 + .author-card {
   vertical-align: middle;
 }
 
-@supports (mask-composite: exclude) {
-  .post-card__pin::before {
-    animation: pin-shine 5s linear infinite;
-    background: conic-gradient(
-      from var(--pin-angle),
-      transparent 0deg 260deg,
-      color-mix(in oklab, var(--accent) 45%, transparent) 320deg,
-      var(--accent) 348deg,
-      transparent 360deg
-    );
-    border-radius: inherit;
-    content: '';
-    inset: -1px;
-    mask:
-      linear-gradient(#000 0 0) content-box exclude,
-      linear-gradient(#000 0 0);
-    padding: 1px;
-    pointer-events: none;
-    position: absolute;
-  }
+/* Its border has the portrait's rim in small: a short run of the accent going
+   round the outline, over the grey line that is always there.
+
+   It is the dash of a stroke drawn on the border, moved along by its offset,
+   so it covers the same length of border every moment and keeps its own
+   length round the ends. An earlier version turned a conic gradient about the
+   pill's centre instead, which sweeps equal angles in equal times: on a shape
+   four times as wide as it is tall that crawled across the middle and whipped
+   round the ends.
+
+   `pathLength="100"` makes the dash lengths shares of the outline whatever
+   its size. The ends are semicircles because `rx` is half the box's height,
+   which the box knows as a size container (`50cqh`). A stroke has one colour
+   along its length, so the fading tail is several dashes ending at the same
+   point. */
+.post-card__pin-ring {
+  container-type: size;
+  inset: -1px;
+  pointer-events: none;
+  position: absolute;
 }
 
-@keyframes pin-shine {
+.post-card__pin-ring svg {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.post-card__pin-ring rect {
+  animation: pin-run 5s linear infinite;
+  fill: none;
+  height: calc(100% - 1px);
+  opacity: 0.2;
+  rx: calc(50cqh - 0.5px);
+  stroke: var(--accent);
+  stroke-width: 1px;
+  width: calc(100% - 1px);
+  x: 0.5px;
+  y: 0.5px;
+}
+
+/* Each pattern is 100 long and its dash ends at 30, so the heads meet: an
+   empty dash, a gap to where the run starts, the run, the rest. Six runs,
+   each 5 shorter and the faint ones laid over each other, fade the tail in
+   steps too small to see. */
+.post-card__pin-ring rect:nth-child(1) {
+  stroke-dasharray: 0 0 30 70;
+}
+
+.post-card__pin-ring rect:nth-child(2) {
+  stroke-dasharray: 0 5 25 70;
+}
+
+.post-card__pin-ring rect:nth-child(3) {
+  stroke-dasharray: 0 10 20 70;
+}
+
+.post-card__pin-ring rect:nth-child(4) {
+  stroke-dasharray: 0 15 15 70;
+}
+
+.post-card__pin-ring rect:nth-child(5) {
+  stroke-dasharray: 0 20 10 70;
+}
+
+.post-card__pin-ring rect:nth-child(6) {
+  opacity: 1;
+  stroke-dasharray: 0 25 5 70;
+}
+
+/* Once round the outline; the pattern repeats every 100, so the end is the
+   start again and nothing jumps. Plain numbers: Chromium does not animate an
+   offset worked out from a custom property here, and holds it still. */
+@keyframes pin-run {
+  from {
+    stroke-dashoffset: 0;
+  }
+
   to {
-    --pin-angle: 1turn;
+    stroke-dashoffset: -100;
   }
 }
 
-/* Less motion: the arc stays where it is, a lit stretch of the outline. */
+/* Less motion: the run stays where it is, a lit stretch of the outline. */
 @media (prefers-reduced-motion: reduce) {
-  .post-card__pin::before {
+  .post-card__pin-ring rect {
     animation: none;
-    --pin-angle: 200deg;
+    stroke-dashoffset: -32;
   }
 }
 
-/* Forced colours draw no gradients; the plain border is the mark there. */
+/* Forced colours: the plain border is the mark. */
 @media (forced-colors: active) {
-  .post-card__pin::before {
+  .post-card__pin-ring {
     display: none;
   }
 }
