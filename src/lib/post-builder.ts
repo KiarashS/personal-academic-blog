@@ -5,6 +5,7 @@ import { commentState } from './comments';
 import { tagSlug } from './format';
 import { FONT_NAMES, sectionFont } from './fonts';
 import { mediaKind } from './media';
+import { resolveLicense } from './license';
 import type {
   Banner,
   Heading,
@@ -292,6 +293,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       featured: data.featured === true,
       featuredSection: data.featured === true && data.featuredSection === true,
       unlisted: data.unlisted === true,
+      license: resolveLicense(data.license),
       // On by default: only a written `false` takes the links away.
       share: data.share !== false,
       cite: data.cite !== false,

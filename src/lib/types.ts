@@ -174,6 +174,12 @@ export interface Publication {
   data?: string;
 }
 
+/** A licence: its name, and the address of its terms where it has one. */
+export interface License {
+  name: string;
+  url?: string;
+}
+
 /**
  * The picture or video a post opens with, above its title.
  *
@@ -242,6 +248,13 @@ export interface PostFrontmatter {
    * the blog index. Without it a featured post has its mark and no more.
    */
   featuredSection?: boolean;
+  /**
+   * The post's licence for its text and figures, where it is not the site's
+   * (`license.content` in the site config): a name, `CC BY-SA 4.0`, which
+   * links to its deed when it is one `src/lib/license.ts` knows, or
+   * `{ name, url }`. Code in the post keeps the site's code licence.
+   */
+  license?: string | License;
   /**
    * Published at its address but left out of every list the site makes: the
    * blog index, the archive, tag, category and author pages, search, related
@@ -347,6 +360,8 @@ export interface PostMeta {
   featuredSection: boolean;
   /** See `PostFrontmatter.unlisted`. */
   unlisted: boolean;
+  /** See `PostFrontmatter.license`; absent when the post is under the site's. */
+  license?: License;
   /** See `PostFrontmatter.share`. */
   share: boolean;
   /** See `PostFrontmatter.cite`. */

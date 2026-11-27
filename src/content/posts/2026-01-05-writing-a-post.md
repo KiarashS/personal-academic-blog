@@ -40,6 +40,7 @@ category: Tutorials       # one of the site's categories; optional
 draft: false              # drafts appear in dev, never in a build
 featured: false           # true marks its card "Featured"
 featuredSection: false    # true, with featured, lists it in the Featured section
+license: CC BY 4.0        # optional; its text and figures, if not the site's
 unlisted: false           # true leaves it out of every list; see below
 revisions:                # optional; see below
   - date: 2026-01-12
@@ -389,6 +390,17 @@ section shows is `featuredPosts` in `src/site.config.ts`, 3 unless you change
 it; give more posts the section and the newest of them are shown. Set it to 0 to keep only the
 marks on the cards, or set `showFeatured` to `false` to drop the section and
 the marks both.
+
+## A post's licence
+
+The footer puts every post's text and figures under the site's licence,
+`license.content` in `src/site.config.ts`, and code under `license.code`.
+A post under other terms names them in its frontmatter: `license: CC BY-NC
+4.0`, or `license: { name: …, url: … }` for one the site does not know by
+name. It then says so under its body, and its metadata and feed entry carry
+the licence too. Code in it stays under the site's code licence. A figure
+from someone else's work is theirs, so its caption should say whose it is and
+under what terms.
 
 ## Unlisted posts
 

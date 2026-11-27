@@ -30,6 +30,7 @@ import {
   fontWarnings as postFontWarnings,
   unlistedWarnings,
 } from '../src/lib/post-builder';
+import { licenseWarnings } from '../src/lib/license';
 import { commentWarnings } from '../src/lib/comments';
 import { blogEnabled } from '../src/lib/features';
 import { siteConfig } from '../src/site.config';
@@ -482,6 +483,7 @@ export function markdown(options: MarkdownPluginOptions = {}): Plugin {
         ...bannerWarnings(built.meta.slug, frontmatter.banner),
         ...commentWarnings(built.meta.slug, frontmatter.comments),
         ...unlistedWarnings(built.meta.slug, frontmatter.unlisted, frontmatter.featured),
+        ...licenseWarnings(built.meta.slug, frontmatter.license),
         ...featuredSectionWarnings(
           built.meta.slug,
           frontmatter.featured,

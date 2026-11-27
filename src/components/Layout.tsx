@@ -7,6 +7,10 @@ import { footerCredit } from '../lib/credit';
 import { withBase } from '../lib/urls';
 import { blogEnabled, isEnabled, isExternal, isNavGroup, navFor } from '../lib/features';
 import { SiteMark } from './SiteMark';
+import { LicenseName } from './LicenseName';
+import { codeLicense, contentLicense } from '../lib/license';
+import { getPost } from '../lib/posts';
+import { postSlugFromPath } from '../lib/routes';
 import { CvLink } from './CvLink';
 import { FeedLink } from './FeedLink';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
@@ -99,7 +103,12 @@ export function Layout() {
   const year = useToday().slice(0, 4);
   // The front page carries the name at display size, so the header drops its
   // own copy of it and the tagline and leaves the nav on its own.
-  const onHome = useLocation().pathname.replace(/\/+$/, '') === '';
+  const { pathname } = useLocation();
+  const onHome = pathname.replace(/\/+$/, '') === '';
+  // A post under a licence of its own says so on the page, and its line
+  // carries `rel="license"` in place of the footer's.
+  const ownLicense = getPost(postSlugFromPath(pathname.replace(/\/+$/, '') || '/'))?.license;
+  const code = codeLicense();
   const bare = isEnabled('home') && onHome;
 
   return (
@@ -173,8 +182,15 @@ export function Layout() {
 
       <footer className="site-footer">
         <div className="shell">
-          <p>
-            © {year} {siteConfig.title}. Text licensed CC BY 4.0 unless a post says otherwise.
+          <p className="site-footer__license">
+            © {year} {siteConfig.title}. Text and figures:{' '}
+            <LicenseName license={contentLicense()} main={!ownLicense} />
+            {code ? (
+              <>
+                ; code: <LicenseName license={code} />
+              </>
+            ) : null}
+            ; except where a post or a caption says otherwise.
           </p>
           {/* Not a `p`: the shortcuts dialog is a block element, and a `p`
               closes before one, which puts the browser's DOM at odds with

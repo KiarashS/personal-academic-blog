@@ -3,6 +3,7 @@ import { isEnabled } from './features';
 import { isoDate } from './format';
 import { getCategory } from './categories';
 import { getPost } from './posts';
+import { contentLicense } from './license';
 import { profileLinks, researchInterests, siteOwner } from './profiles';
 import { blogIndexPath, postPath, postSlugFromPath } from './routes';
 import { canonicalUrl } from './urls';
@@ -112,6 +113,7 @@ export function postSchema(post: Post): Record<string, unknown> {
   const url = canonicalUrl(postPath(post.slug));
   const blog = canonicalUrl(blogIndexPath());
   const category = post.category ? getCategory(post.category)?.label : undefined;
+  const license = post.license ?? contentLicense();
 
   return {
     '@context': 'https://schema.org',
@@ -136,6 +138,9 @@ export function postSchema(post: Post): Record<string, unknown> {
     },
     // The one `lang` the document carries, in `index.html`.
     inLanguage: 'en',
+    // The deed's address where there is one, which is what schema.org asks
+    // for; a licence with none, `All rights reserved`, by its name.
+    license: license.url ?? license.name,
   };
 }
 

@@ -64,6 +64,7 @@ export { blogIndexPath, postPath, postSlugFromPath } from './lib/routes';
 export { loadPostHtml } from './lib/post-content';
 export { renderedPage } from './lib/page-registry';
 export { serialiseJsonLd, structuredDataFor } from './lib/structured-data';
+export { licenseText, siteRights } from './lib/license';
 
 /**
  * Every body the pages read, loaded before anything is rendered. After this a

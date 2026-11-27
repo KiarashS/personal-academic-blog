@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorCard } from '../components/AuthorCard';
 import { CiteBlock } from '../components/CiteBlock';
+import { LicenseName } from '../components/LicenseName';
 import { Comments } from '../components/Comments';
 import { commentTerm, commentsShown } from '../lib/comments';
 import { PostBody } from '../components/PostBody';
@@ -149,6 +150,13 @@ export function PostPage() {
       ) : null}
 
       <Revisions revisions={post.revisions} />
+
+      {/* Only where the post differs from the footer, which covers the rest. */}
+      {post.license ? (
+        <p className="post-license">
+          This post's text and figures: <LicenseName license={post.license} main />.
+        </p>
+      ) : null}
 
       {post.share ? <ShareLinks post={post} /> : null}
 

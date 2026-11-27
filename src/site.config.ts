@@ -1,4 +1,4 @@
-import type { ProfileLinkKey } from './lib/types';
+import type { License, ProfileLinkKey } from './lib/types';
 import type { AlertType } from './lib/alerts';
 
 /**
@@ -216,6 +216,25 @@ export type PwaDisplay = 'standalone' | 'minimal-ui';
  * `src/styles/global.css` and with the `theme-color` tags in `index.html`.
  */
 export const THEME_COLORS = { light: '#fdfdfc', dark: '#14140f' } as const;
+
+/**
+ * What readers may do with the site's posts. Each is a licence's name, which
+ * links to its deed when `src/lib/license.ts` knows it (the Creative Commons
+ * licences, CC0, MIT, Apache 2.0, BSD 3-Clause), or `{ name, url }`.
+ */
+export interface LicenseConfig {
+  /**
+   * The text and figures of every post, unless its `license` says otherwise.
+   * `All rights reserved` is a name too, with no deed.
+   */
+  content: string | License;
+  /**
+   * Code in posts, which a reader pastes into a project of their own and a
+   * Creative Commons licence suits badly. Empty for no licence of its own,
+   * leaving code under `content`.
+   */
+  code: string | License;
+}
 
 /**
  * Installing the site: a web app manifest, a service worker that keeps visited
@@ -635,6 +654,8 @@ export interface SiteConfig {
   analytics: AnalyticsConfig;
   /** Installing the site to a home screen or a launcher; see `PwaConfig`. */
   pwa: PwaConfig;
+  /** The licences in the footer, the feeds and each post's metadata; see `LicenseConfig`. */
+  license: LicenseConfig;
 }
 
 export const siteConfig: SiteConfig = {
@@ -905,5 +926,12 @@ export const siteConfig: SiteConfig = {
     // Empty: the first three header links. Name paths to choose your own,
     // e.g. ['/blog', '/news', '/about'].
     shortcuts: [],
+  },
+  license: {
+    // Text and figures. A post's `license` frontmatter overrides it; a figure
+    // reproduced from elsewhere says its own in its caption.
+    content: 'CC BY 4.0',
+    // Code in posts; empty leaves code under `content`.
+    code: 'MIT',
   },
 };

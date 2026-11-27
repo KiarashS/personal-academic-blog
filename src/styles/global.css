@@ -2722,6 +2722,26 @@ h1 + .author-card {
   text-align: right;
 }
 
+/* Licence ------------------------------------------------------------------ */
+
+/* A licence's name is one thing: "CC BY 4.0" broken after "CC" on a phone
+   read as two. */
+.license-name {
+  white-space: nowrap;
+}
+
+/* A short line that a broken "cap-tion" made look busier than it is. */
+.site-footer__license {
+  hyphens: manual;
+}
+
+.post-license {
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  margin: 1.5rem 0 0;
+}
+
 /* Revisions ---------------------------------------------------------------- */
 
 /* Arriving by anchor — the byline's update date links to the revisions, and
@@ -2731,6 +2751,7 @@ h1 + .author-card {
    heading down, which reads as having stopped short of the section rather than
    at it. The negative scroll margin below takes the padding back out, less the
    half a rem of air the heading keeps above itself. */
+
 .revisions {
   border-top: 1px solid var(--rule);
   margin-top: 2rem;

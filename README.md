@@ -57,6 +57,7 @@ summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
 featured: false # true: marked "Featured" in the lists (Pagination)
 featuredSection: false # true, with featured: also in the Featured section (Pagination)
+license: CC BY 4.0 # optional: text and figures, if not the site's (Licence)
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
 cite: true # false: no "Cite this post" block
@@ -1740,6 +1741,48 @@ The photo is loaded from a fixed URL, `https://blog.kiarashs.ir/credit.webp`
 shows the same picture whatever it does with its own avatars and front page.
 Your own name and portrait belong in `src/content/authors.ts` and `home`;
 none of those settings touch the credit.
+
+## Licence
+
+The footer of every page says what readers may do with the posts:
+
+```ts
+license: {
+  content: 'CC BY 4.0', // text and figures
+  code: 'MIT',          // code in posts; '' leaves code under `content`
+},
+```
+
+CC BY 4.0 lets anyone copy, translate or adapt a post, commercially too, as
+long as they credit you; arXiv offers it for papers and many open-access
+journals publish under it. Code gets a licence of its own because Creative
+Commons advises against its licences for software, and a reader pasting a
+snippet into a project should not have to work out how to attribute it.
+
+Each value is a licence's name or `{ name, url }`. The Creative Commons
+licences, CC0 1.0, MIT, Apache 2.0 and BSD 3-Clause are known by name, written
+the usual way or as their SPDX ids (`CC-BY-SA-4.0`), and link to their deeds;
+`All rights reserved` is known too, with no link. Any other name is shown as
+written, without one.
+
+The footer reads "Text and figures: CC BY 4.0; code: MIT; except where a post
+or a caption says otherwise", with the content licence's link marked
+`rel="license"`. Each post's structured data carries its licence as
+`license`, and the feeds carry the site's in `<rights>`.
+
+A post under different terms says so in its frontmatter,
+`license: CC BY-NC 4.0` or `license: { name: …, url: … }`. It then shows
+"This post's text and figures:" and the licence under its body, that line
+takes `rel="license"` from the footer's, and its structured data and its feed
+entry name it; the build warns about a value it cannot read. Code in the post
+keeps the site's code licence. A figure you reproduce from someone else's
+paper is not yours to license, so say whose it is and under what terms in its
+caption.
+
+The repository says the same for its files: `LICENSE` is MIT for the code, and
+`LICENSE-CONTENT.md` puts the writing and figures under CC BY 4.0 and lists
+what neither covers (papers' images in `public/publications/`, the portrait
+and the logos, the fonts).
 
 ## CV
 

@@ -30,6 +30,8 @@ const {
   blogIndexPath,
   structuredDataFor,
   serialiseJsonLd,
+  licenseText,
+  siteRights,
   configuredNewsWarnings,
   configuredSelectedWorkWarnings,
   configuredLlmsTxt,
@@ -350,6 +352,10 @@ async function entryFor(post) {
     ...post.authors.map((author) => `    <author><name>${escapeXml(author.name)}</name></author>`),
     ...post.tags.map((tag) => `    <category term="${escapeXml(tag)}" />`),
     `    <summary>${escapeXml(post.summary)}</summary>`,
+    // Only where the post is not under the feed's own `<rights>`.
+    ...(post.license
+      ? [`    <rights>Text and figures: ${escapeXml(licenseText(post.license))}</rights>`]
+      : []),
     `    <content type="html">${escapeXml(html)}</content>`,
     '  </entry>',
   ].join('\n');
@@ -370,6 +376,7 @@ async function writeFeed({ path, title, subtitle, alternate, entries }) {
       `  <link rel="alternate" type="text/html" href="${escapeXml(canonicalUrl(alternate))}" />`,
       `  <link rel="self" type="application/atom+xml" href="${escapeXml(canonicalUrl(`/${path}`))}" />`,
       `  <updated>${newest ? iso(newest.updated ?? newest.date) : new Date().toISOString()}</updated>`,
+      `  <rights>${escapeXml(siteRights(String(new Date().getUTCFullYear())))}</rights>`,
       ...rendered,
       '</feed>',
       '',
