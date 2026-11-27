@@ -912,7 +912,7 @@ export const siteConfig: SiteConfig = {
     // from Cloudflare's addresses partway. Not proxied, nothing injects the
     // beacon, so analytics needs the token from Web Analytics' JS snippet
     // here. Empty: no analytics. See README, "A custom domain behind Cloudflare".
-    cloudflareToken: '',
+    cloudflareToken: '4168dd00de054245af7717a2039aa20f',
   },
   pwa: {
     // On: the build writes site.webmanifest and sw.js, and a browser offers to
