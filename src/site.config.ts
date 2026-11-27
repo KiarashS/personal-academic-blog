@@ -907,11 +907,11 @@ export const siteConfig: SiteConfig = {
     comments: 'on',
   },
   analytics: {
-    // Empty: blog.kiarashs.ir is proxied through Cloudflare, so the beacon is
-    // the zone's to inject. Enable Web Analytics for the zone rather than
-    // pasting a token here. Proxied, the site does not load on networks that
-    // cut downloads from Cloudflare's addresses partway; "DNS only" serves it
-    // from GitHub Pages instead, and then a token belongs here. See README.
+    // blog.kiarashs.ir is "DNS only" in Cloudflare and served straight from
+    // GitHub Pages: proxied, it did not load on networks that cut downloads
+    // from Cloudflare's addresses partway. Not proxied, nothing injects the
+    // beacon, so analytics needs the token from Web Analytics' JS snippet
+    // here. Empty: no analytics. See README, "A custom domain behind Cloudflare".
     cloudflareToken: '',
   },
   pwa: {

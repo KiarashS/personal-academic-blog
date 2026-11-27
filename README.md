@@ -3714,14 +3714,14 @@ the site talks to no one but its own host.
 How you turn it on depends on how the domain is served, and the two ways do not
 mix.
 
-A domain proxied through Cloudflare, which is what `blog.kiarashs.ir` is, takes
-the automatic setup: enable Web Analytics for the zone at
+A domain proxied through Cloudflare takes the automatic setup: enable Web Analytics for the zone at
 <https://dash.cloudflare.com> and the edge injects the beacon into every HTML
 response it proxies. `analytics.cloudflareToken` stays empty. The beacon then
 posts to `/cdn-cgi/rum` on the site's own origin, which the edge terminates, so
 nothing crosses an origin boundary.
 
-A domain that is not behind Cloudflare takes the manual snippet: add the site
+A domain that is not behind Cloudflare, which is what `blog.kiarashs.ir` is,
+takes the manual snippet: add the site
 under Analytics & Logs → Web Analytics, and paste the token from the JS snippet
 it hands you into `analytics.cloudflareToken`. The prerenderer then writes one
 deferred script from `static.cloudflareinsights.com` into each page's head.
@@ -3764,7 +3764,9 @@ traffic to Cloudflare's addresses: on one, small files arrived and the two
 largest, the app script and the body font, failed with "The network connection
 was lost", in Safari and in a private window alike, and turning off HTTP/3 did
 not help. With the record set to "DNS only" (grey) the same network loaded the
-site, because readers then reach GitHub Pages directly.
+site, because readers then reach GitHub Pages directly, which is how
+`blog.kiarashs.ir` is served. GitHub Pages has its own CDN and issues and
+renews the domain's certificate itself, so the proxy added little here.
 
 Either way, keep the domain set in the repository's Settings → Pages with
 "Enforce HTTPS" on, and Cloudflare's SSL/TLS mode on Full or Full (strict),
