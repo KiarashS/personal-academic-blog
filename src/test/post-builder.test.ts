@@ -3,6 +3,7 @@ import {
   buildPost,
   categorySlug,
   pickFeatured,
+  featuredSectionWarnings,
   listed,
   rankRelated,
   selectPosts,
@@ -34,6 +35,7 @@ function meta(overrides: Partial<PostMeta>): PostMeta {
     readingMinutes: 1,
     draft: false,
     featured: false,
+    featuredSection: false,
     unlisted: false,
     share: true,
     cite: true,
@@ -143,10 +145,11 @@ describe('pickFeatured', () => {
   // As `selectPosts` leaves it: newest first.
   const list = [
     meta({ slug: 'newest', date: '2026-03-01' }),
-    meta({ slug: 'pinned-newer', date: '2026-02-15', featured: true }),
+    meta({ slug: 'pinned-newer', date: '2026-02-15', featured: true, featuredSection: true }),
+    meta({ slug: 'marked-only', date: '2026-02-10', featured: true }),
     meta({ slug: 'older', date: '2026-02-01' }),
-    meta({ slug: 'pinned', date: '2026-01-01', featured: true }),
-    meta({ slug: 'pinned-oldest', date: '2025-12-01', featured: true }),
+    meta({ slug: 'pinned', date: '2026-01-01', featured: true, featuredSection: true }),
+    meta({ slug: 'pinned-oldest', date: '2025-12-01', featured: true, featuredSection: true }),
   ];
 
   it('takes the newest featured posts, as many as asked for', () => {
@@ -159,9 +162,34 @@ describe('pickFeatured', () => {
     expect(pickFeatured(list, 2.7)).toHaveLength(2);
   });
 
+  it('leaves out a featured post that does not ask for the section', () => {
+    expect(pickFeatured(list, 5).map((post) => post.slug)).not.toContain('marked-only');
+  });
+
   it('moves nothing in the list it is given', () => {
     pickFeatured(list, 3);
     expect(list.map((post) => post.slug)[0]).toBe('newest');
+  });
+});
+
+describe('featuredSection', () => {
+  it('counts only beside featured: true', () => {
+    const both = buildPost(
+      post('a.md', '---\ntitle: A\nfeatured: true\nfeaturedSection: true\n---\nBody.'),
+    );
+    const alone = buildPost(post('b.md', '---\ntitle: B\nfeaturedSection: true\n---\nBody.'));
+    const marked = buildPost(post('c.md', '---\ntitle: C\nfeatured: true\n---\nBody.'));
+    expect(both.meta.featuredSection).toBe(true);
+    expect(alone.meta.featuredSection).toBe(false);
+    expect(marked.meta).toMatchObject({ featured: true, featuredSection: false });
+  });
+
+  it('says so when it is not a boolean, or is set without featured', () => {
+    expect(featuredSectionWarnings('p', true, 'yes')[0]).toContain('is not true or false');
+    expect(featuredSectionWarnings('p', undefined, true)[0]).toContain('does nothing');
+    expect(featuredSectionWarnings('p', true, true)).toEqual([]);
+    expect(featuredSectionWarnings('p', undefined, false)).toEqual([]);
+    expect(featuredSectionWarnings('p', true, undefined)).toEqual([]);
   });
 });
 

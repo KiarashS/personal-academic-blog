@@ -6,6 +6,7 @@ category: Tutorials
 tags: [guide, writing]
 summary: Every frontmatter field, what it does, and what happens when you leave it out.
 featured: true
+featuredSection: true
 comments: readonly
 banner:
   src: /figures/example-banner.svg
@@ -37,7 +38,8 @@ tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 category: Tutorials       # one of the site's categories; optional
 draft: false              # drafts appear in dev, never in a build
-featured: false           # true shows it in the index's Featured section
+featured: false           # true marks its card "Featured"
+featuredSection: false    # true, with featured, lists it in the Featured section
 unlisted: false           # true leaves it out of every list; see below
 revisions:                # optional; see below
   - date: 2026-01-12
@@ -374,15 +376,17 @@ sequenceDiagram
 
 ## Featured posts
 
-`featured: true` puts a post in the Featured section at the top of the blog
-index's first page, newest first, and marks its card in the list. This post and
-[Code, tables and notes](/blog/code-tables-and-notes) are both featured, which
+`featured: true` marks a post's card "Featured" in the lists. Add
+`featuredSection: true` and it is also in the Featured section at the top of
+the blog index's first page, newest first; `featuredSection` on a post that is
+not featured does nothing, and the build says so. This post and
+[Code, tables and notes](/blog/code-tables-and-notes) have both, which
 is why they are listed above the others, in a panel of their own, by title;
 pointing at one shows its date and reading time. They are shown in addition to the posts
 the page lists, and keep their places in the list too, so the list is still
 every post in date order and the first page still has the newest. How many the
 section shows is `featuredPosts` in `src/site.config.ts`, 3 unless you change
-it; mark more and the newest of them are shown. Set it to 0 to keep only the
+it; give more posts the section and the newest of them are shown. Set it to 0 to keep only the
 marks on the cards, or set `showFeatured` to `false` to drop the section and
 the marks both.
 

@@ -13,6 +13,7 @@ const post = (overrides: Partial<Post> = {}): Post => ({
   readingMinutes: 3,
   comments: 'on',
   featured: false,
+  featuredSection: false,
   unlisted: false,
   share: true,
   cite: true,

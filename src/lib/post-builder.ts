@@ -290,6 +290,7 @@ export function buildPost({ path, raw }: RawPost): BuiltPost {
       comments: commentState(data.comments),
       draft: data.draft === true,
       featured: data.featured === true,
+      featuredSection: data.featured === true && data.featuredSection === true,
       unlisted: data.unlisted === true,
       // On by default: only a written `false` takes the links away.
       share: data.share !== false,
@@ -463,13 +464,44 @@ function switchWarnings(slug: string, field: string, written: unknown, outcome: 
 }
 
 /**
- * The posts for the blog index's Featured section: those marked featured, in
- * the order the list has them, newest first, as many as `limit` (0 or less
- * for none). The list itself keeps every post in date order; pinning adds a
- * section above it and moves nothing.
+ * The posts for the blog index's Featured section: those marked featured that
+ * ask for the section too, in the order the list has them, newest first, as
+ * many as `limit` (0 or less for none). The list itself keeps every post in
+ * date order; pinning adds a section above it and moves nothing.
  */
-export function pickFeatured<T extends { featured: boolean }>(list: T[], limit: number): T[] {
-  return list.filter((post) => post.featured).slice(0, Math.max(0, Math.floor(limit)));
+export function pickFeatured<T extends { featured: boolean; featuredSection: boolean }>(
+  list: T[],
+  limit: number,
+): T[] {
+  return list
+    .filter((post) => post.featured && post.featuredSection)
+    .slice(0, Math.max(0, Math.floor(limit)));
+}
+
+/**
+ * What the build should say about a post's `featuredSection`: only `true`
+ * means anything, and only beside `featured: true`, since the section lists
+ * featured posts and a post not marked featured is not one.
+ */
+export function featuredSectionWarnings(
+  slug: string,
+  featured: unknown,
+  written: unknown,
+): string[] {
+  if (written === undefined || written === null || written === false) return [];
+  if (written !== true) {
+    return [
+      `${slug}: \`featuredSection: ${JSON.stringify(written)}\` is not true or false, so the ` +
+        'post is not in the Featured section. Write `featuredSection: true` to put it there.',
+    ];
+  }
+  if (featured !== true) {
+    return [
+      `${slug}: \`featuredSection: true\` without \`featured: true\` does nothing. ` +
+        'Add `featured: true` to put the post in the Featured section.',
+    ];
+  }
+  return [];
 }
 
 export interface SeriesMember {

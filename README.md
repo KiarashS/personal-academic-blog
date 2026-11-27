@@ -55,7 +55,8 @@ category: Tutorials # one of siteConfig.categories; optional
 tags: [guide, writing]
 summary: One or two sentences for the index and search results.
 draft: false # drafts appear in dev, never in a build
-featured: false # true: in the Featured section above the blog index (Pagination)
+featured: false # true: marked "Featured" in the lists (Pagination)
+featuredSection: false # true, with featured: also in the Featured section (Pagination)
 unlisted: false # true: published at its address, left out of every list
 share: true # false: no Share section (share links, copy link, print)
 cite: true # false: no "Cite this post" block
@@ -168,8 +169,10 @@ the grouping — nothing is inferred from tags, titles or filenames, and the
 match is exact — and a series with fewer than two published parts renders
 nothing, so part 1 says nothing about a series until part 2 exists.
 
-`featured: true` shows a post in the Featured section at the top of the blog
-index's first page, and marks its card in the list; see Pagination. Nothing is
+`featured: true` marks a post's card "Featured" in the lists, and
+`featuredSection: true` beside it also shows the post in the Featured section
+at the top of the blog index's first page; see Pagination. `featuredSection`
+without `featured` does nothing, and the build says so. Nothing is
 reordered: the list, the feed, the archive, the tag pages and the newer/older
 links all keep date order, so a featured post is shown off without following
 the reader around.
@@ -219,7 +222,9 @@ Past page one the page's lede says which page it is, the title reads
 "Blog, page 4", and `/blog/page/1` redirects to `/blog`.
 
 Above the list on the index's first page is a Featured section: the posts
-marked `featured: true`, newest first, as many as `featuredPosts` says.
+marked `featured: true` and `featuredSection: true`, newest first, as many as
+`featuredPosts` says. A post with `featured: true` alone has the mark on its
+card and is not in the section.
 
 ```ts
 postsPerPage: 4,
@@ -235,8 +240,8 @@ not in place of some of them, and they keep their places in the list as well,
 marked "Featured" there. So the first page always holds your newest posts,
 however many are featured, every page of the list is the record in date order
 with nothing missing from it, and a featured post that is also one of the newest
-is on the first page twice, once in each part. Mark more posts than
-`featuredPosts` and the newest of them are shown; `0` shows no section, and a
+is on the first page twice, once in each part. Give more posts
+`featuredSection` than `featuredPosts` allows and the newest of them are shown; `0` shows no section, and a
 featured post is then a list card with its mark. `showFeatured: false` turns
 both off, the section and the marks, and leaves `featured: true` in the posts
 for when you turn it back on. `j` and `k` step through the

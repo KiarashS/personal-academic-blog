@@ -235,8 +235,13 @@ export interface PostFrontmatter {
   tags?: string[];
   summary?: string;
   draft?: boolean;
-  /** Pins the post to the top of the index. */
+  /** Marks the post's card in the lists "Featured". */
   featured?: boolean;
+  /**
+   * With `featured: true`, also lists the post in the Featured section above
+   * the blog index. Without it a featured post has its mark and no more.
+   */
+  featuredSection?: boolean;
   /**
    * Published at its address but left out of every list the site makes: the
    * blog index, the archive, tag, category and author pages, search, related
@@ -338,6 +343,8 @@ export interface PostMeta {
   comments: CommentState;
   draft: boolean;
   featured: boolean;
+  /** See `PostFrontmatter.featuredSection`; only ever true with `featured`. */
+  featuredSection: boolean;
   /** See `PostFrontmatter.unlisted`. */
   unlisted: boolean;
   /** See `PostFrontmatter.share`. */
